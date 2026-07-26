@@ -4,11 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repository is
 
-A **design and planning repository**, not a software product. Its output is documents: a detailed target ASDLC (AI/agent-driven software development life cycle), its implementation details, and a rollout plan.
+A **design and planning repository**, not a software product. Its output is documents: a detailed target ASDLC, its implementation details, and a rollout plan.
+
+**ASDLC** = **agentic software development life cycle** ("Agentic SDLC" in prose; "life cycle" as three words). Set by [ADR-0002](docs/adr/0002-scope-agentic-not-ai-assisted.md), which also fixes the scope boundary this implies: the subject is a life cycle where **agents execute multi-step development work under human review gates**. AI-assisted tooling that only speeds up a human executing every step is background context, not the subject. Where the agent/human boundary actually falls is still open — [OQ-3](docs/open-questions.md).
 
 There is no application code, build system, test suite, or package manifest — and none is expected unless the plan calls for tooling. **Do not scaffold a toolchain, CI config, or `package.json` unless explicitly asked.** If you find yourself looking for a build command, re-read the task: the deliverable is almost certainly prose, a diagram, or a decision record.
 
-The repository is not yet under version control. Don't run `git init` or commit unless asked.
+The repository is under version control (branch `master`). Don't commit unless asked.
+
+The project is developed from more than one computer. Claude Code's per-project memory
+directory lives under the user's home directory and is **not** part of the repository, so
+it does not travel between machines — assume it is empty. Anything that must survive a
+machine switch belongs in a committed file: this one, or `docs/`.
 
 ## Two variants, tracked in parallel
 
@@ -28,15 +35,24 @@ The documents *are* the product, so unresearched prose is worse than an empty st
 - Any claim about vendor pricing, SKUs, quotas, model capabilities, or agent-tooling features needs a **source and a date**. These move faster than any training cutoff — do not assert them from memory, and do not carry a figure forward from an older doc in this repo without re-checking it.
 - Prefer recording an explicit "unknown / to be researched" over a plausible guess.
 
+## Where things live
+
+Set by [ADR-0001](docs/adr/0001-documentation-layout.md).
+
+- `CLAUDE.md` — standing instructions and conventions. Not a state log.
+- [`docs/open-questions.md`](docs/open-questions.md) — numbered `OQ-N` entries, each with a
+  status and what would close it. **Start here** when picking up work.
+- [`docs/adr/`](docs/adr/README.md) — one numbered file per closed decision, plus the index.
+
 ## Conventions
 
 - **Decisions go in ADRs.** Anything that closes a choice (tool selection, boundary, process rule) is a numbered decision record with context, options considered, decision, and consequences — not a bullet buried in a larger doc.
 - **Open questions are first-class.** Keep them named and listed so a research session can be pointed at one. A question that only exists inside a paragraph will not get closed.
 - **Date-stamp volatile content.** Tables of vendor capabilities or prices carry the date they were checked.
+- **Closing an open question touches three places:** the ADR, the ADR index, and the `OQ-N` entry's status line.
 
 ## Open items for this file
 
 These are unconfirmed and should be settled with the user, then recorded here:
 
-- The exact expansion of "ASDLC" as the user uses it.
-- Directory layout for documents (e.g. `docs/`, `docs/adr/`) — not yet established.
+*(none — see [`docs/open-questions.md`](docs/open-questions.md) for live questions)*

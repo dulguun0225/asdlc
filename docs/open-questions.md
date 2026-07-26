@@ -11,6 +11,11 @@ question keeps its ID and gains a pointer to what closed it.
 Every question must be answerable for **both** deployment variants (self-hosted,
 cloud). If an answer only covers one variant, the question stays open.
 
+Facts about the organisation these questions are answered *for* — 18 three-person teams,
+greenfield projects only, SaaS permitted — are in
+[`context.md`](context.md). Read it before answering any question here; several answers
+changed once those facts were recorded on 2026-07-27.
+
 ---
 
 ## OQ-1 — What does "ASDLC" expand to in this project?
@@ -24,8 +29,15 @@ cloud). If an answer only covers one variant, the question stays open.
 
 ## OQ-3 — What counts as an "agent" here, and which gates stay human?
 
-- **Status:** closed → [ADR-0004](adr/0004-gate-placement.md) (2026-07-27), with one
-  residual explicitly handed to OQ-8 — see "Residual" below.
+- **Status:** closed → [ADR-0004](adr/0004-gate-placement.md) (2026-07-27), **now
+  superseded by [ADR-0005](adr/0005-roles-gate-signers-and-the-reviewer-ring.md)**
+  (2026-07-27) — read ADR-0005 for the current gate table. One residual is explicitly
+  handed to OQ-8 — see "Residual" below.
+- **What changed after closing:** the organisation's shape was recorded
+  ([context.md](context.md)) and made ADR-0004's merge row unstaffable — one engineer per
+  team means the only in-team reviewer is the author. ADR-0005 names a signer for every
+  gate, adds a directed reviewer ring across the 18 teams, and gives the deploy rule an
+  exit condition. The question stays closed; the answer moved.
 - **Answer:** the tier decides which stages a change walks through. Human gates at spec
   and plan/design (T1), plan/design only (T2), none upstream (T3); merge is human at T1
   and T2, automated at T3; **deploy is human at every tier**. The tasks boundary is an
@@ -108,6 +120,20 @@ cloud). If an answer only covers one variant, the question stays open.
 - **Notes:** leads are already collected — see the survey's
   [leads table](research/2026-07-27-asdlc-implementation-survey.md#leads-already-identified-fetched-but-their-claims-didnt-make-the-verification-cut).
   Start there rather than re-searching. **This is the recommended next session.**
+- **Scope narrowed 2026-07-27 by [context.md](context.md).** Three facts change what this
+  question has to answer:
+  - **SaaS is permitted**, so the cloud variant is a live option and the comparison is a
+    real choice rather than a formality. The self-hosted variant still has to be answered —
+    without it there is no cost or capability baseline to compare against.
+  - **Greenfield projects only.** No legacy-integration constraint on the runner, and no
+    migration path needs designing.
+  - The org already runs **GitLab self-managed and Jenkins**, and the owner has directed
+    that the design not be constrained by this. Treat it as evidence the org can operate
+    self-managed infrastructure, **not** as a selected stack. If research lands on GitLab,
+    that must be a conclusion, not an inheritance.
+- **Also needs:** the runner must be able to emit the per-tier evidence ADR-0003 and
+  ADR-0006 require, and enforce the capability boundary OQ-8 covers. A runner that cannot
+  be constrained is not usable here regardless of price.
 
 ## OQ-5 — Does graduated (tiered) gating beat uniform gating, and who assigns the tier?
 
@@ -139,6 +165,16 @@ cloud). If an answer only covers one variant, the question stays open.
   dashboards.
 - **Notes:** the observability layer needed for this **converges across variants**
   at zero license cost, so it is cheap to build in early.
+- **Revised 2026-07-27 — this question is now known to be underpowered, and the revision
+  matters.** The published effect is +6.7pp across **400 reviewers**. Our reviewer pool is
+  **18** ([context.md](context.md)). An 18-reviewer study can detect a large shift, not a
+  subtle one, so this question cannot be closed by confirming or refuting the published
+  finding at our scale. What it *can* do: detect a gross collapse in scrutiny, and measure
+  whether the ring rotation in
+  [ADR-0005](adr/0005-roles-gate-signers-and-the-reviewer-ring.md) part 4 changes
+  per-reviewer approval rate across rotations. Rotation is therefore applied as a
+  prophylactic countermeasure, not as a tested one. **Do not present in-house drift numbers
+  as validating or refuting the 400-reviewer result.**
 
 ## OQ-7 — What are the per-unit-of-agent-work economics?
 
@@ -175,11 +211,24 @@ cloud). If an answer only covers one variant, the question stays open.
 
 ## OQ-9 — What exactly does the tier function read, and what is the path→tier map?
 
-- **Status:** open
+- **Status:** closed → [ADR-0006](adr/0006-tier-function-and-greenfield-cold-start.md) (2026-07-27)
+- **Answer:** a six-rule ordered function with first-match-wins precedence, over declared
+  path attributes plus migration detection plus CI status. `reversibility` and
+  `blast_radius` are **declared per service** in committed configuration, never inferred
+  from a diff. The map is a required output of the plan/design gate, so a greenfield
+  repository classifies each path in the same change that creates it. An unmapped path
+  routes to T1 **and fails the build**, making it a bug signal rather than a steady state.
+  A `launched` flag suspends the T1 conditions that presuppose production — but never the
+  secret/credential/IAM condition or the tier-configuration condition. Converges across
+  variants. The *schema* is settled; the *contents* for a given repository need that
+  repository's code and are a per-project task, not an open question.
+- **What it also fixed:** ADR-0003's fail-safe, applied to greenfield, would have routed
+  100% of day-one changes to T1 — uniform strict gating, the thing ADR-0003 rejected. That
+  defect is closed by ADR-0006 parts 1 and 2.
 - **Opened by:** [ADR-0003](adr/0003-graduated-gating-machine-derived-tier.md) (2026-07-27)
-- **Blocks:** implementing graduated gating at all. ADR-0003 fixes that the tier is
-  computed from machine-observable facts and lists an *intended* input set; it
-  deliberately does not fix the inputs, their precedence, or the map.
+- **Blocked:** implementing graduated gating at all. ADR-0003 fixed that the tier is
+  computed from machine-observable facts and listed an *intended* input set; it
+  deliberately did not fix the inputs, their precedence, or the map.
 - **Why it matters:** Meta's RADAR derives its tier partly from a machine-learned Diff
   Risk Score trained on years of monorepo production-incident history
   ([arXiv:2605.30208](https://arxiv.org/abs/2605.30208), checked 2026-07-27). We have no
@@ -193,6 +242,40 @@ cloud). If an answer only covers one variant, the question stays open.
   resist mechanical derivation. Decide early whether they are computed from the diff or
   declared per service in configuration — ADR-0003's part 3 says declared judgments
   attach to a path, once.
+
+## OQ-10 — Who fills the platform owner role?
+
+- **Status:** open — a staffing fact the project owner holds, not a research question.
+- **Opened by:** [ADR-0005](adr/0005-roles-gate-signers-and-the-reviewer-ring.md) (2026-07-27)
+- **Blocks:** starting the ASDLC at all. ADR-0003 requires the tier configuration to be a
+  versioned, security-relevant artifact reviewed at the strictest tier. ADR-0006 makes it
+  the thing that decides what merges without a human, and adds a `launched` flag only this
+  role may write. With 18 three-person product teams and no platform, security, or
+  infrastructure role named ([context.md](context.md)), that artifact is currently unowned
+  and unreviewable.
+- **What would close it:** two named people — one platform owner and one backup, because a
+  single holder is a bus factor of one on the gate configuration. Neither may be an AI
+  solution engineer on a delivery team, or the producer signs their own T1 changes.
+- **Scope of the role:** the tier function and map schema, the T3 allowlist, the CI gate
+  policy, the reviewer ring and its rotation, the review-competency record, the secrets
+  boundary at the agent runner, and the `launched` flag. Signs every T1 merge.
+
+## OQ-11 — Is progressive rollout with automated rollback achievable, and on what?
+
+- **Status:** open
+- **Opened by:** [ADR-0005](adr/0005-roles-gate-signers-and-the-reviewer-ring.md) part 6 (2026-07-27)
+- **Blocks:** the exit condition for the T3 automatic deploy path. Until this is answered,
+  a human signs every deploy at every tier — which is the current rule, and is safe, but
+  carries the batch-size risk ADR-0005 flags as its sharpest.
+- **Why it matters:** ADR-0004's session found **nothing citable** on progressive rollout
+  or automated rollback for agent-authored changes — only vendor marketing. It was recorded
+  as unresearched rather than dismissed. It is now load-bearing, because it is the named
+  precondition for the only automation ADR-0005 leaves on the table.
+- **What would close it:** a dated, sourced answer for both variants covering the rollout
+  mechanism, what signal triggers an automatic rollback (SLO breach definition), how the
+  rollback is exercised and proved to work, and what it costs to run. Note this interacts
+  with ADR-0006's `reversibility` declaration: a service that writes state a revert does
+  not undo cannot be rolled back by redeploying, whatever the tooling claims.
 
 ---
 

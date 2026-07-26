@@ -1,8 +1,15 @@
 # ADR-0004 — Where the human gates sit
 
-- **Status:** accepted
+- **Status:** superseded by [ADR-0005](0005-roles-gate-signers-and-the-reviewer-ring.md) (2026-07-27)
 - **Date:** 2026-07-27
 - **Closes:** [OQ-3](../open-questions.md)
+- **Why superseded:** the organisation's actual shape — 18 teams of three, with exactly one
+  engineer each ([target environment](../context.md)) — makes this record's merge row
+  ("human, any qualified reviewer") unstaffable, because the only qualified reviewer inside
+  a team is the change's author. ADR-0005 restates the gate table with signers named, adds
+  the reviewer ring, and attaches an exit condition to the deploy rule. The research and
+  reasoning in this record remain valid and are cited by ADR-0005; only the gate table is
+  replaced.
 - **Depends on:** [ADR-0003](0003-graduated-gating-machine-derived-tier.md) — how a tier is assigned
 - **Research:** [2026-07-27 — where gates go, and who assigns the tier](../research/2026-07-27-gate-placement-and-tiering.md),
   [2026-07-27 — implementation survey](../research/2026-07-27-asdlc-implementation-survey.md)

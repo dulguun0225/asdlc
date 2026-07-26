@@ -26,6 +26,28 @@ Every part of the target ASDLC must be answered for **both** deployment variants
 
 Where the two variants converge on the same answer, say so explicitly rather than leaving one column blank. Where they diverge, the divergence and its cost (money, ops burden, capability gap) is itself a finding worth writing down.
 
+## Decision authority: there is no in-house expertise to defer to
+
+Stated by the owner, 2026-07-27, and standing for the whole project:
+
+- **Nobody in this org has built or operated an Agentic SDLC.** There is no internal
+  expert to consult and no prior practice to inherit.
+- **So research the question and decide it.** Do not ask the user to choose a tool, a
+  pattern, or a threshold. They have no basis to answer, and asking hands the decision
+  to someone who cannot make it.
+- **Still ask about what only the owner knows:** scope and priority (which `OQ-N` to
+  take next), appetite (money, ops burden, risk tolerance), and facts about the
+  environment (which repositories, team size, what already runs). Confirming a decision
+  you have already made and justified is also fine — that is review, not deferral.
+- **This tightens "research before content" rather than loosening it.** A decision that
+  nobody here can check on merit must trace to a dated source, or be labelled an
+  explicit bet with the signal that would falsify it. The rule against expanding stubs
+  speculatively still holds: it governs how much prose gets written, not who decides.
+- **Everything decided is a starting point, not settled practice.** The intended loop is
+  decide → run it → measure → revise. Write each ADR so it can be reversed: state the
+  bet, the instrumentation that would show it wrong, and what would reopen the question.
+  [ADR-0003](docs/adr/0003-graduated-gating-machine-derived-tier.md) is the model.
+
 ## Working constraint: research before content
 
 The documents *are* the product, so unresearched prose is worse than an empty stub — it reads as decided and gets built on.
@@ -40,6 +62,10 @@ The documents *are* the product, so unresearched prose is worse than an empty st
 Set by [ADR-0001](docs/adr/0001-documentation-layout.md).
 
 - `CLAUDE.md` — standing instructions and conventions. Not a state log.
+- [`docs/context.md`](docs/context.md) — the organisation the ASDLC is being designed
+  **for**: team shape and count, roles, data boundary, scope of application. Facts, not
+  decisions. **Read this before answering any open question** — it constrains most of them,
+  and it already invalidated one ADR.
 - [`docs/open-questions.md`](docs/open-questions.md) — numbered `OQ-N` entries, each with a
   status and what would close it. **Start here** when picking up work.
 - [`docs/adr/`](docs/adr/README.md) — one numbered file per closed decision, plus the index.

@@ -22,4 +22,6 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0001](0001-documentation-layout.md) | Documentation layout | accepted | 2026-07-26 |
 | [0002](0002-scope-agentic-not-ai-assisted.md) | ASDLC means "agentic", not "AI-assisted" | accepted | 2026-07-26 |
 | [0003](0003-graduated-gating-machine-derived-tier.md) | Gating is graduated, and the tier is computed, not rated | accepted | 2026-07-27 |
-| [0004](0004-gate-placement.md) | Where the human gates sit | accepted | 2026-07-27 |
+| [0004](0004-gate-placement.md) | Where the human gates sit | superseded by 0005 | 2026-07-27 |
+| [0005](0005-roles-gate-signers-and-the-reviewer-ring.md) | Who signs each gate, and how the reviewer pool works | accepted | 2026-07-27 |
+| [0006](0006-tier-function-and-greenfield-cold-start.md) | The tier function, the path→tier map, and how a greenfield repository cold-starts | accepted | 2026-07-27 |

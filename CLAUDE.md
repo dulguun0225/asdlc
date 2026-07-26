@@ -57,6 +57,21 @@ Set by [ADR-0001](docs/adr/0001-documentation-layout.md).
 - **Record what was refuted, not just what was found.** A plausible figure that failed verification will otherwise be re-derived from memory in a later session and treated as fact. Research notes carry an explicit "do not reintroduce" list.
 - **Distinguish a source's *claims* from its *evidence*.** Citing a framework as "this paper specifies X" is legitimate; citing the same paper's self-labelled analytical estimates as measurements is not. Say which one a number is.
 
+## Writing style
+
+Be precise first, simple second: say exactly what is true, no
+ambiguity. Keep technical terms when the everyday word is less exact.
+Within that: short sentences, everyday words, one idea per sentence.
+No business-speak or figurative filler.
+The style limits wording, not coverage: stay complete, keep every
+edge case.
+
+This style applies to any text with a human reader — chat replies,
+documents, specs, plans, comments, reports — even if agents read it
+too. Only text no human reads (command definitions, agent
+instructions) is exempt; there, repeat key constraints and list every
+case when that helps reliability.
+
 ## Open items for this file
 
 These are unconfirmed and should be settled with the user, then recorded here:

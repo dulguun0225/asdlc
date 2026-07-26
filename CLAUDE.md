@@ -31,7 +31,7 @@ Where the two variants converge on the same answer, say so explicitly rather tha
 The documents *are* the product, so unresearched prose is worse than an empty stub — it reads as decided and gets built on.
 
 - Don't expand a stub or heading speculatively. Ask before generating new document content.
-- Each research session should close a **named open question** and land as a completed ADR or a filled-in table.
+- Each research session should aim to close a **named open question** and land as a completed ADR or a filled-in table. A session that instead finds the question is bigger than assumed lands a dated note in `docs/research/` and splits the remainder into new `OQ-N` entries — that is a valid outcome, not a failed session.
 - Any claim about vendor pricing, SKUs, quotas, model capabilities, or agent-tooling features needs a **source and a date**. These move faster than any training cutoff — do not assert them from memory, and do not carry a figure forward from an older doc in this repo without re-checking it.
 - Prefer recording an explicit "unknown / to be researched" over a plausible guess.
 
@@ -43,6 +43,10 @@ Set by [ADR-0001](docs/adr/0001-documentation-layout.md).
 - [`docs/open-questions.md`](docs/open-questions.md) — numbered `OQ-N` entries, each with a
   status and what would close it. **Start here** when picking up work.
 - [`docs/adr/`](docs/adr/README.md) — one numbered file per closed decision, plus the index.
+- [`docs/research/`](docs/research/) — `YYYY-MM-DD-topic.md` notes, one per research
+  session. A note records what was found *and what was refuted*, with sources and the
+  date checked; it is the input to an ADR, not a substitute for one. Added under
+  ADR-0001's provision that design documents appear when a session produces one.
 
 ## Conventions
 
@@ -50,6 +54,8 @@ Set by [ADR-0001](docs/adr/0001-documentation-layout.md).
 - **Open questions are first-class.** Keep them named and listed so a research session can be pointed at one. A question that only exists inside a paragraph will not get closed.
 - **Date-stamp volatile content.** Tables of vendor capabilities or prices carry the date they were checked.
 - **Closing an open question touches three places:** the ADR, the ADR index, and the `OQ-N` entry's status line.
+- **Record what was refuted, not just what was found.** A plausible figure that failed verification will otherwise be re-derived from memory in a later session and treated as fact. Research notes carry an explicit "do not reintroduce" list.
+- **Distinguish a source's *claims* from its *evidence*.** Citing a framework as "this paper specifies X" is legitimate; citing the same paper's self-labelled analytical estimates as measurements is not. Say which one a number is.
 
 ## Open items for this file
 

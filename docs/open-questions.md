@@ -24,22 +24,23 @@ cloud). If an answer only covers one variant, the question stays open.
 
 ## OQ-3 — What counts as an "agent" here, and which gates stay human?
 
-- **Status:** open
-- **Blocks:** the target life cycle — every stage description depends on where the
-  agent/human boundary falls.
-- **Why it matters:** ADR-0002 committed to "agentic" as a scope boundary, which makes
+- **Status:** closed → [ADR-0004](adr/0004-gate-placement.md) (2026-07-27), with one
+  residual explicitly handed to OQ-8 — see "Residual" below.
+- **Answer:** the tier decides which stages a change walks through. Human gates at spec
+  and plan/design (T1), plan/design only (T2), none upstream (T3); merge is human at T1
+  and T2, automated at T3; **deploy is human at every tier**. The tasks boundary is an
+  artifact with an automated consistency check, not a gate. Every gate records a named
+  signer and what they assert. Converges across variants.
+- **Residual, not closed here:** OQ-3's third bullet — *how autonomy is bounded in
+  practice (blast radius, reversibility, audit trail)* — is **not** answered by
+  ADR-0004. Gate placement says where a human stands; it does not bound what the agent
+  may touch between gates (secrets, CI config, the tier rule itself). That is a
+  structural capability boundary and belongs to [OQ-8](#oq-8--what-provenance-secrets-and-policy-enforcement-controls-are-available).
+  Do not treat "OQ-3 closed" as meaning agent write scope is settled.
+- **Why it mattered:** ADR-0002 committed to "agentic" as a scope boundary, which made
   the term load-bearing rather than decorative. It is also a drifting term-of-art that
   reads as marketing to some audiences, so the primary document has to define it
   concretely and early.
-- **What would close it:** a written definition covering, at minimum —
-  - what an agent is permitted to do unsupervised (edit, run tests, open a change,
-    merge, deploy?);
-  - which gates are human by rule, and what the human is actually asserting at each;
-  - how autonomy is bounded in practice (blast radius, reversibility, audit trail);
-  - whether the answer differs between the **self-hosted** and **cloud** variants, or
-    converges — and if it diverges, at what cost.
-- **Notes:** partly the user's call on risk appetite, partly research into what current
-  agent tooling can actually enforce. Any capability claim needs a source and a date.
 - **Progress (2026-07-27):** partly answered by
   [the implementation survey](research/2026-07-27-asdlc-implementation-survey.md).
   Two citable gate-placement patterns now exist (harness-enforced validation tokens
@@ -50,6 +51,43 @@ cloud). If an answer only covers one variant, the question stays open.
   beyond observability. There is also **no published evidence that human gates
   improve outcomes** — so whatever is decided here has to be instrumented, not
   assumed.
+- **Progress (2026-07-27, second session):** the *how* is now settled by
+  [ADR-0003](adr/0003-graduated-gating-machine-derived-tier.md) — gating is graduated
+  and the tier is computed, not rated. What remains is *where the gates sit* and *how
+  strict each tier is*. See
+  [the gate-placement research note](research/2026-07-27-gate-placement-and-tiering.md).
+- **User's stated position (2026-07-27):** human gates after **spec**, **plan/design**,
+  **task**, and **implementation**; unsure about the rest. Recorded so it survives a
+  machine switch.
+- **Resolution (2026-07-27):** the owner confirmed **deployment is gated by a human at
+  every tier**, and chose to start semi-strict and relax deliberately. Settled by
+  [ADR-0004](adr/0004-gate-placement.md); the analysis that fed it is below, kept for
+  the reasoning rather than the conclusion.
+- **Analysis that fed ADR-0004:**
+  - **spec** and **plan/design** — agreed, keep. Plan/design is also the point where a
+    model judgment is least badly calibrated (pre-execution), so it is the right place
+    for one.
+  - **task** — recommend **downgrading to an artifact boundary, not a gate**. It is a
+    mechanical decomposition of an already-approved plan and asserts little the plan
+    gate did not. Spec Kit treats the same boundary as an optional *automated*
+    consistency check (`/speckit.analyze`), not a human checkpoint.
+  - **implementation** — keep, but make it precise: this is the **merge gate**, and it
+    is tiered per ADR-0003, not uniform.
+  - **deploy** — **missing, and recommended to add.** The one artifact that survived
+    verification (GAIE Table IV) requires deploy authorisation at every tier, signed at
+    T1/T2 and automatic at T3. A T3 automatic path is only safe if progressive rollout
+    and automated rollback exist; if they do not, T3 has no deploy path.
+  - **post-deploy** — not a gate, but the required evidence: monitoring and anomaly
+    records per tier, plus the per-tier instrumentation ADR-0003 makes mandatory.
+  - **two omissions that matter more than the task gate** — nothing yet bounds the
+    agent's **write scope** (secrets, CI config, the tier rule itself), which is a
+    structural capability boundary and sits in OQ-8; and nothing says **who signs** a
+    gate. A gate with no reviewer identity attached is not auditable.
+- **Where the thresholds landed:** semi-strict, per ADR-0004 — T3 is a named allowlist
+  (docs, comments, formatting, tests-only, passing lockfile bumps), T1 covers auth,
+  secrets, IAM, network, production config, migrations and any unmapped path, T2 is
+  everything else. Relaxation is a reviewed act requiring per-tier evidence; tightening
+  after an incident is automatic.
 
 ## OQ-4 — What is the self-hosted agent-runner stack, and what does it cost?
 
@@ -73,16 +111,17 @@ cloud). If an answer only covers one variant, the question stays open.
 
 ## OQ-5 — Does graduated (tiered) gating beat uniform gating, and who assigns the tier?
 
-- **Status:** open
-- **Blocks:** whether the target life cycle has one gate rule or a routing function.
-- **Why it matters:** the GAIE framework specifies a deterministic router over four
-  dimensions but supplies **zero validation and no inter-rater reliability**, and its
-  own author names "confident but incorrect metadata" as a failure mode. The
-  determinism is determinism *given* human-assigned metadata.
-- **What would close it:** evidence — or a decision recorded as an explicit bet —
-  on whether the four OCM dimensions can be assigned consistently by different
-  engineers, and whether an agent may classify its own work. Both variants: does the
-  answer differ when the classifier is self-hosted?
+- **Status:** closed → [ADR-0003](adr/0003-graduated-gating-machine-derived-tier.md) (2026-07-27)
+- **Answer:** graduated, yes. Nobody assigns the tier — it is computed by the harness
+  from machine-observable facts about the change. Human judgment attaches to a path or
+  service once, in reviewed configuration; an agent may never classify its own work.
+  Converges across variants. Recorded as an explicit bet, so per-tier instrumentation
+  is mandatory from day one.
+- **Research:** [2026-07-27 gate placement and tiering](research/2026-07-27-gate-placement-and-tiering.md).
+- **Citation status:** the ADR's strongest evidence against uniform gating (DORA change
+  approval) was **verified first-party** later on 2026-07-27 after five failed attempts.
+  The circulating "2.6×" figure failed verification and has been removed from all
+  records — do not reintroduce it.
 
 ## OQ-6 — Does approval drift reproduce with a small, fixed reviewer pool?
 
@@ -133,6 +172,27 @@ cloud). If an answer only covers one variant, the question stays open.
 - **Notes:** leads identified (OWASP Top 10 for Agentic Applications 2026, GitHub
   artifact attestations, Claude Code security docs, Copilot cloud-agent
   risks-and-mitigations) but none of their claims survived into the verified set.
+
+## OQ-9 — What exactly does the tier function read, and what is the path→tier map?
+
+- **Status:** open
+- **Opened by:** [ADR-0003](adr/0003-graduated-gating-machine-derived-tier.md) (2026-07-27)
+- **Blocks:** implementing graduated gating at all. ADR-0003 fixes that the tier is
+  computed from machine-observable facts and lists an *intended* input set; it
+  deliberately does not fix the inputs, their precedence, or the map.
+- **Why it matters:** Meta's RADAR derives its tier partly from a machine-learned Diff
+  Risk Score trained on years of monorepo production-incident history
+  ([arXiv:2605.30208](https://arxiv.org/abs/2605.30208), checked 2026-07-27). We have no
+  such history, so the cold-start rule has to work from static facts alone. Nobody has
+  published what that rule should be.
+- **What would close it:** a specified tier function — the input list, how inputs
+  compose, the strictest-tier fail-safe conditions — plus the path→tier map for our
+  repositories and the rule for who may change it. Both variants: the rule should
+  converge (it is CI configuration), so a divergence here would be a finding.
+- **Notes:** "reversibility" and "blast radius" are the two inputs most likely to
+  resist mechanical derivation. Decide early whether they are computed from the diff or
+  declared per service in configuration — ADR-0003's part 3 says declared judgments
+  attach to a path, once.
 
 ---
 

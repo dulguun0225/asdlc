@@ -18,6 +18,42 @@ changed once those facts were recorded on 2026-07-27.
 
 ---
 
+## What to pick up next
+
+Committed rather than left in a session's memory, because the project is developed from more
+than one computer and that memory does not travel.
+
+**As of 2026-07-27, two bodies of work are live and their order is not settled.**
+
+- **Close the four blocking stack gaps** — [OQ-14](#oq-14--what-are-the-observability-backend-components)
+  (observability backend), [OQ-16](#oq-16--which-tls-terminating-egress-proxy-and-does-credential-masking-work-without-one)
+  (TLS egress proxy), [OQ-17](#oq-17--where-do-deployable-artifacts-live-in-each-variant)
+  (artifact registry), [OQ-15](#oq-15--how-is-slsa-build-level-2-provenance-assembled-on-the-self-hosted-variant)
+  (self-hosted provenance). These block phase 0 of the [rollout plan](../rollout/plan.md):
+  nothing can be piloted until they close.
+- **Fill the engineer-facing layer** — the "Not yet specified" section at the end of each
+  file in [`asdlc/`](../asdlc/README.md) is the work list. Blocks nobody, but it is what makes
+  the design handable to someone. Approved by the owner on 2026-07-27 as phase 2 of the
+  restructure ([ADR-0013](decisions/0013-layout-by-subject.md)).
+
+**Recommendation: OQ-14 first.** It blocks the most, and every measurement the design depends
+on needs it. **Not yet confirmed by the owner** — ask before starting.
+
+Two of the engineer-facing gaps are load-bearing rather than cosmetic, and should be treated
+as design defects rather than missing documentation:
+
+- **What the tasks-stage consistency check actually checks** is undefined
+  ([asdlc/03-tasks.md](../asdlc/03-tasks.md)). It is the only check in the design with no
+  mechanism.
+- **How post-merge defects are attributed to a tier** is undefined
+  ([asdlc/07-operate.md](../asdlc/07-operate.md)). The metric is mandatory from day one, and
+  without it the third exit condition for automatic T3 deploys can never be evaluated.
+
+Phase-2 content needs research sessions, not assembly — the research-before-content rule in
+[`CLAUDE.md`](../CLAUDE.md) applies in full.
+
+---
+
 ## OQ-1 — What does "ASDLC" expand to in this project?
 
 - **Status:** closed → [ADR-0002](decisions/0002-scope-agentic-not-ai-assisted.md) (2026-07-26)

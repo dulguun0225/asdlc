@@ -105,10 +105,14 @@ changed once those facts were recorded on 2026-07-27.
 
 ## OQ-4 — What is the self-hosted agent-runner stack, and what does it cost?
 
-- **Status:** **runner, sandboxing, credential brokering and cost model closed** →
-  [ADR-0007](adr/0007-agent-runner-and-containment.md) (2026-07-27). **The code-host half is
-  split out as [OQ-12](#oq-12--can-a-required-review-or-ci-check-be-bypassed-and-is-the-bypass-recorded),
-  and one blocking licensing fact as [OQ-13](#oq-13--is-the-chosen-runner-token-spend-only-or-does-it-require-a-per-seat-licence).**
+- **Status:** closed. Runner, sandboxing, credential brokering and cost model →
+  [ADR-0007](adr/0007-agent-runner-and-containment.md) (2026-07-27); the code-host half →
+  [ADR-0009](adr/0009-code-host.md) (2026-07-27) via
+  [OQ-12](#oq-12--can-a-required-review-or-ci-check-be-bypassed-and-is-the-bypass-recorded);
+  the runner licensing condition →
+  [ADR-0010](adr/0010-runner-licensing-token-spend-only.md) (2026-07-27) via
+  [OQ-13](#oq-13--is-the-chosen-runner-token-spend-only-or-does-it-require-a-per-seat-licence).
+  Nothing remains open under this question.
 - **Answer, in short:** a CLI agent wrapped in OS-level sandboxing, in both variants — Seatbelt on
   macOS, bubblewrap on Linux and WSL2, an egress proxy outside the sandbox, and credential masking
   that substitutes secrets at the proxy so the agent never holds them. **This layer converges
@@ -221,6 +225,49 @@ changed once those facts were recorded on 2026-07-27.
     profile, which is not a measurement. **Batch API and prompt-caching rates were not checked**
     and both change the model materially.
   - **Consequence:** cross-variant TCO comparison is still not possible. Do not publish one.
+- **Progress 2026-07-27 (OQ-13 session, [ADR-0010](adr/0010-runner-licensing-token-spend-only.md)).**
+  Two dated inputs, neither a measurement:
+  - **Vendor-published aggregate**, verbatim from the
+    [Claude Code costs page](https://code.claude.com/docs/en/costs) (fetched 2026-07-27):
+    *"the average cost is around $13 per developer per active day and $150-250 per developer per
+    month, with costs remaining below $30 per active day for 90% of users"* — Anthropic's own
+    figure across enterprise deployments. Usage-pattern dependent; not a substitute for measured
+    tokens-per-task, but the first defensible anchor for a pilot budget.
+  - **Cache lifetime differs by billing mode:** five minutes by default on an API key or cloud
+    provider, an hour on subscription. The self-hosted cost model must use the five-minute TTL.
+  - Batch-API and prompt-caching **rates** remain unchecked. *(Superseded the same day — see the
+    rates block below.)*
+- **Progress 2026-07-27 (rates session) — the sourced rate table is now complete.** Source:
+  [Claude API pricing](https://platform.claude.com/docs/en/about-claude/pricing), fetched
+  first-party 2026-07-27. All figures per million tokens (MTok).
+
+  | Model | Base in / out | 5m cache write | 1h cache write | Cache hit | Batch in / out |
+  |---|---|---|---|---|---|
+  | Fable 5 | $10 / $50 | $12.50 | $20 | $1 | $5 / $25 |
+  | Opus 5 | $5 / $25 | $6.25 | $10 | $0.50 | $2.50 / $12.50 |
+  | Sonnet 5 (≤ 2026-08-31) | $2 / $10 | $2.50 | $4 | $0.20 | $1 / $5 |
+  | Sonnet 5 (≥ 2026-09-01) | $3 / $15 | $3.75 | $6 | $0.30 | $1.50 / $7.50 |
+  | Haiku 4.5 | $1 / $5 | $1.25 | $2 | $0.10 | $0.50 / $2.50 |
+
+  - **Multipliers, verbatim:** 5-minute cache write *"1.25x base input price"*, 1-hour write
+    *"2x base input price"*, cache read *"0.1x base input price"*; *"caching pays off after just
+    one cache read for the 5-minute duration (1.25x write), or after two cache reads for the
+    1-hour duration (2x write)"*; the multipliers *"stack with other pricing modifiers,
+    including the Batch API discount."*
+  - **Batch API, verbatim:** *"asynchronous processing of large volumes of requests with a 50%
+    discount on both input and output tokens."* **Caveat:** interactive agent sessions cannot
+    use it — the same page states for stateful sessions *"There is no batch mode."* Budget the
+    50% only for offline work (e.g. batched CI analysis), never for the interactive session
+    profile.
+  - **Tokenizer comparability caveat, verbatim:** *"Claude 4.7 and later models … use a newer
+    tokenizer … approximately 30% more tokens for the same text."* Any tokens-per-task
+    measurement must record which model produced it; counts are not comparable across the
+    tokenizer boundary.
+  - **Long context:** the 1M window is billed *"at standard pricing"* on Claude 4.6+ — no
+    long-context surcharge. US-only inference (`inference_geo: "us"`) adds a 1.1× multiplier.
+  - **What remains, and it is the whole question:** the measured token profile per unit of
+    agent work. That needs the pilot. Every rate input to the cost model is now sourced and
+    dated; no further research can advance this question.
 
 ## OQ-8 — What provenance, secrets and policy-enforcement controls are available?
 
@@ -307,7 +354,19 @@ changed once those facts were recorded on 2026-07-27.
 
 ## OQ-11 — Is progressive rollout with automated rollback achievable, and on what?
 
-- **Status:** open
+- **Status:** closed → [ADR-0011](adr/0011-progressive-rollout.md) (2026-07-27)
+- **Answer:** achievable off the shelf at zero licence cost **if the deployment target is
+  Kubernetes** — Flagger (Apache 2.0, CNCF graduated) is the named mechanism, Argo Rollouts the
+  alternative; converges across variants. The rollback signal is a declared per-service SLO
+  threshold (`request-success-rate`, `request-duration`) reviewed at T1. "Exercised" is defined:
+  every failed canary is a live exercise, plus a mandatory deliberate-failure drill before any
+  service flips to T3 auto-deploy. Rollback does not undo state — a vendor's own docs say so —
+  so ADR-0006's `reversibility` declaration still gates eligibility. Off Kubernetes: the cloud
+  variant has managed services (CodeDeploy verified); the self-hosted variant has **no verified
+  license-cost-free mechanism**, and the record reopens if the owner's deployment target lands
+  there. The deploy gate itself does not move: prerequisite 3 (defect-attribution history)
+  still requires a running pilot. Research:
+  [2026-07-27 — progressive rollout](research/2026-07-27-progressive-rollout.md).
 - **Opened by:** [ADR-0005](adr/0005-roles-gate-signers-and-the-reviewer-ring.md) part 6 (2026-07-27)
 - **Blocks:** the exit condition for the T3 automatic deploy path. Until this is answered,
   a human signs every deploy at every tier — which is the current rule, and is safe, but
@@ -324,8 +383,18 @@ changed once those facts were recorded on 2026-07-27.
 
 ## OQ-12 — Can a required review or CI check be bypassed, and is the bypass recorded?
 
-- **Status:** open — **this is the blocking question for the code host, and the recommended next
-  session.**
+- **Status:** closed → [ADR-0009](adr/0009-code-host.md) (2026-07-27)
+- **Answer:** researched per host, first-party and adversarially verified —
+  [research note](research/2026-07-27-code-host-enforcement.md). GitLab Free/CE cannot block a
+  merge on a missing review at all and records only sign-ins; Gitea OSS and Forgejo enforce
+  blocking reviews but record no bypass (Gitea sells its audit log in a paid edition; Forgejo's
+  is open request #6982); GitHub answers all six sub-questions with documented mechanisms,
+  including a named audit event for a protection override; Gerrit makes every bypass an explicit
+  versioned permission and stores the review record in the repository itself, with Zuul
+  providing the only unconditional pre-run CI human gate found. **Decision: GitHub (Team, with a
+  named Enterprise Cloud upgrade trigger) in the cloud variant; Gerrit + Zuul in the self-hosted
+  variant, with Forgejo as the named fallback and its audit-log issue as the reopen trigger.**
+  The variants diverge at this layer by decision, and ADR-0009 prices the divergence.
 - **Opened by:** [ADR-0007](adr/0007-agent-runner-and-containment.md) and
   [ADR-0008](adr/0008-agent-write-scope-and-enforcement.md) (2026-07-27); inherited from OQ-8's
   enforcement divergence, which the 2026-07-27 stack session did **not** close.
@@ -351,7 +420,14 @@ changed once those facts were recorded on 2026-07-27.
 
 ## OQ-13 — Is the chosen runner token-spend-only, or does it require a per-seat licence?
 
-- **Status:** open — small, quick, and **blocking before any procurement**.
+- **Status:** closed → [ADR-0010](adr/0010-runner-licensing-token-spend-only.md) (2026-07-27)
+- **Answer:** token-spend-only, verified first-party 2026-07-27. *"Claude Code charges by API
+  token consumption"*; on the Claude Console *"usage is billed per token to your organization"*,
+  with API-key authentication a documented organizational setup and a dedicated restricted
+  member role. Per-seat pricing exists only on the Claude.ai subscription plans, an alternative
+  path, not a requirement. ADR-0007's fallback runner stands down to contingency; its
+  convergence claim holds at full strength. One economic fact travels to OQ-7: the prompt cache
+  lifetime on API-key billing is five minutes by default (an hour on subscription).
 - **Opened by:** [ADR-0007](adr/0007-agent-runner-and-containment.md) part 1 (2026-07-27)
 - **Blocks:** the self-hosted variant's compliance with its own definition. `CLAUDE.md` allows
   paid **models** in the self-hosted variant and disallows paid **platform** components. Whether

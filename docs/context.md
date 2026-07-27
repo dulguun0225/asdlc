@@ -83,7 +83,10 @@ Facts the owner holds that are still missing. Each is stated as what it blocks.
   the job title.
 - **What are the greenfield projects?** Domain, language, and deployment target are all
   unknown. This blocks a concrete path→tier map (the *schema* is settled by ADR-0006;
-  the *contents* need the code).
+  the *contents* need the code). The **deployment target** is separately load-bearing for
+  [ADR-0011](adr/0011-progressive-rollout.md): on Kubernetes the progressive-rollout answer
+  converges at zero licence cost; off Kubernetes the self-hosted variant currently has no
+  verified mechanism and that record reopens.
 - **Who fills the platform owner role?** [OQ-10](open-questions.md).
 - **How many projects run at once, and does each CFT own one?** Affects whether the tier
   configuration is per repository or centralised.

@@ -147,7 +147,11 @@ and does not escalate to a meeting.
 ## 5. Managed settings
 
 Distributed to every engineer machine; owner: platform owner; change tier: T1
-([ADR-0007](decisions/0007-agent-runner-and-containment.md) parts 2, 4–5).
+([ADR-0007](decisions/0007-agent-runner-and-containment.md) parts 2, 4–5;
+[ADR-0016](decisions/0016-tls-terminating-proxy-and-credential-masking.md) part 7).
+
+Key names below are the vendor's documented ones, checked 2026-07-28. `<...>` marks a value the
+platform owner fills.
 
 ```json
 {
@@ -156,7 +160,28 @@ Distributed to every engineer machine; owner: platform owner; change tier: T1
     "failIfUnavailable": true,
     "allowUnsandboxedCommands": false,
     "allowManagedDomainsOnly": true,
-    "allowManagedReadPathsOnly": true
+    "allowManagedReadPathsOnly": true,
+    "network": {
+      "tlsTerminate": {},
+      "strictAllowlist": true,
+      "allowedDomains": ["<narrow list>"]
+    },
+    "credentials": {
+      "files": [
+        { "path": "~/.aws/credentials", "mode": "deny" },
+        { "path": "~/.ssh", "mode": "deny" }
+      ],
+      "envVars": [
+        { "name": "<code-host token>", "mode": "mask", "injectHosts": ["<code host>"] },
+        { "name": "<registry token>",  "mode": "deny" }
+      ]
+    },
+    "filesystem": {
+      "denyWrite": ["<never-write paths>"]
+    }
+  },
+  "env": {
+    "CLAUDE_CODE_SUBPROCESS_ENV_SCRUB": "1"
   }
 }
 ```
@@ -196,15 +221,37 @@ Three of these are decisions rather than defaults, and the ADR carries the reaso
 - **Session id and account UUID are removed from *metrics*** to stop unbounded time-series growth;
   per-session detail is read from the event signal instead.
 
-And, in the same managed scope:
+Rules that go with the sandbox block, fixed by
+[ADR-0016](decisions/0016-tls-terminating-proxy-and-credential-masking.md):
 
-- **Credential denies — mandatory, and there is no built-in list.** Cloud credential
-  directories (`~/.aws/` and equivalents), `~/.ssh/`, every CI and registry token, and every
-  environment variable the agent has no business reading.
-- **Masking with `injectHosts`** for the tokens the agent must use (model API, code host).
-  Requires proxy TLS termination and **fails closed without it** — verify at setup, not from a
-  401.
-- **Egress allowlist:** deny-by-default, narrow, treated as blast-radius control only.
+- **Credential denies — mandatory, and there is no built-in list.** Verbatim: *"only the files and
+  variables you list are restricted."* The default read policy still permits `~/.aws/credentials`
+  and `~/.ssh/`. Minimum: cloud credential directories, SSH keys, every CI and registry token, and
+  every environment variable the agent has no business reading.
+- **A credential the agent must *use* is delivered as an environment variable, never as a file.**
+  Forced by the mechanism: file entries accept only `deny`; only environment variables accept
+  `mask`. A file credential can be blocked but never masked.
+- **`injectHosts` is written explicitly for every masked variable.** Omitting it substitutes the
+  credential on requests to **every** allowed domain. Each entry must itself be covered by
+  `network.allowedDomains`.
+- **`tlsTerminate` is what makes masking work**, and without it masking **fails closed** — the
+  sentinel reaches the server and authentication fails. The product *"reports this
+  misconfiguration at startup"*, so the setup check is native.
+- **`tlsTerminate` does not add content filtering.** The egress allowlist stays a **blast-radius
+  control, not an anti-exfiltration control** ([ADR-0007](decisions/0007-agent-runner-and-containment.md)
+  part 4). Do not read this setting as the stronger property.
+- **`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` is mandatory for two reasons:** it strips Anthropic and
+  cloud-provider credentials from *all* subprocesses, not only sandboxed Bash; and when set, the
+  runner *"ignores `filesystem.disabled` from every source, including managed settings"* — closing
+  the hole that turning the filesystem layer off would open in `credentials.files`.
+- **`mask`, `tlsTerminate` and `allowPlaintextInject` are ignored from repository settings** —
+  honored only from user, managed, or `--settings`. A checked-out project cannot authorise the
+  proxy to send a real credential anywhere. **`allowPlaintextInject` is left unset**; its exact
+  behaviour is not verified first-party and must not be asserted.
+- **`deny` beats `mask`** when a variable appears in both, and no scope can remove a deny another
+  scope added.
+- **`excludedCommands` excludes a command from filesystem isolation only** — the proxy still
+  applies. It is not a fix for a TLS problem.
 - **`denyWrite` entries** for every never-write class
   ([ADR-0008](decisions/0008-agent-write-scope-and-enforcement.md) part 2): the tier map, gate
   policy, ring and competency files, sandbox policy (settings paths are denied automatically),

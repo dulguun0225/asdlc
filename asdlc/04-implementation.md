@@ -39,10 +39,20 @@ phase-0 item and not a setup detail.
 Credential files are denied outright. Tokens the agent genuinely needs — model API, code host
 — are **masked and substituted at the egress proxy**, never handed to the session.
 
-Masking **requires a TLS-terminating proxy and fails closed without one**. Verify this at
-setup, not by debugging a 401. **No proxy product is chosen**
-([OQ-16](../reference/open-questions.md)) — this is a mandatory control resting on an
-undecided component, and it is recorded as such rather than assumed away.
+Masking **requires TLS termination and fails closed without it** — the sentinel reaches the
+server, authentication fails, and the real credential never leaves. **The proxy that does it is
+the built-in one**, switched on with `sandbox.network.tlsTerminate`
+([ADR-0016](../reference/decisions/0016-tls-terminating-proxy-and-credential-masking.md)). No
+separate product is needed on either side, and the runner reports the misconfiguration at
+startup, so "verify at setup, not by debugging a 401" is native rather than a procedure.
+
+Two constraints that follow from the mechanism:
+
+- **Only environment variables can be masked.** Credential *files* accept `deny` and nothing
+  else, so any token the agent must actually use has to be delivered to it as an environment
+  variable.
+- **TLS termination adds no content filtering.** It makes masking work and changes nothing about
+  the egress allowlist below.
 
 ### Egress deny-by-default
 
@@ -108,7 +118,8 @@ Recorded rather than papered over
 | `excludedCommands` has no managed lockdown | Keep the list minimal; audit every addition |
 | Docker socket access is a host escape | Container builds are a deliberate T1 design decision |
 | Egress allowlist is bypassable by domain fronting | Treated as blast-radius control only; never cited as isolation |
-| Credential masking depends on an unchosen proxy | [OQ-16](../reference/open-questions.md), phase-0 blocker |
+| Credential masking depends on an **experimental** setting (`tlsTerminate`) | Accepted with a named reopen trigger; the fallback is a custom TLS-inspecting proxy, which costs sandbox strength and a MITM CA to guard ([ADR-0016](../reference/decisions/0016-tls-terminating-proxy-and-credential-masking.md) §6) |
+| TLS termination may break Go-based CLIs and gRPC clients | Phase-0 verification on every platform; **`excludedCommands` does not exempt a command from the proxy** |
 
 **Never cite the sandbox as an isolation boundary.** That is a standing rule, not a caveat.
 

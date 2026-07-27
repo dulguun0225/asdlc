@@ -34,7 +34,8 @@ row below is the same component the cloud variant uses, at the same cost.
 | OS sandbox | **Seatbelt** (macOS) / **bubblewrap** (Linux, WSL2), via the runner's sandbox (also standalone as `@anthropic-ai/sandbox-runtime`) | ships with the runner | $0 | [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §2 | decided | [session](../asdlc/04-implementation.md) |
 | Policy enforcement | Managed settings, platform-owner controlled | ships with the runner | $0 | [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §2 | decided | [schema](../reference/artifacts.md) |
 | Egress control | Built-in sandbox proxy, deny-by-default allowlist | ships with the runner | $0 | [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §4 | decided — **blast-radius control only, not anti-exfiltration** | [session](../asdlc/04-implementation.md) |
-| Credential masking | TLS-terminating proxy + `injectHosts` | — | — | [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §5 | **GAP — [OQ-16](../reference/open-questions.md)**: masking is mandatory and requires TLS termination, which ADR-0007 §4 defers. No product named. | [session](../asdlc/04-implementation.md) |
+| TLS termination | **the built-in proxy**, via `sandbox.network.tlsTerminate` | ships with the runner | $0 | [ADR-0016](../reference/decisions/0016-tls-terminating-proxy-and-credential-masking.md) §1 | decided — **no third-party proxy; none needed.** Vendor-marked **experimental**, which is the named reopen trigger. **Adds no content filtering** — the egress row's limit is unchanged | [session](../asdlc/04-implementation.md) |
+| Credential masking | `sandbox.credentials.envVars` with `mode: mask` + `injectHosts` | ships with the runner | $0 | [ADR-0016](../reference/decisions/0016-tls-terminating-proxy-and-credential-masking.md) §2, §4 | decided — **fails closed and the runner reports it at startup.** Constraint: only **environment variables** can be masked, never files | [schema](../reference/artifacts.md) §5 |
 | Fallback runner | MIT/Apache-licensed CLI agent in the same sandbox | — | — | [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §1 | contingency only — the licensing condition resolved favourably ([ADR-0010](../reference/decisions/0010-runner-licensing-token-spend-only.md)) | — |
 
 **Platform constraint, not a footnote:** the sandbox does not run on native Windows or WSL1.
@@ -164,15 +165,21 @@ enforcement grounds and did not record their licences.
 | # | Gap | Blocking? |
 |---|---|---|
 | [OQ-15](../reference/open-questions.md) | Provenance assembly to SLSA Build Level 2 | **yes — before first production deploy** |
-| [OQ-16](../reference/open-questions.md) | TLS-terminating egress proxy; credential masking depends on it | **yes — masking is a mandatory control** |
 | [OQ-17](../reference/open-questions.md) | Artifact registry / deployable-artifact store | yes, before first deploy |
 | §3 above | Gerrit and Zuul licences unrecorded | **yes — the variant is defined by licence cost** |
 | — | Deployment target is Kubernetes or not (owner-held) | yes — off Kubernetes this variant has **no** rollout answer |
 | [OQ-18](../reference/open-questions.md) | How a post-merge defect is attributed to a tier | not for bring-up — blocks the T3 auto-deploy exit condition and the relaxation rule |
 
-**Observability closed on 2026-07-28** ([ADR-0015](../reference/decisions/0015-observability-backend.md)).
-It was the most blocking of the four gaps the stack sheets exposed, and it added four components
-to this variant's operating load.
+Two of the four gaps the stack sheets exposed closed on 2026-07-28: **observability**
+([ADR-0015](../reference/decisions/0015-observability-backend.md)), which added four components to
+this variant's operating load, and the **TLS-terminating proxy**
+([ADR-0016](../reference/decisions/0016-tls-terminating-proxy-and-credential-masking.md)), which
+added none — the built-in proxy does it, so no product is procured on either side.
+
+**One new bring-up verification, with a real chance of failing:** with `tlsTerminate` on, confirm
+that `git`, `npm` and the projects' language toolchains still work against the allowed hosts, on
+macOS, Linux and WSL2. Reported TLS failures against MITM proxies involve exactly these tools, and
+adding a tool to `excludedCommands` does **not** exempt it from the proxy.
 
 **Named triggers** ([ADR-0009](../reference/decisions/0009-code-host.md) §5,
 [ADR-0011](../reference/decisions/0011-progressive-rollout.md)):

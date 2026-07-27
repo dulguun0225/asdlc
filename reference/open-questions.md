@@ -25,7 +25,37 @@ computer and the agent's local memory does not travel, so this section — not a
 the conversation — is where the state lives. Anyone finishing a session updates it
 ([`CLAUDE.md`](../CLAUDE.md) → "Assume every session starts on a different computer").
 
-### Last session: 2026-07-28 — the observability backend
+### Last session: 2026-07-28 — TLS termination and credential masking
+
+Landed [ADR-0016](decisions/0016-tls-terminating-proxy-and-credential-masking.md) and its
+[research note](research/2026-07-28-egress-tls-and-credential-masking.md), closing
+[OQ-16](#oq-16--which-tls-terminating-egress-proxy-and-does-credential-masking-work-without-one).
+
+**The question assumed a missing component and there isn't one.** The built-in proxy terminates
+TLS via `sandbox.network.tlsTerminate` (v2.1.199+), which is exactly and only what `mask`
+requires. No product is procured in either variant, and ADR-0007's parts 4/5 contradiction turns
+out to have been a contradiction about the **default**, not about the product.
+
+**Do not re-derive, and do not get wrong:**
+
+- **TLS termination adds no content filtering.** ADR-0007 part 4's limit stands — the egress
+  allowlist is a blast-radius control, not an anti-exfiltration control. Seeing `tlsTerminate` in
+  the settings must not be read as the stronger property.
+- **You cannot mask a credential file** — only environment variables. Every credential the agent
+  must *use* has to be delivered as an environment variable, in both variants and in CI.
+- **`excludedCommands` excludes from filesystem isolation only**, not from the network proxy.
+- **The mandatory control now rests on an experimental setting.** Reopen trigger and fallback are
+  written down; the fallback costs sandbox strength on macOS and a MITM CA to guard.
+
+[artifacts.md](artifacts.md) §5 was rewritten with the vendor's documented key names and gained
+`tlsTerminate`, `strictAllowlist`, the `credentials` block in its real form, and
+`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` — the last of which also hard-locks `filesystem.disabled`, a
+hole opened by a runner version newer than ADR-0007.
+
+**New phase-0 verification with a real chance of failing:** confirm the toolchain survives TLS
+termination on every platform ([rollout/open-parameters.md](../rollout/open-parameters.md)).
+
+### Session before: 2026-07-28 — the observability backend
 
 Landed [ADR-0015](decisions/0015-observability-backend.md) and its
 [research note](research/2026-07-28-observability-backend.md), closing
@@ -81,12 +111,14 @@ The owner directed on 2026-07-28 that the agent drives the project to the end an
 to ask which question to take. Order is therefore decided by what blocks the most, and stated
 below rather than referred upward.
 
-- **Close the three remaining blocking stack gaps** —
+- **Close the two remaining blocking stack gaps** —
+  [OQ-17](#oq-17--where-do-deployable-artifacts-live-in-each-variant) (artifact registry), then
+  [OQ-15](#oq-15--how-is-slsa-build-level-2-provenance-assembled-on-the-self-hosted-variant)
+  (self-hosted provenance), in that order because an attestation must attach to a stored artifact.
+  Both block phase 0 of the [rollout plan](../rollout/plan.md).
+  [OQ-14](#oq-14--what-are-the-observability-backend-components) and
   [OQ-16](#oq-16--which-tls-terminating-egress-proxy-and-does-credential-masking-work-without-one)
-  (TLS egress proxy), [OQ-17](#oq-17--where-do-deployable-artifacts-live-in-each-variant)
-  (artifact registry), [OQ-15](#oq-15--how-is-slsa-build-level-2-provenance-assembled-on-the-self-hosted-variant)
-  (self-hosted provenance). These block phase 0 of the [rollout plan](../rollout/plan.md).
-  [OQ-14](#oq-14--what-are-the-observability-backend-components) closed 2026-07-28.
+  closed 2026-07-28.
 - **Fill the engineer-facing layer** — the "Not yet specified" section at the end of each
   file in [`asdlc/`](../asdlc/README.md) is the work list. Blocks nobody, but it is what makes
   the design handable to someone. Approved by the owner on 2026-07-27 as phase 2 of the
@@ -94,10 +126,10 @@ below rather than referred upward.
   artifacts are **done**. What remains: per-repository agent configuration, a testing strategy
   for agent-written code, and how the agent is prompted at each stage.
 
-**Next: OQ-16.** It affects both variants, it is the only remaining gap that blocks a control the
-design calls **mandatory** rather than a stage of the pipeline, and ADR-0007 currently contradicts
-itself on it — a mandatory control resting on a deferred component. Then OQ-17, which OQ-15
-depends on (an attestation must attach to a stored artifact), then OQ-15.
+**Next: OQ-17**, then OQ-15. OQ-17 first because OQ-15 cannot close without it. Note the
+owner-held dependency: OQ-17 narrows to a container-registry question if the deployment target is
+Kubernetes and widens otherwise ([context.md](context.md) "Not yet known"). Answer it for both
+shapes rather than waiting.
 
 ### The load-bearing gaps, and their state
 
@@ -634,7 +666,34 @@ Phase-2 content needs research sessions, not assembly — the research-before-co
 
 ## OQ-16 — Which TLS-terminating egress proxy, and does credential masking work without one?
 
-- **Status:** open
+- **Status:** closed → [ADR-0016](decisions/0016-tls-terminating-proxy-and-credential-masking.md) (2026-07-28)
+- **Answer: the question assumed a missing component, and there isn't one.** The built-in proxy
+  terminates TLS through `sandbox.network.tlsTerminate`, *"available in Claude Code v2.1.199 and
+  later"*, which *"makes the built-in proxy terminate TLS itself, which `mask` credential entries
+  require."* No third-party proxy is selected, none is needed, and **this layer converges across
+  variants**. ADR-0007's parts 4 and 5 were both accurate about the **default**; neither knew the
+  prerequisite was a key on the component already in the stack.
+- **Masking without it fails closed and says so.** The sentinel reaches the server, authentication
+  fails, the real credential never leaves — and the product *"reports this misconfiguration at
+  startup."* That satisfies [artifacts.md](artifacts.md) §5's demand that masking be verified at
+  setup rather than discovered from a 401, with a first-party mechanism instead of a procedure.
+- **Four findings a later session must not re-derive**
+  ([research note](research/2026-07-28-egress-tls-and-credential-masking.md)):
+  - **TLS termination does not buy anti-exfiltration.** It *"does not add content filtering"*, and
+    the domain-fronting warning is unchanged. ADR-0007 part 4's limit stands; do not upgrade the
+    claim on seeing the setting.
+  - **You cannot mask a credential file.** File entries accept only `deny`; only environment
+    variables accept `mask`. Any credential the agent must *use* has to arrive as an environment
+    variable — a delivery constraint on the code-host and registry credentials in both variants.
+  - **`excludedCommands` excludes from filesystem isolation only**, not from the network proxy.
+    ADR-0007's consequences imply otherwise.
+  - **`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` also hard-locks `filesystem.disabled`** (v2.1.216+), which
+    would otherwise lift the read protections of `credentials.files`.
+- **The mandatory control now rests on an *experimental* setting.** Named reopen trigger, with the
+  custom TLS-inspecting proxy written down as the fallback rather than dismissed. Adopting that
+  fallback would mean weakening the sandbox on macOS (`enableWeakerNetworkIsolation`) and putting
+  a MITM CA private key in the hands of the not-yet-existing platform owner.
+- **Superseded framing below**, kept for why the question existed.
 - **Opened by:** [ADR-0012](decisions/0012-per-variant-stack-sheets.md) (2026-07-27), on an internal
   contradiction in [ADR-0007](decisions/0007-agent-runner-and-containment.md).
 - **Blocks:** a mandatory control. Affects **both variants** — this layer converges.

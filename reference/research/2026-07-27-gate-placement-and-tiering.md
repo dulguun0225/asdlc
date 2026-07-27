@@ -6,7 +6,7 @@
 - **Questions asked:** (a) which human gates the target life cycle needs downstream of
   implementation — [OQ-3](../open-questions.md); (b) whether graduated gating beats
   uniform gating and who assigns the tier — [OQ-5](../open-questions.md).
-- **Closes:** OQ-5, via [ADR-0003](../adr/0003-graduated-gating-machine-derived-tier.md).
+- **Closes:** OQ-5, via [ADR-0003](../decisions/0003-graduated-gating-machine-derived-tier.md).
   Advances OQ-3; does not close it. Opens OQ-9.
 - **Method:** targeted search on four angles (change-approval evidence, inter-rater
   reliability of categorical risk schemes, agent self-assessment calibration, deployed
@@ -421,7 +421,7 @@ period. It does not establish that agents slow work down today.
 ## Recommended next steps
 
 1. **[OQ-9](../open-questions.md) is now the blocking question** — the tier function and
-   the path→tier map. [ADR-0004](../adr/0004-gate-placement.md) specifies a gate table
+   the path→tier map. [ADR-0004](../decisions/0004-gate-placement.md) specifies a gate table
    that nothing can evaluate until the tier function exists.
 2. **Then OQ-4** (self-hosted runner stack), still the largest hole, leads already
    collected in the previous session.

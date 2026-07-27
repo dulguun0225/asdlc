@@ -18,7 +18,7 @@
   Finding 4. Two Gitea claims, one GitHub absence claim, and several Forgejo enforcement claims
   rest on source code or the product's own UI strings rather than rendered documentation —
   Forgejo's docs show most settings only as screenshots — and are flagged where they appear.
-- **Closes:** OQ-12 → [ADR-0009](../adr/0009-code-host.md).
+- **Closes:** OQ-12 → [ADR-0009](../decisions/0009-code-host.md).
 
 ## Read this first
 
@@ -130,7 +130,7 @@ outside of the above mentioned directories or restrictions above is available un
 Expat' license,"* with all `ee/` content under a proprietary licence. So self-managed GitLab is
 license-cost-free only at Free — exactly the tier that fails OQ-12. A Premium self-managed
 instance is the *licensed self-operated* shape that
-[ADR-0007](../adr/0007-agent-runner-and-containment.md) records as out of scope as written.
+[ADR-0007](../decisions/0007-agent-runner-and-containment.md) records as out of scope as written.
 
 ## Finding 2 — GitHub answers every question, and a protection override fires a named audit event
 

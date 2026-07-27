@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repository is
 
-A **design and planning repository**, not a software product. Its output is documents: a detailed target ASDLC, its implementation details, and a rollout plan.
+A **design and planning repository**, not a software product. Its output is documents: the target ASDLC ([`asdlc/`](asdlc/README.md)), a stack sheet per deployment variant ([`variants/`](variants/README.md)), and a rollout plan ([`rollout/`](rollout/plan.md)).
 
-**ASDLC** = **agentic software development life cycle** ("Agentic SDLC" in prose; "life cycle" as three words). Set by [ADR-0002](docs/adr/0002-scope-agentic-not-ai-assisted.md), which also fixes the scope boundary this implies: the subject is a life cycle where **agents execute multi-step development work under human review gates**. AI-assisted tooling that only speeds up a human executing every step is background context, not the subject. Where the agent/human boundary actually falls is still open — [OQ-3](docs/open-questions.md).
+**ASDLC** = **agentic software development life cycle** ("Agentic SDLC" in prose; "life cycle" as three words). Set by [ADR-0002](reference/decisions/0002-scope-agentic-not-ai-assisted.md), which also fixes the scope boundary this implies: the subject is a life cycle where **agents execute multi-step development work under human review gates**. AI-assisted tooling that only speeds up a human executing every step is background context, not the subject. Where the agent/human boundary actually falls is still open — [OQ-3](reference/open-questions.md).
 
 There is no application code, build system, test suite, or package manifest — and none is expected unless the plan calls for tooling. **Do not scaffold a toolchain, CI config, or `package.json` unless explicitly asked.** If you find yourself looking for a build command, re-read the task: the deliverable is almost certainly prose, a diagram, or a decision record.
 
@@ -15,7 +15,7 @@ The repository is under version control (branch `master`). Don't commit unless a
 The project is developed from more than one computer. Claude Code's per-project memory
 directory lives under the user's home directory and is **not** part of the repository, so
 it does not travel between machines — assume it is empty. Anything that must survive a
-machine switch belongs in a committed file: this one, or `docs/`.
+machine switch belongs in a committed file: this one, or the design and reference directories.
 
 ## Two variants, tracked in parallel
 
@@ -26,7 +26,7 @@ Every part of the target ASDLC must be answered for **both** deployment variants
      A licensed product running on your own infrastructure (e.g. a paid tier of a self-managed
      code host with an agent add-on) is a **third** deployment shape that this two-variant axis has
      no place for, and it is **out of scope as written**. See
-     [ADR-0007](docs/adr/0007-agent-runner-and-containment.md) → Variant answers for the case that
+     [ADR-0007](reference/decisions/0007-agent-runner-and-containment.md) → Variant answers for the case that
      surfaced it. Widening the axis to three variants would be a change to this file and is the
      owner's call — do not assume it.
 2. **Cloud** — managed/SaaS components allowed. Optimize for capability and time-to-value rather than license cost.
@@ -53,33 +53,56 @@ Stated by the owner, 2026-07-27, and standing for the whole project:
 - **Everything decided is a starting point, not settled practice.** The intended loop is
   decide → run it → measure → revise. Write each ADR so it can be reversed: state the
   bet, the instrumentation that would show it wrong, and what would reopen the question.
-  [ADR-0003](docs/adr/0003-graduated-gating-machine-derived-tier.md) is the model.
+  [ADR-0003](reference/decisions/0003-graduated-gating-machine-derived-tier.md) is the model.
 
 ## Working constraint: research before content
 
 The documents *are* the product, so unresearched prose is worse than an empty stub — it reads as decided and gets built on.
 
 - Don't expand a stub or heading speculatively. Ask before generating new document content.
-- Each research session should aim to close a **named open question** and land as a completed ADR or a filled-in table. A session that instead finds the question is bigger than assumed lands a dated note in `docs/research/` and splits the remainder into new `OQ-N` entries — that is a valid outcome, not a failed session.
+- Each research session should aim to close a **named open question** and land as a completed ADR or a filled-in table. A session that instead finds the question is bigger than assumed lands a dated note in `reference/research/` and splits the remainder into new `OQ-N` entries — that is a valid outcome, not a failed session.
 - Any claim about vendor pricing, SKUs, quotas, model capabilities, or agent-tooling features needs a **source and a date**. These move faster than any training cutoff — do not assert them from memory, and do not carry a figure forward from an older doc in this repo without re-checking it.
 - Prefer recording an explicit "unknown / to be researched" over a plausible guess.
 
 ## Where things live
 
-Set by [ADR-0001](docs/adr/0001-documentation-layout.md).
+Set by [ADR-0013](reference/decisions/0013-layout-by-subject.md), which supersedes ADR-0001's
+layout. The repository is laid out **by subject**: the design is top-level, the working record
+is subordinate.
 
-- `CLAUDE.md` — standing instructions and conventions. Not a state log.
-- [`docs/context.md`](docs/context.md) — the organisation the ASDLC is being designed
+**The product — adds no decisions; on conflict with an ADR, the ADR wins:**
+
+- [`README.md`](README.md) — what this is and where to start. **The entry point for a human**,
+  including anyone the design is handed to.
+- [`asdlc/`](asdlc/README.md) — the life cycle. `README.md` (overview + the flow diagram),
+  `roles.md`, `tiers.md`, and `01-spec.md` … `07-operate.md`, one file per stage. Every stage
+  file ends with a **"Not yet specified"** section — keep that rule; it is how the design's
+  gaps stay visible.
+- [`variants/`](variants/README.md) — the two stacks. `cloud.md` and `self-hosted.md` are
+  **self-contained bills of materials plus host configuration**: building one variant needs
+  one document open. `README.md` states the axis and the ~70% that converges.
+- [`rollout/`](rollout/plan.md) — `plan.md` (phase 0 → pilot → widen → relax) and
+  `open-parameters.md` (values to be filled, and who fills them).
+
+**The working record:**
+
+- [`reference/context.md`](reference/context.md) — the organisation the ASDLC is being designed
   **for**: team shape and count, roles, data boundary, scope of application. Facts, not
   decisions. **Read this before answering any open question** — it constrains most of them,
   and it already invalidated one ADR.
-- [`docs/open-questions.md`](docs/open-questions.md) — numbered `OQ-N` entries, each with a
-  status and what would close it. **Start here** when picking up work.
-- [`docs/adr/`](docs/adr/README.md) — one numbered file per closed decision, plus the index.
-- [`docs/research/`](docs/research/) — `YYYY-MM-DD-topic.md` notes, one per research
+- [`reference/open-questions.md`](reference/open-questions.md) — numbered `OQ-N` entries, each
+  with a status and what would close it. **Start here when picking up work** — but do not send
+  a human here first; send them to `README.md`.
+- [`reference/artifacts.md`](reference/artifacts.md) — every schema this design defines, in one
+  place: tier map, tier-function output, gate record, ring configuration, managed settings.
+- [`reference/decisions/`](reference/decisions/README.md) — one numbered file per closed
+  decision, plus the index.
+- [`reference/research/`](reference/research/) — `YYYY-MM-DD-topic.md` notes, one per research
   session. A note records what was found *and what was refuted*, with sources and the
-  date checked; it is the input to an ADR, not a substitute for one. Added under
-  ADR-0001's provision that design documents appear when a session produces one.
+  date checked; it is the input to an ADR, not a substitute for one.
+
+`CLAUDE.md` — standing instructions and conventions. Not a state log, and **not the entry
+point for a human**.
 
 ## Conventions
 
@@ -109,4 +132,4 @@ case when that helps reliability.
 
 These are unconfirmed and should be settled with the user, then recorded here:
 
-*(none — see [`docs/open-questions.md`](docs/open-questions.md) for live questions)*
+*(none — see [`reference/open-questions.md`](reference/open-questions.md) for live questions)*

@@ -5,12 +5,12 @@
 - **Question asked:** [OQ-11](../open-questions.md) — is progressive rollout with automated
   rollback achievable, on what, triggered by what signal, proved how, and at what cost? It is
   the named exit condition for the T3 automatic deploy path
-  ([ADR-0005](../adr/0005-roles-gate-signers-and-the-reviewer-ring.md) part 6).
+  ([ADR-0005](../decisions/0005-roles-gate-signers-and-the-reviewer-ring.md) part 6).
 - **Method:** inline first-party fetches (tool documentation and licence files). No delegated
   agents this session. Capability claims only — the prior finding stands that **no outcome
   evidence exists** for progressive rollout on agent-authored changes; nothing here upgrades
   vendor capability documentation into effectiveness evidence.
-- **Closes:** OQ-11 → [ADR-0011](../adr/0011-progressive-rollout.md).
+- **Closes:** OQ-11 → [ADR-0011](../decisions/0011-progressive-rollout.md).
 
 ## Read this first
 

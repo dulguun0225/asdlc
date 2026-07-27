@@ -19,7 +19,7 @@ A decision that lives as a bullet inside a larger document does not count as mad
 
 | ADR | Title | Status | Date |
 |---|---|---|---|
-| [0001](0001-documentation-layout.md) | Documentation layout | accepted | 2026-07-26 |
+| [0001](0001-documentation-layout.md) | Documentation layout | superseded by 0013 | 2026-07-26 |
 | [0002](0002-scope-agentic-not-ai-assisted.md) | ASDLC means "agentic", not "AI-assisted" | accepted | 2026-07-26 |
 | [0003](0003-graduated-gating-machine-derived-tier.md) | Gating is graduated, and the tier is computed, not rated | accepted | 2026-07-27 |
 | [0004](0004-gate-placement.md) | Where the human gates sit | superseded by 0005 | 2026-07-27 |
@@ -30,3 +30,5 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0009](0009-code-host.md) | The code host: GitHub in the cloud variant, Gerrit + Zuul in the self-hosted variant | accepted | 2026-07-27 |
 | [0010](0010-runner-licensing-token-spend-only.md) | The runner licence condition resolves: Claude Code is token-spend-only under API-key billing | accepted | 2026-07-27 |
 | [0011](0011-progressive-rollout.md) | Progressive rollout and automated rollback: achievable off the shelf, conditional on the deployment target | accepted | 2026-07-27 |
+| [0012](0012-per-variant-stack-sheets.md) | Per-variant stack sheets, and why the layout is not split by variant | accepted; part 4 amended by 0013 | 2026-07-27 |
+| [0013](0013-layout-by-subject.md) | The repository is laid out by subject, and the design is the entry point | accepted | 2026-07-27 |

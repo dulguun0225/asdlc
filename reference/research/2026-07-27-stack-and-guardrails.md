@@ -10,9 +10,9 @@
   fetched, 8 of them first-party vendor or standards documentation. The OWASP framework was
   extracted from the published PDF locally after the HTML page proved to carry only a cover
   image.
-- **Closes:** [OQ-8](../open-questions.md) → [ADR-0008](../adr/0008-agent-write-scope-and-enforcement.md).
+- **Closes:** [OQ-8](../open-questions.md) → [ADR-0008](../decisions/0008-agent-write-scope-and-enforcement.md).
   Closes the runner, sandbox, credential and cost parts of [OQ-4](../open-questions.md) →
-  [ADR-0007](../adr/0007-agent-runner-and-containment.md); the code-host half is split out as
+  [ADR-0007](../decisions/0007-agent-runner-and-containment.md); the code-host half is split out as
   OQ-12.
 
 ## Read this first
@@ -68,7 +68,7 @@ the same security boundaries."*
   sentinel, but the sentinel reaches the server unchanged and authentication fails."*
 
 **The agent cannot rewrite its own policy.** Verbatim, and directly load-bearing for
-[ADR-0006](../adr/0006-tier-function-and-greenfield-cold-start.md) rule 1: *"the sandbox
+[ADR-0006](../decisions/0006-tier-function-and-greenfield-cold-start.md) rule 1: *"the sandbox
 automatically denies write access to Claude Code's `settings.json` files at every scope and to
 the managed settings directory, so a sandboxed command can't modify its own policy"* — with the
 stated exception that disabling filesystem isolation turns these deny rules off. Since v2.1.210

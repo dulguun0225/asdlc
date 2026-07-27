@@ -7,7 +7,7 @@ Decisions that follow from these facts live in ADRs and are linked below.
 - **Source:** the project owner, directly.
 - **Why this file exists:** the project is developed from more than one computer, and
   Claude Code's memory directory does not travel. Anything that must survive a machine
-  switch has to be committed ([ADR-0001](adr/0001-documentation-layout.md)). These facts
+  switch has to be committed ([ADR-0001](decisions/0001-documentation-layout.md)). These facts
   are load-bearing for every gate and staffing decision, so they are committed here.
 
 ---
@@ -60,16 +60,16 @@ decisions themselves are in the ADRs.
 
 - **One engineer per team means intra-team peer review of code is impossible.** A peer
   pool of one is not a peer pool. Settled by
-  [ADR-0005](adr/0005-roles-gate-signers-and-the-reviewer-ring.md).
+  [ADR-0005](decisions/0005-roles-gate-signers-and-the-reviewer-ring.md).
 - **No platform, security, or infrastructure role is named.** All 54 people are on
   product-facing teams. That leaves the tier configuration, the CI gate policy, the
   secrets boundary, and any shared library unowned — and
-  [ADR-0003](adr/0003-graduated-gating-machine-derived-tier.md) requires the tier
+  [ADR-0003](decisions/0003-graduated-gating-machine-derived-tier.md) requires the tier
   configuration to be a reviewed, security-relevant artifact. ADR-0005 names this as a
   **required addition to the org structure**, and the ASDLC cannot start without it.
 - **Greenfield means the path→tier map does not exist yet**, so ADR-0003's
   unmapped-path fail-safe would route 100% of changes to the strictest tier on day one.
-  Settled by [ADR-0006](adr/0006-tier-function-and-greenfield-cold-start.md).
+  Settled by [ADR-0006](decisions/0006-tier-function-and-greenfield-cold-start.md).
 - **18 reviewers is a small measurement sample.** The approval-drift effect this project
   wants to detect ([OQ-6](open-questions.md)) was measured across 400 reviewers. An
   18-reviewer in-house study is underpowered for an effect that size. See ADR-0005.
@@ -84,7 +84,7 @@ Facts the owner holds that are still missing. Each is stated as what it blocks.
 - **What are the greenfield projects?** Domain, language, and deployment target are all
   unknown. This blocks a concrete path→tier map (the *schema* is settled by ADR-0006;
   the *contents* need the code). The **deployment target** is separately load-bearing for
-  [ADR-0011](adr/0011-progressive-rollout.md): on Kubernetes the progressive-rollout answer
+  [ADR-0011](decisions/0011-progressive-rollout.md): on Kubernetes the progressive-rollout answer
   converges at zero licence cost; off Kubernetes the self-hosted variant currently has no
   verified mechanism and that record reopens.
 - **Who fills the platform owner role?** [OQ-10](open-questions.md).
@@ -92,7 +92,7 @@ Facts the owner holds that are still missing. Each is stated as what it blocks.
   configuration is per repository or centralised.
 - **What operating system do the 18 AI solution engineers work on?** Now load-bearing rather than
   incidental: the agent runner's sandbox does not run on native Windows
-  ([ADR-0007](adr/0007-agent-runner-and-containment.md) part 3), so any Windows-based engineer
+  ([ADR-0007](decisions/0007-agent-runner-and-containment.md) part 3), so any Windows-based engineer
   needs WSL2 provisioned before they can run the agent at all. With
   `sandbox.failIfUnavailable: true` the agent refuses to start rather than silently running
   unsandboxed — correct behaviour, and a hard blocker for anyone not set up.

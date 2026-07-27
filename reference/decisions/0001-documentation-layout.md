@@ -1,8 +1,13 @@
 # ADR-0001 — Documentation layout
 
-- **Status:** accepted
+- **Status:** superseded by [ADR-0013](0013-layout-by-subject.md) — the **layout** only.
+  This record's other provision (durable project state is committed, because the machine-local
+  memory directory does not travel between computers) stands, and ADR-0013 restates it.
 - **Date:** 2026-07-26
 - **Closes:** [OQ-2](../open-questions.md)
+- **Note:** the paths below describe the layout as it was on 2026-07-26. They are left as
+  written — an ADR records what was decided when it was decided. For the current layout, read
+  [ADR-0013](0013-layout-by-subject.md).
 
 ## Context
 

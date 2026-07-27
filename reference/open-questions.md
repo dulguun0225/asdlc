@@ -20,17 +20,22 @@ changed once those facts were recorded on 2026-07-27.
 
 ## OQ-1 — What does "ASDLC" expand to in this project?
 
-- **Status:** closed → [ADR-0002](adr/0002-scope-agentic-not-ai-assisted.md) (2026-07-26)
+- **Status:** closed → [ADR-0002](decisions/0002-scope-agentic-not-ai-assisted.md) (2026-07-26)
 - **Answer:** "Agentic software development life cycle"; "Agentic SDLC" in prose.
 
 ## OQ-2 — Directory layout for documents
 
-- **Status:** closed → [ADR-0001](adr/0001-documentation-layout.md) (2026-07-26)
+- **Status:** closed → [ADR-0001](decisions/0001-documentation-layout.md) (2026-07-26),
+  **re-answered by** [ADR-0013](decisions/0013-layout-by-subject.md) (2026-07-27).
+- **Why it was re-answered:** ADR-0001's layout optimised for decision provenance and for an
+  agent picking up a research session. Once the design documents existed, it hid them — no
+  root entry point, the working record listed before the product, and the two-variant axis
+  invisible in the tree. ADR-0013 lays the repository out by subject instead.
 
 ## OQ-3 — What counts as an "agent" here, and which gates stay human?
 
-- **Status:** closed → [ADR-0004](adr/0004-gate-placement.md) (2026-07-27), **now
-  superseded by [ADR-0005](adr/0005-roles-gate-signers-and-the-reviewer-ring.md)**
+- **Status:** closed → [ADR-0004](decisions/0004-gate-placement.md) (2026-07-27), **now
+  superseded by [ADR-0005](decisions/0005-roles-gate-signers-and-the-reviewer-ring.md)**
   (2026-07-27) — read ADR-0005 for the current gate table. One residual is explicitly
   handed to OQ-8 — see "Residual" below.
 - **What changed after closing:** the organisation's shape was recorded
@@ -45,7 +50,7 @@ changed once those facts were recorded on 2026-07-27.
   signer and what they assert. Converges across variants.
 - **Residual — now closed.** OQ-3's third bullet — *how autonomy is bounded in practice (blast
   radius, reversibility, audit trail)* — was **not** answered by ADR-0004 and was handed to OQ-8.
-  It is closed by [ADR-0008](adr/0008-agent-write-scope-and-enforcement.md) (2026-07-27): the
+  It is closed by [ADR-0008](decisions/0008-agent-write-scope-and-enforcement.md) (2026-07-27): the
   agent gets its own identity, a never-write list enforced both in the sandbox and in CI, no
   plaintext secrets in the sandbox, a per-session spend ceiling, merge-time tier evaluation with
   artifact-hash-bound signatures, SLSA Build Level 2 provenance, and an immutable tool-invocation
@@ -66,7 +71,7 @@ changed once those facts were recorded on 2026-07-27.
   improve outcomes** — so whatever is decided here has to be instrumented, not
   assumed.
 - **Progress (2026-07-27, second session):** the *how* is now settled by
-  [ADR-0003](adr/0003-graduated-gating-machine-derived-tier.md) — gating is graduated
+  [ADR-0003](decisions/0003-graduated-gating-machine-derived-tier.md) — gating is graduated
   and the tier is computed, not rated. What remains is *where the gates sit* and *how
   strict each tier is*. See
   [the gate-placement research note](research/2026-07-27-gate-placement-and-tiering.md).
@@ -75,7 +80,7 @@ changed once those facts were recorded on 2026-07-27.
   machine switch.
 - **Resolution (2026-07-27):** the owner confirmed **deployment is gated by a human at
   every tier**, and chose to start semi-strict and relax deliberately. Settled by
-  [ADR-0004](adr/0004-gate-placement.md); the analysis that fed it is below, kept for
+  [ADR-0004](decisions/0004-gate-placement.md); the analysis that fed it is below, kept for
   the reasoning rather than the conclusion.
 - **Analysis that fed ADR-0004:**
   - **spec** and **plan/design** — agreed, keep. Plan/design is also the point where a
@@ -106,11 +111,11 @@ changed once those facts were recorded on 2026-07-27.
 ## OQ-4 — What is the self-hosted agent-runner stack, and what does it cost?
 
 - **Status:** closed. Runner, sandboxing, credential brokering and cost model →
-  [ADR-0007](adr/0007-agent-runner-and-containment.md) (2026-07-27); the code-host half →
-  [ADR-0009](adr/0009-code-host.md) (2026-07-27) via
+  [ADR-0007](decisions/0007-agent-runner-and-containment.md) (2026-07-27); the code-host half →
+  [ADR-0009](decisions/0009-code-host.md) (2026-07-27) via
   [OQ-12](#oq-12--can-a-required-review-or-ci-check-be-bypassed-and-is-the-bypass-recorded);
   the runner licensing condition →
-  [ADR-0010](adr/0010-runner-licensing-token-spend-only.md) (2026-07-27) via
+  [ADR-0010](decisions/0010-runner-licensing-token-spend-only.md) (2026-07-27) via
   [OQ-13](#oq-13--is-the-chosen-runner-token-spend-only-or-does-it-require-a-per-seat-licence).
   Nothing remains open under this question.
 - **Answer, in short:** a CLI agent wrapped in OS-level sandboxing, in both variants — Seatbelt on
@@ -157,7 +162,7 @@ changed once those facts were recorded on 2026-07-27.
 
 ## OQ-5 — Does graduated (tiered) gating beat uniform gating, and who assigns the tier?
 
-- **Status:** closed → [ADR-0003](adr/0003-graduated-gating-machine-derived-tier.md) (2026-07-27)
+- **Status:** closed → [ADR-0003](decisions/0003-graduated-gating-machine-derived-tier.md) (2026-07-27)
 - **Answer:** graduated, yes. Nobody assigns the tier — it is computed by the harness
   from machine-observable facts about the change. Human judgment attaches to a path or
   service once, in reviewed configuration; an agent may never classify its own work.
@@ -191,7 +196,7 @@ changed once those facts were recorded on 2026-07-27.
   subtle one, so this question cannot be closed by confirming or refuting the published
   finding at our scale. What it *can* do: detect a gross collapse in scrutiny, and measure
   whether the ring rotation in
-  [ADR-0005](adr/0005-roles-gate-signers-and-the-reviewer-ring.md) part 4 changes
+  [ADR-0005](decisions/0005-roles-gate-signers-and-the-reviewer-ring.md) part 4 changes
   per-reviewer approval rate across rotations. Rotation is therefore applied as a
   prophylactic countermeasure, not as a tested one. **Do not present in-house drift numbers
   as validating or refuting the 400-reviewer result.**
@@ -225,7 +230,7 @@ changed once those facts were recorded on 2026-07-27.
     profile, which is not a measurement. **Batch API and prompt-caching rates were not checked**
     and both change the model materially.
   - **Consequence:** cross-variant TCO comparison is still not possible. Do not publish one.
-- **Progress 2026-07-27 (OQ-13 session, [ADR-0010](adr/0010-runner-licensing-token-spend-only.md)).**
+- **Progress 2026-07-27 (OQ-13 session, [ADR-0010](decisions/0010-runner-licensing-token-spend-only.md)).**
   Two dated inputs, neither a measurement:
   - **Vendor-published aggregate**, verbatim from the
     [Claude Code costs page](https://code.claude.com/docs/en/costs) (fetched 2026-07-27):
@@ -271,7 +276,7 @@ changed once those facts were recorded on 2026-07-27.
 
 ## OQ-8 — What provenance, secrets and policy-enforcement controls are available?
 
-- **Status:** closed → [ADR-0008](adr/0008-agent-write-scope-and-enforcement.md) (2026-07-27)
+- **Status:** closed → [ADR-0008](decisions/0008-agent-write-scope-and-enforcement.md) (2026-07-27)
 - **Answer:** provenance is signed attestation at **SLSA v1.0 Build Level 2** via Sigstore — with
   its own source warning that this is *"not a guarantee that an artifact is secure"*, only a link
   to the source and build instructions. Secrets are handled by denying credential files outright
@@ -303,7 +308,7 @@ changed once those facts were recorded on 2026-07-27.
 
 ## OQ-9 — What exactly does the tier function read, and what is the path→tier map?
 
-- **Status:** closed → [ADR-0006](adr/0006-tier-function-and-greenfield-cold-start.md) (2026-07-27)
+- **Status:** closed → [ADR-0006](decisions/0006-tier-function-and-greenfield-cold-start.md) (2026-07-27)
 - **Answer:** a six-rule ordered function with first-match-wins precedence, over declared
   path attributes plus migration detection plus CI status. `reversibility` and
   `blast_radius` are **declared per service** in committed configuration, never inferred
@@ -317,7 +322,7 @@ changed once those facts were recorded on 2026-07-27.
 - **What it also fixed:** ADR-0003's fail-safe, applied to greenfield, would have routed
   100% of day-one changes to T1 — uniform strict gating, the thing ADR-0003 rejected. That
   defect is closed by ADR-0006 parts 1 and 2.
-- **Opened by:** [ADR-0003](adr/0003-graduated-gating-machine-derived-tier.md) (2026-07-27)
+- **Opened by:** [ADR-0003](decisions/0003-graduated-gating-machine-derived-tier.md) (2026-07-27)
 - **Blocked:** implementing graduated gating at all. ADR-0003 fixed that the tier is
   computed from machine-observable facts and listed an *intended* input set; it
   deliberately did not fix the inputs, their precedence, or the map.
@@ -338,7 +343,7 @@ changed once those facts were recorded on 2026-07-27.
 ## OQ-10 — Who fills the platform owner role?
 
 - **Status:** open — a staffing fact the project owner holds, not a research question.
-- **Opened by:** [ADR-0005](adr/0005-roles-gate-signers-and-the-reviewer-ring.md) (2026-07-27)
+- **Opened by:** [ADR-0005](decisions/0005-roles-gate-signers-and-the-reviewer-ring.md) (2026-07-27)
 - **Blocks:** starting the ASDLC at all. ADR-0003 requires the tier configuration to be a
   versioned, security-relevant artifact reviewed at the strictest tier. ADR-0006 makes it
   the thing that decides what merges without a human, and adds a `launched` flag only this
@@ -354,7 +359,7 @@ changed once those facts were recorded on 2026-07-27.
 
 ## OQ-11 — Is progressive rollout with automated rollback achievable, and on what?
 
-- **Status:** closed → [ADR-0011](adr/0011-progressive-rollout.md) (2026-07-27)
+- **Status:** closed → [ADR-0011](decisions/0011-progressive-rollout.md) (2026-07-27)
 - **Answer:** achievable off the shelf at zero licence cost **if the deployment target is
   Kubernetes** — Flagger (Apache 2.0, CNCF graduated) is the named mechanism, Argo Rollouts the
   alternative; converges across variants. The rollback signal is a declared per-service SLO
@@ -367,7 +372,7 @@ changed once those facts were recorded on 2026-07-27.
   there. The deploy gate itself does not move: prerequisite 3 (defect-attribution history)
   still requires a running pilot. Research:
   [2026-07-27 — progressive rollout](research/2026-07-27-progressive-rollout.md).
-- **Opened by:** [ADR-0005](adr/0005-roles-gate-signers-and-the-reviewer-ring.md) part 6 (2026-07-27)
+- **Opened by:** [ADR-0005](decisions/0005-roles-gate-signers-and-the-reviewer-ring.md) part 6 (2026-07-27)
 - **Blocks:** the exit condition for the T3 automatic deploy path. Until this is answered,
   a human signs every deploy at every tier — which is the current rule, and is safe, but
   carries the batch-size risk ADR-0005 flags as its sharpest.
@@ -383,7 +388,7 @@ changed once those facts were recorded on 2026-07-27.
 
 ## OQ-12 — Can a required review or CI check be bypassed, and is the bypass recorded?
 
-- **Status:** closed → [ADR-0009](adr/0009-code-host.md) (2026-07-27)
+- **Status:** closed → [ADR-0009](decisions/0009-code-host.md) (2026-07-27)
 - **Answer:** researched per host, first-party and adversarially verified —
   [research note](research/2026-07-27-code-host-enforcement.md). GitLab Free/CE cannot block a
   merge on a missing review at all and records only sign-ins; Gitea OSS and Forgejo enforce
@@ -395,14 +400,14 @@ changed once those facts were recorded on 2026-07-27.
   named Enterprise Cloud upgrade trigger) in the cloud variant; Gerrit + Zuul in the self-hosted
   variant, with Forgejo as the named fallback and its audit-log issue as the reopen trigger.**
   The variants diverge at this layer by decision, and ADR-0009 prices the divergence.
-- **Opened by:** [ADR-0007](adr/0007-agent-runner-and-containment.md) and
-  [ADR-0008](adr/0008-agent-write-scope-and-enforcement.md) (2026-07-27); inherited from OQ-8's
+- **Opened by:** [ADR-0007](decisions/0007-agent-runner-and-containment.md) and
+  [ADR-0008](decisions/0008-agent-write-scope-and-enforcement.md) (2026-07-27); inherited from OQ-8's
   enforcement divergence, which the 2026-07-27 stack session did **not** close.
 - **Blocks:** choosing the code host, and therefore the last undecided layer of the stack. It also
   gates how much ADR-0008 is actually worth: **a boundary that can be bypassed silently is
   decoration.**
-- **Why it matters:** every gate in [ADR-0005](adr/0005-roles-gate-signers-and-the-reviewer-ring.md)
-  and every rule in [ADR-0006](adr/0006-tier-function-and-greenfield-cold-start.md) is enforced by
+- **Why it matters:** every gate in [ADR-0005](decisions/0005-roles-gate-signers-and-the-reviewer-ring.md)
+  and every rule in [ADR-0006](decisions/0006-tier-function-and-greenfield-cold-start.md) is enforced by
   the code host's branch protection and required-check machinery. If an administrator — or a
   producer with the right permission — can merge past a required review without leaving a record,
   the reviewer ring, the tier function and the never-write list are all advisory.
@@ -420,7 +425,7 @@ changed once those facts were recorded on 2026-07-27.
 
 ## OQ-13 — Is the chosen runner token-spend-only, or does it require a per-seat licence?
 
-- **Status:** closed → [ADR-0010](adr/0010-runner-licensing-token-spend-only.md) (2026-07-27)
+- **Status:** closed → [ADR-0010](decisions/0010-runner-licensing-token-spend-only.md) (2026-07-27)
 - **Answer:** token-spend-only, verified first-party 2026-07-27. *"Claude Code charges by API
   token consumption"*; on the Claude Console *"usage is billed per token to your organization"*,
   with API-key authentication a documented organizational setup and a dedicated restricted
@@ -428,7 +433,7 @@ changed once those facts were recorded on 2026-07-27.
   path, not a requirement. ADR-0007's fallback runner stands down to contingency; its
   convergence claim holds at full strength. One economic fact travels to OQ-7: the prompt cache
   lifetime on API-key billing is five minutes by default (an hour on subscription).
-- **Opened by:** [ADR-0007](adr/0007-agent-runner-and-containment.md) part 1 (2026-07-27)
+- **Opened by:** [ADR-0007](decisions/0007-agent-runner-and-containment.md) part 1 (2026-07-27)
 - **Blocks:** the self-hosted variant's compliance with its own definition. `CLAUDE.md` allows
   paid **models** in the self-hosted variant and disallows paid **platform** components. Whether
   the chosen runner is token-spend-only under API-key authentication, or requires a per-seat
@@ -444,6 +449,117 @@ changed once those facts were recorded on 2026-07-27.
 - **If it fails:** verify licences per repository for the fallback candidates. The only collected
   comparison is published by one of the runners in it and cites no capability data at all, so
   treat it as an inventory.
+
+## OQ-14 — What are the observability backend components?
+
+- **Status:** open
+- **Opened by:** [ADR-0012](decisions/0012-per-variant-stack-sheets.md) (2026-07-27), when assembling
+  the [cloud](../variants/cloud.md) and [self-hosted](../variants/self-hosted.md) stack sheets
+  made the gap countable.
+- **Blocks:** **phase-0 prerequisite 6** ([rollout plan](../rollout/plan.md) §2) — and
+  therefore the pilot, whose entire output is measurements. This is the most blocking of the four
+  gaps the sheets exposed.
+- **Why it matters:** [ADR-0003](decisions/0003-graduated-gating-machine-derived-tier.md) and
+  [ADR-0008](decisions/0008-agent-write-scope-and-enforcement.md) part 9 make instrumentation mandatory
+  from day one; without it graduated gating decays into drift and the relaxation rule has no
+  inputs. What they mandate is **OpenTelemetry export**, which is a wire protocol. No collector,
+  metrics backend, trace store, gate-record store, or dashboard tool has been chosen — in either
+  variant. Earlier records state that this layer "converges across variants at zero licence cost";
+  that is true of the protocol and has been carried forward as though it settled the components.
+  It did not.
+- **A record inconsistency to resolve, not inherit.**
+  [ADR-0011](decisions/0011-progressive-rollout.md) part 2 names **Prometheus** as the metric source and
+  states it introduces *"no new component"* because ADR-0003/0008 already mandate it. **Neither
+  ADR names Prometheus or any other backend.** Prometheus entered the stack through a
+  deployment-layer ADR without a decision record. Either confirm it as the metrics backend here,
+  or replace it — but do not keep citing it as already-decided.
+- **What would close it:** a dated, sourced selection for both variants covering — the OTel
+  collector deployment; the metrics backend (resolving the Prometheus question above); the store
+  for session and tool-invocation traces; the store for gate records ([artifact schemas](artifacts.md) §3's three record families
+  must be queryable, and the gate record is the audit trail); the dashboard tool for the three
+  dashboards named in [07-operate.md](../asdlc/07-operate.md) §3. Self-hosted must be
+  licence-cost-free; cloud may be managed. Where they converge, say so.
+- **Also needs:** retention. [ADR-0009](decisions/0009-code-host.md) accepts a 180-day audit horizon on
+  the cloud host with a named upgrade trigger; the gate-record store's own retention is unstated
+  and is what [OQ-6](#oq-6--does-approval-drift-reproduce-with-a-small-fixed-reviewer-pool)'s
+  longitudinal measurement depends on.
+
+## OQ-15 — How is SLSA Build Level 2 provenance assembled on the self-hosted variant?
+
+- **Status:** open
+- **Opened by:** [ADR-0008](decisions/0008-agent-write-scope-and-enforcement.md) part 8 named it as a
+  gap in its variant answers; numbered by [ADR-0012](decisions/0012-per-variant-stack-sheets.md)
+  (2026-07-27).
+- **Blocks:** the first self-hosted production deploy. Not the pilot, if the pilot runs on the
+  cloud variant as [recommended](../rollout/plan.md) §1.
+- **Why it matters:** this is the **sharpest divergence in the whole design**. The cloud variant
+  gets the SLSA v1.0 Build Level 2 floor natively through GitHub artifact attestations. The
+  self-hosted variant carries the identical *requirement* with unresearched *effort*. Every
+  deployable artifact is supposed to carry a signed attestation binding it to source commit,
+  workflow, and trigger.
+- **What would close it:** a dated, sourced design for assembling Build Level 2 equivalence in a
+  Gerrit + Zuul pipeline — what signs, what the attestation binds, where it is stored, and what
+  verifies it at deploy time. Licence-cost-free throughout.
+- **Notes:** **Sigstore is a lead, not a decision** — it is what the cloud host's native
+  attestations use underneath. Carry forward ADR-0008's own warning: attestation answers *where
+  did this come from*, never *is this safe*. The SLSA source itself says Build Level 2 is *"not a
+  guarantee that an artifact is secure."*
+- **Interacts with [OQ-17](#oq-17--where-do-deployable-artifacts-live-in-each-variant):** an
+  attestation has to attach to a stored artifact. Closing this without a registry is not possible.
+
+## OQ-16 — Which TLS-terminating egress proxy, and does credential masking work without one?
+
+- **Status:** open
+- **Opened by:** [ADR-0012](decisions/0012-per-variant-stack-sheets.md) (2026-07-27), on an internal
+  contradiction in [ADR-0007](decisions/0007-agent-runner-and-containment.md).
+- **Blocks:** a mandatory control. Affects **both variants** — this layer converges.
+- **The contradiction, stated plainly:**
+  - **ADR-0007 part 5** makes credential masking mandatory — the agent sees a per-session
+    sentinel and the proxy substitutes the real token only for named hosts. The record states
+    masking *"requires proxy TLS termination and fails closed without it."*
+  - **ADR-0007 part 4** describes the built-in proxy as deciding from the client-supplied
+    hostname **without inspecting TLS**, and defers a TLS-terminating proxy with its CA installed
+    inside the sandbox as the route to the stronger property — *"deferred, not dismissed."*
+  - So a mandatory control depends on a deferred component. As written, either masking does not
+    work, or the TLS-terminating proxy is not optional and must be specified.
+  [artifact schemas](artifacts.md) §5 carries the same requirement and the same
+  silence on which product provides it, noting only that it must be *"verified at setup, not
+  discovered from a 401."*
+- **What would close it:** a dated first-party answer on whether the runner's built-in proxy can
+  terminate TLS and perform substitution; if not, the named proxy product that can, its licence
+  (licence-cost-free for the self-hosted variant), how its CA is distributed into the sandbox on
+  macOS, Linux and WSL2, and what breaks when it is absent.
+- **Do not resolve this by weakening the control.** Dropping masking would put plaintext
+  credentials inside the sandbox, which
+  [ADR-0008](decisions/0008-agent-write-scope-and-enforcement.md) forbids outright.
+- **Related, and separately unresolved:** ADR-0007 part 4 already records that the egress
+  allowlist is a blast-radius control and **not** an anti-exfiltration control, because domain
+  fronting bypasses hostname-based decisions. A TLS-terminating proxy is the documented route to
+  changing that too. Whether to claim the stronger property is a decision this question should
+  surface, not assume.
+
+## OQ-17 — Where do deployable artifacts live, in each variant?
+
+- **Status:** open
+- **Opened by:** [ADR-0012](decisions/0012-per-variant-stack-sheets.md) (2026-07-27). Not previously
+  named anywhere — this is an absence, not a deferral.
+- **Blocks:** the first deploy in either variant, and [OQ-15](#oq-15--how-is-slsa-build-level-2-provenance-assembled-on-the-self-hosted-variant).
+- **Why it matters:** the design requires every deployable artifact to carry a signed provenance
+  attestation ([ADR-0008](decisions/0008-agent-write-scope-and-enforcement.md) part 8) and requires the
+  deploy pipeline to verify it ([06-deploy.md](../asdlc/06-deploy.md) §3). **An
+  attestation must attach to a stored artifact.** No record names an artifact registry, package
+  store, or container registry in either variant. The word does not appear in any ADR except as a
+  credential to deny.
+- **What would close it:** a named store per variant — cloud (managed is permitted) and
+  self-hosted (licence-cost-free) — covering container images and any other deployable form the
+  greenfield projects produce; how the provenance attestation is stored alongside or attached to
+  the artifact; how the deploy pipeline verifies it; retention and access control, given the
+  agent identity's write scope is bounded by ADR-0008.
+- **Depends on an owner-held fact:** the deployment target. If it is Kubernetes, this is
+  predominantly a container registry question. Off Kubernetes it widens.
+- **Notes:** ADR-0007 part 5 already requires **registry tokens** to be on the credential deny
+  list, so the agent must not hold them — which means the push happens in CI under CI's identity,
+  not in the agent session. State that explicitly when closing this.
 
 ---
 

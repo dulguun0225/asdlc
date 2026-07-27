@@ -10,11 +10,11 @@
 - **Method:** five candidate hosts researched in parallel, one research agent per host,
   first-party documentation only. Every decisive claim was then re-checked by an independent
   adversarial verifier that re-fetched the cited page and tried to refute or narrow the claim.
-  Verifier corrections are folded into the findings below and listed in
+  Verifier corrections are merged into the findings below and listed in
   [Refuted and corrected](#refuted-and-corrected--do-not-reintroduce). Forgejo was first
   researched directly in-session (the delegated agent hung twice); a later full re-run of the
   delegated workflow then completed, independently re-derived the same six Forgejo answers, and
-  its verifier confirmed all of them — the re-run's better-sourced details are folded into
+  its verifier confirmed all of them — the re-run's better-sourced details are merged into
   Finding 4. Two Gitea claims, one GitHub absence claim, and several Forgejo enforcement claims
   rest on source code or the product's own UI strings rather than rendered documentation —
   Forgejo's docs show most settings only as screenshots — and are flagged where they appear.

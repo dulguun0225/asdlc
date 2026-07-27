@@ -16,7 +16,7 @@ The agent drafts the plan. The ring reviewer signs it — the AI solution engine
 reviewing team, assigned by the ring ([roles.md](roles.md) §3). A team leader may sign instead
 **only if recorded as review-competent**.
 
-At T2 the spec gate folds into this one, so the signer asserts both the problem and the
+At T2 there is no separate spec gate, so this signer asserts both the problem and the
 approach.
 
 ## Two hard requirements

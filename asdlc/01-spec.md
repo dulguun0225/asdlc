@@ -7,7 +7,7 @@ doing at all.
 |---|---|
 | **Who drives** | AI solution engineer, driving an agent session |
 | **Artifact** | the spec |
-| **Gate** | **T1:** human gate — domain owner. **T2:** folded into the plan gate. **T3:** none. |
+| **Gate** | **T1:** human gate — domain owner. **T2:** no separate gate; the plan signer asserts both. **T3:** none. |
 | **The assertion** | *This is the right problem, and this is what "done" means.* |
 
 ## What happens

@@ -131,6 +131,19 @@ caveats at the end. When you give me more than one option, always
 list them: bold short label, then one sentence on what it trades off,
 and your recommendation in one line after.
 
+### Banned wording
+
+Never use these, in any file or chat reply. This is a hard list, not a
+preference. Each was removed from the repository once already; a
+re-appearance is a defect.
+
+| Banned | Use instead |
+|---|---|
+| folded into / folds into / fold into | say what actually happens: "no separate gate; the plan signer asserts both", "merged into", "is part of" |
+
+Add to this table whenever the owner rejects a word. Removing an entry
+needs the owner's say-so.
+
 ## Open items for this file
 
 These are unconfirmed and should be settled with the user, then recorded here:

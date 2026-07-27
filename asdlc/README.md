@@ -40,7 +40,7 @@ intended loop is decide → run → measure → revise.
 ```mermaid
 flowchart TD
     SPEC["1. Spec<br/>agent drafts, engineer drives"]
-    SG(["Spec gate — domain owner<br/>T1 only; folded into the plan gate at T2"])
+    SG(["Spec gate — domain owner<br/>T1 only; at T2 the plan signer asserts both"])
     PLAN["2. Plan / design<br/>agent drafts<br/>new paths must declare their tier here"]
     PG(["Plan gate — ring reviewer,<br/>or a review-competent team leader"])
     TASKS["3. Tasks<br/>mechanical decomposition"]

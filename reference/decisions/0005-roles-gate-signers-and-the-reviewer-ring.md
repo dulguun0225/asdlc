@@ -121,7 +121,7 @@ Superseding ADR-0004's version. Changed rows are marked.
 
 | Stage | T1 — high | T2 — default | T3 — low |
 |---|---|---|---|
-| Spec | human gate (domain owner) | folded into the plan gate | — |
+| Spec | human gate (domain owner) | no separate gate; the plan signer asserts both | — |
 | Plan / design | human gate | human gate | — |
 | Tasks | artifact + automated consistency check | same | — |
 | Merge | **changed:** platform owner + ring reviewer | **changed:** ring reviewer | automated checks only |

@@ -110,5 +110,5 @@ fetched 2026-07-27.
 - **Flagger's full webhook type list** and Argo Rollouts' analysis-template mechanics: not
   extracted; needed at implementation time, not for this decision.
 - **Operating cost:** both tools are licence-free; the run cost is operating Kubernetes, an
-  ingress/mesh, Prometheus, and the controller. Not quantified — it folds into the platform
+  ingress/mesh, Prometheus, and the controller. Not quantified — it is part of the platform
   owner's ops load (OQ-10), not into licence spend.

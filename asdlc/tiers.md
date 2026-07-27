@@ -22,7 +22,7 @@ Sources: [ADR-0003](../reference/decisions/0003-graduated-gating-machine-derived
 
 | Stage | T1 — high | T2 — default | T3 — low |
 |---|---|---|---|
-| [Spec](01-spec.md) | human gate — domain owner | folded into the plan gate | — |
+| [Spec](01-spec.md) | human gate — domain owner | no separate gate; the plan signer asserts both | — |
 | [Plan / design](02-plan.md) | human gate — ring reviewer, or review-competent team leader | same | — |
 | [Tasks](03-tasks.md) | artifact + automated consistency check (no human gate) | same | — |
 | [Merge](05-merge.md) | platform owner **+** ring reviewer | ring reviewer | automated checks only |

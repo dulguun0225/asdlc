@@ -70,7 +70,7 @@ review is.** Deploy is gated by a human at every tier.
 
 | Stage | T1 — high | T2 — default | T3 — low |
 |---|---|---|---|
-| Spec | human gate | folded into the plan gate | — |
+| Spec | human gate | no separate gate; the plan signer asserts both | — |
 | Plan / design | human gate | human gate | — |
 | Tasks | artifact + automated consistency check | same | — |
 | Merge | human, named path owner | human, any qualified reviewer | automated checks only, no human |

@@ -35,17 +35,41 @@ Level 2** as the floor — binding it to source commit, workflow, and trigger
 **Attestation answers *where did this come from*. It never answers *is this safe*.** Nobody
 may cite an attestation as a security guarantee.
 
-### This is the design's sharpest variant divergence
+### Two verification rules, and they bind both variants
 
-| | Cloud — GitHub | Self-hosted |
+These are the ones an implementer is most likely to get wrong, and neither is the default behaviour
+of a naive script ([ADR-0018](../reference/decisions/0018-self-hosted-provenance.md) part 4):
+
+- **Pin the signer-builder pair.** A valid signature alone is not verification. The SLSA
+  specification is explicit: *"Consumers MUST accept only specific signer-builder pairs."* The
+  pipeline asserts which builder produced the provenance, not merely that someone signed it.
+- **Fail closed when no attestation is found.** Deleting an attestation is easier than forging one,
+  and cosign's own documentation warns that verifiers *"must be carefully designed to work
+  correctly if an attacker can delete or hide any specific attestation."* Verify-if-present
+  protects nothing.
+
+The subject digest must equal the digest being deployed — which is meaningful only because deploys
+resolve digests and never tags (§4).
+
+### How each variant produces it
+
+| | Cloud — GitHub | Self-hosted — Gerrit + Zuul |
 |---|---|---|
-| Mechanism | **Native**: GitHub artifact attestations, Sigstore-signed, SLSA v1.0 Build Level 2 floor | **Must be assembled** in the build pipeline |
-| Cost | $0, included | Unresearched engineering |
-| Status | decided | **GAP — [OQ-15](../reference/open-questions.md)** |
+| Signer | **Native**: GitHub artifact attestations, Sigstore-signed | **cosign**, key-based, in a **Zuul config-project post-playbook** |
+| Key custody | the platform's | Zuul config-project secret — **unreachable from a proposed change**, so the agent structurally cannot sign |
+| Predicate source | the build platform | **Zuul job variables only**, never a file in the repository |
+| Verification | `gh attestation verify oci://…` | `cosign verify-attestation` + a policy pinning `builder.id` |
+| Transparency log | the platform's | **none** — not required at Build L2; the cost is recorded |
+| Cost | $0, included | **$0** licence; one playbook, one key, one verify step |
 
-The *requirement* is identical on both sides. The *effort* is not. Sigstore is the natural
-candidate to evaluate first on the self-hosted side — **that is a lead, not a decision**.
-Closing OQ-15 is required before the first self-hosted production deploy.
+**The effort divergence was overstated in earlier records.** Build L2 asks only for a hosted build
+platform and a signature from a key the platform alone holds; Zuul's trusted execution context
+supplies the second. What genuinely remains asymmetric is **maintenance** — the cloud chain is the
+host's to keep working, the self-hosted chain is ours.
+
+**Neither variant claims Build L3**, which additionally requires an ephemeral environment per
+build. And the spec's own limit applies to both: L2 *"does NOT protect against tampering during the
+build."*
 
 ## 4. Where deployable artifacts live
 
@@ -82,11 +106,9 @@ Gate record with `gate: "deploy"`, the signer, the **batch's tier breakdown**, a
 
 ## Not yet specified
 
-- **Self-hosted provenance assembly** ([OQ-15](../reference/open-questions.md)) — the last of the
-  four stack gaps, and now unblocked: the store exists and the attachment mechanism is settled.
-  What signs, and what the signature binds, is still open.
 - **What a deploy batch is scoped to** — per service, per repository, or per team — is not
-  stated anywhere.
+  stated anywhere. This is now the only undecided thing in this stage.
 
-The artifact registry was here until 2026-07-28 and is now specified by
-[ADR-0017](../reference/decisions/0017-artifact-registry.md).
+Both the artifact registry and the self-hosted provenance chain were listed here until 2026-07-28
+and are now specified by [ADR-0017](../reference/decisions/0017-artifact-registry.md) and
+[ADR-0018](../reference/decisions/0018-self-hosted-provenance.md).

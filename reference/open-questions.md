@@ -25,7 +25,36 @@ computer and the agent's local memory does not travel, so this section — not a
 the conversation — is where the state lives. Anyone finishing a session updates it
 ([`CLAUDE.md`](../CLAUDE.md) → "Assume every session starts on a different computer").
 
-### Last session: 2026-07-28 — the artifact registry
+### Last session: 2026-07-28 — self-hosted provenance. **All four stack gaps are now closed.**
+
+Landed [ADR-0018](decisions/0018-self-hosted-provenance.md) and its
+[research note](research/2026-07-28-self-hosted-provenance.md), closing
+[OQ-15](#oq-15--how-is-slsa-build-level-2-provenance-assembled-on-the-self-hosted-variant).
+**Both variant sheets are now complete bills of materials.** Nothing technological blocks phase 0.
+
+The answer: **cosign**, key-based, signing in a **Zuul config-project post-playbook**; SLSA
+Provenance v1 populated **only** from `zuul.*` job variables; attached as an OCI referrer in
+Harbor; verified with `cosign verify-attestation` against a **pinned signer-builder pair**, failing
+closed when no attestation is found.
+
+**The divergence was overstated.** Three records called this the design's sharpest divergence. Build
+L2 asks for two things — a hosted build platform and a signature from a key the platform alone
+holds — and Zuul's config-project trust boundary supplies the second for free. The build is one
+playbook, one key, one verify step.
+
+**Do not re-derive:**
+
+- **Keyless signing was rejected, not deferred** — it needs an OIDC provider Zuul does not issue.
+- **A transparency log is not part of L2.** Omitted deliberately, cost recorded.
+- **`resolvedDependencies` is empty by decision.** L2 does not require it; filling it is an SBOM
+  problem this design has never opened.
+- **Do not claim Build L3.** Zuul's node lifecycle was not researched.
+
+**Carried forward for someone else:** the **cloud** variant's L2 claim was not re-verified — the
+artifact-attestations page read this session does not mention SLSA build levels at all. ADR-0008
+part 8 rests on an earlier source. Re-check it rather than confirming it by repetition.
+
+### Session before: 2026-07-28 — the artifact registry
 
 Landed [ADR-0017](decisions/0017-artifact-registry.md) and its
 [research note](research/2026-07-28-artifact-registry.md), closing
@@ -143,10 +172,11 @@ The owner directed on 2026-07-28 that the agent drives the project to the end an
 to ask which question to take. Order is therefore decided by what blocks the most, and stated
 below rather than referred upward.
 
-- **Close the last blocking stack gap** —
-  [OQ-15](#oq-15--how-is-slsa-build-level-2-provenance-assembled-on-the-self-hosted-variant)
-  (self-hosted provenance). It affects the **self-hosted variant only**; the cloud variant's stack
-  sheet now has no research gaps at all. OQ-14, OQ-16 and OQ-17 all closed on 2026-07-28.
+- ~~**Close the blocking stack gaps**~~ — **done.** OQ-14, OQ-15, OQ-16 and OQ-17 all closed on
+  2026-07-28. Both [stack sheets](../variants/README.md) are complete bills of materials, and
+  **nothing technological blocks phase 0.** What remains before a pilot is staffing
+  ([OQ-10](#oq-10--who-fills-the-platform-owner-role)), bring-up, and the owner-held facts in
+  [context.md](context.md) "Not yet known".
 - **Fill the engineer-facing layer** — the "Not yet specified" section at the end of each
   file in [`asdlc/`](../asdlc/README.md) is the work list. Blocks nobody, but it is what makes
   the design handable to someone. Approved by the owner on 2026-07-27 as phase 2 of the
@@ -154,12 +184,22 @@ below rather than referred upward.
   artifacts are **done**. What remains: per-repository agent configuration, a testing strategy
   for agent-written code, and how the agent is prompted at each stage.
 
-**Next: OQ-15.** [ADR-0017](decisions/0017-artifact-registry.md) settled the store and the
-attachment mechanism (OCI referrers), so what remains is narrower than the question's original
-wording: **what signs, what the signature binds, and what verifies it at deploy time**, on a
-Gerrit + Zuul pipeline, licence-cost-free. Sigstore is a lead, not a decision. After that the four
-stack gaps are done and the remaining work is the engineer-facing layer plus
-[OQ-18](#oq-18--how-is-a-post-merge-defect-attributed-to-a-tier).
+**Next: the engineer-facing layer.** With the stack settled, the binding constraint on this design
+is no longer "can it be built" but "could someone be handed this and build it". The work list is
+the **"Not yet specified"** section at the end of each file in [`asdlc/`](../asdlc/README.md).
+What remains there, in the order they block a pilot engineer:
+
+1. **How agent-written code is tested** ([04-implementation.md](../asdlc/04-implementation.md)) —
+   no testing strategy is decided anywhere, and CI-green is a T3 precondition, so this is
+   load-bearing rather than cosmetic.
+2. **Per-repository agent configuration and what an agent session looks like** — how the engineer
+   hands the agent a task, and what context it gets at each stage.
+3. **What a deploy batch is scoped to** ([06-deploy.md](../asdlc/06-deploy.md)) — per service, per
+   repository, or per team. The only undecided thing left in that stage.
+
+[OQ-18](#oq-18--how-is-a-post-merge-defect-attributed-to-a-tier) is the remaining research
+question, and it blocks no bring-up step — only the T3 auto-deploy exit condition and the
+relaxation rule, both of which need a running pilot anyway.
 
 ### The load-bearing gaps, and their state
 
@@ -673,7 +713,37 @@ Phase-2 content needs research sessions, not assembly — the research-before-co
 
 ## OQ-15 — How is SLSA Build Level 2 provenance assembled on the self-hosted variant?
 
-- **Status:** open
+- **Status:** closed → [ADR-0018](decisions/0018-self-hosted-provenance.md) (2026-07-28).
+  **The last of the four stack gaps.**
+- **Answer:** **cosign** (Apache 2.0), key-based, signing in a **Zuul config-project post-playbook**;
+  the predicate is **SLSA Provenance v1** populated from Zuul's own job variables; it attaches
+  through the OCI referrers API in Harbor; the deploy pipeline runs `cosign verify-attestation`
+  against a **pinned signer-builder pair** and **fails closed when no attestation is found**.
+- **Why it was smaller than three records claimed.** L2 asks for exactly two things — *"All build
+  steps ran using a hosted build platform … not on an individual's workstation"* and *"a digital
+  signature from a private key accessible only to the build platform."* No transparency log, no
+  ephemeral environment, no hermetic build; those are L3 and above. And Zuul's trust model supplies
+  the key-custody half for free: config-project secrets *"run in the trusted execution context where
+  proposed changes are not used in executing jobs"*, so the agent's output — a proposed change in an
+  untrusted project — structurally cannot reach the signing key.
+- **Five things a later session must not re-derive**
+  ([research note](research/2026-07-28-self-hosted-provenance.md)):
+  - **Keyless signing is not required and was rejected.** It needs an OIDC provider Zuul does not
+    issue, which would mean self-hosting Fulcio and Rekor for a property L2 does not ask for.
+  - **A transparency log is not part of L2.** Omitted deliberately; the cost — no independent record
+    to bound a key compromise — is written down, with self-hosted Sigstore as the named upgrade.
+  - **Every predicate field comes from Zuul's job variables, never from a file in the repository.**
+    A predicate populated from repository-controlled input is self-attestation.
+  - **`resolvedDependencies` is left empty by decision**, not by oversight — it is an SBOM problem
+    this design has not opened, and L2 does not require it.
+  - **Do not claim Build L3.** The config-project property approaches L3's key-inaccessibility
+    condition, but L3 also needs an ephemeral environment per build, and Zuul's node lifecycle was
+    **not researched**.
+- **Carried forward for someone else to check:** the **cloud** variant's L2 claim was not
+  re-verified. The GitHub artifact-attestations page read on 2026-07-28 does not mention SLSA build
+  levels at all; [ADR-0008](decisions/0008-agent-write-scope-and-enforcement.md) part 8 rests on an
+  earlier source. Re-check it rather than confirming it by repetition.
+- **Superseded framing below**, kept for why the question existed.
 - **Opened by:** [ADR-0008](decisions/0008-agent-write-scope-and-enforcement.md) part 8 named it as a
   gap in its variant answers; numbered by [ADR-0012](decisions/0012-per-variant-stack-sheets.md)
   (2026-07-27).

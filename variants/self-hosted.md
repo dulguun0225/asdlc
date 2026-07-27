@@ -63,16 +63,27 @@ a phase-0 blocker.
 
 | Layer | Component | Licence / plan | Cost | Decided by | Status | Rules |
 |---|---|---|---|---|---|---|
-| Provenance | — **must be assembled** to SLSA v1.0 Build Level 2 equivalence | — | engineering | [ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) §8 variant answers | **GAP — [OQ-15](../reference/open-questions.md)**: tooling unresearched, carried as a named gap. **Sigstore is a lead, not a decision.** | [deploy](../asdlc/06-deploy.md) §3 |
+| Provenance signer | **cosign**, key-based (`--key`), in a **Zuul config-project post-playbook** | **Apache 2.0** (verified first-party 2026-07-28) | $0 licence | [ADR-0018](../reference/decisions/0018-self-hosted-provenance.md) §1 | decided — no OIDC provider and no Sigstore infrastructure needed. **Keyless was rejected**, not deferred | [deploy](../asdlc/06-deploy.md) §3 |
+| Signing key | Zuul **config-project secret**; T1 artifact, platform owner | — | custody + rotation | [ADR-0018](../reference/decisions/0018-self-hosted-provenance.md) §5 | decided — config-project secrets *"run in the trusted execution context where proposed changes are not used in executing jobs"*, so **the agent structurally cannot reach it**. Residual: single key, no transparency log | [schema](../reference/artifacts.md) §5 |
+| Provenance predicate | **SLSA Provenance v1** (in-toto, DSSE), populated **only** from `zuul.*` job variables | open standard | $0 | [ADR-0018](../reference/decisions/0018-self-hosted-provenance.md) §2 | decided — `builder.id` = Zuul tenant + pipeline; `invocationId` = `zuul.build`. **`resolvedDependencies` deliberately empty** | [deploy](../asdlc/06-deploy.md) §3 |
+| Provenance verification | **`cosign verify-attestation`** + CUE/Rego policy pinning the **signer-builder pair**; **fails closed on a missing attestation** | Apache 2.0 | $0 | [ADR-0018](../reference/decisions/0018-self-hosted-provenance.md) §4 | decided — *"Consumers MUST accept only specific signer-builder pairs."* Public key is reviewed T1 configuration | [deploy](../asdlc/06-deploy.md) §3 |
+| Transparency log | **none** | — | — | [ADR-0018](../reference/decisions/0018-self-hosted-provenance.md) §6 | decided — **not required at Build L2.** Cost recorded: no independent record to bound a key compromise. Upgrade path is self-hosted Sigstore | — |
 | Artifact registry | **Harbor** — **every deployable stored as an OCI artifact**, non-container ones via **ORAS** | **Apache 2.0** (verified first-party 2026-07-28); **CNCF graduated** | $0 licence + operations | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §1–2 | decided — project RBAC, tag retention and immutability rules. **Multi-component:** another system on the platform owner | [deploy](../asdlc/06-deploy.md) §3 |
 | Registry fallback | **zot** — *"single binary for all the features"*, *"no additional dependencies or services"* | **Apache 2.0**; **CNCF Sandbox** | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §7 | contingency — two triggers (§4). **Its referrers support is inferred from OCI conformance, not quoted** — verify before promoting it | — |
 | Attestation attachment | **OCI referrers API** — `/v2/<name>/referrers/<digest>`, added in distribution-spec 1.1 | open standard | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §1 | decided as the **mechanism**; what signs and what it binds is **[OQ-15](../reference/open-questions.md)** | [deploy](../asdlc/06-deploy.md) §3 |
 | Registry access | agent: **no credential**; CI: push; deploy: pull + verify; delete: platform owner at T1 | — | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §3 | decided — forced by [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §5: registry tokens are a `deny`, not a `mask` | [session](../asdlc/04-implementation.md) |
 | Artifact addressing | **digest, never tag**; tag immutability rules on release tags | — | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §4 | decided — a re-pushed tag migrates, so *"the tag can no longer be trusted to identify the image version"* | [deploy](../asdlc/06-deploy.md) §3 |
 
-**This is the sharpest divergence in the whole design.** The cloud variant gets SLSA Build Level 2
-free and native. Here the *requirement* is identical and the *effort* is not — it is unresearched
-engineering, and it is required before the first self-hosted production deploy.
+**This was called the sharpest divergence in the whole design, and it was overstated.** Researched
+2026-07-28: Build L2 asks only for a hosted build platform and a signature from a key the platform
+alone holds. Zuul's config-project trust boundary supplies the second for free. The self-hosted
+build is **one config-project playbook, one key, and one verification step** — real engineering
+reviewed at T1, not an open-ended assembly project
+([ADR-0018](../reference/decisions/0018-self-hosted-provenance.md)).
+
+**One asymmetry does remain, and it is not effort:** the cloud variant's attestations are produced
+and verified by tooling the host maintains; here the chain is ours to maintain, permanently, on the
+platform owner role.
 
 ### Deployment
 
@@ -168,18 +179,19 @@ enforcement grounds and did not record their licences.
 
 | # | Gap | Blocking? |
 |---|---|---|
-| [OQ-15](../reference/open-questions.md) | Provenance assembly to SLSA Build Level 2 — **now unblocked**, the store exists | **yes — before first production deploy** |
 | §3 above | Gerrit and Zuul licences unrecorded; **ORAS licence unverified** | **yes — the variant is defined by licence cost** |
 | — | Deployment target is Kubernetes or not (owner-held) | yes — off Kubernetes this variant has **no** rollout answer |
 | [OQ-18](../reference/open-questions.md) | How a post-merge defect is attributed to a tier | not for bring-up — blocks the T3 auto-deploy exit condition and the relaxation rule |
 
-Three of the four gaps the stack sheets exposed closed on 2026-07-28: **observability**
+**All four gaps the stack sheets exposed closed on 2026-07-28.** Observability
 ([ADR-0015](../reference/decisions/0015-observability-backend.md)), which added four components to
 this variant's operating load; the **TLS-terminating proxy**
 ([ADR-0016](../reference/decisions/0016-tls-terminating-proxy-and-credential-masking.md)), which
-added none, because the built-in proxy does it; and the **artifact registry**
-([ADR-0017](../reference/decisions/0017-artifact-registry.md)), which added one more.
-[OQ-15](../reference/open-questions.md) is the last, and ADR-0017 unblocked it.
+added none, because the built-in proxy does it; the **artifact registry**
+([ADR-0017](../reference/decisions/0017-artifact-registry.md)), which added one; and **provenance**
+([ADR-0018](../reference/decisions/0018-self-hosted-provenance.md)), which added a CLI and a key.
+This sheet is now a complete bill of materials. What is left is bring-up, verification, and the
+owner-held deployment target.
 
 **Two new bring-up verifications, both with a real chance of failing:**
 
@@ -193,9 +205,10 @@ added none, because the built-in proxy does it; and the **artifact registry**
   cosign-v3 display problems on 2.14.1 are a typing and UI defect, not a storage one — but confirm
   it rather than inherit it.
 
-**Registry backup joins the phase-0 backup list**, alongside the Prometheus snapshot and the Gerrit
-meta refs. Unlike those two it protects the ability to **roll back**, not the ability to
-investigate.
+**Registry and signing-key backup join the phase-0 backup list**, alongside the Prometheus snapshot
+and the Gerrit meta refs. Unlike those two they protect the ability to **deploy and roll back**,
+not the ability to investigate: lose the key and every retained artifact becomes unverifiable, and
+therefore undeployable, for its whole five-year retention.
 
 **Named triggers** ([ADR-0009](../reference/decisions/0009-code-host.md) §5,
 [ADR-0011](../reference/decisions/0011-progressive-rollout.md)):

@@ -115,18 +115,21 @@ point for a human**.
 
 ## Writing style
 
-Be precise first, simple second: say exactly what is true, no
-ambiguity. Keep technical terms when the everyday word is less exact.
-Within that: short sentences, everyday words, one idea per sentence.
-No business-speak or figurative filler.
-The style limits wording, not coverage: stay complete, keep every
+Always: precise first, simple second — exact over approximate, but
+plain words and short sentences within that. Keep technical terms
+when the everyday word is less exact. No business-speak or figurative
+filler. This limits wording, not coverage — stay complete, keep every
 edge case.
 
-This style applies to any text with a human reader — chat replies,
-documents, specs, plans, comments, reports — even if agents read it
-too. Only text no human reads (command definitions, agent
-instructions) is exempt; there, repeat key constraints and list every
-case when that helps reliability.
+## Formatting
+
+Always lead with the direct answer, then support it. Keep reasoning
+and argument in prose; bullets for parallel items only. Headers only
+when a reply covers three or more distinct topics. Use a table when
+comparing three or more things across two or more attributes. Collect
+caveats at the end. When you give me more than one option, always
+list them: bold short label, then one sentence on what it trades off,
+and your recommendation in one line after.
 
 ## Open items for this file
 

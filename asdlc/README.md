@@ -69,6 +69,7 @@ agent output volume ([ADR-0005](../reference/decisions/0005-roles-gate-signers-a
 |---|---|---|
 | — | [roles.md](roles.md) | Who exists, who may sign what, and the reviewer ring |
 | — | [tiers.md](tiers.md) | How a change's tier is computed, and which gates each tier gets |
+| — | [templates/](templates/README.md) | The three artifacts a feature produces, and the traceability chain through them |
 | 1 | [01-spec.md](01-spec.md) | Stating the problem and what "done" means |
 | 2 | [02-plan.md](02-plan.md) | The approach, and declaring the tier of every new path |
 | 3 | [03-tasks.md](03-tasks.md) | Decomposition — an artifact, not a gate |

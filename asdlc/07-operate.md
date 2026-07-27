@@ -56,7 +56,7 @@ is not a rollback path.
 
 ## 3. Mandatory instrumentation, from day one
 
-Three record families, all exported by **OpenTelemetry** from every agent session and CI job
+Four record families, all exported by **OpenTelemetry** from every agent session and CI job
 ([reference/artifacts.md](../reference/artifacts.md) for the schemas):
 
 1. **Session traces** — every tool invocation, the session's requester, agent identity, spend,
@@ -65,6 +65,11 @@ Three record families, all exported by **OpenTelemetry** from every agent sessio
    fired, for every signature at every gate.
 3. **Per-tier metrics** — volume, approval rate, change-request rate, post-merge defect
    attribution, revert rate, deploy batch size, reviewer-reassignment count.
+4. **Requirements traces** — per feature and per requirement: verification coverage, escape-hatch
+   use, requirements amended after signature
+   ([reference/artifacts.md](../reference/artifacts.md) §7). This is the record that makes
+   [ADR-0014](../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md)'s bet
+   on EARS falsifiable rather than merely asserted.
 
 **Without this the relaxation rule has no inputs and graduated gating decays into drift.**
 That is why observability is a phase-0 prerequisite and not a later concern: the pilot's
@@ -119,4 +124,8 @@ recorded as a direction, not a plan item.
 - **The entire observability backend** ([OQ-14](../reference/open-questions.md)) — blocking.
 - **How post-merge defects are attributed to a tier.** The metric is mandatory from day one
   and no attribution method is defined. Without it, condition 3 in §4 can never be evaluated.
+  [ADR-0014](../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md) makes
+  the finer-grained half possible — an incident can name the requirement it violated, and that
+  requirement names its tests and the changes that touched them — but **enabling attribution is
+  not defining it**, and the tier-level rule is still missing.
 - **The ingress controller**, if the target is Kubernetes — left open as a platform choice.

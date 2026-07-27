@@ -52,6 +52,26 @@ is welcome — framed as **finding faults**, never as confirming success
 
 That framing is the rule. An agent asked "is this plan good?" is not performing review.
 
+## The artifact
+
+`specs/<NNN>-<kebab-slug>/plan.md` — template: [templates/plan.md](templates/plan.md), rules:
+[ADR-0014](../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md). No
+approval line; the approval is the gate record.
+
+Three of its sections are required by records outside the template, and together they are why
+this is the heaviest gate in the design:
+
+| Section | Required by | What it carries |
+|---|---|---|
+| Requirements traceability | ADR-0014 part 4 | every active `FR` and `NFR` mapped to the design element that satisfies it — none missing, none invented |
+| Tier-map entries | [ADR-0006](../reference/decisions/0006-tier-function-and-greenfield-cold-start.md) part 1 | a map entry for every new path, as a diff to the map file in the same change |
+| NFR enforcement | [ADR-0011](../reference/decisions/0011-progressive-rollout.md), [06-deploy.md](06-deploy.md) | per-service SLO values **proposed** here; the platform owner sets them at T1 |
+
+The map entries go in as a **diff to the repository's map file**, not as a block of text the plan
+alone holds. The map file is T1 by tier-function rule 1, so the platform owner reviews that diff
+even though the plan itself is not T1 — which is the point: the agent can never widen its own
+permissions through a plan.
+
 ## Records
 
 Gate record with `gate: "plan"`, the signer, and the hash of the plan text
@@ -66,9 +86,9 @@ host — see [05-merge.md](05-merge.md) §3.
 
 ## Not yet specified
 
-- **No plan template exists.** What a plan must contain beyond its map entries is undecided.
-- **How map entries are proposed and reviewed inside a plan** — as a diff to the map file, or
-  as a block in the plan document — is undecided. It matters, because the map file itself is
-  T1 and the plan is not.
-- **Per-service SLO values** are proposed in a service's first plan
-  ([06-deploy.md](06-deploy.md)), but no format for proposing them exists.
+- **How the agent is prompted to draft a plan** is undecided, including how the critique pass
+  above is invoked.
+- **The contract table shapes are generic.** They fit an HTTP-and-messaging service; a feature of
+  another shape (a batch job, a library) has no worked example to follow.
+- **Nothing yet checks that a proposed SLO value is achievable.** The plan proposes, the platform
+  owner disposes, and neither has data until the pilot runs.

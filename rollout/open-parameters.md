@@ -15,6 +15,8 @@ rows point at an open question because the parameter cannot be set until that re
 | Per-tier session spend ceilings | pilot measurement ([OQ-7](../reference/open-questions.md)) | no — start with a generous ceiling, tighten on data |
 | Per-service SLO values | platform owner at T1, proposed in the service's first plan | per service |
 | T1 pre-run CI-gate mechanism on GitHub (per-push human authorisation) | platform owner at bring-up | before the first T1 change |
+| **The feature-artifact checker** — the seven blocking checks of [ADR-0014](../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md) part 7, plus the merge-time requirement→test pass and the trace artifact | platform owner at bring-up | before the first T1/T2 change |
+| How the pinned `spec.md` / `plan.md` hashes get rewritten (checker flag, hook, or manual) | platform owner at bring-up | no — a manual step works |
 | Concrete map contents per repository | each plan gate — [asdlc/02-plan.md](../asdlc/02-plan.md) | no — that *is* the mechanism |
 | Private-repo fork-approval verification (GitHub) | platform owner at bring-up | no — the pipeline-level T1 gate covers the interim |
 | Self-hosted provenance assembly design | research ([OQ-15](../reference/open-questions.md)) | before first self-hosted production deploy |

@@ -72,6 +72,11 @@ Build and verify the shared artifacts before any team touches the system:
 - The tier-function job, T3 proof checkers, requester check, and reassignment job
   implemented and tested against fixture repos ([tiers.md](../asdlc/tiers.md) §3,
   [05-merge.md](../asdlc/05-merge.md) §4, [roles.md](../asdlc/roles.md) §3).
+- **The feature-artifact checker** — seven blocking checks plus the merge-time requirement→test
+  pass, emitting the requirements trace
+  ([03-tasks.md](../asdlc/03-tasks.md), [ADR-0014](../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md)).
+  Wired as a required status check, with the templates copied into the phase-1 repository
+  template.
 - Ruleset template, CODEOWNERS template, agent machine account (no write access), fork-PR
   flow verified — including the **private-repository fork-approval check** flagged in
   [open-parameters.md](open-parameters.md); until it verifies, the pipeline-level T1 gate — a per-push human
@@ -84,7 +89,8 @@ Build and verify the shared artifacts before any team touches the system:
 spec, plan (with map entry), tasks check, agent implementation in sandbox, tier computed,
 ring review, merge, attested deploy — with every gate record landing in the observability
 store. A deliberate rule-1 change by the agent identity is rejected; a deliberate unmapped
-path fails CI naming the path.
+path fails CI naming the path; a deliberate edit to a signed spec breaks its pinned hash and
+fails the tasks check.
 
 ## 4. Phase 2 — pilot (default: 3 teams, one quarter; owner-adjustable)
 
@@ -111,6 +117,11 @@ human-signed.
   re-signing on tier escalation fires, deploy batch sizes.
 - **The rehearsed launch gate** — at least one pilot repository should flip `launched`
   during the quarter, exercising the full-map T1 review.
+- **Whether the requirements notation fits** — from the requirements traces
+  ([reference/artifacts.md](../reference/artifacts.md) §7): the `[form: …]` escape rate, how
+  often a signed spec is amended, and requirement verification coverage at feature close. Above
+  roughly one escape in ten requirements, EARS reopens
+  ([ADR-0014](../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md)).
 
 **Abort criteria for the pilot** — new owner-adjustable defaults, like the pilot size (stop
 and redesign rather than push through): the ring's same-working-day SLA breaches chronically

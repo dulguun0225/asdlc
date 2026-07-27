@@ -15,6 +15,8 @@ Every file format this design defines, in one place — for whoever writes the c
 | 3 | Gate record | platform owner | T1 | [asdlc/tiers.md](../asdlc/tiers.md) §2 |
 | 4 | Ring configuration | platform owner | T1 | [asdlc/roles.md](../asdlc/roles.md) §3 |
 | 5 | Managed settings | platform owner | T1 | [asdlc/04-implementation.md](../asdlc/04-implementation.md) |
+| 6 | Feature artifacts — spec, plan, tasks | the feature's team | T1/T2 by content | [asdlc/templates/](../asdlc/templates/README.md) |
+| 7 | Requirements trace | — (generated) | — | [ADR-0014](decisions/0014-feature-artifacts-and-the-traceability-chain.md) part 9 |
 
 ---
 
@@ -176,3 +178,71 @@ Plus, in the same managed scope:
 
 Known residual holes, compensated rather than closed, are listed in
 [asdlc/04-implementation.md](../asdlc/04-implementation.md) §4.
+
+## 6. The feature artifacts
+
+Three markdown files per feature, in the repository whose code they govern, at
+`specs/<NNN>-<kebab-slug>/`. Schema fixed by
+[ADR-0014](decisions/0014-feature-artifacts-and-the-traceability-chain.md); the templates
+themselves are the specification and live in [asdlc/templates/](../asdlc/templates/README.md).
+
+| File | Carries |
+|---|---|
+| `spec.md` | `FR-nnn` in EARS, `NFR-nnn` field sets, `SC-nnn`, `OI-nnn`, scope and assumptions |
+| `plan.md` | design and contracts, the requirements traceability table, **tier-map entries for every new path**, the NFR enforcement table, the decision trace |
+| `tasks.md` | `T-nnn` items citing `[FR-nnn]`, each naming its verifying test, and the **pinned `spec.md` / `plan.md` hashes** the decomposition was derived from |
+
+Properties that are rules, not style:
+
+- **No `Status:` or approval line in any of them.** The approval is the §3 gate record, which
+  binds to the file's sha256. Editing a signed artifact invalidates the signature mechanically.
+- **Ids are stable** — never renumbered, never reused; a dropped requirement stays `WITHDRAWN`.
+  Ids are local to the feature folder; outside it the reference is qualified `NNN:FR-nnn`.
+- **`artifact_hash` for these is sha256 over the file's bytes at the reviewed commit.** Text is
+  LF, filenames lowercase-kebab-case — both change the hash without changing the content.
+- **T3 changes carry no feature artifacts.** T1 and T2 changes reference a feature folder whose
+  spec and plan have current gate records.
+
+## 7. Requirements trace
+
+Emitted by the feature-artifact checker, posted on the change as a **required artifact, not a log
+line**, and exported to the observability store with the other record families
+([asdlc/07-operate.md](../asdlc/07-operate.md) §3).
+
+```json
+{
+  "feature": "014-password-reset",
+  "spec_hash": "<sha256 of spec.md>",
+  "plan_hash": "<sha256 of plan.md>",
+  "hashes_match_gate_records": true,
+  "requirements": [
+    {
+      "id": "FR-003",
+      "class": "functional",
+      "pattern": "unwanted-behaviour",
+      "state": "active",
+      "plan_elements": ["§3 POST /password-reset"],
+      "tasks": ["T-004", "T-007"],
+      "tests": ["tests/api/test_reset.py"],
+      "verified": true
+    },
+    {
+      "id": "NFR-001",
+      "class": "non-functional",
+      "enforcement": "canary",
+      "metric": "request-success-rate",
+      "threshold": ">=99.5%",
+      "state": "active",
+      "verified": true
+    }
+  ],
+  "escapes": [{"id": "FR-011", "form": "table", "reason": "rate table, five preconditions"}],
+  "smells": [{"id": "FR-006", "smell": "subjective-language", "term": "quickly"}],
+  "coverage": {"active": 12, "planned": 12, "tasked": 12, "tested": 11}
+}
+```
+
+`verified` is `true` for a functional requirement when at least one test file cites it as
+`NNN:FR-nnn` **and** CI is green. It means a test exists and passes — not that the requirement is
+met. `escapes` and `smells` are advisory and never block; `coverage` is what the relaxation rule
+and [OQ-6](open-questions.md) read over time.

@@ -34,6 +34,16 @@ T1 work between signature and merge
   agent-authored code
   ([ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) part 7).
 - **Agent review runs as an input to the human gate, never as the gate.**
+- **Every requirement a completed task claims must be cited back from a passing test.** For each
+  task this change marks done, each `FR` it cites must appear as `NNN:FR-nnn` in at least one
+  test file in the repository, and CI must be green
+  ([ADR-0014](../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md) part 4).
+  A test citing a requirement is **evidence, not proof** — agent-written tests are broader and
+  flakier than human ones, so this check narrows what the human signer has to look for; it does
+  not replace the assertion.
+- **A T1 or T2 change with no feature folder fails.** T3 changes carry no feature artifacts at
+  all ([03-tasks.md](03-tasks.md)). This is the same failure shape as a tier escalation: a change
+  that turns out T1 or T2 without a signed spec and plan is a plan defect surfaced at merge.
 
 ## 3. How each variant enforces this
 

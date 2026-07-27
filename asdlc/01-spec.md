@@ -26,11 +26,32 @@ Spec and plan gates fire **once per feature**, not once per change. This is what
 gate scheme affordable: agent output volume can rise without raising the number of spec
 signatures. Merge gates absorb the volume instead.
 
+## The artifact
+
+`specs/<NNN>-<kebab-slug>/spec.md`, in the repository whose code the feature governs —
+template: [templates/spec.md](templates/spec.md), rules:
+[ADR-0014](../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md).
+
+Functional requirements are **EARS sentences under stable `FR-nnn` ids**, one testable behaviour
+each, ids never renumbered or reused. Operational properties are `NFR-nnn` field sets that name
+an enforcement point — for most of them the canary threshold that later aborts a bad deploy.
+Outcomes observed after shipping are `SC-nnn`; stated unknowns are `OI-nnn` with an owner.
+
+**The spec carries no approval line.** Nobody types "approved" into it — see Records below.
+
+**T3 changes have no spec.** Documentation, comments-only, formatting-only, tests-only and
+qualifying lockfile changes carry no feature artifacts at all
+([tiers.md](tiers.md) §4). T1 and T2 changes must reference a feature folder with a signed spec.
+
 ## Records
 
 The signature produces a gate record with `gate: "spec"`, the signer, the assertion, and the
 **hash of the spec text signed** — see [reference/artifacts.md](../reference/artifacts.md) §3.
 Editing the spec after signing invalidates the signature in effect.
+
+Because the spec is a committed file, that hash is sha256 over its bytes at the reviewed commit
+and needs no separate machinery. This is why the spec lives in the repository rather than in a
+ticket or a wiki.
 
 ## Variants
 
@@ -41,8 +62,10 @@ the code host.
 
 Named here rather than left as an absence:
 
-- **No spec template exists.** What sections a spec must carry, and what makes a definition of
-  done acceptable to a domain owner, are undecided. Nothing in the ADRs constrains them.
-- **Where the spec lives** — repository, ticket, or wiki — is undecided, and the artifact-hash
-  rule needs it to live somewhere hashable.
-- **How the agent is prompted to produce one** is undecided.
+- **How the agent is prompted to produce one** is undecided. The template constrains the output;
+  nothing yet constrains the session that writes it.
+- **What makes a definition of done acceptable to a domain owner** is a review question with no
+  written standard — the template's success-criteria and unwanted-behaviour rules are the
+  closest thing to one.
+- **The authoring language** is English by default and unconfirmed
+  ([context.md](../reference/context.md)).

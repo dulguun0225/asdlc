@@ -20,10 +20,32 @@ changed once those facts were recorded on 2026-07-27.
 
 ## What to pick up next
 
-Committed rather than left in a session's memory, because the project is developed from more
-than one computer and that memory does not travel.
+**This is the handover note between sessions.** Every session runs on a possibly different
+computer and the agent's local memory does not travel, so this section — not a memory file, not
+the conversation — is where the state lives. Anyone finishing a session updates it
+([`CLAUDE.md`](../CLAUDE.md) → "Assume every session starts on a different computer").
 
-**As of 2026-07-27, two bodies of work are live and their order is not settled.**
+### Last session: 2026-07-27 — the feature artifacts
+
+Landed [ADR-0014](decisions/0014-feature-artifacts-and-the-traceability-chain.md), its
+[research note](research/2026-07-27-spec-plan-task-templates.md), and the spec / plan / tasks
+templates in [`asdlc/templates/`](../asdlc/templates/README.md). Prompted by the owner, who
+asked for EARS with traceability and pointed at their two existing conventions
+([`sdd-standard`](https://github.com/dulguun0225/sdd-standard) — private, read from a local
+clone at `65dc49e` — and
+[`spec-kit-bundle-nc`](https://github.com/dulguun0225/spec-kit-bundle-nc)).
+
+What changed beyond those two conventions, in one line each: the trace ends at a **passing test**
+rather than at a task; approval binds to a **content hash** instead of a typed status line;
+**non-functional requirements** become the canary thresholds that abort a bad deploy; the
+tasks-stage check is **defined**; and the pressure valve is the **tier function** rather than a
+second author-judged trigger list.
+
+Two things a later session must not re-derive: EARS's effect on agent-written code is **still
+unmeasured** (the nearest evidence is that ambiguity degrades code generation), and three
+circulating productivity figures failed verification — the note's "do not reintroduce" list.
+
+### Two bodies of work are live, and their order is not settled
 
 - **Close the four blocking stack gaps** — [OQ-14](#oq-14--what-are-the-observability-backend-components)
   (observability backend), [OQ-16](#oq-16--which-tls-terminating-egress-proxy-and-does-credential-masking-work-without-one)
@@ -34,20 +56,27 @@ than one computer and that memory does not travel.
 - **Fill the engineer-facing layer** — the "Not yet specified" section at the end of each
   file in [`asdlc/`](../asdlc/README.md) is the work list. Blocks nobody, but it is what makes
   the design handable to someone. Approved by the owner on 2026-07-27 as phase 2 of the
-  restructure ([ADR-0013](decisions/0013-layout-by-subject.md)).
+  restructure ([ADR-0013](decisions/0013-layout-by-subject.md)). The spec, plan and task
+  artifacts are **done**. What remains: per-repository agent configuration, a testing strategy
+  for agent-written code, and how the agent is prompted at each stage.
 
 **Recommendation: OQ-14 first.** It blocks the most, and every measurement the design depends
-on needs it. **Not yet confirmed by the owner** — ask before starting.
+on needs it — including the **fourth record family** ADR-0014 added, the requirements trace.
+**Not yet confirmed by the owner** — ask before starting.
 
-Two of the engineer-facing gaps are load-bearing rather than cosmetic, and should be treated
-as design defects rather than missing documentation:
+### The load-bearing gaps, and their state
 
-- **What the tasks-stage consistency check actually checks** is undefined
-  ([asdlc/03-tasks.md](../asdlc/03-tasks.md)). It is the only check in the design with no
-  mechanism.
-- **How post-merge defects are attributed to a tier** is undefined
+- ~~**What the tasks-stage consistency check actually checks**~~ — **closed 2026-07-27** by
+  [ADR-0014](decisions/0014-feature-artifacts-and-the-traceability-chain.md) part 7: seven
+  blocking checks, of which hash pinning is the one that makes "consistent with the signed plan"
+  literal.
+- **How post-merge defects are attributed to a tier** is still undefined
   ([asdlc/07-operate.md](../asdlc/07-operate.md)). The metric is mandatory from day one, and
-  without it the third exit condition for automatic T3 deploys can never be evaluated.
+  without it the third exit condition for automatic T3 deploys can never be evaluated. ADR-0014
+  makes an incident able to name the *requirement* it violated; the *tier* rule is still missing.
+- **The feature-artifact checker is unwritten.** Specified, not built — a phase-0 bring-up task
+  in [rollout/open-parameters.md](../rollout/open-parameters.md), not a research question. Do not
+  open an OQ for it.
 
 Phase-2 content needs research sessions, not assembly — the research-before-content rule in
 [`CLAUDE.md`](../CLAUDE.md) applies in full.

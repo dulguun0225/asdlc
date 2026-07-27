@@ -12,10 +12,26 @@ There is no application code, build system, test suite, or package manifest — 
 
 The repository is under version control (branch `master`). Don't commit unless asked.
 
-The project is developed from more than one computer. Claude Code's per-project memory
-directory lives under the user's home directory and is **not** part of the repository, so
-it does not travel between machines — assume it is empty. Anything that must survive a
-machine switch belongs in a committed file: this one, or the design and reference directories.
+## Assume every session starts on a different computer
+
+Assume it every time, without being told. The project is developed from more than one machine,
+and Claude Code's per-project memory directory lives under the user's home directory — it is
+**not** part of the repository and does not travel. Treat it as empty, never rely on it, and
+never make the owner repeat context that a committed file should have carried.
+
+Two obligations follow, and neither is optional:
+
+1. **Read the state before working.** [`reference/open-questions.md`](reference/open-questions.md)
+   → "What to pick up next" is the handover note. That section, this file, and the design and
+   reference directories are the *only* session state that exists.
+2. **Write the state before finishing.** Any session that changes something ends by updating that
+   same section: what landed, what it closed or opened, and what the next session should pick up
+   and why. A finding, a rejected option, or a half-answered question is state too — if it exists
+   only in the conversation, it is lost at the end of it.
+
+**Uncommitted work does not travel either.** When a session produces something that matters, say
+so and offer to commit it. "Don't commit unless asked" means do not commit silently; it does not
+mean leave the work stranded on one machine.
 
 ## Two variants, tracked in parallel
 

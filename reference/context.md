@@ -90,6 +90,12 @@ Facts the owner holds that are still missing. Each is stated as what it blocks.
 - **Who fills the platform owner role?** [OQ-10](open-questions.md).
 - **How many projects run at once, and does each CFT own one?** Affects whether the tier
   configuration is per repository or centralised.
+- **What language are specs authored in?** The templates
+  ([asdlc/templates/](../asdlc/templates/README.md)) assume **English**, as both of the owner's
+  existing conventions do, because EARS keywords are English and the code and tooling are. This
+  is a starting default, not a confirmed fact. If the answer is Mongolian, the requirement
+  sentences keep the English keywords and the surrounding prose changes, plus a glossary — that
+  is a template edit, not a design change.
 - **What operating system do the 18 AI solution engineers work on?** Now load-bearing rather than
   incidental: the agent runner's sandbox does not run on native Windows
   ([ADR-0007](decisions/0007-agent-runner-and-containment.md) part 3), so any Windows-based engineer

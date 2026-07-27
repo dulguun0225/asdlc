@@ -25,6 +25,7 @@ reference/    the working record — decisions, research, open questions, schema
 | If you want to | Start at |
 |---|---|
 | **Understand the life cycle** | [asdlc/README.md](asdlc/README.md) — includes the flow diagram |
+| **Write a spec, a plan, or a task list** | [asdlc/templates/](asdlc/templates/README.md) |
 | **Build one variant** | [variants/cloud.md](variants/cloud.md) or [variants/self-hosted.md](variants/self-hosted.md) — each is self-contained |
 | **Know what to do first** | [rollout/plan.md](rollout/plan.md) |
 | **Know why something was decided** | [reference/decisions/](reference/decisions/README.md) |
@@ -37,7 +38,8 @@ decision record. On any conflict, the ADR wins and the design document has a bug
 
 **Decided:** the gate structure and who signs each gate; the tier system and the function that
 computes a tier; the agent runner and its containment; the code host for both variants; the
-progressive-rollout layer; the runner's licensing.
+progressive-rollout layer; the runner's licensing; the spec, plan and task artifacts and the
+traceability chain through them.
 
 **Not decided, and blocking:**
 
@@ -49,10 +51,11 @@ progressive-rollout layer; the runner's licensing.
 | Self-hosted provenance assembly ([OQ-15](reference/open-questions.md)) | First self-hosted production deploy |
 | Platform owner and backup — **a role that does not exist yet** ([OQ-10](reference/open-questions.md)) | Everything. It owns almost every artifact in the design. |
 
-**Thin, and named as such:** the day-to-day engineer-facing layer. There are no spec, plan, or
-task templates; no per-repository agent configuration; no testing strategy for agent-written
-code. Each stage file in [`asdlc/`](asdlc/README.md) ends with a "Not yet specified" section
-listing exactly what is missing from it.
+**Thin, and named as such:** the day-to-day engineer-facing layer. The spec, plan and task
+templates now exist ([asdlc/templates/](asdlc/templates/README.md)), but the checker that
+enforces them is unwritten, and there is still no per-repository agent configuration and no
+testing strategy for agent-written code. Each stage file in [`asdlc/`](asdlc/README.md) ends with
+a "Not yet specified" section listing exactly what is missing from it.
 
 ## The design's own footing
 

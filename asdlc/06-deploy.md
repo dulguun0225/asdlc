@@ -49,18 +49,44 @@ Closing OQ-15 is required before the first self-hosted production deploy.
 
 ## 4. Where deployable artifacts live
 
-**Undecided, in both variants** ([OQ-17](../reference/open-questions.md)). Nothing in the
-record names an artifact registry — and attestations must attach to something. Blocking before
-the first deploy on either side.
+**Every deployable is an OCI artifact** — images natively, everything else pushed with ORAS —
+so one registry per variant holds all of them and one attestation mechanism covers all of them
+([ADR-0017](../reference/decisions/0017-artifact-registry.md)). Cloud: **GitHub Container
+Registry**. Self-hosted: **Harbor**, with **zot** as the named fallback. The attestation attaches
+through the **OCI referrers API**, in the same repository, discoverable by digest.
+
+**This is why the deployment target no longer decides anything here.** Off Kubernetes, the deploy
+host pulls an OCI artifact with an ORAS client instead of a container runtime pulling an image.
+
+### Three rules, not preferences
+
+- **Deploy by digest, never by tag.** An attestation binds to a digest. A re-pushed tag migrates
+  to a different artifact, so a pipeline that resolves a tag can verify one thing and run another.
+  The gate record's `artifact_ref` names the digest.
+- **The registry UI is not evidence.** Verification is what the deploy pipeline does, and its
+  result is authoritative. A registry that displays "not signed" is a display defect until the
+  pipeline agrees; one that displays "signed" gates nothing.
+- **You cannot roll back to an artifact you deleted.** Anything that reached production is kept
+  **5 years**, matching the gate-record horizon. Retention here is a correctness rule, because
+  rollback ([07-operate.md](07-operate.md) §1) redeploys a previous version.
+
+**The agent holds no registry credential.** Registry tokens are a `deny`, never a `mask`
+([ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) part 5), so the push
+happens in CI under CI's identity, after the gates.
 
 ## Records
 
-Gate record with `gate: "deploy"`, the signer, and additionally the **batch's tier
-breakdown** — see [reference/artifacts.md](../reference/artifacts.md) §3.
+Gate record with `gate: "deploy"`, the signer, the **batch's tier breakdown**, and an
+`artifact_ref` naming the **digest** deployed — see
+[reference/artifacts.md](../reference/artifacts.md) §3.
 
 ## Not yet specified
 
-- **The artifact registry** ([OQ-17](../reference/open-questions.md)).
-- **Self-hosted provenance assembly** ([OQ-15](../reference/open-questions.md)).
+- **Self-hosted provenance assembly** ([OQ-15](../reference/open-questions.md)) — the last of the
+  four stack gaps, and now unblocked: the store exists and the attachment mechanism is settled.
+  What signs, and what the signature binds, is still open.
 - **What a deploy batch is scoped to** — per service, per repository, or per team — is not
   stated anywhere.
+
+The artifact registry was here until 2026-07-28 and is now specified by
+[ADR-0017](../reference/decisions/0017-artifact-registry.md).

@@ -64,7 +64,11 @@ a phase-0 blocker.
 | Layer | Component | Licence / plan | Cost | Decided by | Status | Rules |
 |---|---|---|---|---|---|---|
 | Provenance | — **must be assembled** to SLSA v1.0 Build Level 2 equivalence | — | engineering | [ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) §8 variant answers | **GAP — [OQ-15](../reference/open-questions.md)**: tooling unresearched, carried as a named gap. **Sigstore is a lead, not a decision.** | [deploy](../asdlc/06-deploy.md) §3 |
-| Artifact registry | — | — | — | — | **GAP — [OQ-17](../reference/open-questions.md)**: nothing in the record names where deployable artifacts live. Provenance must attach to something. | — |
+| Artifact registry | **Harbor** — **every deployable stored as an OCI artifact**, non-container ones via **ORAS** | **Apache 2.0** (verified first-party 2026-07-28); **CNCF graduated** | $0 licence + operations | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §1–2 | decided — project RBAC, tag retention and immutability rules. **Multi-component:** another system on the platform owner | [deploy](../asdlc/06-deploy.md) §3 |
+| Registry fallback | **zot** — *"single binary for all the features"*, *"no additional dependencies or services"* | **Apache 2.0**; **CNCF Sandbox** | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §7 | contingency — two triggers (§4). **Its referrers support is inferred from OCI conformance, not quoted** — verify before promoting it | — |
+| Attestation attachment | **OCI referrers API** — `/v2/<name>/referrers/<digest>`, added in distribution-spec 1.1 | open standard | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §1 | decided as the **mechanism**; what signs and what it binds is **[OQ-15](../reference/open-questions.md)** | [deploy](../asdlc/06-deploy.md) §3 |
+| Registry access | agent: **no credential**; CI: push; deploy: pull + verify; delete: platform owner at T1 | — | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §3 | decided — forced by [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §5: registry tokens are a `deny`, not a `mask` | [session](../asdlc/04-implementation.md) |
+| Artifact addressing | **digest, never tag**; tag immutability rules on release tags | — | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §4 | decided — a re-pushed tag migrates, so *"the tag can no longer be trusted to identify the image version"* | [deploy](../asdlc/06-deploy.md) §3 |
 
 **This is the sharpest divergence in the whole design.** The cloud variant gets SLSA Build Level 2
 free and native. Here the *requirement* is identical and the *effort* is not — it is unresearched
@@ -164,22 +168,34 @@ enforcement grounds and did not record their licences.
 
 | # | Gap | Blocking? |
 |---|---|---|
-| [OQ-15](../reference/open-questions.md) | Provenance assembly to SLSA Build Level 2 | **yes — before first production deploy** |
-| [OQ-17](../reference/open-questions.md) | Artifact registry / deployable-artifact store | yes, before first deploy |
-| §3 above | Gerrit and Zuul licences unrecorded | **yes — the variant is defined by licence cost** |
+| [OQ-15](../reference/open-questions.md) | Provenance assembly to SLSA Build Level 2 — **now unblocked**, the store exists | **yes — before first production deploy** |
+| §3 above | Gerrit and Zuul licences unrecorded; **ORAS licence unverified** | **yes — the variant is defined by licence cost** |
 | — | Deployment target is Kubernetes or not (owner-held) | yes — off Kubernetes this variant has **no** rollout answer |
 | [OQ-18](../reference/open-questions.md) | How a post-merge defect is attributed to a tier | not for bring-up — blocks the T3 auto-deploy exit condition and the relaxation rule |
 
-Two of the four gaps the stack sheets exposed closed on 2026-07-28: **observability**
+Three of the four gaps the stack sheets exposed closed on 2026-07-28: **observability**
 ([ADR-0015](../reference/decisions/0015-observability-backend.md)), which added four components to
-this variant's operating load, and the **TLS-terminating proxy**
+this variant's operating load; the **TLS-terminating proxy**
 ([ADR-0016](../reference/decisions/0016-tls-terminating-proxy-and-credential-masking.md)), which
-added none — the built-in proxy does it, so no product is procured on either side.
+added none, because the built-in proxy does it; and the **artifact registry**
+([ADR-0017](../reference/decisions/0017-artifact-registry.md)), which added one more.
+[OQ-15](../reference/open-questions.md) is the last, and ADR-0017 unblocked it.
 
-**One new bring-up verification, with a real chance of failing:** with `tlsTerminate` on, confirm
-that `git`, `npm` and the projects' language toolchains still work against the allowed hosts, on
-macOS, Linux and WSL2. Reported TLS failures against MITM proxies involve exactly these tools, and
-adding a tool to `excludedCommands` does **not** exempt it from the proxy.
+**Two new bring-up verifications, both with a real chance of failing:**
+
+- With `tlsTerminate` on, confirm `git`, `npm` and the projects' language toolchains still work
+  against the allowed hosts, on macOS, Linux and WSL2. Reported TLS failures against MITM proxies
+  involve exactly these tools, and adding a tool to `excludedCommands` does **not** exempt it from
+  the proxy.
+- On Harbor: push an artifact, attach an attestation as a referrer, list it through
+  `/v2/<name>/referrers/<digest>`, and verify it from the deploy pipeline. **This is the one thing
+  ADR-0017 depends on that is not quoted from a first-party capability statement.** Reported
+  cosign-v3 display problems on 2.14.1 are a typing and UI defect, not a storage one — but confirm
+  it rather than inherit it.
+
+**Registry backup joins the phase-0 backup list**, alongside the Prometheus snapshot and the Gerrit
+meta refs. Unlike those two it protects the ability to **roll back**, not the ability to
+investigate.
 
 **Named triggers** ([ADR-0009](../reference/decisions/0009-code-host.md) §5,
 [ADR-0011](../reference/decisions/0011-progressive-rollout.md)):

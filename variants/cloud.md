@@ -55,7 +55,9 @@ is a phase-0 blocker.
 | Layer | Component | Licence / plan | Cost | Decided by | Status | Rules |
 |---|---|---|---|---|---|---|
 | Provenance | **GitHub artifact attestations** — Sigstore-signed, SLSA v1.0 Build Level 2 floor | included | $0 | [ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) §8 | decided — **native on this host; this is a cloud-variant advantage** | [deploy](../asdlc/06-deploy.md) §3 |
-| Artifact registry | — | — | — | — | **GAP — [OQ-17](../reference/open-questions.md)**: nothing in the record names where deployable artifacts live. Attestations must attach to something. | — |
+| Artifact registry | **GitHub Container Registry** (`ghcr.io`) — **every deployable stored as an OCI artifact**, non-container ones via **ORAS** | included | **$0** — *"Container image storage and bandwidth for the Container registry is currently free"*, with *"at least one month in advance"* notice of change (checked 2026-07-28) | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §1–2 | decided — attestation attaches natively (`actions/attest`, `push-to-registry: true`); verify with `gh attestation verify oci://…` | [deploy](../asdlc/06-deploy.md) §3 |
+| Registry access | agent: **no credential**; CI: push; deploy: pull + verify; delete: platform owner at T1 | included | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §3 | decided — forced by [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §5: registry tokens are a `deny`, not a `mask` | [session](../asdlc/04-implementation.md) |
+| Artifact addressing | **digest, never tag** | — | — | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §4 | decided — an attestation binds to a digest; a pipeline that deploys a tag has a defect | [deploy](../asdlc/06-deploy.md) §3 |
 
 ### Deployment
 
@@ -127,21 +129,27 @@ measurement of ours**. Use it to size a pilot budget, not to compare variants.
 
 | # | Gap | Blocking? |
 |---|---|---|
-| [OQ-17](../reference/open-questions.md) | Artifact registry / deployable-artifact store | yes, before first deploy — attestations need a target |
 | — | Deployment target is Kubernetes or not (owner-held) | yes for the deployment layer |
 | — | Ingress controller selection | with the Kubernetes platform choice |
 | [open parameters](../rollout/open-parameters.md) | T1 pre-run CI gate mechanism; private-repo fork-approval verification | before the first T1 change |
 | [OQ-18](../reference/open-questions.md) | How a post-merge defect is attributed to a tier | not for bring-up — blocks the T3 auto-deploy exit condition and the relaxation rule |
 
-Two of the four gaps the stack sheets exposed closed on 2026-07-28: **observability**
-([ADR-0015](../reference/decisions/0015-observability-backend.md)) and the **TLS-terminating
-proxy** ([ADR-0016](../reference/decisions/0016-tls-terminating-proxy-and-credential-masking.md)),
-the second by finding that no separate product was ever needed.
+**Every stack-sheet gap for this variant is now closed.** Observability
+([ADR-0015](../reference/decisions/0015-observability-backend.md)), the TLS-terminating proxy
+([ADR-0016](../reference/decisions/0016-tls-terminating-proxy-and-credential-masking.md) — no
+separate product was ever needed), and the artifact registry
+([ADR-0017](../reference/decisions/0017-artifact-registry.md)). What remains here is bring-up work
+and owner-held facts, not research.
 
 **One new bring-up verification, with a real chance of failing:** with `tlsTerminate` on, confirm
 that `gh`, `git`, `npm` and the projects' language toolchains still work against the allowed hosts,
 on every platform in use. Reported TLS failures against MITM proxies involve exactly these tools,
 and adding a tool to `excludedCommands` does **not** exempt it from the proxy.
+
+**Cost note:** keeping every deployable in the **container** registry keeps registry cost at $0.
+The metered package registries would charge against the Team plan's 2GB storage and 10GB monthly
+transfer instead. **Per-GB overage rates are not stated on the billing page and are not quoted
+here.**
 
 ## 4. Why this variant, in one paragraph
 

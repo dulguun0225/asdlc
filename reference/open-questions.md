@@ -25,7 +25,39 @@ computer and the agent's local memory does not travel, so this section — not a
 the conversation — is where the state lives. Anyone finishing a session updates it
 ([`CLAUDE.md`](../CLAUDE.md) → "Assume every session starts on a different computer").
 
-### Last session: 2026-07-28 — TLS termination and credential masking
+### Last session: 2026-07-28 — the artifact registry
+
+Landed [ADR-0017](decisions/0017-artifact-registry.md) and its
+[research note](research/2026-07-28-artifact-registry.md), closing
+[OQ-17](#oq-17--where-do-deployable-artifacts-live-in-each-variant). **Three of the four stack
+gaps are now closed and the cloud variant has none left.** Only
+[OQ-15](#oq-15--how-is-slsa-build-level-2-provenance-assembled-on-the-self-hosted-variant)
+remains, and this record unblocked it.
+
+**Every deployable is stored as an OCI artifact** — images natively, everything else via ORAS —
+so one registry per variant covers every shape. Cloud: GitHub Container Registry, *"currently
+free"*. Self-hosted: Harbor (Apache 2.0, CNCF graduated), zot the single-binary fallback.
+Attachment is the OCI referrers API.
+
+**The move worth reusing:** OQ-17 said its answer depended on the owner-held deployment target. It
+didn't, once everything is an OCI artifact. **Check whether a dependency can be designed out
+before waiting on it.**
+
+**Three rules a later session must not soften:**
+
+- **Deploy by digest, never by tag.** An attestation binds to a digest; a re-pushed tag migrates.
+  The gate record's `artifact_ref` names the digest.
+- **The registry UI is not evidence** — the deploy pipeline's verification is. Harbor 2.14.1 is
+  reported to show cosign v3 signatures as "not signed"; that is a typing and display defect, not
+  a storage one.
+- **You cannot roll back to an artifact you deleted.** Anything that reached production is kept
+  5 years. Registry backup is now on the phase-0 list.
+
+**Not verified, and it is the phase-0 check:** Harbor's referrers path end to end. Also
+unverified: ORAS's licence, and GitHub Packages per-GB overage rates — **no figure was found; do
+not quote one.**
+
+### Session before: 2026-07-28 — TLS termination and credential masking
 
 Landed [ADR-0016](decisions/0016-tls-terminating-proxy-and-credential-masking.md) and its
 [research note](research/2026-07-28-egress-tls-and-credential-masking.md), closing
@@ -111,14 +143,10 @@ The owner directed on 2026-07-28 that the agent drives the project to the end an
 to ask which question to take. Order is therefore decided by what blocks the most, and stated
 below rather than referred upward.
 
-- **Close the two remaining blocking stack gaps** —
-  [OQ-17](#oq-17--where-do-deployable-artifacts-live-in-each-variant) (artifact registry), then
+- **Close the last blocking stack gap** —
   [OQ-15](#oq-15--how-is-slsa-build-level-2-provenance-assembled-on-the-self-hosted-variant)
-  (self-hosted provenance), in that order because an attestation must attach to a stored artifact.
-  Both block phase 0 of the [rollout plan](../rollout/plan.md).
-  [OQ-14](#oq-14--what-are-the-observability-backend-components) and
-  [OQ-16](#oq-16--which-tls-terminating-egress-proxy-and-does-credential-masking-work-without-one)
-  closed 2026-07-28.
+  (self-hosted provenance). It affects the **self-hosted variant only**; the cloud variant's stack
+  sheet now has no research gaps at all. OQ-14, OQ-16 and OQ-17 all closed on 2026-07-28.
 - **Fill the engineer-facing layer** — the "Not yet specified" section at the end of each
   file in [`asdlc/`](../asdlc/README.md) is the work list. Blocks nobody, but it is what makes
   the design handable to someone. Approved by the owner on 2026-07-27 as phase 2 of the
@@ -126,10 +154,12 @@ below rather than referred upward.
   artifacts are **done**. What remains: per-repository agent configuration, a testing strategy
   for agent-written code, and how the agent is prompted at each stage.
 
-**Next: OQ-17**, then OQ-15. OQ-17 first because OQ-15 cannot close without it. Note the
-owner-held dependency: OQ-17 narrows to a container-registry question if the deployment target is
-Kubernetes and widens otherwise ([context.md](context.md) "Not yet known"). Answer it for both
-shapes rather than waiting.
+**Next: OQ-15.** [ADR-0017](decisions/0017-artifact-registry.md) settled the store and the
+attachment mechanism (OCI referrers), so what remains is narrower than the question's original
+wording: **what signs, what the signature binds, and what verifies it at deploy time**, on a
+Gerrit + Zuul pipeline, licence-cost-free. Sigstore is a lead, not a decision. After that the four
+stack gaps are done and the remaining work is the engineer-facing layer plus
+[OQ-18](#oq-18--how-is-a-post-merge-defect-attributed-to-a-tier).
 
 ### The load-bearing gaps, and their state
 
@@ -661,8 +691,13 @@ Phase-2 content needs research sessions, not assembly — the research-before-co
   attestations use underneath. Carry forward ADR-0008's own warning: attestation answers *where
   did this come from*, never *is this safe*. The SLSA source itself says Build Level 2 is *"not a
   guarantee that an artifact is secure."*
-- **Interacts with [OQ-17](#oq-17--where-do-deployable-artifacts-live-in-each-variant):** an
-  attestation has to attach to a stored artifact. Closing this without a registry is not possible.
+- **Unblocked 2026-07-28 by [ADR-0017](decisions/0017-artifact-registry.md).** The store is Harbor,
+  every deployable is an OCI artifact, and the attachment mechanism is the **OCI referrers API**
+  (`/v2/<name>/referrers/<digest>`). **That narrows this question to three things:** what signs,
+  what the signature binds, and what verifies it at deploy time. Do not re-answer the storage half.
+  Note also that Harbor 2.14.1 is reported to *display* cosign v3 referrer signatures as unsigned —
+  a typing defect, not a storage one, but it means the verification step must be the pipeline's,
+  never the UI's.
 
 ## OQ-16 — Which TLS-terminating egress proxy, and does credential masking work without one?
 
@@ -724,7 +759,34 @@ Phase-2 content needs research sessions, not assembly — the research-before-co
 
 ## OQ-17 — Where do deployable artifacts live, in each variant?
 
-- **Status:** open
+- **Status:** closed → [ADR-0017](decisions/0017-artifact-registry.md) (2026-07-28)
+- **Answer:** **every deployable is stored as an OCI artifact** — images natively, everything else
+  via ORAS — so one registry per variant covers every deployable shape and one attestation
+  mechanism covers all of them. Cloud: **GitHub Container Registry**, whose storage and bandwidth
+  are *"currently free"* with *"at least one month in advance"* notice of change. Self-hosted:
+  **Harbor** (Apache 2.0, CNCF graduated), with **zot** as the named single-binary fallback.
+  Attachment is the OCI **referrers API** (`/v2/<name>/referrers/<digest>`, added in
+  distribution-spec 1.1).
+- **It removed its own stated dependency.** This entry said the answer depended on the owner-held
+  deployment target. It does not, once everything is an OCI artifact — off Kubernetes the deploy
+  host pulls with an ORAS client instead of a container runtime pulling an image. **Check whether a
+  dependency can be designed out before waiting on it.**
+- **Three rules a later session must not soften**
+  ([research note](research/2026-07-28-artifact-registry.md)):
+  - **Deploy by digest, never by tag.** An attestation binds to a digest; a re-pushed tag migrates,
+    and the vendor states that *"the tag can no longer be trusted to identify the image version"*
+    while *"the underlying digest remains reliable."* A pipeline that deploys a tag has a defect.
+  - **The registry UI is not evidence.** Harbor 2.14.1 is reported to display cosign v3 / OCI 1.1
+    signatures as *"not signed"* — a typing and display problem, not a storage one. The deploy
+    pipeline's verification is authoritative.
+  - **You cannot roll back to an artifact you deleted.** Retention is a correctness rule: anything
+    that reached production is kept 5 years, matching the gate-record horizon.
+- **The agent never holds a registry token** — it is a `deny`, not a `mask`, so CI pushes under its
+  own identity after the gates.
+- **Not verified, and it is the phase-0 check:** Harbor's referrers path end to end. Also
+  unverified: ORAS's licence, and GitHub Packages per-GB overage rates (**no figure was found —
+  do not quote one**).
+- **Superseded framing below**, kept for why the question existed.
 - **Opened by:** [ADR-0012](decisions/0012-per-variant-stack-sheets.md) (2026-07-27). Not previously
   named anywhere — this is an absence, not a deferral.
 - **Blocks:** the first deploy in either variant, and [OQ-15](#oq-15--how-is-slsa-build-level-2-provenance-assembled-on-the-self-hosted-variant).

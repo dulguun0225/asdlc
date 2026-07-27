@@ -121,6 +121,11 @@ Deploy-gate records additionally carry the batch's tier breakdown:
 {"t1": 0, "t2": 3, "t3": 11}
 ```
 
+**On a deploy gate, `artifact_ref` names the artifact's digest**, never a tag
+([ADR-0017](decisions/0017-artifact-registry.md) part 4) — for example
+`ghcr.io/org/checkout@sha256:…`. An attestation binds to a digest; a tag can migrate to a
+different artifact after the signature.
+
 ## 4. Ring configuration
 
 Committed file, owned by the platform owner, changed at T1

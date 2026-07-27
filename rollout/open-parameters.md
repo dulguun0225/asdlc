@@ -24,7 +24,8 @@ rows point at an open question because the parameter cannot be set until that re
 | How a post-merge defect is attributed to a tier | research ([OQ-18](../reference/open-questions.md)) | not for bring-up — blocks the T3 auto-deploy exit condition and the relaxation rule |
 | **Toolchain survives TLS termination** — with `tlsTerminate` on, verify `gh`/`git`/`npm` and the projects' language toolchains against the allowed hosts, on macOS, Linux and WSL2 | platform owner at bring-up — mechanism settled by [ADR-0016](../reference/decisions/0016-tls-terminating-proxy-and-credential-masking.md) | **yes, both variants** — masking is mandatory, and `excludedCommands` does **not** exempt a command from the proxy |
 | Which credentials the agent needs, and their delivery as **environment variables** (a file credential cannot be masked) | platform owner at bring-up — constraint fixed by [ADR-0016](../reference/decisions/0016-tls-terminating-proxy-and-credential-masking.md) §4 | **yes, both variants** |
-| Artifact registry / deployable-artifact store | research ([OQ-17](../reference/open-questions.md)) | yes, before first deploy, both variants |
+| **Harbor referrers path end to end** — push an artifact, attach an attestation as a referrer, list it via `/v2/<name>/referrers/<digest>`, verify from the deploy pipeline | platform owner at bring-up — registry settled by [ADR-0017](../reference/decisions/0017-artifact-registry.md) | **yes, self-hosted** — the one thing ADR-0017 depends on that no first-party capability statement covers |
+| Repository layout in the registry, and what each greenfield project actually produces | platform owner + each team at bring-up | no — ADR-0017 answers the question without it |
 | Gerrit and Zuul licences (unrecorded) | verification ([self-hosted sheet](../variants/self-hosted.md) §3) | yes for the self-hosted variant, which is defined by licence cost |
 
 ## The three owner-held facts

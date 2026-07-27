@@ -40,14 +40,13 @@ decision record. On any conflict, the ADR wins and the design document has a bug
 computes a tier; the agent runner and its containment; the code host for both variants; the
 progressive-rollout layer; the runner's licensing; the spec, plan and task artifacts and the
 traceability chain through them; the observability backend; TLS termination and credential
-masking at the agent's egress boundary.
+masking at the agent's egress boundary; the artifact registry.
 
 **Not decided, and blocking:**
 
 | Gap | Blocks |
 |---|---|
-| Artifact registry ([OQ-17](reference/open-questions.md)) | First deploy — attestations must attach to something |
-| Self-hosted provenance assembly ([OQ-15](reference/open-questions.md)) | First self-hosted production deploy |
+| Self-hosted provenance assembly ([OQ-15](reference/open-questions.md)) | First self-hosted production deploy. **The last of the four stack gaps** — the cloud variant has none left. |
 | Platform owner and backup — **a role that does not exist yet** ([OQ-10](reference/open-questions.md)) | Everything. It owns almost every artifact in the design — and the observability decision added four more components to it. |
 | Post-merge defect attribution to a tier ([OQ-18](reference/open-questions.md)) | Not phase 0. The T3 automatic-deploy exit condition, and the rule that relaxes a tier on evidence. |
 

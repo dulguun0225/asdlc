@@ -87,3 +87,9 @@ Facts the owner holds that are still missing. Each is stated as what it blocks.
 - **Who fills the platform owner role?** [OQ-10](open-questions.md).
 - **How many projects run at once, and does each CFT own one?** Affects whether the tier
   configuration is per repository or centralised.
+- **What operating system do the 18 AI solution engineers work on?** Now load-bearing rather than
+  incidental: the agent runner's sandbox does not run on native Windows
+  ([ADR-0007](adr/0007-agent-runner-and-containment.md) part 3), so any Windows-based engineer
+  needs WSL2 provisioned before they can run the agent at all. With
+  `sandbox.failIfUnavailable: true` the agent refuses to start rather than silently running
+  unsandboxed — correct behaviour, and a hard blocker for anyone not set up.

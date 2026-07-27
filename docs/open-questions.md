@@ -43,12 +43,14 @@ changed once those facts were recorded on 2026-07-27.
   and T2, automated at T3; **deploy is human at every tier**. The tasks boundary is an
   artifact with an automated consistency check, not a gate. Every gate records a named
   signer and what they assert. Converges across variants.
-- **Residual, not closed here:** OQ-3's third bullet — *how autonomy is bounded in
-  practice (blast radius, reversibility, audit trail)* — is **not** answered by
-  ADR-0004. Gate placement says where a human stands; it does not bound what the agent
-  may touch between gates (secrets, CI config, the tier rule itself). That is a
-  structural capability boundary and belongs to [OQ-8](#oq-8--what-provenance-secrets-and-policy-enforcement-controls-are-available).
-  Do not treat "OQ-3 closed" as meaning agent write scope is settled.
+- **Residual — now closed.** OQ-3's third bullet — *how autonomy is bounded in practice (blast
+  radius, reversibility, audit trail)* — was **not** answered by ADR-0004 and was handed to OQ-8.
+  It is closed by [ADR-0008](adr/0008-agent-write-scope-and-enforcement.md) (2026-07-27): the
+  agent gets its own identity, a never-write list enforced both in the sandbox and in CI, no
+  plaintext secrets in the sandbox, a per-session spend ceiling, merge-time tier evaluation with
+  artifact-hash-bound signatures, SLSA Build Level 2 provenance, and an immutable tool-invocation
+  trace. **Agent write scope is now settled; whether the boundary can be bypassed is
+  [OQ-12](#oq-12--can-a-required-review-or-ci-check-be-bypassed-and-is-the-bypass-recorded).**
 - **Why it mattered:** ADR-0002 committed to "agentic" as a scope boundary, which made
   the term load-bearing rather than decorative. It is also a drifting term-of-art that
   reads as marketing to some audiences, so the primary document has to define it
@@ -103,9 +105,23 @@ changed once those facts were recorded on 2026-07-27.
 
 ## OQ-4 — What is the self-hosted agent-runner stack, and what does it cost?
 
-- **Status:** open
-- **Blocks:** the entire self-hosted variant. Currently the only verified
-  self-hosted component of the whole stack is the observability layer.
+- **Status:** **runner, sandboxing, credential brokering and cost model closed** →
+  [ADR-0007](adr/0007-agent-runner-and-containment.md) (2026-07-27). **The code-host half is
+  split out as [OQ-12](#oq-12--can-a-required-review-or-ci-check-be-bypassed-and-is-the-bypass-recorded),
+  and one blocking licensing fact as [OQ-13](#oq-13--is-the-chosen-runner-token-spend-only-or-does-it-require-a-per-seat-licence).**
+- **Answer, in short:** a CLI agent wrapped in OS-level sandboxing, in both variants — Seatbelt on
+  macOS, bubblewrap on Linux and WSL2, an egress proxy outside the sandbox, and credential masking
+  that substitutes secrets at the proxy so the agent never holds them. **This layer converges
+  across variants**, which reverses the survey's picture that the self-hosted side had nothing.
+  Enforcement is central via managed settings. Model spend is metered at published API rates.
+- **What it also settled, and what it cost us:** GitLab Duo Agent Platform runs agentic work on
+  Self-Managed 18.8+ with self-hosted models, but requires Premium/Ultimate plus credits — so it
+  is **self-operated, not license-cost-free**, and fails this variant as `CLAUDE.md` defines it.
+  That distinction was previously being elided. A native-Windows constraint also surfaced: the
+  sandbox does not run on native Windows, so WSL2 provisioning is a day-one prerequisite.
+- **Research:** [2026-07-27 — the agent runner, its containment, and what it costs](research/2026-07-27-stack-and-guardrails.md).
+- **Blocked:** the entire self-hosted variant. Before this session the only verified
+  self-hosted component of the whole stack was the observability layer.
 - **Why it matters:** Copilot Enterprise is GitHub Enterprise Cloud only and Copilot
   is not offered on GitHub Enterprise Server
   ([source, checked 2026-07-27](research/2026-07-27-asdlc-implementation-survey.md#finding-8--the-agent-runner-diverges-as-a-product-availability-wall)),
@@ -191,11 +207,40 @@ changed once those facts were recorded on 2026-07-27.
 - **Notes:** volatile. The billing model changed 2026-06-01 and a promotional credit
   boost runs June-September 2026, so observed allowances differ from list. Re-check
   before use.
+- **Progress 2026-07-27 (stack session).** Half the inputs now exist; the measured half does not.
+  - **Model rates verified first-party:** Opus 5 $5/$25 per MTok, Sonnet 5 $3/$15, Haiku 4.5 $1/$5,
+    Fable 5 $10/$50. **Sonnet 5 carries introductory pricing of $2/$10 through 2026-08-31** — a
+    cost model must state which rate it used.
+  - **Cloud seat prices re-verified first-party:** Copilot Business $19/seat/month, Enterprise
+    $39/seat/month, and Copilot is still *"not currently available for GitHub Enterprise Server."*
+  - **Correction — the credit allowances were NOT re-verified.** The plans page does not state
+    per-plan credit amounts. The 1,900 / 3,900 figures remain from the earlier billing-page fetch;
+    do not present them as freshly checked.
+  - **Still unknown, and it is the whole question:** tokens per unit of agent work. ADR-0007 gives
+    a parametric model only — cost is arithmetic on a verified rate with an *assumed* token
+    profile, which is not a measurement. **Batch API and prompt-caching rates were not checked**
+    and both change the model materially.
+  - **Consequence:** cross-variant TCO comparison is still not possible. Do not publish one.
 
 ## OQ-8 — What provenance, secrets and policy-enforcement controls are available?
 
-- **Status:** open
-- **Blocks:** the governance/audit half of the target life cycle.
+- **Status:** closed → [ADR-0008](adr/0008-agent-write-scope-and-enforcement.md) (2026-07-27)
+- **Answer:** provenance is signed attestation at **SLSA v1.0 Build Level 2** via Sigstore — with
+  its own source warning that this is *"not a guarantee that an artifact is secure"*, only a link
+  to the source and build instructions. Secrets are handled by denying credential files outright
+  and masking the tokens the agent must use, substituted at the egress proxy so the sandbox never
+  holds a plaintext secret. Policy enforcement is a **pre-execution Policy Enforcement Point** —
+  OWASP ASI03's "Intent Gate" — and we already had one without naming it: ADR-0006's tier
+  function, now evaluated on the final diff at merge time. Per-action in-session policy evaluation
+  is **not** adopted: every source describing it is a vendor blog.
+- **Also closed here:** OQ-3's residual on agent write scope.
+- **Taxonomy note:** the framework used is the OWASP Top 10 for Agentic Applications 2026
+  (ASI01–ASI10, published 2025-12-09), verified first-party from the published PDF. It is a
+  reviewed risk taxonomy with recommended mitigations — **not** outcome evidence, and it validates
+  no product. The earlier session's refutation stands: there is still no validated *architecture*
+  taxonomy to hang controls on, and this does not supply one.
+- **Research:** [2026-07-27 — the agent runner, its containment, and what it costs](research/2026-07-27-stack-and-guardrails.md).
+- **Blocked:** the governance/audit half of the target life cycle.
 - **Why it matters:** one *proposed* per-tier audit evidence schema exists (from an
   unvalidated preprint), but no verified content covers real provenance tooling,
   secrets handling, or policy engines. A six-layer architecture claim placing all
@@ -276,6 +321,53 @@ changed once those facts were recorded on 2026-07-27.
   rollback is exercised and proved to work, and what it costs to run. Note this interacts
   with ADR-0006's `reversibility` declaration: a service that writes state a revert does
   not undo cannot be rolled back by redeploying, whatever the tooling claims.
+
+## OQ-12 — Can a required review or CI check be bypassed, and is the bypass recorded?
+
+- **Status:** open — **this is the blocking question for the code host, and the recommended next
+  session.**
+- **Opened by:** [ADR-0007](adr/0007-agent-runner-and-containment.md) and
+  [ADR-0008](adr/0008-agent-write-scope-and-enforcement.md) (2026-07-27); inherited from OQ-8's
+  enforcement divergence, which the 2026-07-27 stack session did **not** close.
+- **Blocks:** choosing the code host, and therefore the last undecided layer of the stack. It also
+  gates how much ADR-0008 is actually worth: **a boundary that can be bypassed silently is
+  decoration.**
+- **Why it matters:** every gate in [ADR-0005](adr/0005-roles-gate-signers-and-the-reviewer-ring.md)
+  and every rule in [ADR-0006](adr/0006-tier-function-and-greenfield-cold-start.md) is enforced by
+  the code host's branch protection and required-check machinery. If an administrator — or a
+  producer with the right permission — can merge past a required review without leaving a record,
+  the reviewer ring, the tier function and the never-write list are all advisory.
+- **What would close it:** for each candidate host, a dated first-party answer on: who can bypass
+  a required review or a failing required check; whether the bypass is recorded and where;
+  whether a path-owner rule can be made non-optional; whether the actor who authored a change can
+  be structurally prevented from approving it; and whether CI execution on an agent-authored
+  branch can be gated on human authorisation. One shipped implementation is already documented
+  to do the last two ([research note, Finding 7](research/2026-07-27-stack-and-guardrails.md)) —
+  find out which hosts can.
+- **Note on scope:** the answer is expected to **diverge** between candidates, which is why it
+  cannot be assumed from the incumbent. The org runs GitLab self-managed today, and per
+  [context.md](context.md) the owner directed that the design not be constrained by it — so if
+  research lands there it must be a conclusion, not an inheritance.
+
+## OQ-13 — Is the chosen runner token-spend-only, or does it require a per-seat licence?
+
+- **Status:** open — small, quick, and **blocking before any procurement**.
+- **Opened by:** [ADR-0007](adr/0007-agent-runner-and-containment.md) part 1 (2026-07-27)
+- **Blocks:** the self-hosted variant's compliance with its own definition. `CLAUDE.md` allows
+  paid **models** in the self-hosted variant and disallows paid **platform** components. Whether
+  the chosen runner is token-spend-only under API-key authentication, or requires a per-seat
+  subscription, decides which side of that line it falls on.
+- **Why it matters:** ADR-0007 selects a primary runner *conditionally* on this. If it resolves
+  the wrong way, the self-hosted variant falls back to an MIT/Apache-licensed runner wrapped in
+  the same sandbox primitives, and ADR-0007's convergence claim narrows from the whole runner
+  layer to the containment layer only.
+- **What would close it:** a dated first-party statement of the runner's authentication and
+  billing model — specifically whether API-key authentication is a supported production mode
+  without a per-seat subscription. Lead: the runner's own authentication and credential-management
+  documentation, unfetched as of 2026-07-27.
+- **If it fails:** verify licences per repository for the fallback candidates. The only collected
+  comparison is published by one of the runners in it and cites no capability data at all, so
+  treat it as an inventory.
 
 ---
 

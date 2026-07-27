@@ -22,6 +22,13 @@ machine switch belongs in a committed file: this one, or `docs/`.
 Every part of the target ASDLC must be answered for **both** deployment variants. Treat this as the primary axis of the design — a section that only addresses one variant is incomplete.
 
 1. **Self-hosted** — the stack itself must be free to use (open source / no license cost, runnable on infrastructure the team controls). Paid *models* are allowed: calling a commercial model API from a self-hosted stack is in scope. What is out of scope is paid platform/SaaS components.
+   - **Self-operated is not the same as license-cost-free, and the difference has already bitten.**
+     A licensed product running on your own infrastructure (e.g. a paid tier of a self-managed
+     code host with an agent add-on) is a **third** deployment shape that this two-variant axis has
+     no place for, and it is **out of scope as written**. See
+     [ADR-0007](docs/adr/0007-agent-runner-and-containment.md) → Variant answers for the case that
+     surfaced it. Widening the axis to three variants would be a change to this file and is the
+     owner's call — do not assume it.
 2. **Cloud** — managed/SaaS components allowed. Optimize for capability and time-to-value rather than license cost.
 
 Where the two variants converge on the same answer, say so explicitly rather than leaving one column blank. Where they diverge, the divergence and its cost (money, ops burden, capability gap) is itself a finding worth writing down.

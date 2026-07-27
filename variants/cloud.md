@@ -65,21 +65,35 @@ is a phase-0 blocker.
 | Canary traffic | Flagger load-testing webhook or equivalent synthetic traffic | Apache 2.0 | $0 | [ADR-0011](../reference/decisions/0011-progressive-rollout.md) §3 | decided — required, not optional: a canary with no requests produces no metrics | [operate](../asdlc/07-operate.md) §1 |
 | Ingress / mesh | any Flagger-supported ingress controller; no mesh required | — | $0 | [ADR-0011](../reference/decisions/0011-progressive-rollout.md) §1 | **not selected** — a Kubernetes-platform choice this design leaves open | — |
 
-### Observability — mandatory from day one, and the least specified layer
+### Observability — mandatory from day one, and bought rather than operated
+
+Same architecture as the self-hosted variant; the vendor runs the backends. **Prices and retention
+terms checked 2026-07-28** — re-verify at procurement.
 
 | Layer | Component | Licence / plan | Cost | Decided by | Status | Rules |
 |---|---|---|---|---|---|---|
 | Export protocol | **OpenTelemetry** from every agent session and CI job | open standard | $0 | [ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) §9 | decided | [operate](../asdlc/07-operate.md) §3 |
-| Metrics backend | **Prometheus** | — | — | [ADR-0011](../reference/decisions/0011-progressive-rollout.md) §2 | **GAP — [OQ-14](../reference/open-questions.md)**: named only as Flagger's metric source, in a deployment ADR that claims it adds no new component. No decision record chose it as *the* metrics backend. | [operate](../asdlc/07-operate.md) §1 |
-| OTel collector | — | — | — | — | **GAP — [OQ-14](../reference/open-questions.md)** | [operate](../asdlc/07-operate.md) §3 |
-| Trace store (session / tool-invocation traces) | — | — | — | — | **GAP — [OQ-14](../reference/open-questions.md)** | [operate](../asdlc/07-operate.md) §3 |
-| Gate-record store | — | — | — | — | **GAP — [OQ-14](../reference/open-questions.md)** | [schema](../reference/artifacts.md) §3 |
-| Dashboards | — | — | — | — | **GAP — [OQ-14](../reference/open-questions.md)** | [operate](../asdlc/07-operate.md) §3 |
+| Collector | **OpenTelemetry Collector**, gateway deployment | Apache 2.0 | $0 licence + hosting | [ADR-0015](../reference/decisions/0015-observability-backend.md) §1 | decided — **kept even though the managed endpoint would accept OTLP direct.** Grafana's own docs name the cost of skipping it: *"No support to sample and redact data"* | [operate](../asdlc/07-operate.md) §3 |
+| Metrics backend | **Grafana Cloud Metrics** (Prometheus-compatible) | SaaS, **Pro** | *"From $19 / month + usage"*; *"$6.50 / 1k series"* beyond *"10k active series"* | [ADR-0015](../reference/decisions/0015-observability-backend.md) §2 | decided — **13 months** retention on Pro. Same PromQL and alert expressions as self-hosted | [operate](../asdlc/07-operate.md) §1, §3 |
+| Event store (session records) | **Grafana Cloud Logs** | SaaS, Pro | *"50 GB ingested per month"* then *"$0.05/GB Process, $0.40/GB Write, $0.10/GB Retain"* | [ADR-0015](../reference/decisions/0015-observability-backend.md) §3 | decided — 30-day plan default. Record family 1 comes from the **events** signal; the runner's **trace signal is beta and is not adopted** | [operate](../asdlc/07-operate.md) §3 |
+| Gate-record + requirements-trace store | **Grafana Cloud Logs**, dedicated streams | SaaS, Pro | *"$0.10 per GB for each additional 30 day increment"* — negligible at this volume | [ADR-0015](../reference/decisions/0015-observability-backend.md) §4 | decided — **5 years**, set per stream via Support. This copy is **derived**; the authoritative record stays on the pull request | [schema](../reference/artifacts.md) §3, §7 |
+| Trace store | — deferred | — | — | [ADR-0015](../reference/decisions/0015-observability-backend.md) §3, §8 | **not built** — adoption trigger is the runner's trace signal leaving beta | [operate](../asdlc/07-operate.md) §3 |
+| Dashboards | **Grafana Cloud** — per-tier gate metrics, bypass watch, spend per team | included in Pro | — | [ADR-0015](../reference/decisions/0015-observability-backend.md) §7 | decided — same dashboard JSON as self-hosted | [operate](../asdlc/07-operate.md) §3 |
+| Record emission from CI | ours | — | engineering | [ADR-0015](../reference/decisions/0015-observability-backend.md) consequences | build — CI jobs must emit gate records and requirements traces as OTLP log records | [schema](../reference/artifacts.md) §3, §7 |
 
-**Why this matters more than the other gaps:** standing up observability is phase-0 prerequisite 6
-— it precedes the pilot, because the pilot's entire output is measurements
-([rollout plan](../rollout/plan.md) §2). It is the least specified layer in the design and it
-blocks the most.
+**The Free plan is disqualified, not merely worse:** *"14 days retention for metrics, logs,
+traces"*. The design needs years for two record families.
+
+**Retention is configured before the first gate record is written.** Grafana Cloud's own
+documentation: *"The retention period changes are not retroactive … data already out of the old
+retention period will not be recovered."* Turning it up in month four loses months one to three —
+the earliest and most valuable pilot data.
+
+**Why this layer mattered more than the other gaps:** standing up observability is phase-0
+prerequisite 6, and it precedes the pilot because the pilot's entire output is measurements
+([rollout plan](../rollout/plan.md) §2). **It is now specified.** Correcting a claim earlier
+records carried: this layer converges across variants in *architecture*, not in *cost* — here the
+backends are paid managed components.
 
 ### Optional, and never gate-bearing
 
@@ -95,7 +109,8 @@ Three components, only one of which is bounded today.
 |---|---|---|
 | Code host | $4/user/month (Team) → $21/user/month (Enterprise Cloud) | **promotional**, first-12-months qualifier, checked 2026-07-27 |
 | Model tokens | Full rate table incl. cache and batch tiers is sourced and dated in [OQ-7](../reference/open-questions.md) | **rates certain, volume unknown** |
-| CI minutes, registry, observability hosting | — | **unquantified** |
+| Observability | Grafana Cloud Pro, *"From $19 / month + usage"* — see the table above for per-unit rates | **rates certain, volume unknown**, checked 2026-07-28 |
+| CI minutes, registry, collector hosting | — | **unquantified** |
 
 **Tokens per unit of agent work is unmeasured, and it is the whole cost question.** The only
 defensible anchor is the vendor's own published aggregate — *"around $13 per developer per active
@@ -111,12 +126,15 @@ measurement of ours**. Use it to size a pilot budget, not to compare variants.
 
 | # | Gap | Blocking? |
 |---|---|---|
-| [OQ-14](../reference/open-questions.md) | Observability backend — collector, metrics, trace store, gate-record store, dashboards | **yes — phase-0 prerequisite 6** |
 | [OQ-16](../reference/open-questions.md) | TLS-terminating egress proxy; credential masking depends on it | **yes — masking is a mandatory control** |
 | [OQ-17](../reference/open-questions.md) | Artifact registry / deployable-artifact store | yes, before first deploy — attestations need a target |
 | — | Deployment target is Kubernetes or not (owner-held) | yes for the deployment layer |
 | — | Ingress controller selection | with the Kubernetes platform choice |
 | [open parameters](../rollout/open-parameters.md) | T1 pre-run CI gate mechanism; private-repo fork-approval verification | before the first T1 change |
+| [OQ-18](../reference/open-questions.md) | How a post-merge defect is attributed to a tier | not for bring-up — blocks the T3 auto-deploy exit condition and the relaxation rule |
+
+**Observability closed on 2026-07-28** ([ADR-0015](../reference/decisions/0015-observability-backend.md)).
+It was the most blocking of the four gaps the stack sheets exposed.
 
 ## 4. Why this variant, in one paragraph
 

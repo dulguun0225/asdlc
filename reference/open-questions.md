@@ -25,7 +25,37 @@ computer and the agent's local memory does not travel, so this section — not a
 the conversation — is where the state lives. Anyone finishing a session updates it
 ([`CLAUDE.md`](../CLAUDE.md) → "Assume every session starts on a different computer").
 
-### Last session: 2026-07-27 — the feature artifacts
+### Last session: 2026-07-28 — the observability backend
+
+Landed [ADR-0015](decisions/0015-observability-backend.md) and its
+[research note](research/2026-07-28-observability-backend.md), closing
+[OQ-14](#oq-14--what-are-the-observability-backend-components) — **the most blocking of the four
+stack gaps**. Phase-0 prerequisite 6 is now buildable, and
+[rollout/plan.md](../rollout/plan.md) §2 carries the six ordered bring-up steps.
+
+The answer: one architecture in both variants — OTel Collector (gateway, and the redaction point)
+→ Prometheus for metrics, Loki for events plus gate records and requirements traces on
+long-retention streams, Grafana for the three dashboards. Self-hosted runs them (Apache 2.0 and
+AGPLv3, $0); cloud buys the same architecture as Grafana Cloud Pro. Record schema, PromQL, LogQL
+and dashboard JSON are identical on both sides.
+
+**Four things a later session must not re-derive:**
+
+- **`OTEL_LOG_TOOL_DETAILS` defaults to disabled**, so ADR-0008 part 9's mandated tool-invocation
+  trace does not exist out of the box. ADR-0015 part 6 turns it on deliberately and
+  [artifacts.md](artifacts.md) §5 now carries the managed-settings telemetry block.
+- **Retention is not retroactive** in either variant, and both product defaults are too short.
+  Setting it is step 1 of bring-up, not a later tuning task.
+- **The runner's trace signal is beta** — no mandatory record family is built on it, and no trace
+  store is deployed. Adoption is a named trigger.
+- **ADR-0011's "Prometheus adds no new component" was circular** and is retired. Prometheus is now
+  chosen on its own merits; do not cite the old reasoning as precedent.
+
+**The session also promoted a two-session-old bullet to
+[OQ-18](#oq-18--how-is-a-post-merge-defect-attributed-to-a-tier)** — how a post-merge defect is
+attributed to a tier.
+
+### Session before: 2026-07-27 — the feature artifacts
 
 Landed [ADR-0014](decisions/0014-feature-artifacts-and-the-traceability-chain.md), its
 [research note](research/2026-07-27-spec-plan-task-templates.md), and the spec / plan / tasks
@@ -45,14 +75,18 @@ Two things a later session must not re-derive: EARS's effect on agent-written co
 unmeasured** (the nearest evidence is that ambiguity degrades code generation), and three
 circulating productivity figures failed verification — the note's "do not reintroduce" list.
 
-### Two bodies of work are live, and their order is not settled
+### Two bodies of work are live
 
-- **Close the four blocking stack gaps** — [OQ-14](#oq-14--what-are-the-observability-backend-components)
-  (observability backend), [OQ-16](#oq-16--which-tls-terminating-egress-proxy-and-does-credential-masking-work-without-one)
+The owner directed on 2026-07-28 that the agent drives the project to the end and does not stop
+to ask which question to take. Order is therefore decided by what blocks the most, and stated
+below rather than referred upward.
+
+- **Close the three remaining blocking stack gaps** —
+  [OQ-16](#oq-16--which-tls-terminating-egress-proxy-and-does-credential-masking-work-without-one)
   (TLS egress proxy), [OQ-17](#oq-17--where-do-deployable-artifacts-live-in-each-variant)
   (artifact registry), [OQ-15](#oq-15--how-is-slsa-build-level-2-provenance-assembled-on-the-self-hosted-variant)
-  (self-hosted provenance). These block phase 0 of the [rollout plan](../rollout/plan.md):
-  nothing can be piloted until they close.
+  (self-hosted provenance). These block phase 0 of the [rollout plan](../rollout/plan.md).
+  [OQ-14](#oq-14--what-are-the-observability-backend-components) closed 2026-07-28.
 - **Fill the engineer-facing layer** — the "Not yet specified" section at the end of each
   file in [`asdlc/`](../asdlc/README.md) is the work list. Blocks nobody, but it is what makes
   the design handable to someone. Approved by the owner on 2026-07-27 as phase 2 of the
@@ -60,9 +94,10 @@ circulating productivity figures failed verification — the note's "do not rein
   artifacts are **done**. What remains: per-repository agent configuration, a testing strategy
   for agent-written code, and how the agent is prompted at each stage.
 
-**Recommendation: OQ-14 first.** It blocks the most, and every measurement the design depends
-on needs it — including the **fourth record family** ADR-0014 added, the requirements trace.
-**Not yet confirmed by the owner** — ask before starting.
+**Next: OQ-16.** It affects both variants, it is the only remaining gap that blocks a control the
+design calls **mandatory** rather than a stage of the pipeline, and ADR-0007 currently contradicts
+itself on it — a mandatory control resting on a deferred component. Then OQ-17, which OQ-15
+depends on (an attestation must attach to a stored artifact), then OQ-15.
 
 ### The load-bearing gaps, and their state
 
@@ -70,10 +105,10 @@ on needs it — including the **fourth record family** ADR-0014 added, the requi
   [ADR-0014](decisions/0014-feature-artifacts-and-the-traceability-chain.md) part 7: seven
   blocking checks, of which hash pinning is the one that makes "consistent with the signed plan"
   literal.
-- **How post-merge defects are attributed to a tier** is still undefined
-  ([asdlc/07-operate.md](../asdlc/07-operate.md)). The metric is mandatory from day one, and
-  without it the third exit condition for automatic T3 deploys can never be evaluated. ADR-0014
-  makes an incident able to name the *requirement* it violated; the *tier* rule is still missing.
+- ~~**How post-merge defects are attributed to a tier**~~ — **promoted 2026-07-28** to
+  [OQ-18](#oq-18--how-is-a-post-merge-defect-attributed-to-a-tier). It had been a bullet for two
+  sessions, which is exactly the failure mode `CLAUDE.md` warns about: a question that only exists
+  inside a paragraph will not get closed. It is now numbered and pointable.
 - **The feature-artifact checker is unwritten.** Specified, not built — a phase-0 bring-up task
   in [rollout/open-parameters.md](../rollout/open-parameters.md), not a research question. Do not
   open an OQ for it.
@@ -517,7 +552,32 @@ Phase-2 content needs research sessions, not assembly — the research-before-co
 
 ## OQ-14 — What are the observability backend components?
 
-- **Status:** open
+- **Status:** closed → [ADR-0015](decisions/0015-observability-backend.md) (2026-07-28)
+- **Answer:** one architecture in both variants — **OpenTelemetry Collector** (gateway, and the
+  redaction point) → **Prometheus** for metrics, **Loki** for events, gate records and
+  requirements traces on dedicated long-retention streams, **Grafana** for the three dashboards.
+  Self-hosted runs these itself (Apache 2.0 and AGPLv3, $0 licence); the cloud variant buys the
+  same architecture as **Grafana Cloud Pro** (*"From $19 / month + usage"*, checked 2026-07-28).
+  Record schema, PromQL, LogQL and dashboard JSON are **identical** on both sides.
+- **The Prometheus inconsistency is resolved by confirming the component**, on its own merits —
+  it ingests OTLP natively, it is Apache 2.0, and Flagger needs it regardless. ADR-0011 part 2's
+  circular *"no new component"* reasoning is retired and must not be cited as precedent.
+- **Three findings a later session must not re-derive**
+  ([research note](research/2026-07-28-observability-backend.md)):
+  - **The mandated audit trail does not exist under default settings.** `OTEL_LOG_TOOL_DETAILS`
+    defaults to **disabled**, so ADR-0008 part 9's tool-invocation trace needs a privacy default
+    turned off deliberately. ADR-0015 part 6 does that and prices it.
+  - **The runner's trace signal is beta**; no mandatory record family is built on it. The events
+    signal carries record family 1 on its own.
+  - **Retention is not retroactive** and both defaults are too short (Prometheus 15d, Grafana
+    Cloud Logs 30d). Configuring it late loses the earliest pilot data.
+- **Retention values set:** session events 90d, per-tier metrics 400d, gate records and
+  requirements traces 5y. Starting values with a number, not evidence-derived thresholds.
+- **What it did not answer:** volume. Every figure is a rate; bytes per engineer per day and
+  active series per engineer are unmeasured, so neither the cloud bill nor the self-hosted disk
+  sizing is quantified. Same shape as [OQ-7](#oq-7--what-are-the-per-unit-of-agent-work-economics),
+  and it closes the same way — from the pilot.
+- **Superseded framing below**, kept for why the question existed.
 - **Opened by:** [ADR-0012](decisions/0012-per-variant-stack-sheets.md) (2026-07-27), when assembling
   the [cloud](../variants/cloud.md) and [self-hosted](../variants/self-hosted.md) stack sheets
   made the gap countable.
@@ -625,6 +685,45 @@ Phase-2 content needs research sessions, not assembly — the research-before-co
 - **Notes:** ADR-0007 part 5 already requires **registry tokens** to be on the credential deny
   list, so the agent must not hold them — which means the push happens in CI under CI's identity,
   not in the agent session. State that explicitly when closing this.
+
+## OQ-18 — How is a post-merge defect attributed to a tier?
+
+- **Status:** open
+- **Opened by:** [ADR-0015](decisions/0015-observability-backend.md) (2026-07-28). It had been
+  living in a bullet in [07-operate.md](../asdlc/07-operate.md) and in this file's handover note
+  since 2026-07-27; standing up the store made it countable, so it is promoted to a numbered
+  question. **Open questions are first-class** ([CLAUDE.md](../CLAUDE.md)).
+- **Blocks:** the **third exit condition** for the T3 automatic deploy path
+  ([ADR-0011](decisions/0011-progressive-rollout.md), [07-operate.md](../asdlc/07-operate.md) §4)
+  — *"per-tier defect attribution shows T3 not leaking defects."* Without a defined attribution
+  rule that condition can never be evaluated, so the one automation on the table is permanently
+  unreachable. It equally blocks the **relaxation rule**
+  ([ADR-0003](decisions/0003-graduated-gating-machine-derived-tier.md)), whose evidence is the
+  same metric, and it is one of the per-tier metrics
+  [07-operate.md](../asdlc/07-operate.md) §3 makes mandatory from day one.
+- **Why it is harder than it sounds.** A defect surfaces in production; the tier was computed at
+  merge time on a diff. Between them sit: changes that touch paths of several tiers in one merge;
+  defects caused by the *interaction* of two changes; defects whose fix is in a different file
+  than the cause; and the counting question of whether a tier is charged per defect, per incident,
+  or per unit of change volume. A rule that answers only the easy case will report a clean T3 and
+  be believed.
+- **What is already available to build on:**
+  [ADR-0014](decisions/0014-feature-artifacts-and-the-traceability-chain.md) makes an incident
+  able to name the **requirement** it violated, and that requirement names its tests and the
+  changes that touched them. **Enabling attribution is not defining it** — the tier-level rule is
+  still missing. [ADR-0015](decisions/0015-observability-backend.md) supplies the store the metric
+  is written to and read from, and 5-year retention on gate records means the history will exist.
+- **What would close it:** a defined, mechanically evaluable rule covering — what event counts as
+  a post-merge defect and who declares it; how a defect is traced back to one or more merges; how
+  a multi-tier merge is charged; the denominator (per merge, per change, per unit time); and the
+  threshold at which "T3 is leaking defects" is true. Plus the honest statement of what the rule
+  will get wrong. Both variants: this is our own metric over our own records, so it **should**
+  converge — a divergence would be a finding.
+- **Note on evidence:** no published rule is expected to exist for agent-authored changes
+  specifically. Prior art to check first is defect-attribution and change-failure-rate practice
+  (DORA's change failure rate, bug-introducing-change identification such as SZZ-family methods)
+  — cite what those measure and say plainly where they do not fit, rather than adopting one by
+  name.
 
 ---
 

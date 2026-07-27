@@ -10,6 +10,10 @@
 - **Environment:** [target environment](../context.md) — the deployment target of the greenfield
   projects is an owner-held unknown, which shapes this record's conditional form.
 - **Research:** [2026-07-27 — progressive rollout and automated rollback](../research/2026-07-27-progressive-rollout.md)
+- **Part 2's justification is corrected by [ADR-0015](0015-observability-backend.md)** (2026-07-28).
+  The decision — Prometheus as the metric source — stands and is confirmed there. The *reasoning*
+  given below, that it introduces *"no new component"* because ADR-0003/0008 already mandate it,
+  was circular: no ADR had chosen it. Do not cite that reasoning as precedent.
 
 ## Context
 

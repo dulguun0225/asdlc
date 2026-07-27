@@ -78,24 +78,37 @@ engineering, and it is required before the first self-hosted production deploy.
 | Canary traffic | Flagger load-testing webhook or equivalent synthetic traffic | Apache 2.0 | $0 | [ADR-0011](../reference/decisions/0011-progressive-rollout.md) §3 | decided — required, not optional | [operate](../asdlc/07-operate.md) §1 |
 | Ingress / mesh | any Flagger-supported ingress controller; no mesh required | — | $0 | [ADR-0011](../reference/decisions/0011-progressive-rollout.md) §1 | **not selected** — a Kubernetes-platform choice this design leaves open | — |
 
-### Observability — mandatory from day one, and the least specified layer
+### Observability — mandatory from day one, and every component is run here
 
-Identical gaps to the cloud variant; the components would be self-hosted here.
+Same architecture as the cloud variant, operated by us instead of bought. Licences verified
+first-party 2026-07-28.
 
 | Layer | Component | Licence / plan | Cost | Decided by | Status | Rules |
 |---|---|---|---|---|---|---|
 | Export protocol | **OpenTelemetry** from every agent session and CI job | open standard | $0 | [ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) §9 | decided | [operate](../asdlc/07-operate.md) §3 |
-| Metrics backend | **Prometheus** | — | — | [ADR-0011](../reference/decisions/0011-progressive-rollout.md) §2 | **GAP — [OQ-14](../reference/open-questions.md)**: named only as Flagger's metric source, in a deployment ADR that claims it adds no new component. No decision record chose it as *the* metrics backend. | [operate](../asdlc/07-operate.md) §1 |
-| OTel collector | — | — | — | — | **GAP — [OQ-14](../reference/open-questions.md)** | [operate](../asdlc/07-operate.md) §3 |
-| Trace store (session / tool-invocation traces) | — | — | — | — | **GAP — [OQ-14](../reference/open-questions.md)** | [operate](../asdlc/07-operate.md) §3 |
-| Gate-record store | — | — | — | — | **GAP — [OQ-14](../reference/open-questions.md)** | [schema](../reference/artifacts.md) §3 |
-| Dashboards | — | — | — | — | **GAP — [OQ-14](../reference/open-questions.md)** | [operate](../asdlc/07-operate.md) §3 |
+| Collector | **OpenTelemetry Collector**, gateway deployment, one per environment | **Apache 2.0** | $0 licence + operations | [ADR-0015](../reference/decisions/0015-observability-backend.md) §1 | decided — **mandatory; the redaction point.** Nothing exports direct to a backend. Redaction processor is **alpha for logs** — a second line of defence, not the first | [operate](../asdlc/07-operate.md) §3 |
+| Metrics backend | **Prometheus 3.x**, OTLP receiver enabled | **Apache 2.0** | $0 licence + operations | [ADR-0015](../reference/decisions/0015-observability-backend.md) §2 | decided — confirms the component ADR-0011 §2 had only assumed. `--web.enable-otlp-receiver`, reachable **from the collector only**; `out_of_order_time_window: 30m`; `--storage.tsdb.retention.time=400d` (the 15d default is a correctness bug here) | [operate](../asdlc/07-operate.md) §1, §3 |
+| Event store (session records) | **Grafana Loki** | **AGPLv3** | $0 licence + operations | [ADR-0015](../reference/decisions/0015-observability-backend.md) §3 | decided — 90d. Record family 1 comes from the **events** signal; the runner's **trace signal is beta and is not adopted** | [operate](../asdlc/07-operate.md) §3 |
+| Gate-record + requirements-trace store | **Grafana Loki**, dedicated streams | AGPLv3 | $0 | [ADR-0015](../reference/decisions/0015-observability-backend.md) §4 | decided — `limits_config.retention_stream` override, **5 years**. This copy is **derived**; the authoritative record stays on the change in NoteDb | [schema](../reference/artifacts.md) §3, §7 |
+| Trace store | — deferred | — | — | [ADR-0015](../reference/decisions/0015-observability-backend.md) §3, §8 | **not built** — adoption trigger is the runner's trace signal leaving beta; then Grafana Tempo | [operate](../asdlc/07-operate.md) §3 |
+| Dashboards | **Grafana OSS** — per-tier gate metrics, bypass watch, spend per team | **AGPLv3** | $0 licence + operations | [ADR-0015](../reference/decisions/0015-observability-backend.md) §7 | decided — same dashboard JSON as the cloud variant | [operate](../asdlc/07-operate.md) §3 |
+| Record emission from CI | ours | — | engineering | [ADR-0015](../reference/decisions/0015-observability-backend.md) consequences | build — CI jobs must emit gate records and requirements traces as OTLP log records | [schema](../reference/artifacts.md) §3, §7 |
 
-**Why this matters more than the other gaps:** standing up observability is phase-0 prerequisite 6
-— it precedes the pilot, because the pilot's entire output is measurements
-([rollout plan](../rollout/plan.md) §2). It is the least specified layer in the design and it
-blocks the most. Earlier sessions recorded that this layer "converges across variants at zero
-licence cost" — true of the *protocol*, but no product has been chosen on either side.
+**Two bring-up rules that are easy to get wrong:**
+
+- **Retention is configured before the first gate record is written.** It is not retroactive in
+  either variant. Turning it up later loses whatever already aged out — including the earliest
+  pilot data, which is the most valuable data [OQ-6](../reference/open-questions.md) will ever
+  have.
+- **Prometheus local storage is a single-node database** — *"not clustered or replicated"* — so
+  snapshot backup of its volume is a phase-0 task, in the same class as backing up Gerrit's meta
+  refs (§5).
+
+**Why this layer mattered more than the other gaps:** standing up observability is phase-0
+prerequisite 6, and it precedes the pilot because the pilot's entire output is measurements
+([rollout plan](../rollout/plan.md) §2). **It is now specified.** The claim earlier sessions
+carried — that this layer "converges across variants at zero licence cost" — was true of the
+protocol and is true of *this* variant; on the cloud side these are paid managed components.
 
 ### Explicitly out of scope
 
@@ -112,8 +125,8 @@ licence cost" — true of the *protocol*, but no product has been chosen on eith
 |---|---|---|
 | Platform licences | **$0** — this is the variant's defining property | high, subject to §3 |
 | Model tokens | Full rate table incl. cache and batch tiers is sourced and dated in [OQ-7](../reference/open-questions.md) | **rates certain, volume unknown** |
-| Infrastructure to run Gerrit, Zuul, Kubernetes, Prometheus, observability | — | **unquantified** |
-| Operations labour | Higher than the cloud variant, on the platform owner role | **unquantified, and repeatedly flagged** |
+| Infrastructure to run Gerrit, Zuul, Kubernetes, Flagger, and the four observability components | — | **unquantified** — and observability disk sizing needs the pilot's measured event volume ([ADR-0015](../reference/decisions/0015-observability-backend.md)) |
+| Operations labour | Higher than the cloud variant, on the platform owner role | **unquantified, and repeatedly flagged** — [ADR-0015](../reference/decisions/0015-observability-backend.md) added four more components to it |
 
 Two cost facts specific to this variant:
 
@@ -141,6 +154,8 @@ enforcement grounds and did not record their licences.
 | **Gerrit code-owners plugin** | Licence and maintenance status; the T1 gate depends on it. |
 | **Forgejo** | GPL v3+ is recorded ([ADR-0009](../reference/decisions/0009-code-host.md)) — re-confirm at fallback time. |
 | **Flagger** | Apache 2.0 and CNCF graduated are recorded ([ADR-0011](../reference/decisions/0011-progressive-rollout.md)) — a licence change is a named reopen trigger. |
+| **Grafana and Loki** | **AGPLv3**, both verified first-party 2026-07-28 — recorded, not outstanding. The action that changes the analysis is **forking or patching** either project: AGPLv3's network clause concerns offering a *modified* version to remote users. Re-check then, not before ([ADR-0015](../reference/decisions/0015-observability-backend.md) §7). |
+| **OpenTelemetry Collector, Prometheus** | **Apache 2.0**, both verified first-party 2026-07-28 — recorded, not outstanding. |
 
 ## 4. What is not decided, and what would reverse what is
 
@@ -148,12 +163,16 @@ enforcement grounds and did not record their licences.
 
 | # | Gap | Blocking? |
 |---|---|---|
-| [OQ-14](../reference/open-questions.md) | Observability backend — collector, metrics, trace store, gate-record store, dashboards | **yes — phase-0 prerequisite 6** |
 | [OQ-15](../reference/open-questions.md) | Provenance assembly to SLSA Build Level 2 | **yes — before first production deploy** |
 | [OQ-16](../reference/open-questions.md) | TLS-terminating egress proxy; credential masking depends on it | **yes — masking is a mandatory control** |
 | [OQ-17](../reference/open-questions.md) | Artifact registry / deployable-artifact store | yes, before first deploy |
 | §3 above | Gerrit and Zuul licences unrecorded | **yes — the variant is defined by licence cost** |
 | — | Deployment target is Kubernetes or not (owner-held) | yes — off Kubernetes this variant has **no** rollout answer |
+| [OQ-18](../reference/open-questions.md) | How a post-merge defect is attributed to a tier | not for bring-up — blocks the T3 auto-deploy exit condition and the relaxation rule |
+
+**Observability closed on 2026-07-28** ([ADR-0015](../reference/decisions/0015-observability-backend.md)).
+It was the most blocking of the four gaps the stack sheets exposed, and it added four components
+to this variant's operating load.
 
 **Named triggers** ([ADR-0009](../reference/decisions/0009-code-host.md) §5,
 [ADR-0011](../reference/decisions/0011-progressive-rollout.md)):

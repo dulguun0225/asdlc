@@ -20,7 +20,8 @@ rows point at an open question because the parameter cannot be set until that re
 | Concrete map contents per repository | each plan gate — [asdlc/02-plan.md](../asdlc/02-plan.md) | no — that *is* the mechanism |
 | Private-repo fork-approval verification (GitHub) | platform owner at bring-up | no — the pipeline-level T1 gate covers the interim |
 | Self-hosted provenance assembly design | research ([OQ-15](../reference/open-questions.md)) | before first self-hosted production deploy |
-| **Observability backend** — collector, metrics, trace store, gate-record store, dashboards | research ([OQ-14](../reference/open-questions.md)) | **yes — phase-0 prerequisite 6, both variants** |
+| Observability retention values, alert routing, dashboard import | platform owner at bring-up — components are settled by [ADR-0015](../reference/decisions/0015-observability-backend.md) | **retention: yes, and it must be set *before* the first record** — it is not retroactive |
+| How a post-merge defect is attributed to a tier | research ([OQ-18](../reference/open-questions.md)) | not for bring-up — blocks the T3 auto-deploy exit condition and the relaxation rule |
 | **TLS-terminating egress proxy** (credential masking depends on it) | research ([OQ-16](../reference/open-questions.md)) | **yes — masking is mandatory, both variants** |
 | Artifact registry / deployable-artifact store | research ([OQ-17](../reference/open-questions.md)) | yes, before first deploy, both variants |
 | Gerrit and Zuul licences (unrecorded) | verification ([self-hosted sheet](../variants/self-hosted.md) §3) | yes for the self-hosted variant, which is defined by licence cost |

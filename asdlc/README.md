@@ -117,6 +117,7 @@ dependencies.
    without it, by design.
 4. **Claude Console organisation** with spend limits.
 5. **The code host stood up and configured** per the variant sheet.
-6. **Observability stood up** before any pilot work — and **this one cannot be met as
-   written**, because no backend components are chosen
-   ([OQ-14](../reference/open-questions.md)).
+6. **Observability stood up** before any pilot work — components chosen by
+   [ADR-0015](../reference/decisions/0015-observability-backend.md); six ordered bring-up steps in
+   [rollout/plan.md](../rollout/plan.md) §2. **Retention is step 1 and is not retroactive:**
+   configuring it after records start arriving loses the earliest pilot data for good.

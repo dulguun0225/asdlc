@@ -37,8 +37,13 @@ Identical in both, at identical cost:
 - **The tier function** and the never-write check — both are jobs we write.
 - **The gate table, the reviewer ring, and every role** — see
   [asdlc/](../asdlc/README.md).
-- **The observability layer** — OpenTelemetry export. (The *protocol* converges. No *backend*
-  is chosen on either side.)
+- **The observability layer** — OpenTelemetry export, and now the whole architecture:
+  collector → Prometheus + Loki → Grafana, with the same record schema, PromQL, LogQL and
+  dashboard JSON on both sides
+  ([ADR-0015](../reference/decisions/0015-observability-backend.md)). **The architecture
+  converges; the cost does not** — self-hosted runs it at $0 licence, cloud buys the same shapes
+  as Grafana Cloud Pro. Earlier records said this layer "converges at zero licence cost"; that
+  was true of the protocol only.
 - **The deployment layer — if the target is Kubernetes.** Flagger, Apache 2.0, both sides.
 
 ## What diverges

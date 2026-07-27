@@ -78,18 +78,34 @@ entire output is measurements.
 Dashboards to stand up before the pilot: per-tier gate metrics (feeds the relaxation rule and
 [OQ-6](../reference/open-questions.md)); bypass watch; spend per team.
 
-### And it is the least specified layer in the design
+### Where the records go
 
-OpenTelemetry is the **export protocol**. The collector, metrics backend, trace store,
-gate-record store and dashboard tool are **all undecided, in both variants**
-([OQ-14](../reference/open-questions.md)).
+Settled by [ADR-0015](../reference/decisions/0015-observability-backend.md) on 2026-07-28. One
+architecture in both variants — only the operator differs. Components and prices are in the
+[cloud](../variants/cloud.md) and [self-hosted](../variants/self-hosted.md) stack sheets.
 
-Prometheus is named in ADR-0011 as Flagger's metric source, in a record that claims it
-introduces no new component — but no decision record ever chose it as *the* metrics backend.
-That gap is recorded, not smoothed over.
+- **Everything exports OTLP to a collector**, never direct to a backend. The collector is the
+  redaction point.
+- **Metrics → Prometheus** (Grafana Cloud Metrics in the cloud variant). This confirms the
+  component ADR-0011 had only assumed.
+- **Events, gate records and requirements traces → Loki** (Grafana Cloud Logs), with the two
+  long-lived families on their own streams.
+- **Dashboards → Grafana.** The same dashboard JSON runs on both variants.
 
-**Phase-0 prerequisite 6 cannot be met as written.** Closing OQ-14 is the first research
-session the rollout plan depends on.
+Three rules that come out of that record and change what has to happen at bring-up:
+
+1. **The mandated tool-invocation trace needs a privacy default turned off.** The runner's
+   `OTEL_LOG_TOOL_DETAILS` defaults to **disabled**, and without it an event records *that* a
+   tool ran but not which tool with what arguments. Managed settings set it to `1`; prompt,
+   response, tool-content and raw-API-body logging stay off
+   ([reference/artifacts.md](../reference/artifacts.md) §5).
+2. **Retention is configured before the first record is written.** It is not retroactive in
+   either variant, and both product defaults are far too short. Gate records and requirements
+   traces are kept **5 years**, per-tier metrics 400 days, session events 90 days.
+3. **The trace signal is beta and is not adopted.** Record family 1 is carried by the events
+   signal. Adopting traces later is a named trigger, not a plan item.
+
+**Phase-0 prerequisite 6 is now buildable.** What remains is bring-up work, not research.
 
 ## 4. The one automation on the table
 
@@ -121,11 +137,20 @@ recorded as a direction, not a plan item.
 
 ## Not yet specified
 
-- **The entire observability backend** ([OQ-14](../reference/open-questions.md)) — blocking.
-- **How post-merge defects are attributed to a tier.** The metric is mandatory from day one
-  and no attribution method is defined. Without it, condition 3 in §4 can never be evaluated.
+- **How post-merge defects are attributed to a tier** —
+  [OQ-18](../reference/open-questions.md), and now the blocking gap in this stage. The metric is
+  mandatory from day one and no attribution method is defined. Without it, condition 3 in §4 can
+  never be evaluated, so the one automation on the table is unreachable.
   [ADR-0014](../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md) makes
   the finer-grained half possible — an incident can name the requirement it violated, and that
-  requirement names its tests and the changes that touched them — but **enabling attribution is
-  not defining it**, and the tier-level rule is still missing.
+  requirement names its tests and the changes that touched them — and
+  [ADR-0015](../reference/decisions/0015-observability-backend.md) supplies the store and five
+  years of history. But **enabling attribution is not defining it**, and the tier-level rule is
+  still missing.
+- **Alerting.** Which dashboard signals page a human, and through what. Left to phase-0 bring-up;
+  the chosen components all carry alerting, so no further selection is needed
+  ([ADR-0015](../reference/decisions/0015-observability-backend.md)).
 - **The ingress controller**, if the target is Kubernetes — left open as a platform choice.
+
+The observability backend was here until 2026-07-28 and is now specified by
+[ADR-0015](../reference/decisions/0015-observability-backend.md).

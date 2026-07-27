@@ -53,14 +53,27 @@ Nothing in phase 1 starts until all six exist. Items 1–3 are owner-held facts
    not in ADR-0010.
 5. **Create the GitHub organisation** on the Team plan. Re-check prices at signup — the
    recorded figures are promotional (checked 2026-07-27).
-6. **Stand up observability:** OTel collector, the three record families, and the
+6. **Stand up observability:** the collector, all **four** record families, and the
    dashboards named in [07-operate.md](../asdlc/07-operate.md) §3. This precedes the pilot
-   because the pilot's whole output is measurements.
-   **This prerequisite cannot be met as written — no backend components are chosen.** OTel is
-   the export protocol; the collector, metrics backend, trace store, gate-record store and
-   dashboard tool are all undecided in both variants
-   ([OQ-14](../reference/open-questions.md), opened by [ADR-0012](../reference/decisions/0012-per-variant-stack-sheets.md)).
-   Closing OQ-14 is the first research session this plan depends on.
+   because the pilot's whole output is measurements. Components are chosen —
+   [ADR-0015](../reference/decisions/0015-observability-backend.md), and the bill of materials is
+   in each [stack sheet](../variants/README.md). Six steps, and the order of the first two
+   matters:
+   1. **Set retention before anything is written.** It is not retroactive in either variant, and
+      both product defaults are far too short. Gate records and requirements traces 5 years,
+      per-tier metrics 400 days, session events 90 days. Doing this late loses the earliest
+      pilot data permanently.
+   2. **Deploy the collector first**, and point nothing at a backend directly — it is the
+      redaction point.
+   3. Stand up the metrics backend with its OTLP receiver reachable **only** from the collector,
+      and snapshot backup configured if self-hosted.
+   4. Stand up the event store and the two long-retention streams.
+   5. **Distribute the managed-settings telemetry block**
+      ([reference/artifacts.md](../reference/artifacts.md) §5). Without it the mandated
+      tool-invocation trace does not exist, because the runner's tool-detail logging ships
+      disabled.
+   6. Build the CI-side emitters for gate records and requirements traces, and import the three
+      dashboards.
 
 ## 3. Phase 1 — platform bring-up (platform owner, ~2–4 weeks)
 

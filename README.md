@@ -39,17 +39,17 @@ decision record. On any conflict, the ADR wins and the design document has a bug
 **Decided:** the gate structure and who signs each gate; the tier system and the function that
 computes a tier; the agent runner and its containment; the code host for both variants; the
 progressive-rollout layer; the runner's licensing; the spec, plan and task artifacts and the
-traceability chain through them.
+traceability chain through them; the observability backend.
 
 **Not decided, and blocking:**
 
 | Gap | Blocks |
 |---|---|
-| Observability backend — collector, metrics, trace store, gate-record store, dashboards ([OQ-14](reference/open-questions.md)) | Phase 0. The pilot's whole output is measurements. |
 | TLS-terminating egress proxy ([OQ-16](reference/open-questions.md)) | Credential masking, which is a mandatory control |
 | Artifact registry ([OQ-17](reference/open-questions.md)) | First deploy — attestations must attach to something |
 | Self-hosted provenance assembly ([OQ-15](reference/open-questions.md)) | First self-hosted production deploy |
-| Platform owner and backup — **a role that does not exist yet** ([OQ-10](reference/open-questions.md)) | Everything. It owns almost every artifact in the design. |
+| Platform owner and backup — **a role that does not exist yet** ([OQ-10](reference/open-questions.md)) | Everything. It owns almost every artifact in the design — and the observability decision added four more components to it. |
+| Post-merge defect attribution to a tier ([OQ-18](reference/open-questions.md)) | Not phase 0. The T3 automatic-deploy exit condition, and the rule that relaxes a tier on evidence. |
 
 **Thin, and named as such:** the day-to-day engineer-facing layer. The spec, plan and task
 templates now exist ([asdlc/templates/](asdlc/templates/README.md)), but the checker that

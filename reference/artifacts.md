@@ -161,7 +161,42 @@ Distributed to every engineer machine; owner: platform owner; change tier: T1
 }
 ```
 
-Plus, in the same managed scope:
+Plus a telemetry block, set by
+[ADR-0015](decisions/0015-observability-backend.md) part 6. The vendor states that environment
+variables in the managed settings file *"have high precedence and can't be overridden by users"* —
+which is the property this block relies on.
+
+```json
+{
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+    "OTEL_METRICS_EXPORTER": "otlp",
+    "OTEL_LOGS_EXPORTER": "otlp",
+    "OTEL_EXPORTER_OTLP_PROTOCOL": "http/protobuf",
+    "OTEL_LOG_TOOL_DETAILS": "1",
+    "OTEL_LOG_USER_PROMPTS": "0",
+    "OTEL_LOG_ASSISTANT_RESPONSES": "0",
+    "OTEL_LOG_TOOL_CONTENT": "0",
+    "OTEL_LOG_RAW_API_BODIES": "none",
+    "OTEL_METRICS_INCLUDE_SESSION_ID": "false",
+    "OTEL_METRICS_INCLUDE_ACCOUNT_UUID": "false"
+  }
+}
+```
+
+Three of these are decisions rather than defaults, and the ADR carries the reasoning:
+
+- **`OTEL_LOG_TOOL_DETAILS=1` turns a privacy default off on purpose.** It ships **disabled**, and
+  with the default the tool-invocation trace that
+  [ADR-0008](decisions/0008-agent-write-scope-and-enforcement.md) part 9 requires records *that* a
+  tool ran but not which tool with what arguments. The cost is that Bash command lines enter the
+  event store, bounded by masking, the no-plaintext-secrets rule, and collector-side redaction.
+- **Content stays off** — prompts, responses, tool content, raw API bodies. No record family needs
+  them, and they would put source code into the store.
+- **Session id and account UUID are removed from *metrics*** to stop unbounded time-series growth;
+  per-session detail is read from the event signal instead.
+
+And, in the same managed scope:
 
 - **Credential denies — mandatory, and there is no built-in list.** Cloud credential
   directories (`~/.aws/` and equivalents), `~/.ssh/`, every CI and registry token, and every

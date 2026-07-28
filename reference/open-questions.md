@@ -105,7 +105,46 @@ choose between options here. Research it, decide it, record it, and say what wou
 
 ---
 
-### Last session: 2026-07-28 — the bundle's release fixes, and where it publishes from
+### Last session: 2026-07-28 — the java-backend pack's seed text, made reviewable
+
+The owner said the `java-backend` pack's *The decisions* section is hard for a human to read, and
+that people may want to review those rules even though the text is written for an LLM. It was: 95
+rules in 615 lines inside a ```` ```markdown ```` fence, so GitHub rendered the whole thing as an
+unnavigable grey block — no headings, no anchors, no way to link one rule to a colleague. Two fixes
+were applied; a third and fourth were offered and declined.
+
+- **The seed text moved out of the fence into its own file** — `packs/seed/java-backend.md`, and
+  `packs/seed/agent-traps.md` for the same reason, so there is one convention rather than two. A
+  seed file holds nothing but the paste payload: no title, no evidence, no commentary. Adoption
+  changed from "copy the block inside the fence" to "copy the whole file", which is one button on
+  GitHub. `packs/README.md` Anatomy item 3 and adopt steps 2–4 now say so, as does the `packs/` row
+  in the bundle's `CLAUDE.md`.
+- **Every `java-backend` rule was rewritten directive-first**: the imperative in bold, then the
+  reasoning, then the enforcing check in parentheses. The old bullets often opened with the failure
+  mode and buried the directive at the end, which is fine for a model and useless for skimming.
+  Content was preserved and the preservation was *checked*, not asserted — inline-code tokens and
+  word frequencies diffed between the old block and the new file; every difference traces to a
+  punctuation shift or one of the deliberate changes below.
+- **Four dangling pointers were removed, and they are the finding worth keeping.** Seed text lands
+  in a *product repo's* constitution, and that repo has no copy of this one — so "see section 4"
+  and two "see the agent-traps pack" references pointed nowhere. Worse, "that is principle 3's
+  ambient modifier" would read in the destination as the constitution's own **principle III**,
+  which is a different rule. `packs/README.md` now states the constraint: nothing in a seed file
+  may point back at this repository. **Check the other packs against it when one is next
+  touched** — the rule is written down but was only enforced by hand, on these two.
+- **Declined, and worth re-offering:** stable rule ids (`JB-01…`) plus an index table, which would
+  let a review comment and a plan's Decision Trace cite one rule instead of "Repo principles". The
+  cost is ~95 index rows that drift without a CI id-coverage check, and ids that become part of
+  every adopting repo's constitution — probably a B-n entry. Also declined: splitting the seed into
+  four condition-scoped blocks, which contradicts the pack's own rule that money-grade rules ship
+  even in a no-money repo so the first money field hits a live tripwire.
+
+No rule changed meaning, so the pack's `verified` and `review-by` dates were left alone — bumping
+them would re-lease claims this session did not re-verify. `specify bundle validate --offline`
+gives 0 errors and the documented 3 warnings; `python ci/check_specs.py --self` passes. Changelog
+entry under `[Unreleased]`.
+
+### Session before: 2026-07-28 — the bundle's release fixes, and where it publishes from
 
 The owner pointed at `release-fixes.md`, an untracked scratch note from the previous developer
 listing what to change before cutting `spec-kit-bundle-nc` v0.2.0. **All of it is now applied, the

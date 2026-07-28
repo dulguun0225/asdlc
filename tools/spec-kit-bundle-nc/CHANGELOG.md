@@ -7,6 +7,28 @@ each of its components carry independent semver (each noted per release).
 Versions 0.1.0 and 0.2.0 were development increments in this repository;
 `bundle-v0.2.0` is the first published tag.
 
+## [Unreleased]
+
+### Changed
+
+- `packs/` — each pack's seed text moved out of its fenced `## 2. The
+  decisions` block into its own file, `packs/seed/<pack-id>.md`
+  (`java-backend`, `agent-traps`). The seed file is nothing but the paste
+  payload, so adoption is "copy the whole file" instead of "copy the block
+  inside the fence", and a human reviewing the rules reads them rendered —
+  `java-backend`'s 95 rules were 615 lines of unnavigable grey inside a
+  fence. No rule changed meaning. Ripples: `packs/README.md` (Anatomy item
+  3, adopt steps 2–4), the `packs/` row in `CLAUDE.md`.
+- `packs/seed/java-backend.md` — every rule rewritten directive-first: the
+  imperative in bold, then the reasoning, then the enforcing check. Content
+  preserved, verified by diffing inline-code tokens and word counts against
+  the old block. Four deliberate exceptions, all dangling pointers a
+  constitution cannot resolve: "see section 4" and two "see the agent-traps
+  pack" references dropped, and "principle 3's ambient modifier" restated in
+  words (in a constitution, "principle 3" reads as its own principle III).
+  One bullet split in two — jOOQ codegen-diff out of the persistence rule —
+  because it carried two rules and two checks.
+
 ## [0.2.0] — 2026-07-28
 
 Bundle `nc-sdd` 0.2.0 · preset `nc-ears` 0.2.0 · extension `nc` 0.2.0 ·

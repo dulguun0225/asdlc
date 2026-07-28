@@ -32,7 +32,7 @@ component directories here are the source of truth; they reach projects via
 | `workflows/nc-sdd/` | Orchestrated cycle for `specify workflow run` | `bundle.yml` pin, `catalogs/workflows.json` (version AND url tag), bundle-checks.yml |
 | `ci/check_specs.py` | Stdlib-only merge gate; `--repo` for product repos, `--self` for `examples/` | README checker list, bundle-checks.yml negative probes |
 | `catalogs/*.json` | Org distribution; keys == ids; versions/URLs must match the manifests | bundle-release.yml asserts |
-| `packs/` | Researched decision packs (informative; adopted by paste-edit-PR into a product constitution, never installed by tooling) | `packs/index.md` roster AND `packs/README.md` "The packs" table; bundle-checks.yml freshness step; B-8 governance |
+| `packs/` | Researched decision packs (informative; adopted by paste-edit-PR into a product constitution, never installed by tooling). `packs/seed/<pack-id>.md` is the paste payload — nothing but the rules, so a pack change may touch two files | `packs/index.md` roster AND `packs/README.md` "The packs" table; bundle-checks.yml freshness step; B-8 governance |
 | `examples/password-reset/` | Worked example (spec + plan); kept green by `--self` | — |
 | `README.md` | User docs; "Behavior this repo is built around" is the pin-forward contract | — |
 | `DECISIONS.md` | B-n registry. Read it before changing any design; append-only, never renumber; supersede with a dated note | — |

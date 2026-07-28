@@ -42,10 +42,19 @@ Every pack carries, in order:
    section of the seed text (first money field) or signal the repo has
    left the pack's coverage entirely (first LLM call, first shipped
    SDK). The spec PR introducing X is the cheap moment to say so.
-3. **The decisions** — the seed text: verdict-style directives for the
-   adopting constitution's Repo principles. Directives only — evidence
+3. **The decisions** — points at the seed text and says how to adopt it.
+   The seed text itself is a separate file, `seed/<pack-id>.md`, holding
+   verdict-style directives for the adopting constitution's Repo
+   principles and nothing else — no title, no evidence, no commentary — so
+   adoption is "copy the whole file" with no boundary to judge, and a human
+   reviewing the rules reads them rendered rather than as a wall of fenced
+   grey. Each rule leads with its directive in bold, then the reasoning,
+   then the enforcing check in parentheses. Directives only — evidence
    stays out of the seed text; an agent's context is a scarce resource and
-   only instinct-overriding rules justify their space there.
+   only instinct-overriding rules justify their space there. Nothing in a
+   seed file may point back at this repository: the adopting repo has no
+   copy of it, so a cross-reference to a pack, a section number, or a
+   design principle lands in a constitution as a dangling pointer.
 4. **Rejected alternatives** — names the training-corpus favorite
    explicitly and why it lost. This is the instinct-override payload: an
    agent told only "use X" still drifts toward the corpus default; an
@@ -89,7 +98,7 @@ Status tier, per pack (and per rule where they differ):
 
 ## How to adopt one
 
-Adoption is one PR: copy one block from a pack into one section of your
+Adoption is one PR: copy one pack's seed file into one section of your
 constitution, edit it, and wire the checks. It is not blind paste — step 4
 is real editing — but every source and destination below is a named file.
 
@@ -97,18 +106,17 @@ Prerequisite: the bundle is installed in the repo (repo README, Install).
 That is what put `.specify/memory/constitution.md` in place.
 
 1. **Pick the pack** for your stack from [The packs](#the-packs) below.
-2. **Copy the seed text.** Open the pack file (e.g. `java-backend.md`) and
-   go to the section named **The decisions** (`## 2. The decisions`). Copy
-   the whole fenced code block under it — the one whose opening fence is
-   tagged `markdown`. That block, and nothing else in the pack, is the
-   seed text.
+2. **Copy the seed text.** It is one file: `seed/<pack-id>.md` — e.g.
+   [`seed/java-backend.md`](seed/java-backend.md). Copy the whole file.
+   Nothing else in the pack is seed text; read the pack itself for the
+   research behind the rules.
 3. **Paste it into your constitution.** Open
    `.specify/memory/constitution.md`, find the `## Repo principles`
    section, and replace its `No repo principles adopted yet` placeholder
-   line with the block you copied.
+   line with the file you copied.
 4. **Edit what you pasted** — the one non-mechanical step. What the edits
-   look like on the `java-backend` block:
-   - *Tighten a placeholder.* The block ships `Java <version pinned in the
+   look like on the `java-backend` seed text:
+   - *Tighten a placeholder.* It ships `Java <version pinned in the
      build>`; replace it with your real version, e.g. `Java 25`. Where a
      rule leaves a value as "this repo's call" (the JaCoCo coverage ratio),
      put the number, e.g. fail below `0.80` line coverage per package.
@@ -123,16 +131,16 @@ That is what put `.specify/memory/constitution.md` in place.
 
    An unedited pack in a constitution is a sign nobody read it.
 5. **Re-verify the dates.** Check the pack's `verified` date and every
-   version pin inside the pasted block against today; versions and tool
+   version pin inside the pasted text against today; versions and tool
    verdicts age, and the dates make staleness visible, not impossible.
 6. **Wire the checks** in the same PR (or the same week, stated in the
    PR): every ban's named check actually fails the build. Keep the
    enforcement markers honest — a rule whose check is not wired yet is
    marked deferred with a reason, never described as enforced.
 
-That PR — the edited block under `## Repo principles`, plus the checks — is
-the adoption. From then on, every plan's Constitution Check and Decision
-Trace read these rules.
+That PR — the edited seed text under `## Repo principles`, plus the checks
+— is the adoption. From then on, every plan's Constitution Check and
+Decision Trace read these rules.
 
 Divergence is one recorded line, not a process: a plan that needs
 different technology writes a Decision Trace row citing the record it

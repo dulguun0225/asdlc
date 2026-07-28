@@ -66,9 +66,11 @@ Four record families, all exported by **OpenTelemetry** from every agent session
 3. **Per-tier metrics** — volume, approval rate, change-request rate, post-merge defect
    attribution, revert rate, deploy batch size, reviewer-reassignment count, and — added by
    [ADR-0019](../reference/decisions/0019-testing-agent-written-code.md) — **flaky-test rate** and
-   **surviving-mutant rate at T1**. The last two make the testing strategy falsifiable: if
-   quarantine is never used, the rule is being bypassed by retries; if surviving mutants stay high,
-   the tests are passing without asserting.
+   **surviving-mutant rate at T1**, plus **changes per session**
+   ([ADR-0021](../reference/decisions/0021-units-of-work.md)). The testing pair makes that strategy
+   falsifiable: if quarantine is never used, the rule is being bypassed by retries; if surviving
+   mutants stay high, the tests are passing without asserting. Changes per session is the only way
+   the session-boundary rule is visible at all.
 4. **Requirements traces** — per feature and per requirement: verification coverage, escape-hatch
    use, requirements amended after signature
    ([reference/artifacts.md](../reference/artifacts.md) §7). This is the record that makes

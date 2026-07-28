@@ -62,8 +62,9 @@ the code host.
 
 Named here rather than left as an absence:
 
-- **How the agent is prompted to produce one** is undecided. The template constrains the output;
-  nothing yet constrains the session that writes it.
+- **The text of the `/asdlc-spec` stage skill.** Its structure, scope and invocation controls are
+  fixed ([ADR-0020](../reference/decisions/0020-agent-instruction-layers.md)); the procedure itself
+  is bring-up work. Code, not a decision.
 - **What makes a definition of done acceptable to a domain owner** is a review question with no
   written standard — the template's success-criteria and unwanted-behaviour rules are the
   closest thing to one.

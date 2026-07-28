@@ -231,18 +231,34 @@ engineers on the same repository would get different agent behaviour with no way
 can check it was *derived from* one rather than from the code. The backstops that actually bite are
 **mutation testing at T1** and **the human merge signature**. Do not read §6 as a hard control.
 
+## 8. Where a session starts and stops
+
+**One session, one requester, one change** ([ADR-0021](../reference/decisions/0021-units-of-work.md)
+part 6). The reason is the audit trail: the gate record names the producing session, and session
+traces carry that session's spend and tool invocations. A session that produces two independently
+reviewable changes makes both records ambiguous — spend cannot be attributed, and each change's
+trace contains the other's tool calls.
+
+- **Continue one session across the stages of a change** — spec, plan, tasks, implementation — by
+  invoking each stage skill in turn. **Stage boundaries are not session boundaries.**
+- **Start a new session** when the change is done, when the requester changes, or when the session's
+  spend ceiling is reached.
+- **Rework after a rejected gate continues the same session.** Same change, same producer.
+
+**Nothing enforces this.** Getting it wrong produces a muddled record, not a failed gate. The metric
+that makes it visible is **changes per session**, which falls out of the session trace at no extra
+cost.
+
 ## Not yet specified
 
 - **The text of the four stage skills.** [ADR-0020](../reference/decisions/0020-agent-instruction-layers.md)
   fixes their structure, scope and invocation controls; the procedures themselves are bring-up work,
-  drafted against [the templates](templates/README.md).
-- **When to open a new session versus continue one**, and how session boundaries map to
-  changes.
+  drafted against [the templates](templates/README.md). **Code, not a decision.**
 - **Prompt injection from repository content.** The agent reads the repository, and repository
   content can contain instructions. Distinct from instruction-file custody (§7), not solved by it,
   and not yet a numbered question.
 
-How agent-written code is tested, and how the agent is prompted at each stage, were both listed
-here until 2026-07-28 and are now specified by
-[ADR-0019](../reference/decisions/0019-testing-agent-written-code.md) and
-[ADR-0020](../reference/decisions/0020-agent-instruction-layers.md) — see §6 and §7.
+Three gaps were listed here until 2026-07-28 and are now specified: how agent-written code is
+tested ([ADR-0019](../reference/decisions/0019-testing-agent-written-code.md), §6), how the agent is
+prompted at each stage ([ADR-0020](../reference/decisions/0020-agent-instruction-layers.md), §7),
+and session boundaries ([ADR-0021](../reference/decisions/0021-units-of-work.md), §8).

@@ -16,7 +16,25 @@ they are met, per service ([07-operate.md](07-operate.md) §4).
 
 The gate is a **fast sign-off by one person with context**, not a release meeting.
 
-## 2. The batch must be legible
+## 2. What a batch is, and it must be legible
+
+**A deploy batch is one service's merged changes since that service last deployed, resolved to the
+single artifact digest being deployed**
+([ADR-0021](../reference/decisions/0021-units-of-work.md)). Per service, not per repository — the
+`reversibility` declaration, the canary policy, and the T3 automatic-deploy flag are all per
+service, so a wider batch would break all three.
+
+**Any non-T3 change disqualifies the whole batch from the automatic path. Tier does not average.**
+
+**A change touching two services produces two batches and two signatures.** This design has no
+cross-service deploy orchestration. A feature that needs two services to deploy together **declares
+that in its plan** — the order, and what happens in the window between — and the plan signer accepts
+it.
+
+**There is no batch-size cap**, deliberately: no measured basis exists for a number, and an invented
+one would be enforced as though it meant something. Batch size is measured instead, and the signal
+that would introduce a cap is named — batch size rising while the change-request rate at this gate
+falls toward zero.
 
 The approval **must surface the tier breakdown of the batch** — `{"t1": 0, "t2": 3,
 "t3": 11}`. A signer waving through fifty batched changes is approving an aggregate they
@@ -106,9 +124,13 @@ Gate record with `gate: "deploy"`, the signer, the **batch's tier breakdown**, a
 
 ## Not yet specified
 
-- **What a deploy batch is scoped to** — per service, per repository, or per team — is not
-  stated anywhere. This is now the only undecided thing in this stage.
+*(nothing — this stage is fully specified.)*
 
-Both the artifact registry and the self-hosted provenance chain were listed here until 2026-07-28
-and are now specified by [ADR-0017](../reference/decisions/0017-artifact-registry.md) and
-[ADR-0018](../reference/decisions/0018-self-hosted-provenance.md).
+Three gaps were listed here until 2026-07-28: the artifact registry
+([ADR-0017](../reference/decisions/0017-artifact-registry.md)), the self-hosted provenance chain
+([ADR-0018](../reference/decisions/0018-self-hosted-provenance.md)), and what a deploy batch is
+scoped to ([ADR-0021](../reference/decisions/0021-units-of-work.md)).
+
+**One limitation is decided rather than missing:** there is no cross-service deploy orchestration
+(§2). If coordinated multi-service releases turn out to be routine rather than rare, this design
+needs a mechanism it does not have.

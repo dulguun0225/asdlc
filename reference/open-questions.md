@@ -25,7 +25,34 @@ computer and the agent's local memory does not travel, so this section — not a
 the conversation — is where the state lives. Anyone finishing a session updates it
 ([`CLAUDE.md`](../CLAUDE.md) → "Assume every session starts on a different computer").
 
-### Last session: 2026-07-28 — where agent instructions live
+### Last session: 2026-07-28 — the units of work, and a consistency pass
+
+Landed [ADR-0021](decisions/0021-units-of-work.md), closing the last two named stage-file gaps:
+**what a deploy batch is scoped to**, and **when to open a new agent session**. They turned out to
+be the same question — each of the three record families is keyed on a different unit of work, and
+an unbounded unit makes its records unattributable.
+
+- **A deploy batch is one service's changes**, resolved to one artifact digest. Forced, not chosen:
+  `reversibility`, the canary policy and the T3 auto-deploy flag are all already per service.
+- **Any non-T3 change disqualifies a batch from the automatic path. Tier does not average.**
+- **No batch-size cap**, deliberately — no measured basis exists, and the signal that would set one
+  is named (batch size rising while the deploy gate's change-request rate falls toward zero).
+- **A new limitation is written down rather than left absent:** there is **no cross-service deploy
+  orchestration**. A feature needing two services to deploy together declares the order in its plan.
+- **One session, one requester, one change.** Stage boundaries are *not* session boundaries —
+  continue one session across spec → plan → tasks → implementation. Nothing enforces it; the metric
+  that makes it visible is **changes per session**.
+
+**Consistency pass also done.** Three stage files still said "how the agent is prompted is
+undecided" after ADR-0020 answered it; fixed. `variants/README.md` claimed *"roughly 70% of the
+design is identical"* — **that number was never measured against anything and is removed rather than
+revised.** The convergence list is the claim; it has grown every session, and the remaining
+divergences are now mostly *who operates it* rather than *what it is*.
+
+**[06-deploy.md](../asdlc/06-deploy.md) now has an empty "Not yet specified" section** — the first
+stage file to be fully specified.
+
+### Session before: 2026-07-28 — where agent instructions live
 
 Landed [ADR-0020](decisions/0020-agent-instruction-layers.md) and its
 [research note](research/2026-07-28-agent-instruction-layers.md), closing the prompting gap. **It
@@ -251,24 +278,27 @@ below rather than referred upward.
   artifacts are **done**. What remains: per-repository agent configuration, a testing strategy
   for agent-written code, and how the agent is prompted at each stage.
 
-**Next, in order:**
+**Every design decision this project can make without a running pilot has been made.** What is left
+falls into three kinds, and only the first is a research session.
 
-1. **Sweep the remaining "Not yet specified" entries** across the stage files. They are now few and
-   small — the largest is **what a deploy batch is scoped to**
-   ([06-deploy.md](../asdlc/06-deploy.md)): per service, per repository, or per team. It is the only
-   undecided thing in that stage, and it interacts with the batch-size metric ADR-0005 calls the
-   direct measure of whether the deploy gate is real.
-2. **A consistency pass over the whole design.** Six ADRs landed in one day and several amended
-   earlier records. Worth one session reading the product documents end to end as a stranger would,
-   checking that the stage files, the stack sheets and `artifacts.md` all still agree with the ADRs
-   — the repository's own rule is that on conflict the ADR wins and the document has a bug.
-3. **[OQ-18](#oq-18--how-is-a-post-merge-defect-attributed-to-a-tier)** — the one live research
-   question. It blocks no bring-up step, only the T3 auto-deploy exit condition and the relaxation
-   rule, both of which need a running pilot anyway.
+1. **[OQ-18](#oq-18--how-is-a-post-merge-defect-attributed-to-a-tier)** — how a post-merge defect is
+   attributed to a tier. The one live research question. It blocks no bring-up step, only the T3
+   auto-deploy exit condition and the relaxation rule, both of which need a running pilot anyway.
+   **Take this next** if another research session runs.
+2. **Decide whether prompt injection from repository content needs its own `OQ-N`.** Flagged by
+   [ADR-0020](decisions/0020-agent-instruction-layers.md) and deliberately not opened. The agent
+   reads the repository and repository content can contain instructions; instruction-file custody
+   does not solve it.
+3. **Code and staffing, not decisions.** The feature-artifact checker, the four stage-skill texts,
+   the CI emitters for gate records and requirements traces, the phase-0 verifications — all listed
+   in [rollout/open-parameters.md](../rollout/open-parameters.md). And
+   [OQ-10](#oq-10--who-fills-the-platform-owner-role), which is the single largest dependency in the
+   design and the only thing here the owner must supply.
 
-**Also decide, at some point:** whether prompt injection from repository content needs its own
-`OQ-N`. Flagged by [ADR-0020](decisions/0020-agent-instruction-layers.md) and deliberately not
-opened.
+**The honest summary for whoever picks this up:** the remaining risk is not that a decision is
+missing. It is that nine ADRs landed in one day, most of them resting on sources dated the same day,
+several on preprints — and that **nobody has run any of it**. The instrumentation to find out is
+specified; the pilot is what produces the evidence.
 
 [OQ-18](#oq-18--how-is-a-post-merge-defect-attributed-to-a-tier) is the remaining research
 question, and it blocks no bring-up step — only the T3 auto-deploy exit condition and the

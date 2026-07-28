@@ -53,7 +53,9 @@ second trigger list ([tiers.md](../tiers.md)).
   ([open-parameters.md](../../rollout/open-parameters.md)). The two in-house conventions
   ([`sdd-standard`](https://github.com/dulguun0225/sdd-standard),
   [`spec-kit-bundle-nc`](https://github.com/dulguun0225/spec-kit-bundle-nc)) are usable prior art.
-- **How the agent is prompted to produce each artifact** is undecided. The templates constrain
-  the output; nothing yet constrains the session that writes it.
+- **The text of the four stage skills** that drive these templates. Their structure, scope and
+  invocation controls are fixed
+  ([ADR-0020](../../reference/decisions/0020-agent-instruction-layers.md)); the procedures are
+  bring-up work. Code, not a decision.
 - **The authoring language** is English by default, unconfirmed — see
   [context.md](../../reference/context.md).

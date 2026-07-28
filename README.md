@@ -4,8 +4,9 @@ A design for an **Agentic software development life cycle**: a life cycle in whi
 execute multi-step development work — planning, editing, running tests, opening changes —
 under human review gates.
 
-**This repository is documents, not code.** There is no build, no test suite, and no package
-manifest. The deliverable is the design below.
+**A monorepo: the design, and the code that implements it.** The four design directories are
+documents — no build, no test suite, no package manifest. The code lives in
+[`tools/`](tools/README.md) ([ADR-0025](reference/decisions/0025-monorepo.md)).
 
 It is designed for a specific organisation — 18 cross-functional teams of three, greenfield
 projects only, SaaS permitted — and answered for **two deployment variants**, cloud and
@@ -18,6 +19,7 @@ asdlc/        the life cycle — what happens at each stage, who signs what
 variants/     the two stacks — what to install, what it costs, what is missing
 rollout/      the order to build and adopt it in
 reference/    the working record — decisions, research, open questions, schemas
+tools/        the code — programs and packages the life cycle needs
 ```
 
 ## Read in this order
@@ -31,6 +33,7 @@ reference/    the working record — decisions, research, open questions, schema
 | **Know what to do first** | [rollout/plan.md](rollout/plan.md) |
 | **Know why something was decided** | [reference/decisions/](reference/decisions/README.md) |
 | **Know what is still unanswered** | [reference/open-questions.md](reference/open-questions.md) |
+| **Find the code** | [tools/README.md](tools/README.md) |
 
 `asdlc/` and `variants/` **add no decisions**. Every rule in them traces to a numbered
 decision record. On any conflict, the ADR wins and the design document has a bug.

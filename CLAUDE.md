@@ -4,11 +4,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repository is
 
-A **design and planning repository**, not a software product. Its output is documents: the target ASDLC ([`asdlc/`](asdlc/README.md)), a stack sheet per deployment variant ([`variants/`](variants/README.md)), and a rollout plan ([`rollout/`](rollout/plan.md)).
+A **monorepo holding two things**: the ASDLC design, and the code that implements it.
+
+- **The design** — the target ASDLC ([`asdlc/`](asdlc/README.md)), a stack sheet per deployment variant ([`variants/`](variants/README.md)), and a rollout plan ([`rollout/`](rollout/plan.md)), with the working record in [`reference/`](reference/open-questions.md).
+- **The code** — [`tools/`](tools/README.md). Set by [ADR-0025](reference/decisions/0025-monorepo.md) on 2026-07-28, when the owner lifted the documents-only restriction and brought [`spec-kit-bundle-nc`](https://github.com/dulguun0225/spec-kit-bundle-nc) in.
 
 **ASDLC** = **agentic software development life cycle** ("Agentic SDLC" in prose; "life cycle" as three words). Set by [ADR-0002](reference/decisions/0002-scope-agentic-not-ai-assisted.md), which also fixes the scope boundary this implies: the subject is a life cycle where **agents execute multi-step development work under human review gates**. AI-assisted tooling that only speeds up a human executing every step is background context, not the subject. Where the agent/human boundary actually falls is still open — [OQ-3](reference/open-questions.md).
 
-There is no application code, build system, test suite, or package manifest — and none is expected unless the plan calls for tooling. **Do not scaffold a toolchain, CI config, or `package.json` unless explicitly asked.** If you find yourself looking for a build command, re-read the task: the deliverable is almost certainly prose, a diagram, or a decision record.
+**The four design directories stay documents-only.** `asdlc/`, `variants/`, `rollout/` and
+`reference/` hold no application code, build system, test suite, or package manifest, and none is
+expected there. **Do not scaffold a toolchain, CI config, or `package.json` into them.** If you
+find yourself looking for a build command while working in one of the four, re-read the task: the
+deliverable is almost certainly prose, a diagram, or a decision record.
+
+The rule was lifted for the repository as a whole, not deleted. Code goes in
+[`tools/`](tools/README.md) and nowhere else.
+
+**Two decision registries, each scoped to its own subtree**
+([ADR-0025](reference/decisions/0025-monorepo.md) part 6):
+
+- [`reference/decisions/`](reference/decisions/README.md) — `ADR-NNNN`, governs the ASDLC design.
+- `tools/spec-kit-bundle-nc/DECISIONS.md` — `B-n`, governs that bundle's spec-kit behaviour.
+
+Neither overrides the other outside its own subtree, and neither is renumbered. Nested
+`CLAUDE.md` files work the same way: the bundle's is path-scoped guidance for the bundle.
 
 The repository is under version control (branch `master`). Don't commit unless asked.
 
@@ -131,6 +150,14 @@ is subordinate.
 - [`reference/research/`](reference/research/) — `YYYY-MM-DD-topic.md` notes, one per research
   session. A note records what was found *and what was refuted*, with sources and the
   date checked; it is the input to an ADR, not a substitute for one.
+
+**The code:**
+
+- [`tools/`](tools/README.md) — the programs and packages the life cycle needs.
+  `spec-kit-bundle-nc/` is the predecessor convention, live and released;
+  `feature-artifact-checker/` and the `asdlc` plugin are specified and not yet built.
+  **`tools/` earns its name only while it holds programs and packages** — a `tools/` that holds
+  anything is a `misc/`.
 
 `CLAUDE.md` — standing instructions and conventions. Not a state log, and **not the entry
 point for a human**.

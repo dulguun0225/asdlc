@@ -9,6 +9,9 @@
   hash-pinned spec that turns out to be the mechanism this record needs;
   [ADR-0006](0006-tier-function-and-greenfield-cold-start.md) — the tier that decides how much of
   this applies; [ADR-0015](0015-observability-backend.md) — where the new metrics go.
+- **Part 1's strength is qualified by [ADR-0020](0020-agent-instruction-layers.md) part 5**
+  (2026-07-28): the oracle rule is **guidance, not enforcement.** Read the note inside part 1
+  before citing it as a control.
 - **Corrects:** [05-merge.md](../../asdlc/05-merge.md) and
   [asdlc/templates/README.md](../../asdlc/templates/README.md) — an unsourced characterisation of
   agent-written tests (part 7).
@@ -79,6 +82,20 @@ available on a question this new; it is not settled science.
 ## Decision
 
 ### 1. The oracle comes from the signed specification, never from the implementation
+
+> **This part is guidance, not a control — qualified by
+> [ADR-0020](0020-agent-instruction-layers.md) part 5 on 2026-07-28.** Everything below reads as
+> enforcement and is not. **CI can check that a test *cites* a requirement; nothing can check it
+> was *derived from* one** rather than from the code it is supposed to test. The three "rules"
+> below are prompting rules, delivered through the `/asdlc:implement` stage procedure, and a skill
+> is context — verbatim from the vendor, *"Claude treats them as context, not enforced
+> configuration."*
+>
+> **The backstops that actually bite are two:** mutation testing on the diff at T1, and the human
+> merge signature. [04-implementation.md](../../asdlc/04-implementation.md) §7 states this
+> correctly; this record did not, and a reader who trusts *"on conflict the ADR wins"* would have
+> got the weaker mechanism. That is the defect being fixed here, not the rule itself — the rule
+> stands, at its real strength.
 
 **The rule:** when the agent writes a test, its expected behaviour is derived from the **EARS
 requirement text and the plan's contract**, which a human signed before the code existed. The

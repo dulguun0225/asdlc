@@ -26,8 +26,12 @@ notation always fits.
 - **Not the checker's specification of record** in the sense of binding anyone. ADR-0014 part 7 is
   the decision; this restates it in the design's own notation, and **where the two disagree the ADR
   wins** — the disagreements are listed in the example's §7.
-- **Not code.** This repository holds documents
-  ([CLAUDE.md](../../CLAUDE.md)). The program belongs in a tooling repository — the owner already
-  runs one of that shape in
-  [`spec-kit-bundle-nc`](https://github.com/dulguun0225/spec-kit-bundle-nc), whose
-  `ci/check_specs.py` is stdlib-only Python run as merge-blocking CI and is the nearest prior art.
+- **Not code, but the code has a home now.** `asdlc/` holds documents and no build system
+  ([CLAUDE.md](../../CLAUDE.md) scopes that rule to the four design directories, not to the
+  repository). The program goes in [`tools/feature-artifact-checker/`](../../tools/README.md), in
+  **this** repository — [ADR-0025](../../reference/decisions/0025-monorepo.md) lifted the
+  documents-only restriction on 2026-07-28 and brought the nearest prior art in with it:
+  [`tools/spec-kit-bundle-nc/ci/check_specs.py`](../../tools/spec-kit-bundle-nc/ci/check_specs.py),
+  stdlib-only Python run as merge-blocking CI. **Whether the checker forks it or extends it in
+  place is still open** ([open-parameters.md](../../rollout/open-parameters.md)) — and it is not a
+  free choice, because that program enforces the **superseded** gate model.

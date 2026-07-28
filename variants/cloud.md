@@ -133,7 +133,7 @@ measurement of ours**. Use it to size a pilot budget, not to compare variants.
 | — | Deployment target is Kubernetes or not (owner-held) | yes for the deployment layer |
 | — | Ingress controller selection | with the Kubernetes platform choice |
 | [open parameters](../rollout/open-parameters.md) | T1 pre-run CI gate mechanism; private-repo fork-approval verification | before the first T1 change |
-| [OQ-18](../reference/open-questions.md) | How a post-merge defect is attributed to a tier | not for bring-up — blocks the T3 auto-deploy exit condition and the relaxation rule |
+| [ADR-0022](../reference/decisions/0022-defect-attribution.md) part 6 | The **volume** of T3 changes needed before "T3 is not leaking defects" means anything. The attribution *rule* is decided ([07-operate.md](../asdlc/07-operate.md) §6); no threshold is set, deliberately, because it depends on an unmeasured base rate | not for bring-up — until pilot data sets it, no service flips to T3 automatic deploy |
 
 **Every stack-sheet gap for this variant is now closed.** Observability
 ([ADR-0015](../reference/decisions/0015-observability-backend.md)), the TLS-terminating proxy

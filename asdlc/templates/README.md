@@ -53,9 +53,16 @@ second trigger list ([tiers.md](../tiers.md)).
 
 - **The checker does not exist yet.** ADR-0014 part 7 defines the seven blocking checks and the
   advisory ones; writing the program is a phase-0 bring-up task
-  ([open-parameters.md](../../rollout/open-parameters.md)). The two in-house conventions
-  ([`sdd-standard`](https://github.com/dulguun0225/sdd-standard),
-  [`spec-kit-bundle-nc`](https://github.com/dulguun0225/spec-kit-bundle-nc)) are usable prior art.
+  ([open-parameters.md](../../rollout/open-parameters.md)), and it goes in
+  [`tools/feature-artifact-checker/`](../../tools/README.md). Prior art is
+  [`tools/spec-kit-bundle-nc/`](../../tools/spec-kit-bundle-nc/README.md) — **in this repository
+  since [ADR-0025](../../reference/decisions/0025-monorepo.md)**, so read it there rather than at
+  its archived standalone URL — plus `sdd-standard`, which is private and was read from a local
+  clone. **Prior art, with a warning:** the bundle implements the gate model
+  [ADR-0014](../../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md) part 3
+  **replaced** — a typed `Status: Approved` line, which these templates forbid — and it is the half
+  with working tooling. Reconciling the two is the top row of
+  [open-parameters.md](../../rollout/open-parameters.md).
 - ~~**The text of the four stage skills** that drive these templates.~~ **Written 2026-07-28** —
   [../skills/](../skills/README.md). `/asdlc:spec`, `/asdlc:plan`, `/asdlc:tasks`,
   `/asdlc:implement`, all unrun.

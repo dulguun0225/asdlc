@@ -71,7 +71,7 @@ a phase-0 blocker.
 | Transparency log | **none** | — | — | [ADR-0018](../reference/decisions/0018-self-hosted-provenance.md) §6 | decided — **not required at Build L2.** Cost recorded: no independent record to bound a key compromise. Upgrade path is self-hosted Sigstore | — |
 | Artifact registry | **Harbor** — **every deployable stored as an OCI artifact**, non-container ones via **ORAS** | **Apache 2.0** (verified first-party 2026-07-28); **CNCF graduated** | $0 licence + operations | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §1–2 | decided — project RBAC, tag retention and immutability rules. **Multi-component:** another system on the platform owner | [deploy](../asdlc/06-deploy.md) §3 |
 | Registry fallback | **zot** — *"single binary for all the features"*, *"no additional dependencies or services"* | **Apache 2.0**; **CNCF Sandbox** | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §7 | contingency — two triggers (§4). **Its referrers support is inferred from OCI conformance, not quoted** — verify before promoting it | — |
-| Attestation attachment | **OCI referrers API** — `/v2/<name>/referrers/<digest>`, added in distribution-spec 1.1 | open standard | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §1 | decided as the **mechanism**; what signs and what it binds is **[OQ-15](../reference/open-questions.md)** | [deploy](../asdlc/06-deploy.md) §3 |
+| Attestation attachment | **OCI referrers API** — `/v2/<name>/referrers/<digest>`, added in distribution-spec 1.1 | open standard | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §1 | decided as the **mechanism**; what signs and what it binds is the provenance-signer row above ([ADR-0018](../reference/decisions/0018-self-hosted-provenance.md), which closed OQ-15 on 2026-07-28). **Set cosign's attachment mode to referrers explicitly in both the signing job and the verification** — an inherited default makes the two disagree | [deploy](../asdlc/06-deploy.md) §3 |
 | Registry access | agent: **no credential**; CI: push; deploy: pull + verify; delete: platform owner at T1 | — | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §3 | decided — forced by [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §5: registry tokens are a `deny`, not a `mask` | [session](../asdlc/04-implementation.md) |
 | Artifact addressing | **digest, never tag**; tag immutability rules on release tags | — | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §4 | decided — a re-pushed tag migrates, so *"the tag can no longer be trusted to identify the image version"* | [deploy](../asdlc/06-deploy.md) §3 |
 
@@ -182,7 +182,7 @@ enforcement grounds and did not record their licences.
 |---|---|---|
 | §3 above | Gerrit and Zuul licences unrecorded; **ORAS licence unverified** | **yes — the variant is defined by licence cost** |
 | — | Deployment target is Kubernetes or not (owner-held) | yes — off Kubernetes this variant has **no** rollout answer |
-| [OQ-18](../reference/open-questions.md) | How a post-merge defect is attributed to a tier | not for bring-up — blocks the T3 auto-deploy exit condition and the relaxation rule |
+| [ADR-0022](../reference/decisions/0022-defect-attribution.md) part 6 | The **volume** of T3 changes needed before "T3 is not leaking defects" means anything. The attribution *rule* is decided ([07-operate.md](../asdlc/07-operate.md) §6); no threshold is set, deliberately, because it depends on an unmeasured base rate | not for bring-up — until pilot data sets it, no service flips to T3 automatic deploy |
 
 **All four gaps the stack sheets exposed closed on 2026-07-28.** Observability
 ([ADR-0015](../reference/decisions/0015-observability-backend.md)), which added four components to
@@ -268,12 +268,19 @@ unverified syntax here would violate the repository's research-before-content ru
   and back up the repos including meta refs; monitor `refs/meta/config` changes and any
   direct ref update to `refs/heads/*` (which should never occur, so any occurrence is an
   alert).
-- **Provenance: an assembly task, not a product.** SLSA Build Level 2 equivalence must be
-  assembled in the build pipeline — **tooling unresearched, carried as a named gap**, not
-  silently assumed
-  ([ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) variant
-  answers). Sigstore is the natural candidate to evaluate first; that is a lead, not a
-  decision.
+- **Provenance: assembled here, and the tooling is chosen.** SLSA Build Level 2 equivalence is
+  produced by a **cosign** signing step in a **Zuul config-project post-playbook**, with the
+  predicate populated only from `zuul.*` job variables and verification pinning the
+  signer-builder pair — the bill of materials is in §1 above and the reasoning in
+  [ADR-0018](../reference/decisions/0018-self-hosted-provenance.md). What lands on this host's
+  configuration is the key: it is a **config-project secret**, so a proposed change cannot reach
+  it, and its generation, custody, backup and rotation runbook is a phase-0 item
+  ([open-parameters.md](../rollout/open-parameters.md)). **Losing the key makes every retained
+  artifact undeployable for its whole five-year retention**, which puts it in the same backup
+  class as the meta refs above and a higher one than the Prometheus snapshot.
+  *(This bullet said "tooling unresearched, carried as a named gap" until 2026-07-28. That was
+  true when ADR-0008 wrote it and stopped being true when ADR-0018 landed; §1 had been correct
+  for a day while this section still sent an implementer looking for a product.)*
 - **Fallback (abort trigger, ADR-0009 part 5):** Forgejo with compensating controls —
   admin role confined to a break-glass account, "Enforce this rule for repository admins"
   on every rule, external logging of what webhooks can see, the recording gap accepted in

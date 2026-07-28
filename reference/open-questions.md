@@ -152,7 +152,123 @@ choose between options here. Research it, decide it, record it, and say what wou
 
 ---
 
-### Last session: 2026-07-28 — was the monorepo a good idea, and the design is public on purpose
+### Last session: 2026-07-28 — a whole-repository audit, and the defect it found has one shape
+
+The owner asked for a review and audit of the whole repository. **No decision was found wrong. The
+systemic defect is staleness inside the 2026-07-28 burst:** eleven ADRs and the monorepo migration
+landed in one day, and the records that closed things were updated while several documents that
+*point* at them were not. Nine files were corrected; the list of what was checked and found clean
+is below, so nobody re-checks it.
+
+**Corrected — closed questions that four documents still presented as open:**
+
+- **OQ-18 was live in three places** as *"research"* — the top-level
+  [open-parameters.md](../rollout/open-parameters.md) row, and the gaps table of **both** stack
+  sheets. It closed with [ADR-0022](decisions/0022-defect-attribution.md) and is specified in
+  [07-operate.md](../asdlc/07-operate.md) §6. All three rows now state what actually remains: the
+  **T3 change volume**, which ADR-0022 part 6 deliberately leaves unset. This mattered more than a
+  typo — open-parameters is the file the handover names as the work list, so it would have sent a
+  session to research an answered question.
+- **OQ-15 was live in the self-hosted sheet's attestation row**, four rows below the table that
+  names cosign, the predicate and the verification. Now points at ADR-0018 and carries the
+  attachment-mode warning.
+
+**Corrected — a sheet that contradicted itself, and this is the one an implementer would have hit.**
+[self-hosted.md](../variants/self-hosted.md) §1 specified the whole provenance chain; **§5, the
+host-configuration section, still said *"tooling unresearched, carried as a named gap"* and named
+Sigstore as "a lead, not a decision."** True when ADR-0008 wrote it, false the moment ADR-0018
+landed. ADR-0012's self-containment property is exactly what failed: one document open, two
+answers. §5 now specifies the signing key as the thing that lands on host configuration, and its
+loss as a five-year deploy outage.
+
+**Corrected — three documents describing the pre-monorepo world.**
+[examples/README.md](../asdlc/examples/README.md)'s *"Not code"* bullet said *"this repository holds
+documents… the program belongs in a tooling repository"* with an outward link — all three clauses
+false since ADR-0025. The example spec's own metadata said `Repository | the tooling repository (not
+this one)`. [templates/README.md](../asdlc/templates/README.md) sent readers to the archived
+standalone URL for prior art that is now in-tree. **The rule that falls out:** a provenance
+statement in an ADR or research note *should* keep pointing at the archived repository — it is a
+dated fact about where something came from. A pointer a reader is meant to *follow* should not.
+Also fixed: the example's **OI-005**, which still said *"this design has never chosen"* a
+repository. ADR-0025 chose one; only the language and fork-vs-extend remain.
+
+**Corrected — two ADRs whose amendments existed only in the index, which inverts this repo's own
+conflict rule.** The design says *on conflict the ADR wins*, so an ADR that is less current than
+the index is a trap:
+
+- **[ADR-0013](decisions/0013-layout-by-subject.md)** — the index said *"layout extended by 0025"*;
+  the record never mentioned ADR-0025, and §1's tree, which the record calls *"itself the map"*, had
+  no `tools/`. The authority on layout said code has no place in the tree. Now carries the addition
+  and the note that the by-subject principle survived the monorepo unchanged — which is the
+  argument that ADR-0013 was right.
+- **[ADR-0019](decisions/0019-testing-agent-written-code.md) part 1** — the index said *"strength
+  qualified by 0020"*; the record read as pure enforcement (*"**The rule:**"*, *"three consequences
+  that are rules"*, *"a **prohibited** instruction"*) with nothing saying CI cannot check that a
+  test was *derived* from a requirement rather than from the code.
+  [04-implementation.md](../asdlc/04-implementation.md) §7 had it right, so the design document was
+  more accurate than the ADR it defers to. Part 1 now opens with the qualification and names the two
+  backstops that bite: mutation testing at T1, and the human merge signature.
+
+**Left open deliberately, and each is worth a look:**
+
+1. **The checker's boundary drift is recorded in ADR-0014 but not propagated.** ADR-0014 part 7
+   carries a blockquote saying the seven *"is no longer the whole program"*. **Four documents that
+   state the count carry no such warning** — [03-tasks.md](../asdlc/03-tasks.md) (twice),
+   [templates/README.md](../asdlc/templates/README.md), [plan.md](../rollout/plan.md) §3, and
+   **[skills/tasks/SKILL.md](../asdlc/skills/tasks/SKILL.md), which is the text the agent
+   receives.**
+   OI-001 and open-parameters row 27 own the question, so it is not lost; it is just absent from
+   almost every statement of it. Not fixed here because the honest fix is the platform owner's call
+   on the boundary, not more prose — but the four documents should carry the warning either way.
+2. **A contradiction surfaced during the fix pass and not resolved, because resolving it is a
+   decision.** [tools/README.md](../tools/README.md) reserves `tools/asdlc-plugin/` for the stage
+   procedures; [skills/README.md](../asdlc/skills/README.md) says the plugin *"lives in its own
+   repository — **not this one**."* Both cannot hold. Whether a plugin marketplace can pull from a
+   subdirectory of a monorepo is a **fact about the tooling that this repository has not verified**,
+   and it belongs with the three one-command plugin checks in open-parameters row 45. Do not pick a
+   side from the armchair.
+3. **[ADR-0021](decisions/0021-units-of-work.md) and
+   [ADR-0023](decisions/0023-adversarial-repository-content.md) carry no "Options considered"
+   section**, which [decisions/README.md](decisions/README.md) requires of every ADR. 25 of 27
+   comply. For ADR-0023 the omission is arguably principled — its deliverable is an inventory and
+   its part 5 explains why no option space existed — but neither record claims an exemption. Either
+   add the section or write the exemption into the conventions.
+4. **`.claude/settings.local.json` is committed and grants `PowerShell(*)`**, and there is **no root
+   `.gitignore`**. A `*.local.json` conventionally does not travel; this one carries a blanket
+   pre-approval to every machine, in a public repository. The missing `.gitignore` is also what let
+   the untracked `release-fixes.md` note sit unmanaged until someone happened to point at it.
+5. **Both packs carry `maintained-by: Dulguun Otgon`** and ship into consumer repositories. **Not a
+   breach** of [ADR-0027](decisions/0027-design-is-public.md) — that rule is scoped to gate signers,
+   and this is the owner's own name, already in every commit's author field. Worth being a decision
+   rather than an inheritance.
+
+**Checked and clean — do not spend a session re-deriving any of this (all as of 2026-07-28):**
+
+- **Zero broken relative links and zero broken anchors**, repo-wide, re-verified after the edits.
+  One anchor was broken and is fixed: the survey's `#refuted-claims-do-not-reintroduce` needed the
+  **double** hyphen GitHub emits where an em dash was — the convention this file's own `#oq-N--`
+  links already follow.
+- **No banned wording** anywhere outside the `CLAUDE.md` table that defines the ban.
+- **The disclosure boundary holds.** No IP addresses, no internal hostnames, no credentials, no real
+  gate records. Examples are synthetic.
+- **No `Status:` line in any design template or example** — ADR-0014 part 6 holds mechanically, and
+  both worked examples carry their which-convention header and cross-link each other.
+- **The bundle is release-ready and the fifteen-assert claim checks out.** `check_specs.py --self`
+  passes; versions aligned at `0.2.0` across `bundle.yml`, all three component manifests and all
+  four catalogs; every catalog URL names `dulguun0225/asdlc`; `[Unreleased]` holds *"Nothing yet"*;
+  both packs' `review-by` dates are in 2027. Recounted the asserts independently: **twelve** across
+  the tag and catalog steps plus **three** in the shipped-manifest step.
+- **The seed-file rule holds.** `packs/README.md` forbids a seed file pointing back at this
+  repository, and the handover flagged it as hand-enforced on two files only — swept both, clean.
+- **Both workflows exist only at the repository root**, `tools/spec-kit-bundle-nc/.github/` is gone,
+  and the bundle's `CLAUDE.md` forbids recreating it and carries rule 9.
+
+**What the next session should pick up:** unchanged by this audit. The owner-held items still gate
+everything — [OQ-10](#oq-10--who-fills-the-platform-owner-role) first — and the one outward-facing
+action is still cutting `bundle-v0.2.0`. If you want a cheap, useful piece of work instead: item 1
+above, propagating the checker-boundary warning to the four documents that state the count.
+
+### Session before: 2026-07-28 — was the monorepo a good idea, and the design is public on purpose
 
 The owner asked a review question, not a build question: **was moving `spec-kit-bundle-nc` into
 this repository a good idea?** The assessment, kept here because it is a finding and would

@@ -25,7 +25,7 @@ Practical consequence: gate design has to be decided on reasoning plus reference
 models, then instrumented in-house to find out whether it worked. There is no
 published outcome data to lean on.
 
-See [Refuted claims](#refuted-claims-do-not-reintroduce) before writing any prose
+See [Refuted claims](#refuted-claims--do-not-reintroduce) before writing any prose
 that cites a figure — several plausible-sounding numbers are in there.
 
 ---

@@ -2,6 +2,11 @@
 
 - **Status:** accepted
 - **Date:** 2026-07-27
+- **Part 1's tree is extended by [ADR-0025](0025-monorepo.md)** (2026-07-28), which added
+  top-level **`tools/`** for code. The tree below was written when the whole repository was
+  documents, and it is not a complete listing any more — see part 1's note. Nothing else in this
+  record changes: the by-subject principle, the entry point, and `reference/` being subordinate all
+  survived the monorepo unchanged, which is the argument that this layout was the right one.
 - **Supersedes:** [ADR-0001](0001-documentation-layout.md) — its layout only. ADR-0001's other
   provision (durable project state is committed, because the machine-local memory directory
   does not travel) stands unchanged and is restated in part 5.
@@ -94,6 +99,20 @@ reference/             THE WORKING RECORD
   decisions/           the ADRs and their index
   research/            dated research notes
 ```
+
+> **One directory is missing from that tree, added 2026-07-28.**
+> [ADR-0025](0025-monorepo.md) lifted the documents-only restriction and added:
+>
+> ```
+> tools/                 THE CODE — programs and packages the life cycle needs
+>   spec-kit-bundle-nc/  the predecessor convention, live and released
+> ```
+>
+> The documents-only rule is **scoped, not deleted**: `asdlc/`, `variants/`, `rollout/` and
+> `reference/` still hold no code, no build system and no package manifest. The by-subject
+> principle below is unchanged by this — `tools/` is one more subject at the top level, which is
+> why ADR-0025 needed no new layout record. **Do not read this tree as forbidding `tools/`**; it
+> predates it.
 
 The root directory listing is itself the map. A reader who has read nothing can see that there
 is a life cycle, that there are two variants, and that decisions and research are working

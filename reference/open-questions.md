@@ -25,49 +25,70 @@ computer and the agent's local memory does not travel, so this section — not a
 the conversation — is where the state lives. Anyone finishing a session updates it
 ([`CLAUDE.md`](../CLAUDE.md) → "Assume every session starts on a different computer").
 
-### ▶ START HERE — the next session's first action
+### ▶ START HERE — the state, and the next session's first action
 
-**Execute [ADR-0025](decisions/0025-monorepo.md) and flip it from `proposed` to `accepted`.** It is
-the only record in this repository that is decided but not carried out, and it is deliberate: the
-owner asked to make this a monorepo and, in the same breath, to prepare for a new session. Starting
-a `git subtree` migration and handing over mid-migration was the worst available outcome, so the
-decision was written down in full instead.
+**This is a monorepo now.** The owner lifted the documents-only restriction on 2026-07-28 and
+`spec-kit-bundle-nc` lives at [`tools/spec-kit-bundle-nc/`](../tools/README.md).
+[ADR-0025](decisions/0025-monorepo.md) is **accepted and executed** — read its *"What was actually
+done"* section, which records two ways execution differed from the plan.
 
-**Everything needed is in ADR-0025 part 7**, written as a runbook because the session that runs it
-will have none of the conversation that produced it: the import command, the order (root
-`CLAUDE.md` first, then `.gitattributes` alone, then the subtree), and the two traps.
+**The first action is a judgement call with a deadline, not a task:**
 
-**The two traps, because they are the whole reason this is an ADR and not a one-line task:**
+**Re-import the bundle with history, or accept losing it.** ADR-0025 chose `git subtree` to keep
+the bundle's 19 commits. The import was a plain copy, so that history — including the reasoning
+behind every rule in its `CLAUDE.md` section *"Rules that exist because something broke"* — lives
+only in [`dulguun0225/spec-kit-bundle-nc`](https://github.com/dulguun0225/spec-kit-bundle-nc).
+**Do not delete that repository.** Re-importing is cheap now and gets expensive the moment a commit
+here modifies a file inside the subtree, so **decide before the bundle is next edited.** Nobody has
+to — the copy is correct and byte-identical to `master`; the history is elsewhere, not gone.
 
-1. **The bundle's CI goes inert on import and nothing reports it.** GitHub runs workflows only from
-   the root `.github/`; after the subtree they sit at `tools/spec-kit-bundle-nc/.github/workflows/`.
-   The bundle has working CI today. Port `checks.yml` in the same change.
-2. **`release.yml` fires on `v*` and this repository has no tags.** The first `v1.0.0` cut for the
-   design would try to publish a bundle release. Park it; the convention is `bundle-v*`.
-
-**And the risk that outlives the migration:** the bundle approves with a typed
+**The risk that outlives the migration, and it is the real one.** The bundle approves with a typed
 `Status: Approved — <name>, <date>` line, which
 [ADR-0014](decisions/0014-feature-artifacts-and-the-traceability-chain.md) part 3 replaced with a
-hash-bound gate record *precisely so approval cannot be forged by typing one*. After the move both
-conventions live in one tree, and **the superseded one has working tooling and CI while the new one
-has neither.** That is how an old convention wins — not by argument, by being the one that runs.
-Reconciling them is the top row of [open-parameters.md](../rollout/open-parameters.md) and needs its
-own record. **Do not merge the two gate models as part of the move.**
+hash-bound gate record *precisely so an approval cannot be forged by typing one*. Both conventions
+now live in one tree — and **the superseded one has working tooling and CI while the new one has
+neither.** That is how an old convention wins: not by argument, by being the one that runs.
+Reconciling them is the top row of [open-parameters.md](../rollout/open-parameters.md) and **needs
+its own decision record.** Both worked examples now carry a header note saying which convention
+they follow; that is a signpost, not a fix.
 
-Two facts the next session cannot rediscover from the repository:
+**Two things to watch on the next push:**
 
-- The local clone at `/d/repos/nc/spec-kit-bundle-nc` sits on branch
-  `packs/java-backend-observability`, **one commit ahead of `master` and of `origin/master`** —
-  `47173eb`, *"packs/java-backend: add observability rules"*, which exists only on that disk.
-  ADR-0025 part 2 imports `master` and re-applies that commit separately, so unreviewed work never
-  becomes the baseline by accident.
-- The owner was asked twice to choose between options here and twice asked to clarify instead, then
-  re-issued *"you drive this project until the end."* **Both points are decided in ADR-0025. Do not
-  re-open them by asking.**
+1. **`.github/workflows/bundle-checks.yml` has never run.** GitHub Actions cannot be exercised from
+   a workstation. It was diffed against the original and differs only in the intended places, and
+   `python ci/check_specs.py --self` passes from the new location — but the first real run is the
+   proof. It should fire on a `tools/**` change and **not** on a design-only change.
+2. **`release.yml` is parked, not ported.** It fires on `v*` and this repository has no tags, so
+   **the first `v1.0.0` cut for the design would try to publish a bundle release.** The convention
+   to adopt is `bundle-v*`.
+
+**One standing instruction, because it was asked twice and answered twice:** the owner does not
+choose between options here. Research it, decide it, record it, and say what would reverse it.
 
 ---
 
-### Last session: 2026-07-28 — the checker is specified, and the design was run against itself
+### Last session: 2026-07-28 — the monorepo, executed
+
+The owner lifted the documents-only restriction and copied the bundle in; this session executed the
+rest of [ADR-0025](decisions/0025-monorepo.md) in its stated order and flipped it to `accepted`.
+
+- **Rules first.** `CLAUDE.md` changed *before* any code was tracked, so the repository never
+  contradicted itself. The documents-only rule is **scoped, not deleted** — `asdlc/`, `variants/`,
+  `rollout/` and `reference/` still hold no code.
+- **LF pinned at the root, in its own commit** — and it was a **no-op**: all 72 tracked files were
+  already LF in the index, so the CRLF warnings were about the working copy only. Doing it before
+  anything pins a hash is why it cost nothing.
+- **`checks.yml` ported** with `paths` filters and a `$BUNDLE_DIR` variable. Seven
+  `$GITHUB_WORKSPACE` references needed rewriting: `working-directory` does not help a step that
+  `cd`s away and then reaches back with an absolute path. **That is the trap in porting any
+  monorepo CI, not just this one.**
+- **The hazard ADR-0025 part 2 guarded against had resolved itself** — the bundle's `master` moved
+  to `47173eb` between the ADR being written and executed, so the copy is `master` and the separate
+  re-apply was unnecessary.
+- **The plan chose `git subtree` and the execution was a plain copy.** Recorded as a difference
+  with a cost and a deadline rather than reconciled away.
+
+### Session before: 2026-07-28 — the checker is specified, and the design was run against itself
 
 [`asdlc/examples/001-feature-artifact-checker/spec.md`](../asdlc/examples/001-feature-artifact-checker/spec.md)
 — the feature-artifact checker written out in this design's own notation: **44 EARS requirements,

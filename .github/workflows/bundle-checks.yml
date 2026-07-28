@@ -1,0 +1,170 @@
+# Ported from tools/spec-kit-bundle-nc/.github/workflows/checks.yml when the
+# bundle moved into this monorepo (ADR-0025 part 3).
+#
+# WHY THIS FILE EXISTS AT THE ROOT: GitHub runs workflows only from the
+# repository root `.github/workflows/`. The bundle's own copy still sits at
+# tools/spec-kit-bundle-nc/.github/workflows/ and is INERT there — kept so the
+# diff against the standalone repository stays readable, not because it runs.
+# Delete this file and the bundle silently loses its CI.
+#
+# Three differences from the original, and nothing else:
+#   1. `paths` filters, so a change to the design does not install the
+#      spec-kit CLI and run an end-to-end probe.
+#   2. `defaults.run.working-directory`, which fixes every relative path.
+#   3. $BUNDLE_DIR, because `working-directory` does not help the steps that
+#      `cd /tmp/proj` first and then reach back with an absolute path.
+
+name: bundle-checks
+
+on:
+  push:
+    paths:
+      - 'tools/spec-kit-bundle-nc/**'
+      - '.github/workflows/bundle-checks.yml'
+  pull_request:
+    paths:
+      - 'tools/spec-kit-bundle-nc/**'
+      - '.github/workflows/bundle-checks.yml'
+
+env:
+  SPECKIT_PIN: v0.14.2
+  BUNDLE_DIR: ${{ github.workspace }}/tools/spec-kit-bundle-nc
+
+defaults:
+  run:
+    working-directory: tools/spec-kit-bundle-nc
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Install pinned specify CLI
+        run: uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@${{ env.SPECKIT_PIN }}
+      # --offline: structural checks still run in full; the nc-ears / nc /
+      # nc-sdd component references cannot resolve from CI (they live in this
+      # repo, not in any catalog reachable here), which offline downgrades to
+      # warnings instead of errors.
+      - name: Validate bundle manifest
+        run: specify bundle validate --path . --offline
+      - name: Check examples stay well-formed
+        run: python3 ci/check_specs.py --self
+
+      # Advisory freshness tripwire for packs/ (never failing): a pack past
+      # its review-by reads as convention-strength until re-verified — this
+      # step makes the lapse visible in every run.
+      - name: Pack freshness (advisory)
+        run: |
+          python3 - <<'EOF'
+          import datetime, pathlib, re
+          today = datetime.date.today()
+          for pack in sorted(pathlib.Path("packs").glob("*.md")):
+              match = re.search(r"^review-by:\s*(\d{4}-\d{2}-\d{2})",
+                                pack.read_text(encoding="utf-8"), re.M)
+              if not match:
+                  continue
+              try:
+                  due = datetime.date.fromisoformat(match.group(1))
+              except ValueError:
+                  print(f"::warning file={pack.as_posix()}::review-by "
+                        f"{match.group(1)} is not a valid date - fix the "
+                        "frontmatter")
+                  continue
+              if today > due:
+                  print(f"::warning file={pack.as_posix()}::review-by {due} "
+                        "has passed - the pack's confirmed markers read as "
+                        "convention until a re-verification pass re-dates "
+                        "them (packs/README.md, Freshness)")
+          EOF
+
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Install pinned specify CLI
+        run: uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@${{ env.SPECKIT_PIN }}
+
+      - name: Install the bundle into a fresh project (local flow)
+        run: |
+          mkdir -p /tmp/proj && cd /tmp/proj
+          git init -q
+          git config user.email ci@example.com && git config user.name ci
+          specify init --here --force --integration claude --script sh --ignore-agent-tools
+          specify preset add    --dev "$BUNDLE_DIR/presets/nc-ears"
+          specify extension add --dev "$BUNDLE_DIR/extensions/nc"
+          specify workflow add  --dev "$BUNDLE_DIR/workflows/nc-sdd"
+          specify bundle install "$BUNDLE_DIR/bundle.yml" --offline
+
+      - name: Composed commands are real compositions, not placeholders
+        run: |
+          cd /tmp/proj
+          if grep -rl '{CORE_TEMPLATE}' .claude/skills/; then
+            echo 'unexpanded {CORE_TEMPLATE} in a composed skill'; exit 1
+          fi
+          grep -q 'EARS' .claude/skills/speckit-specify/SKILL.md
+          grep -q 'Requirements Traceability' .claude/skills/speckit-plan/SKILL.md
+          grep -q 'FR-nnn' .claude/skills/speckit-tasks/SKILL.md
+          grep -q 'Constitution guard' .claude/skills/speckit-constitution/SKILL.md
+          test -f .claude/skills/speckit-nc-gate/SKILL.md
+          test -f .claude/skills/speckit-nc-review/SKILL.md
+          grep -q 'before_implement' .specify/extensions.yml
+          grep -q 'after_implement' .specify/extensions.yml
+          grep -q 'speckit.nc.gate' .specify/extensions.yml
+
+      - name: Workflow is installed and carries its three gates
+        run: |
+          cd /tmp/proj
+          test -f .specify/workflows/nc-sdd/workflow.yml
+          grep -q '"nc-sdd"' .specify/workflows/workflow-registry.json
+          test "$(grep -c 'type: gate' .specify/workflows/nc-sdd/workflow.yml)" = 3
+          # the added gate sits between tasks and implement
+          awk '/id: tasks/{t=NR} /id: approve/{a=NR} /id: implement/{i=NR} END{exit !(t<a && a<i)}' .specify/workflows/nc-sdd/workflow.yml
+
+      - name: Scaffolded artifacts are composed, not placeholders
+        run: |
+          cd /tmp/proj
+          .specify/scripts/bash/create-new-feature.sh --json "smoke test feature"
+          .specify/scripts/bash/setup-plan.sh --json
+          if grep -rl '{CORE_TEMPLATE}' specs/; then
+            echo 'unexpanded {CORE_TEMPLATE} in a scaffolded artifact'; exit 1
+          fi
+          grep -q 'EARS' specs/001-smoke-test-feature/spec.md
+          grep -q 'Status.*: Draft' specs/001-smoke-test-feature/spec.md
+
+      # Negative probes: the checker must go red on a violation, and red for
+      # the right reason. A green gate that cannot fail proves nothing.
+      # Never delete one to make CI pass.
+      - name: Negative probe — task without an FR reference turns the gate red
+        run: |
+          mkdir -p /tmp/bad-repo/specs/001-bad
+          cp "$BUNDLE_DIR/examples/password-reset/spec.md" /tmp/bad-repo/specs/001-bad/spec.md
+          printf '## Requirements Traceability\n\n| Requirement | Satisfied by |\n| --- | --- |\n| FR-001 | x |\n| FR-002 | x |\n| FR-003 | x |\n| FR-004 | x |\n| FR-005 | x |\n| FR-006 | x |\n| FR-007 | x |\n| FR-008 | x |\n| FR-009 | x |\n| FR-010 | x |\n\n## Decision Trace\n\n| Technical Context entry | Decision |\n| --- | --- |\n| Language | decisions/0001-language.md |\n\n## Approval\n\nStatus: Pending review\n' > /tmp/bad-repo/specs/001-bad/plan.md
+          printf -- '- [ ] T001 Implement something in src/x.py\n' > /tmp/bad-repo/specs/001-bad/tasks.md
+          if python3 ci/check_specs.py --repo /tmp/bad-repo > /tmp/out.txt 2>&1; then
+            echo 'checker passed a task with no [FR-nnn] reference'; cat /tmp/out.txt; exit 1
+          fi
+          grep -q 'carries no \[FR-nnn\] reference' /tmp/out.txt
+
+      - name: Negative probe — plan without an Approval section turns the gate red
+        run: |
+          mkdir -p /tmp/bad-repo2/specs/001-bad
+          cp "$BUNDLE_DIR/examples/password-reset/spec.md" /tmp/bad-repo2/specs/001-bad/spec.md
+          printf '# Plan\n\nno sections here\n' > /tmp/bad-repo2/specs/001-bad/plan.md
+          if python3 ci/check_specs.py --repo /tmp/bad-repo2 > /tmp/out2.txt 2>&1; then
+            echo 'checker passed a plan without the required sections'; cat /tmp/out2.txt; exit 1
+          fi
+          grep -q '## Approval' /tmp/out2.txt
+          grep -q '## Requirements Traceability' /tmp/out2.txt
+          grep -q '## Decision Trace' /tmp/out2.txt
+
+      - name: Negative probe — a Decision Trace placeholder row turns the gate red
+        run: |
+          mkdir -p /tmp/bad-repo3/specs/001-bad
+          cp "$BUNDLE_DIR/examples/password-reset/spec.md" /tmp/bad-repo3/specs/001-bad/spec.md
+          printf '## Requirements Traceability\n\n| Requirement | Satisfied by |\n| --- | --- |\n| FR-001 | x |\n| FR-002 | x |\n| FR-003 | x |\n| FR-004 | x |\n| FR-005 | x |\n| FR-006 | x |\n| FR-007 | x |\n| FR-008 | x |\n| FR-009 | x |\n| FR-010 | x |\n\n## Decision Trace\n\n| Technical Context entry | Decision |\n| --- | --- |\n| Testing | <component, contract file, or plan section> |\n\n## Approval\n\nStatus: Pending review\n' > /tmp/bad-repo3/specs/001-bad/plan.md
+          if python3 ci/check_specs.py --repo /tmp/bad-repo3 > /tmp/out3.txt 2>&1; then
+            echo 'checker passed a Decision Trace row with a placeholder'; cat /tmp/out3.txt; exit 1
+          fi
+          grep -q 'angle-bracket placeholder' /tmp/out3.txt

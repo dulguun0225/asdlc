@@ -1,5 +1,13 @@
 # Feature Specification: Password Reset by Email
 
+> **Which convention this is.** This example follows the **bundle's** rules: approval is the typed
+> Status line below, and the trace ends at the task list. The ASDLC design in this same repository
+> uses the opposite rule — approval is a gate record binding the file's sha256, and a Status line in
+> the artifact is forbidden. Its worked example is
+> [`asdlc/examples/001-feature-artifact-checker/`](../../../../asdlc/examples/001-feature-artifact-checker/spec.md).
+> The two are **not** interchangeable; reconciling them is an open item
+> ([`rollout/open-parameters.md`](../../../../rollout/open-parameters.md)).
+
 **Feature Branch**: `001-password-reset`
 
 **Created**: 2026-07-23

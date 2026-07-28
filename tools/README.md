@@ -37,6 +37,22 @@ the superseded one is the one that runs in CI.
 Until it lands, do not treat either convention as this repository's answer — the bundle's is what
 is *deployed*, the design's is what is *decided*, and they disagree.
 
+## `tools/spec-kit-bundle-nc/.github/workflows/` does not run
+
+GitHub runs workflows only from the **repository root** `.github/workflows/`. The bundle's own two
+workflow files still sit inside its subtree and are **inert** — kept unchanged so the diff against
+the standalone repository stays readable, not because they execute.
+
+- **`checks.yml` is ported** to [`.github/workflows/bundle-checks.yml`](../.github/workflows/bundle-checks.yml),
+  with `paths` filters so a design-document change does not install the spec-kit CLI, and with
+  `working-directory` plus a `$BUNDLE_DIR` variable for the steps that `cd` away and reach back.
+  **Delete that file and the bundle silently loses its CI.**
+- **`release.yml` is deliberately not ported.** It fires on `v*`, and this repository has no tags —
+  so the first `v1.0.0` cut for the design would try to publish a bundle release. The convention to
+  adopt at the next release is **`bundle-v*`**
+  ([open-parameters.md](../rollout/open-parameters.md),
+  [ADR-0025](../reference/decisions/0025-monorepo.md) part 4).
+
 ## Provenance of `spec-kit-bundle-nc`
 
 Copied from [`dulguun0225/spec-kit-bundle-nc`](https://github.com/dulguun0225/spec-kit-bundle-nc)

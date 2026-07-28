@@ -1,8 +1,10 @@
 # ADR-0025 — The repository becomes a monorepo, and `spec-kit-bundle-nc` moves in
 
-- **Status:** **proposed** — decided but **not executed**. Part 7 is the execution runbook; the
-  session that runs it flips this line to `accepted` and dates it.
-- **Date:** 2026-07-28
+- **Status:** **accepted**, executed 2026-07-28. Two things went differently from the plan and are
+  recorded in *"What was actually done"* below rather than quietly reconciled: **the import was a
+  plain copy, not `git subtree`, so the bundle's history did not come with it**, and the hazard
+  part 2 guarded against had already resolved itself.
+- **Date:** 2026-07-28 (proposed and executed the same day)
 - **Extends:** [ADR-0013](0013-layout-by-subject.md) — the layout stays by subject and gains a
   fifth subject, `tools/`.
 - **Does not change:** [ADR-0014](0014-feature-artifacts-and-the-traceability-chain.md). The bundle
@@ -184,6 +186,52 @@ machine, with none of the conversation that produced it.
 location; `diff -r` against the standalone repository at `master` shows only the header note;
 `git ls-files --eol` shows nothing with CRLF; a commit touching only `asdlc/` does **not** trigger
 `bundle-checks`.
+
+## What was actually done, 2026-07-28
+
+Recorded because it differs from the plan above in one way that costs something. A record that
+quietly matches whatever happened is not a record.
+
+**1. The import was a plain copy, not `git subtree`. The bundle's 19 commits did not come with it.**
+
+The owner lifted the documents-only restriction and copied the directory in directly. The copy was
+verified **byte-identical to `master`** (37 files; the bundle's `.gitignore` correctly keeps its
+`tree.txt` scratch file untracked).
+
+What that costs: the reasoning behind every rule in the bundle's `CLAUDE.md` — a section literally
+titled *"Rules that exist because something broke"* — is no longer reachable by `git log` from this
+repository. It lives only in
+[`dulguun0225/spec-kit-bundle-nc`](https://github.com/dulguun0225/spec-kit-bundle-nc).
+
+**Two consequences, and the second has a deadline:**
+
+- **Do not delete the standalone repository.** It is now the only home of that history. This is
+  recorded in [tools/README.md](../../tools/README.md) as well, because that is where someone
+  tidying up would look.
+- **Re-importing with history is still possible, but not for long.** It means removing
+  `tools/spec-kit-bundle-nc/` and re-adding it with
+  `git subtree add --prefix=tools/spec-kit-bundle-nc <path> master`. That is cheap now and gets
+  expensive as soon as commits in this repository start modifying files inside the subtree. **If
+  the history matters, do it before the bundle is next edited here.** Nobody needs to — the copy is
+  correct and the history is not lost, only elsewhere.
+
+**2. Part 2's hazard resolved itself before execution.** When this ADR was written, the bundle's
+local clone sat on `packs/java-backend-observability`, one commit ahead of `master` and of
+`origin/master`. By the time it was executed, `master` **was** `47173eb` — the branch had been
+merged. So the copy is `master`, the observability work is included, and **the separate re-apply
+part 2 called for was unnecessary and was not done.**
+
+**3. The LF renormalization was a no-op, which is worth knowing.** All 72 tracked files were
+already LF *in the index*; the CRLF warnings on the owner's machine were about the working copy
+only. `.gitattributes` landed as a rule with no rewrite behind it — the cheapest this could ever
+have been, and an argument for doing it before rather than after the checker starts pinning hashes.
+
+**4. Everything else went as written**: `CLAUDE.md` scoped first, `.gitattributes` in its own
+commit, the bundle added, `checks.yml` ported to root with `paths` filters and a `$BUNDLE_DIR`
+variable (the seven `$GITHUB_WORKSPACE` references needed rewriting — `working-directory` does not
+help a step that `cd`s away first), `release.yml` left parked, and a convention note added to both
+worked examples. `python ci/check_specs.py --self` passes from the new location, and the ported
+workflow diffs against the original in exactly the intended places and nowhere else.
 
 ## Variant answers
 

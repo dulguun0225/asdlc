@@ -1,5 +1,14 @@
 # Spec — Feature-artifact checker
 
+> **Which convention this is.** This example follows the **ASDLC design's** rules: approval is a
+> gate record binding this file's sha256, and a `Status:` line in the artifact is **forbidden**
+> ([ADR-0014](../../../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md)
+> part 3). The `spec-kit-bundle-nc` in this same repository uses the opposite rule — approval *is*
+> a typed Status line — and its worked example is
+> [`tools/spec-kit-bundle-nc/examples/password-reset/`](../../../tools/spec-kit-bundle-nc/examples/password-reset/spec.md).
+> The two are **not** interchangeable; reconciling them is an open item
+> ([`rollout/open-parameters.md`](../../../rollout/open-parameters.md)).
+
 <!--
   Worked example. This is what a filled-in spec.md looks like; the blank is at
   asdlc/templates/spec.md. Nothing here is signed — see ../README.md.

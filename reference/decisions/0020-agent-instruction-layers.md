@@ -1,6 +1,9 @@
 # ADR-0020 — Four instruction layers, and the agent may not write any of them
 
-- **Status:** accepted
+- **Status:** accepted. **Part 2's distribution mechanism and its four command names are amended
+  by [ADR-0024](0024-stage-skill-distribution.md)** — the "enterprise scope" this record relies on
+  is not a skills mechanism, and the commands are now `/asdlc:spec`, `/asdlc:plan`, `/asdlc:tasks`,
+  `/asdlc:implement`. Everything else here stands.
 - **Date:** 2026-07-28
 - **Closes:** the "Not yet specified" gap in
   [04-implementation.md](../../asdlc/04-implementation.md) — how the agent is prompted at each
@@ -76,9 +79,16 @@ The bottom layer is for facts about the codebase, and it is treated as helpful, 
 
 ### 2. Stage procedures are skills, one per stage, manually invoked
 
-`/asdlc-spec`, `/asdlc-plan`, `/asdlc-tasks`, `/asdlc-implement` — distributed at **enterprise
-scope** so a repository cannot edit them, with three properties that are decisions rather than
-defaults:
+One skill per stage, distributed so a repository cannot edit them, with three properties that are
+decisions rather than defaults:
+
+> **Amended by [ADR-0024](0024-stage-skill-distribution.md).** This part originally named the
+> commands `/asdlc-spec`, `/asdlc-plan`, `/asdlc-tasks` and `/asdlc-implement`, distributed at
+> "enterprise scope". The verification demanded below was run, and **the mechanism does not exist
+> as assumed** — the skills documentation's Enterprise row points at managed settings, and managed
+> settings defines no skills key and no skills directory. The skills now ship as one force-enabled
+> **plugin**, which namespaces them, so the reachable commands are **`/asdlc:spec`, `/asdlc:plan`,
+> `/asdlc:tasks`, `/asdlc:implement`**. The three properties below are unchanged and still apply.
 
 - **`disable-model-invocation: true`.** The engineer enters a stage deliberately; the model does not
   decide it has moved from planning to implementing. A life cycle whose stage boundaries the model
@@ -94,10 +104,13 @@ and id stability for spec, the tier-map entries and NFR enforcement table for pl
 for tasks, and ADR-0019's oracle rule for implement. **The skill texts are bring-up work**, drafted
 against [asdlc/templates/](../../asdlc/templates/README.md), not written here.
 
-**Verify the enterprise-scope distribution mechanism at bring-up.** The skills documentation lists
-an Enterprise scope reaching *"All users in your organization"* via managed settings; the exact
-mechanism was not read this session. If it does not do what is needed, the fallback is committing
-the stage skills to each repository under part 4's protection — **weaker, and not the plan**.
+~~**Verify the enterprise-scope distribution mechanism at bring-up.**~~ **Done, and it failed as
+posed** — [ADR-0024](0024-stage-skill-distribution.md). The skills documentation lists an
+Enterprise scope reaching *"All users in your organization"* via managed settings, and managed
+settings defines nothing of the kind. The replacement is a force-enabled plugin, which reaches the
+same goal with a stronger override guarantee and different command names. The fallback named here
+— committing the stage skills to each repository under part 4's protection — survives as ADR-0024
+part 8's last resort and is still **weaker, and still not the plan**.
 
 ### 3. The managed CLAUDE.md carries only what must survive a hostile repository
 
@@ -219,7 +232,9 @@ not a new job.
   memory back on should read part 6 first, because the reproducibility argument survives even if
   the governance one is waved away.
 - **Two bring-up tasks**, both real: write the four stage skills against the existing templates, and
-  verify that enterprise-scope skill distribution does what part 2 needs.
+  verify that enterprise-scope skill distribution does what part 2 needs. **The second was done on
+  2026-07-28 and came back negative** — [ADR-0024](0024-stage-skill-distribution.md) replaces the
+  mechanism. Recording it as a bring-up task rather than assuming it is what caught this.
 - **Prompt injection from repository content is not addressed and is not pretended to be.** The
   agent reads the repository, and repository content can contain instructions. That is a different
   problem from instruction-file custody, and it is flagged in the research note rather than quietly

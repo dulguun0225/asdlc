@@ -54,9 +54,18 @@ defensible rather than complacent.
 | Merge without review | Only a mechanically-proven T3 change merges unattended | [tiers.md](../../asdlc/tiers.md) §4 |
 | Reach an arbitrary host | Deny-by-default egress allowlist, managed-only | [ADR-0007](0007-agent-runner-and-containment.md) §4 |
 | Ship an unattested artifact | Deploy verification fails closed on a missing attestation | [ADR-0018](0018-self-hosted-provenance.md) §4 |
+| **Run a command from a repository skill body, outside the tool-call path** | `disableSkillShellExecution: true` in managed settings; behind it, the sandbox and the egress allowlist as for any command | **[ADR-0024](0024-stage-skill-distribution.md) §6 — added 2026-07-28** |
 
 **This is the return on having built containment structurally rather than by instruction.** None of
 those controls asks the agent to cooperate, so none of them cares why it misbehaved.
+
+**The last row was missing on the day this record was written, and that is the lesson.** A project
+`.claude/skills/*/SKILL.md` is an ordinary repository file; a skill without
+`disable-model-invocation` can be loaded on the model's own judgement; and its body may hold
+`` !`command` `` blocks that execute at load time. The row was added hours later by a session whose
+subject was skill *distribution*, not adversarial content. **An inventory is worth what its currency
+is worth** — the standing rule below says to re-read this table when a capability is added to the
+agent, and it applies equally when one is discovered.
 
 ### 2. Three things are not bounded, and two of them stay that way
 

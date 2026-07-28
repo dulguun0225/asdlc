@@ -199,7 +199,7 @@ but are not a hard enforcement layer."* So anything mandatory needs a mechanism 
 |---|---|---|---|
 | **Enforcement** | managed settings, hooks, CI checks | platform owner | **no** |
 | **Standing instructions** | managed-policy `CLAUDE.md`, or the `claudeMd` managed-settings key | platform owner | **no** — *"cannot be excluded"* |
-| **Stage procedures** | skills, enterprise scope | platform owner | **no** |
+| **Stage procedures** | skills, in one force-enabled plugin | platform owner | **no** |
 | **Repository facts** | project `CLAUDE.md`, `.claude/rules/` | the team, at T1 | yes, by design |
 
 **No gate-bearing rule lives in a repository file.** If a rule touches a gate, a tier, a signature
@@ -208,11 +208,20 @@ and is treated as helpful, not trusted — and it may not import anything from o
 
 ### A stage is entered deliberately
 
-One skill per stage — `/asdlc-spec`, `/asdlc-plan`, `/asdlc-tasks`, `/asdlc-implement` — each with
+One skill per stage — `/asdlc:spec`, `/asdlc:plan`, `/asdlc:tasks`, `/asdlc:implement` — each with
 `disable-model-invocation: true`, so **the engineer enters a stage and the model does not decide it
 has moved on**. Per-stage `allowed-tools` and `disallowed-tools` scope the tools to the stage; the
 spec stage does not need to write source files. Skill bodies load only when invoked, so the
 procedures can carry the full template guidance without costing context in unrelated sessions.
+
+**How they get there is settled and was not obvious**
+([ADR-0024](../reference/decisions/0024-stage-skill-distribution.md)). The four skills ship as one
+**plugin**, `asdlc`, force-enabled from managed settings — which is why the commands are namespaced.
+The "enterprise scope" ADR-0020 assumed turned out not to be a skills mechanism at all, and the
+organisation-skills feature in claude.ai *"[is] not available … in Claude Code"* and is
+user-disableable besides. The plugin route is stronger than what was assumed: a repository cannot
+define anything reachable as `asdlc:spec`, and `disableSideloadFlags: true` stops an engineer
+loading a different one for a single run.
 
 ### The agent may never rewrite its own instructions
 
@@ -252,8 +261,10 @@ cost.
 ## Not yet specified
 
 - **The text of the four stage skills.** [ADR-0020](../reference/decisions/0020-agent-instruction-layers.md)
-  fixes their structure, scope and invocation controls; the procedures themselves are bring-up work,
-  drafted against [the templates](templates/README.md). **Code, not a decision.**
+  fixes their structure, scope and invocation controls and
+  [ADR-0024](../reference/decisions/0024-stage-skill-distribution.md) fixes their layout, names and
+  delivery; the procedures themselves are bring-up work, drafted against
+  [the templates](templates/README.md). **Code, not a decision.**
 *(Prompt injection from repository content was listed here until 2026-07-28. It is decided rather
 than open — [ADR-0023](../reference/decisions/0023-adversarial-repository-content.md) inventories
 the controls that bound the **effect** of the agent doing the wrong thing, whether induced or

@@ -38,7 +38,8 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0017](0017-artifact-registry.md) | Every deployable is an OCI artifact, so one registry answers the question in both variants | accepted | 2026-07-28 |
 | [0018](0018-self-hosted-provenance.md) | Self-hosted provenance: cosign signing in a Zuul trusted playbook, verified against a pinned builder | accepted | 2026-07-28 |
 | [0019](0019-testing-agent-written-code.md) | Testing agent-written code: the oracle comes from the signed spec, and coverage is never a gate | accepted; part 1's strength qualified by 0020 | 2026-07-28 |
-| [0020](0020-agent-instruction-layers.md) | Four instruction layers, and the agent may not write any of them | accepted | 2026-07-28 |
+| [0020](0020-agent-instruction-layers.md) | Four instruction layers, and the agent may not write any of them | accepted; part 2's mechanism and command names amended by 0024 | 2026-07-28 |
 | [0021](0021-units-of-work.md) | The three units of work: session, change, and deploy batch | accepted | 2026-07-28 |
 | [0022](0022-defect-attribution.md) | Defect attribution: tooling narrows, a human decides, and unattributed is a first-class outcome | accepted | 2026-07-28 |
-| [0023](0023-adversarial-repository-content.md) | Adversarial or mistaken repository content: what already bounds it, and one hole closed | accepted | 2026-07-28 |
+| [0023](0023-adversarial-repository-content.md) | Adversarial or mistaken repository content: what already bounds it, and one hole closed | accepted; inventory extended by 0024 | 2026-07-28 |
+| [0024](0024-stage-skill-distribution.md) | The stage skills ship as one force-enabled plugin, and their names change | accepted | 2026-07-28 |

@@ -86,9 +86,10 @@ host — see [05-merge.md](05-merge.md) §3.
 
 ## Not yet specified
 
-- **The text of the `/asdlc-plan` stage skill**, including how the critique pass above is invoked.
+- **The text of the `/asdlc:plan` stage skill**, including how the critique pass above is invoked.
   Structure and scope are fixed
-  ([ADR-0020](../reference/decisions/0020-agent-instruction-layers.md)); the procedure is bring-up
+  ([ADR-0020](../reference/decisions/0020-agent-instruction-layers.md)), delivery by
+  [ADR-0024](../reference/decisions/0024-stage-skill-distribution.md); the procedure is bring-up
   work. Code, not a decision.
 - **The contract table shapes are generic.** They fit an HTTP-and-messaging service; a feature of
   another shape (a batch job, a library) has no worked example to follow.

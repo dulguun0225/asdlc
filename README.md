@@ -44,8 +44,8 @@ computes a tier; the agent runner and its containment; the code host for both va
 progressive-rollout layer; the runner's licensing; the spec, plan and task artifacts and the
 traceability chain through them; the observability backend; TLS termination and credential masking
 at the agent's egress boundary; the artifact registry; the provenance chain in both variants; how
-agent-written code is tested; how the agent is instructed at each stage; the units of work; how a
-post-merge defect is attributed to a tier.
+agent-written code is tested; how the agent is instructed at each stage **and how those instructions
+reach eighteen machines**; the units of work; how a post-merge defect is attributed to a tier.
 
 **Not decided, and blocking — both are the owner's to supply:**
 
@@ -57,8 +57,12 @@ post-merge defect is attributed to a tier.
 **Missing, but code rather than decisions:** the feature-artifact checker, the four stage-skill
 texts, and the CI emitters for gate records and requirements traces. Each stage file in
 [`asdlc/`](asdlc/README.md) ends with a "Not yet specified" section listing what is missing from it;
-[06-deploy.md](asdlc/06-deploy.md)'s is empty. Three phase-0 verifications can genuinely fail and
-are listed in [rollout/open-parameters.md](rollout/open-parameters.md).
+[06-deploy.md](asdlc/06-deploy.md)'s is empty. Three phase-0 verifications were recorded as able to
+genuinely fail ([rollout/open-parameters.md](rollout/open-parameters.md)); **one has now been run and
+did fail.** The mechanism assumed for distributing the stage procedures does not exist, and
+[ADR-0024](reference/decisions/0024-stage-skill-distribution.md) replaces it. Two remain unrun,
+because both need hardware rather than documentation: Harbor's OCI referrers path, and the toolchain
+under TLS termination.
 
 ## The design's own footing
 

@@ -25,10 +25,51 @@ computer and the agent's local memory does not travel, so this section — not a
 the conversation — is where the state lives. Anyone finishing a session updates it
 ([`CLAUDE.md`](../CLAUDE.md) → "Assume every session starts on a different computer").
 
-### Last session: 2026-07-28 — adversarial repository content, and the final handover pass
+### Last session: 2026-07-28 — the first bring-up verification was run, and it failed
 
-**This was the last session of the run. The design is finished to the point where running it is the
-only thing that can teach anyone anything more.**
+**The design was declared finished last session. This session ran one of the three phase-0 checks
+that were recorded as able to genuinely fail, and it failed.** That is the system working: the
+check existed because a previous session refused to assume, and the refusal paid.
+
+Landed [ADR-0024](decisions/0024-stage-skill-distribution.md) and its
+[research note](research/2026-07-28-enterprise-skill-distribution.md), closing the bring-up
+verification *"enterprise-scope skill distribution verified"*.
+
+- **The mechanism ADR-0020 relied on does not exist.** The skills documentation's Enterprise row
+  says *"See managed settings"*; managed settings defines **no skills key, no skills directory, and
+  has no skills row in its scopes table.** It is a forward reference to a page that does not
+  describe it.
+- **The mechanism a search finds first is the wrong one.** claude.ai's Organization-settings skills
+  feature is real, and *"Skills uploaded to the API are not available on claude.ai or in Claude
+  Code, and vice versa."* Members *"can toggle individual skills off"* besides. **Do not
+  reintroduce it.**
+- **The answer is a plugin**, force-enabled from managed settings — the only documented path that
+  reaches Claude Code, cannot be modified by the user, and cannot be sideloaded around.
+- **The four command names change** to `/asdlc:spec`, `/asdlc:plan`, `/asdlc:tasks`,
+  `/asdlc:implement`. Plugin skills are always namespaced. This is a **gain**: ADR-0020 got
+  non-overridability from *precedence*, and precedence can be misconfigured; a namespace makes the
+  collision impossible.
+- **A second defect, in a record written hours earlier.** A project `.claude/skills/*/SKILL.md` may
+  contain `` !`command` `` blocks that execute when the skill loads, without the agent deciding to
+  call Bash — a path around
+  [ADR-0023](decisions/0023-adversarial-repository-content.md)'s inventory. `disableSkillShellExecution: true`
+  closes it for free, and ADR-0023's table gained the row.
+- **The org gives up drop-in plugins**, including the language-server plugins that would give the
+  agent automatic diagnostics after every edit. Deliberate, priced, and the clearest capability
+  cost this design has accepted for containment. Mirror-and-pin at T1 is the route back.
+
+**What the next session should pick up: write the four stage-skill texts.** They are now fully
+constrained — layout, frontmatter fields, command names, and the rule that they use no inline
+shell. Sources: [the templates](../asdlc/templates/README.md),
+[ADR-0014](decisions/0014-feature-artifacts-and-the-traceability-chain.md) for the artifact rules,
+[ADR-0019](decisions/0019-testing-agent-written-code.md) part 1 for the implement skill's oracle
+rule. It is the last non-owner-held item that blocks phase 0 in **both** variants.
+
+### Session before: 2026-07-28 — adversarial repository content, and the final handover pass
+
+**This was believed to be the last session of the run.** It was not — see above. The design *as a
+design* is finished; the bring-up verifications it left behind are not, and the first one to be run
+came back negative.
 
 Landed [ADR-0023](decisions/0023-adversarial-repository-content.md), deciding the open call
 [ADR-0020](decisions/0020-agent-instruction-layers.md) had flagged rather than leaving it inherited.
@@ -143,6 +184,9 @@ would make behaviour differ per laptop.
 
 **Two bring-up tasks:** write the four stage skills against the templates, and **verify that
 enterprise-scope skill distribution works** — that mechanism was not read first-party this session.
+*(The second was run on 2026-07-28 and came back negative —
+[ADR-0024](decisions/0024-stage-skill-distribution.md). There is no enterprise skills scope; the
+skills ship as a force-enabled plugin and the command names change.)*
 
 **Flagged, not opened:** prompt injection from repository content. Distinct from instruction-file
 custody, unsolved by it, and a later session should decide whether it needs an `OQ-N`.
@@ -351,8 +395,11 @@ a research session**:
 2. **Code and configuration**, all listed in
    [rollout/open-parameters.md](../rollout/open-parameters.md): the feature-artifact checker, the
    four stage-skill texts, the CI emitters for gate records and requirements traces, and the phase-0
-   verifications — including three that can genuinely fail (Harbor's referrers path, the toolchain
-   under TLS termination, enterprise-scope skill distribution).
+   verifications — including three that were recorded as able to genuinely fail. **One of the three
+   has now been run and did fail** — enterprise-scope skill distribution, replaced by
+   [ADR-0024](decisions/0024-stage-skill-distribution.md) on 2026-07-28. **Two remain unrun:**
+   Harbor's OCI referrers path, and the toolchain under TLS termination. Neither can be settled from
+   documentation; both need hardware.
 3. **Nothing else.** The last open call — whether prompt injection from repository content needed
    its own question — was **decided, not inherited**, by
    [ADR-0023](decisions/0023-adversarial-repository-content.md) on 2026-07-28. Do not reopen it as
@@ -371,9 +418,13 @@ research note from it carries a **"do not reintroduce"** list of figures that fa
 the evidence.** That was always the intended loop — decide, run, measure, revise — and the project
 is now at the end of "decide".
 
-[OQ-18](#oq-18--how-is-a-post-merge-defect-attributed-to-a-tier) is the remaining research
-question, and it blocks no bring-up step — only the T3 auto-deploy exit condition and the
-relaxation rule, both of which need a running pilot anyway.
+**One qualification, added 2026-07-28 after the fact contradicted the paragraph above.** "The end of
+decide" was true of the *research* questions and is not quite true of the design. A bring-up
+verification can still come back negative and force a decision, and one did:
+[ADR-0024](decisions/0024-stage-skill-distribution.md). Expect more of this shape — a documented
+mechanism that turns out not to exist, or to exist differently — and expect it to arrive as a
+correction to a record rather than as a new `OQ-N`. **A verification that comes back negative is a
+successful verification.**
 
 ### The load-bearing gaps, and their state
 

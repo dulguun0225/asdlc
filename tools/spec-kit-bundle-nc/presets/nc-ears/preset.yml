@@ -6,7 +6,12 @@ preset:
   version: "0.2.0"
   description: "Write spec-kit requirements in EARS format with stable FR-nnn IDs, carry FR-nnn traceability through plan and tasks, trace technology choices to the project's decision records, and seed one constitution that makes these rules non-negotiable."
   author: "Dulguun Otgon"
-  repository: "https://github.com/dulguun0225/spec-kit-bundle-nc"
+  # This file ships at the root of nc-ears-<v>.zip and is copied into every
+  # consumer project, so this URL is the bundle's published identity as the
+  # consumer sees it. It must name the repository that RELEASES the bundle —
+  # dulguun0225/asdlc (ADR-0026) — not the archived standalone repository.
+  # bundle-release.yml asserts it.
+  repository: "https://github.com/dulguun0225/asdlc"
   license: "MIT"
 
 requires:

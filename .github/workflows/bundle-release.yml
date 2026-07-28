@@ -22,14 +22,18 @@
 # workstation. Every assert below was dry-run locally against the working tree
 # with GITHUB_REF_NAME=bundle-v0.2.0; the first real run is the proof.
 #
-# All ten asserts below pass in that dry-run as of 2026-07-28, after ADR-0026
-# repointed the four catalogs at this repository. The repository is public, so
-# consumers need no credential; see the bundle's README, "Org distribution".
+# All fifteen asserts below pass in that dry-run as of 2026-07-28 (twelve
+# after ADR-0026 repointed the four catalogs at this repository; three added
+# when a pre-release check found that the two SHIPPED component manifests
+# still named the archived standalone repository, which no assert covered).
+# This repository is public by decision (ADR-0027), so consumers need no
+# credential; see the bundle's README, "Org distribution".
 #
 # The asserts check that the tag is pinned CONSISTENTLY across the catalogs,
 # never that the resulting URLs RESOLVE - they cannot, until this workflow
 # creates the release they point at. Check all four by hand after the first
-# release.
+# release. The four RAW catalog urls, which do not depend on the tag, were
+# fetched by hand from master on 2026-07-28 and all returned 200.
 
 name: bundle-release
 
@@ -110,6 +114,34 @@ jobs:
             echo "catalogs/bundles.json version does not match bundle.yml ($BUNDLE_V)" >&2; exit 1; }
           grep -q "download/$GITHUB_REF_NAME/nc-sdd-$BUNDLE_V.zip" catalogs/bundles.json || {
             echo "catalogs/bundles.json download_url must be $GITHUB_REF_NAME/nc-sdd-$BUNDLE_V.zip" >&2; exit 1; }
+
+      # preset.yml and extension.yml ship at the root of their zips and are
+      # copied WHOLE into every consumer project, so their `repository` field
+      # is the bundle's published identity as a consumer sees it. ADR-0026
+      # repointed the four catalogs when the bundle moved and missed these
+      # two, which is the failure that ADR records: when a component moves,
+      # its published identity does not move with it, and it is not in the
+      # files you edit. Nothing else checks these, so a stale value would
+      # release green and install a pointer to the archived, read-only
+      # standalone repository — whose own README still calls itself the
+      # distribution origin and cannot be corrected.
+      #
+      # The third check is a directory sweep rather than a field check: it
+      # catches ANY shipped file that names the archived repository, not just
+      # the two fields known to have gone stale. `README.md` at the bundle
+      # root is deliberately out of scope — it names the archived repository
+      # on purpose, to say that it is archived.
+      - name: Shipped component manifests must name the releasing repository
+        run: |
+          RELEASE_REPO="https://github.com/dulguun0225/asdlc"
+          ARCHIVED="dulguun0225/spec-kit-bundle-nc"
+          grep -q "^  repository: \"$RELEASE_REPO\"$" presets/nc-ears/preset.yml || {
+            echo "presets/nc-ears/preset.yml repository must be $RELEASE_REPO - it ships into consumer projects (ADR-0026)" >&2; exit 1; }
+          grep -q "^  repository: \"$RELEASE_REPO\"$" extensions/nc/extension.yml || {
+            echo "extensions/nc/extension.yml repository must be $RELEASE_REPO - it ships into consumer projects (ADR-0026)" >&2; exit 1; }
+          if grep -rn "$ARCHIVED" presets/ extensions/; then
+            echo "the files above ship to consumers and name the archived, read-only repository; point them at $RELEASE_REPO" >&2; exit 1
+          fi
 
       # Component zips: preset.yml / extension.yml at the zip root, matching
       # what PresetManager/ExtensionManager.install_from_zip expects and the

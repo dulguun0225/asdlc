@@ -9,25 +9,7 @@ Versions 0.1.0 and 0.2.0 were development increments in this repository;
 
 ## [Unreleased]
 
-### Changed
-
-- `packs/` — each pack's seed text moved out of its fenced `## 2. The
-  decisions` block into its own file, `packs/seed/<pack-id>.md`
-  (`java-backend`, `agent-traps`). The seed file is nothing but the paste
-  payload, so adoption is "copy the whole file" instead of "copy the block
-  inside the fence", and a human reviewing the rules reads them rendered —
-  `java-backend`'s 95 rules were 615 lines of unnavigable grey inside a
-  fence. No rule changed meaning. Ripples: `packs/README.md` (Anatomy item
-  3, adopt steps 2–4), the `packs/` row in `CLAUDE.md`.
-- `packs/seed/java-backend.md` — every rule rewritten directive-first: the
-  imperative in bold, then the reasoning, then the enforcing check. Content
-  preserved, verified by diffing inline-code tokens and word counts against
-  the old block. Four deliberate exceptions, all dangling pointers a
-  constitution cannot resolve: "see section 4" and two "see the agent-traps
-  pack" references dropped, and "principle 3's ambient modifier" restated in
-  words (in a constitution, "principle 3" reads as its own principle III).
-  One bullet split in two — jOOQ codegen-diff out of the persistence rule —
-  because it carried two rules and two checks.
+*Nothing yet.*
 
 ## [0.2.0] — 2026-07-28
 
@@ -92,6 +74,33 @@ workflow `nc-sdd` 0.2.0. Design: DECISIONS.md B-8, B-9.
 
 ### Changed
 
+- `presets/nc-ears/preset.yml` and `extensions/nc/extension.yml` —
+  `repository` now points at `dulguun0225/asdlc`, not at the archived
+  `dulguun0225/spec-kit-bundle-nc`. Both files ship at the root of their
+  release zip and are copied into every consumer project, so the old value
+  would have installed a fresh pointer to a read-only repository with no
+  releases, whose own README (unfixable, being archived) still claims to be
+  the distribution origin. ADR-0026 repointed the four catalogs and missed
+  these two — the same failure it documents: **when a component moves, its
+  published identity does not move with it.** `bundle-release.yml` gained
+  two asserts so the next move cannot repeat it.
+- `packs/` — each pack's seed text moved out of its fenced `## 2. The
+  decisions` block into its own file, `packs/seed/<pack-id>.md`
+  (`java-backend`, `agent-traps`). The seed file is nothing but the paste
+  payload, so adoption is "copy the whole file" instead of "copy the block
+  inside the fence", and a human reviewing the rules reads them rendered —
+  `java-backend`'s 95 rules were 615 lines of unnavigable grey inside a
+  fence. No rule changed meaning. Ripples: `packs/README.md` (Anatomy item
+  3, adopt steps 2–4), the `packs/` row in `CLAUDE.md`.
+- `packs/seed/java-backend.md` — every rule rewritten directive-first: the
+  imperative in bold, then the reasoning, then the enforcing check. Content
+  preserved, verified by diffing inline-code tokens and word counts against
+  the old block. Four deliberate exceptions, all dangling pointers a
+  constitution cannot resolve: "see section 4" and two "see the agent-traps
+  pack" references dropped, and "principle 3's ambient modifier" restated in
+  words (in a constitution, "principle 3" reads as its own principle III).
+  One bullet split in two — jOOQ codegen-diff out of the persistence rule —
+  because it carried two rules and two checks.
 - Workflow `nc-sdd`: the review-plan gate message now points the human at
   the Decision Trace (ratify or reject its proposed rows there).
 - `speckit.nc.gate`: FAIL guidance tells the reviewer the plan's Decision

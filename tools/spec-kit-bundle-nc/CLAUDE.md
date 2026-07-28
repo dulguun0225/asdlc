@@ -69,6 +69,17 @@ repo is built around"; reasons: DECISIONS.md).
    `.specify/`). That is why those two components' guidance lives here, not
    in their directories. `workflows/nc-sdd/` is exempt: a workflow install
    copies only `workflow.yml`.
+9. The `repository` field in `preset.yml` and `extension.yml` must name the
+   repository that **releases** the bundle — `dulguun0225/asdlc`
+   ([ADR-0026](../../reference/decisions/0026-bundle-distribution.md)). By
+   rule 8 those files land in every consumer project, so that URL is the
+   bundle's published identity as a consumer sees it. Both still named the
+   archived standalone repository for a day after the move: ADR-0026
+   repointed the four catalogs and these two were not catalogs. **When a
+   component moves, its published identity does not move with it, and it is
+   not in the files you edit.** bundle-release.yml now asserts both fields
+   and sweeps `presets/` and `extensions/` for any other mention of the
+   archived repository.
 
 ## presets/nc-ears — component invariants
 
@@ -95,6 +106,8 @@ repo is built around"; reasons: DECISIONS.md).
   (README, "Behavior this repo is built around").
 - Version bump ripples to: `preset.yml`, `bundle.yml` pin,
   `catalogs/presets.json` (version and release-asset URL).
+- `preset.yml`'s `repository` ships to consumers — rule 9. Asserted at
+  release.
 
 ## extensions/nc — component invariants
 
@@ -114,6 +127,8 @@ repo is built around"; reasons: DECISIONS.md).
   commands materialize as skills at `.claude/skills/speckit-nc-<name>/`.
 - Version bump ripples to: `extension.yml`, `bundle.yml` pin,
   `catalogs/extensions.json` (version and release-asset URL).
+- `extension.yml`'s `repository` ships to consumers — rule 9. Asserted at
+  release.
 
 ## Verify before you commit
 

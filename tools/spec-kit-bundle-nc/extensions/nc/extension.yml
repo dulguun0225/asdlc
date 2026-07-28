@@ -11,7 +11,12 @@ extension:
   category: "process"
   effect: "read-write"
   author: "Dulguun Otgon"
-  repository: "https://github.com/dulguun0225/spec-kit-bundle-nc"
+  # Ships at the root of nc-<v>.zip and is copied into every consumer
+  # project: this URL is the bundle's published identity as the consumer sees
+  # it, so it must name the repository that RELEASES the bundle —
+  # dulguun0225/asdlc (ADR-0026) — not the archived standalone repository.
+  # bundle-release.yml asserts it.
+  repository: "https://github.com/dulguun0225/asdlc"
   license: "MIT"
 
 requires:

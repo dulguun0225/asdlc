@@ -62,9 +62,34 @@ they follow; that is a signpost, not a fix.
 **The bundle's v0.2.0 release is ready to cut, and cutting it is the owner's call.** The previous
 developer's pre-release fix list was executed on 2026-07-28, and
 [ADR-0026](decisions/0026-bundle-distribution.md) settled where the bundle publishes from: **this
-repository, on `bundle-v*`.** All four catalogs now point here, and all ten release asserts pass in
-a local dry-run at `GITHUB_REF_NAME=bundle-v0.2.0`. **Consumers need no credential** — the
-repository is public.
+repository, on `bundle-v*`.** All four catalogs point here. **Consumers need no credential** — the
+repository is public by decision ([ADR-0027](decisions/0027-design-is-public.md)).
+
+**Re-verified on 2026-07-28 rather than quoted, and the re-verification found two things:**
+
+- **Green, against the exact tree that would be tagged:** all release asserts at
+  `GITHUB_REF_NAME=bundle-v0.2.0`; `specify bundle validate --offline` (0 errors, the documented 3
+  warnings, local `specify` **0.14.2** = `SPECKIT_PIN`); `python ci/check_specs.py --self`;
+  versions aligned at `0.2.0` in all eight places; pack `review-by` dates in 2027. **The four raw
+  catalog URLs return 200 from `master`** — a check the release workflow explicitly does not do and
+  nobody had run.
+- **Fixed before tagging (1):** `presets/nc-ears/preset.yml` and `extensions/nc/extension.yml`
+  still had `repository:` pointing at the **archived** standalone repository. Both ship at the root
+  of their zip and are copied into every consumer project, so a release would have installed a
+  fresh pointer to a read-only repo with no releases. ADR-0026 repointed the four catalogs and
+  these two are not catalogs — **the same failure that ADR documents.** No assert covered it;
+  **three now do** (both fields, plus a sweep of `presets/` and `extensions/` for any other mention
+  of the archived repository), so the release-assert count went from twelve to **fifteen**. The
+  bundle's `CLAUDE.md` gained **rule 9** under *"Rules that exist because something broke"*.
+- **Fixed before tagging (2):** the changelog's `[Unreleased]` section held the `packs/seed/` move
+  and the java-backend rewrite — changes that would ship **inside** `bundle-v0.2.0`, while the
+  release notes point readers at `CHANGELOG.md`. Merged into the `[0.2.0]` section, which is
+  correct by the changelog's own preamble: 0.1.0 and 0.2.0 were development increments and
+  `bundle-v0.2.0` is the first published tag. **Nothing may sit under `[Unreleased]` when the tag
+  is cut.**
+
+The header comment in `bundle-release.yml` still said *"all ten asserts"*; it now says fifteen and
+records that the raw catalog URLs were checked by hand.
 
 **The one action left is outward-facing and was deliberately not taken:**
 

@@ -1,0 +1,22 @@
+# LF everywhere, checked in and checked out.
+#
+# This is not style. reference/artifacts.md §6 makes `artifact_hash` a sha256
+# over a file's bytes at the reviewed commit, so a line-ending change silently
+# invalidates a gate signature. A repository that normalises per-platform
+# cannot carry hash-bound approvals.
+#
+# tools/spec-kit-bundle-nc/ already required this for the same reason and
+# enforces it on product repos in ci/check_specs.py.
+#
+# Set 2026-07-28 by ADR-0025 part 5, before anything in this repository pins a
+# hash. Doing it later would be a migration.
+
+* text=auto eol=lf
+
+# Binary — never touch these.
+*.png binary
+*.jpg binary
+*.gif binary
+*.pdf binary
+*.zip binary
+*.ico binary

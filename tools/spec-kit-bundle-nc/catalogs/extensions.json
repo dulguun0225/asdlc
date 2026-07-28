@@ -8,7 +8,7 @@
       "description": "One human approval gate before implementation (speckit.nc.gate, hooked at before_implement) and an agent self-review against spec, plan, tasks, and the project's decision records after it (speckit.nc.review, hooked at after_implement).",
       "author": "Dulguun Otgon",
       "requires": { "speckit_version": ">=0.14.2,<1.0.0" },
-      "download_url": "https://github.com/dulguun0225/spec-kit-bundle-nc/releases/download/v0.2.0/nc-0.2.0.zip"
+      "download_url": "https://github.com/dulguun0225/asdlc/releases/download/bundle-v0.2.0/nc-0.2.0.zip"
     }
   }
 }

@@ -52,15 +52,29 @@ Reconciling them is the top row of [open-parameters.md](../rollout/open-paramete
 its own decision record.** Both worked examples now carry a header note saying which convention
 they follow; that is a signpost, not a fix.
 
-**The bundle's v0.2.0 release is fixed but parked, and the reason is an owner decision.** The
-previous developer's pre-release fix list was executed on 2026-07-28 (see the session note below).
-What stopped the release is not on that list: **every catalog URL still names
-`dulguun0225/spec-kit-bundle-nc`, which is public, while this repository is private.** Release
-assets and raw catalog files both need public read, so the distribution channel did not move when
-the code did. The owner chose to park rather than resolve it. Three ways out, and the choice turns
-on whether the design may be public — [open-parameters.md](../rollout/open-parameters.md), the row
-titled *"Where the bundle is published from"*. **Do not tag `bundle-v0.2.0` until it is answered:**
-the release workflow would fail four asserts, correctly.
+**The bundle's v0.2.0 release is ready to cut, and cutting it is the owner's call.** The previous
+developer's pre-release fix list was executed on 2026-07-28, and
+[ADR-0026](decisions/0026-bundle-distribution.md) settled where the bundle publishes from: **this
+repository, on `bundle-v*`.** All four catalogs now point here, and all ten release asserts pass in
+a local dry-run at `GITHUB_REF_NAME=bundle-v0.2.0`. **Consumers need no credential** — the
+repository is public.
+
+**The one action left is outward-facing and was deliberately not taken:**
+
+```sh
+git tag bundle-v0.2.0 && git push origin bundle-v0.2.0
+```
+
+`master` already holds the final catalog JSONs, which is the ordering requirement — consumers read
+catalogs from `master` and assets from the tag. Nothing else is pending.
+
+**One thing surfaced that nobody has decided: `dulguun0225/asdlc` is public.** Every ADR and
+[context.md](context.md) — team shape, roles, data boundary — is world-readable right now, and **no
+record chooses that.** It is the current state, not a decision
+([ADR-0026](decisions/0026-bundle-distribution.md) part 5). New owner row in
+[open-parameters.md](../rollout/open-parameters.md). **Cheapest to change now**: nothing has been
+released, so no consumer depends on a public URL, and going private costs one
+`~/.specify/auth.json` per consumer and changes no URL.
 
 **Two things to watch on the next push:**
 
@@ -70,14 +84,14 @@ the release workflow would fail four asserts, correctly.
    proof. It should fire on a `tools/**` change and **not** on a design-only change. This push
    changes `tools/**`, so it should fire.
 2. **`.github/workflows/bundle-release.yml` has never run either**, and it fires only on
-   `bundle-v*`, so a `v1.0.0` cut for the design is now safe. It is dormant by design — see above.
+   `bundle-v*`, so a `v1.0.0` cut for the design is safe. Its first run will be the real release.
 
 **One standing instruction, because it was asked twice and answered twice:** the owner does not
 choose between options here. Research it, decide it, record it, and say what would reverse it.
 
 ---
 
-### Last session: 2026-07-28 — the bundle's release fixes, and why the release did not happen
+### Last session: 2026-07-28 — the bundle's release fixes, and where it publishes from
 
 The owner pointed at `release-fixes.md`, an untracked scratch note from the previous developer
 listing what to change before cutting `spec-kit-bundle-nc` v0.2.0. **All of it is now applied, the
@@ -116,9 +130,32 @@ exactly the state that does not travel between machines.
   and does not need one — the reader never looks at it (checked against the installed v0.14.2
   source).
 
-**What stopped the release is not on the fix list**, and it is the finding worth carrying forward:
-**a component's published identity does not move when the component does, and it is not in the
-files you edit.** See **START HERE** above and ADR-0025's *"What was actually done"* item 5.
+**What stopped the release was not on the fix list**, and it is the first of two findings worth
+carrying forward: **a component's published identity does not move when the component does, and it
+is not in the files you edit.** Every catalog URL still named the old repository. See ADR-0025's
+*"What was actually done"* item 5.
+
+**Then the escalation collapsed, and how it collapsed is the second finding.** The owner supplied
+one fact — the standalone repository is **archived**, so the mirror option was never possible — and
+checking the other premise showed **the escalated question did not exist.** `dulguun0225/asdlc` is
+**public**: `gh api repos/dulguun0225/asdlc` reports `private: false`. The claim that it was private
+came from an unauthenticated `curl` returning 404, **which is not a visibility check.** A disclosure
+decision was put to the owner, and the release parked for it, on that basis.
+
+**Generalise this one.** Two premises drove a wrong escalation, and neither had been checked: one
+was a fact about the environment (archived), the other a fact about the tool (that public read is
+required — it is not; Spec Kit rewrites private release-download URLs to the REST API asset endpoint
+on purpose). **"Research it and decide it" covers facts about the environment and the tooling, not
+only tool choices.** Before handing a question upward, check whether it is a question — an
+authenticated API call costs one command.
+
+[ADR-0026](decisions/0026-bundle-distribution.md) closed it: distribute from here, no consumer
+setup step.
+
+**Also corrected:** there is **no URL form of `specify bundle install`.** Its argument is a catalog
+bundle id or a local path to a `.zip`, a bundle directory, or a `bundle.yml`. Remote install is the
+catalog stack, and the version comes from the catalog entry, not an `@x.y.z` suffix. Recorded in
+the bundle's README so it is not re-attempted.
 
 ### Session before: 2026-07-28 — the monorepo, executed
 

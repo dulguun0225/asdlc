@@ -255,12 +255,24 @@ noticed, because the channel is described in the bundle's own README and catalog
 anywhere the migration touched. **The general lesson: when a component moves, its published
 identity does not move with it, and the published identity is not in the files you edit.**
 
-The owner decided on 2026-07-28 to **park the release** rather than resolve this now. The three ways
-out are in [open-parameters.md](../../rollout/open-parameters.md), and the choice is the owner's
-rather than a research question because it turns on whether the ASDLC design and
-[context.md](../context.md) may be public. Nothing is stranded meanwhile: the standalone repository
-has **zero tags and zero releases**, so no consumer URL is live and rewriting the catalogs is still
-free.
+Parked for an hour, then **closed the same day by
+[ADR-0026](0026-bundle-distribution.md)** — the bundle is distributed from this repository.
+**All three ways out recorded here were wrong, and each error came from asserting a fact instead of
+checking one:**
+
+- *"Mirror the subtree back to the standalone repository and release there"* was **impossible.**
+  That repository is archived and therefore read-only. The owner supplied the fact; nothing here had
+  established it.
+- *"Make `asdlc` public"* was **already true.** `gh api repos/dulguun0225/asdlc` reports
+  `private: false`. The claim that it is private came from an unauthenticated `curl` returning
+  404 — **which is not a visibility check.**
+- *"Leave it unpublished"* was chosen for an hour on the strength of that same 404.
+
+Nothing was stranded in the meantime: the standalone repository had **zero tags and zero releases**,
+so no consumer URL was ever live and rewriting the catalogs cost nothing. **The cost was an
+escalation to the owner for a decision that did not exist**, which is the failure this project's
+"research it and decide it" rule exists to prevent — it applies to facts about the environment just
+as much as to tool choices.
 
 ## Variant answers
 

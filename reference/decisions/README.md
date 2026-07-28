@@ -44,3 +44,4 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0023](0023-adversarial-repository-content.md) | Adversarial or mistaken repository content: what already bounds it, and one hole closed | accepted; inventory extended by 0024 | 2026-07-28 |
 | [0024](0024-stage-skill-distribution.md) | The stage skills ship as one force-enabled plugin, and their names change | accepted | 2026-07-28 |
 | [0025](0025-monorepo.md) | The repository becomes a monorepo, and `spec-kit-bundle-nc` moves in | accepted; executed as a plain copy, so the bundle's history stayed behind | 2026-07-28 |
+| [0026](0026-bundle-distribution.md) | The bundle is distributed from this repository, and this repository stays private | accepted | 2026-07-28 |

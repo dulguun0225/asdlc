@@ -108,19 +108,36 @@ install records the composition in `.specify/bundle-records.json`.
 
 ### Org distribution (catalogs)
 
-Publish a release (the `release` workflow builds `nc-ears-<v>.zip`,
-`nc-<v>.zip`, and `nc-sdd-<v>.zip` from a `v*` tag; the workflow component
-needs no zip — its catalog entry points at the raw `workflow.yml` at the
-tag), then consumers run:
+**This bundle is distributed from `dulguun0225/asdlc`, not from
+`dulguun0225/spec-kit-bundle-nc`.** The latter is archived and read-only: it is
+where the bundle's git history lives, and nothing is released from it. See
+[ADR-0026](../../reference/decisions/0026-bundle-distribution.md).
+
+**No credential is needed.** `dulguun0225/asdlc` is public, and Spec Kit's HTTP
+client falls through to an unauthenticated request when `~/.specify/auth.json`
+has no matching entry — so there is no setup step before the commands below.
+(If the repository is ever made private, ADR-0026 part 3 records exactly what
+each consumer would add.)
+
+Once a release exists (the `bundle-release` workflow builds
+`nc-ears-<v>.zip`, `nc-<v>.zip`, and `nc-sdd-<v>.zip` from a **`bundle-v*`**
+tag; the workflow component needs no zip — its catalog entry points at the raw
+`workflow.yml` at the tag), consumers run:
 
 ```sh
-specify preset catalog add    https://raw.githubusercontent.com/dulguun0225/spec-kit-bundle-nc/master/catalogs/presets.json    --name nc --install-allowed
-specify extension catalog add https://raw.githubusercontent.com/dulguun0225/spec-kit-bundle-nc/master/catalogs/extensions.json --name nc --install-allowed
-specify workflow catalog add  https://raw.githubusercontent.com/dulguun0225/spec-kit-bundle-nc/master/catalogs/workflows.json  --name nc
-specify bundle catalog add    https://raw.githubusercontent.com/dulguun0225/spec-kit-bundle-nc/master/catalogs/bundles.json    --policy install-allowed
+specify preset catalog add    https://raw.githubusercontent.com/dulguun0225/asdlc/master/tools/spec-kit-bundle-nc/catalogs/presets.json    --name nc --install-allowed
+specify extension catalog add https://raw.githubusercontent.com/dulguun0225/asdlc/master/tools/spec-kit-bundle-nc/catalogs/extensions.json --name nc --install-allowed
+specify workflow catalog add  https://raw.githubusercontent.com/dulguun0225/asdlc/master/tools/spec-kit-bundle-nc/catalogs/workflows.json  --name nc
+specify bundle catalog add    https://raw.githubusercontent.com/dulguun0225/asdlc/master/tools/spec-kit-bundle-nc/catalogs/bundles.json    --policy install-allowed
 specify workflow add nc-sdd     # BEFORE bundle install — see the trap below
 specify bundle install nc-sdd
 ```
+
+**There is no URL form of `specify bundle install`.** Its argument is a catalog
+bundle id or a **local path** to a `.zip`, a bundle directory, or a
+`bundle.yml` — nothing else. `specify bundle install <some https url>` does not
+work, and the version comes from the catalog entry rather than from an
+`@x.y.z` suffix. Adding the catalog is the remote install path.
 
 Traps verified against Spec Kit v0.14.2 source:
 

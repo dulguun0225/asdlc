@@ -22,15 +22,14 @@
 # workstation. Every assert below was dry-run locally against the working tree
 # with GITHUB_REF_NAME=bundle-v0.2.0; the first real run is the proof.
 #
-# AND IT CANNOT SUCCEED YET — do not tag until this is resolved. In that same
-# dry-run the three version asserts passed and ALL FOUR catalog-url asserts
-# failed. The catalogs still point at dulguun0225/spec-kit-bundle-nc at tag
-# v0.2.0, but the bundle lives in dulguun0225/asdlc, which is private —
-# release assets and raw catalog files both need public read. Deciding where
-# the bundle is published from is an owner call (it turns on whether the
-# design may be public) and is the open-parameters row next to the one that
-# retired this port. The failures are correct behaviour: the asserts exist so
-# a release cannot go green while pointing consumers at a nonexistent asset.
+# All ten asserts below pass in that dry-run as of 2026-07-28, after ADR-0026
+# repointed the four catalogs at this repository. The repository is public, so
+# consumers need no credential; see the bundle's README, "Org distribution".
+#
+# The asserts check that the tag is pinned CONSISTENTLY across the catalogs,
+# never that the resulting URLs RESOLVE - they cannot, until this workflow
+# creates the release they point at. Check all four by hand after the first
+# release.
 
 name: bundle-release
 

@@ -49,13 +49,12 @@ the standalone repository stays readable, not because they execute.
   **Delete that file and the bundle silently loses its CI.**
 - **`release.yml` is ported** to [`.github/workflows/bundle-release.yml`](../.github/workflows/bundle-release.yml),
   on a **`bundle-v*`** trigger rather than `v*`, so a `v1.0.0` cut for the design cannot publish a
-  bundle release ([ADR-0025](../reference/decisions/0025-monorepo.md) part 4). It is **dormant and
-  cannot succeed yet**, and that is not a defect in the port: the bundle's four
-  `catalogs/*.json` still point at the public standalone repository, while this repository is
-  **private** — and release assets and raw catalog files both need public read. Deciding where the
-  bundle publishes from is an owner call, in
-  [open-parameters.md](../rollout/open-parameters.md). **Do not tag `bundle-v0.2.0` until it is
-  answered.**
+  bundle release ([ADR-0025](../reference/decisions/0025-monorepo.md) part 4). **The bundle is
+  distributed from this repository** —
+  [ADR-0026](../reference/decisions/0026-bundle-distribution.md); the four `catalogs/*.json` point
+  here, and consumers need no credential because the repository is public. Every release assert
+  passes in a local dry-run at `GITHUB_REF_NAME=bundle-v0.2.0`. **Cutting the tag is the owner's
+  call and has not been done.**
 
 **Both root workflows have a copy in the subtree, and the copies are the ones that look editable.**
 A change to either must be made in the root copy too, or it does nothing.

@@ -165,7 +165,9 @@ guesses at. Banned, each with a named enforcing check:
   ambient transactions are banned.
 - **`@Scheduled`, `@Async`** — scheduling and async work go through one
   explicit, named mechanism.
-- **`@Cacheable` and AOP aspects on domain code.**
+- **`@Cacheable`, `@CachePut`, `@CacheEvict`, `@Caching` and AOP aspects on
+  domain code** — and any caching decorator wired behind a domain interface
+  (Cache discipline).
 - **Reflection-based dispatch and stringly-typed behavior lookups.**
 - **Every ban names the check that enforces it** (ArchUnit on bytecode,
   Error Prone on source — off-the-shelf hosts; some predicates are authored
@@ -599,3 +601,195 @@ promise through the runtime, the database, and the build.
 - **The domain's standing invariants (the trial-balance-equals-zero class)
   run in production on a schedule (bespoke);** a breach — or a stale run —
   alerts. Tests gate what CI runs; invariants catch what only real data does.
+
+### Cache discipline
+
+The rules below bind from the first cached value — any value held in memory or
+in a cache server and served instead of being recomputed from the database.
+Until then they are dormant, not deleted: the first cache is the tripwire, and
+the plan that introduces it must cite this section in its Decision Trace. They
+cover an in-process cache as well as a cache server, because an in-process
+cache is the option most repos here should take and a discipline scoped to a
+server would miss it.
+
+**Start by not caching.** A cache server is a stateful service somebody
+patches, sizes, monitors and fails over. With no measured latency problem the
+correct answer is no cache; the next is an in-process cache with a short
+expiry. Add one when a number says so, not when the design looks like it wants
+one.
+
+- **The shared cache engine, where one is needed, is Valkey, pinned by image
+  digest.** Valkey is BSD-3-Clause. **Redis 7.4 through 7.8 is banned by
+  name:** those releases offer only the Redis Source Available License v2 or
+  the Server Side Public License v1, and neither is OSI-approved, so that line
+  has no licence-cost-free exit. Redis 8.0.1 and later add the AGPLv3 as a
+  third option at the recipient's choice and are permitted only with a plan
+  decision that records which licence branch was taken and who accepted it —
+  the choice is the risk, not the AGPL. On a managed platform the engine is
+  whichever managed cache that platform provides and the licence question does
+  not reach the repo. Licence and version facts checked 2026-07-29; re-check
+  them at adoption. (Banned-dependency rule on the client packages plus an
+  image-digest pin — off-the-shelf hosts; the licence scan over the dependency
+  graph is authored per repo.)
+- **Every cache read and write goes through one cache adapter package.** No
+  cache client, no in-process cache library, and no hand-rolled memo is
+  reachable outside it. Every rule below is a check on that adapter's API
+  surface, so a second way in does not leak one call — it voids the key,
+  expiry, invalidation, serialization and failure gates at once. The ban list
+  must name the clients for the engine this repo actually runs, plus the
+  in-process libraries and the framework's own cache abstraction; a
+  Redis-family-only list on a Valkey repo is a gate with a hole. (ArchUnit —
+  off-the-shelf host; the package allowlist and the long-lived-bean field-type
+  rule for the hand-rolled case are authored per repo, and that rule needs a
+  reviewed per-entry opt-out list.)
+- **No class implementing a domain interface may depend on the cache
+  adapter.** A caching decorator behind `FooRepository` leaves every caller's
+  text unchanged while its answer starts turning on cache state. The seam rule
+  above does not catch it, because a decorator legitimately lives in
+  infrastructure and legitimately imports the adapter. An explicit
+  read-through call is *not* this shape and stays legal: it is written and
+  named at the call site, so the value's provenance is fixed there. (ArchUnit
+  — off-the-shelf host; the domain-interface predicate is authored per repo.)
+- **The cache loader is a nominal port type with two abstract members, and its
+  implementations live only in the persistence package.** A single-method
+  interface would make every lambda a legal loader, including one closing over
+  a field the write path populated — and ArchUnit reads bytecode and cannot
+  follow a lambda body, so a rule of the form "the loader must query the
+  database" is unsound and must not be written. Two abstract members make the
+  lambda a compile error, so every loader is a named class the architecture
+  test can place. The cost is real: loaders are classes, not lambdas. (Javac
+  plus ArchUnit — off-the-shelf hosts; the port type is this repo's.)
+- **The cache port exposes no bare write and no atomic primitive.** A value
+  enters the cache only as a loader's return on a read-through call, which
+  makes write-through and write-behind unwritable; and with no set-if-absent,
+  increment, or list operation on the port, and the raw client unreachable, the
+  cache cannot become a lock, a counter, a queue, or an idempotency record. An
+  evictable store has no durability contract: eviction, failover or restart
+  drops the entry with no error, so a lock silently stops excluding. **The
+  idempotency record the money-grade rules require in the same transaction as
+  the money effect must not live in the cache.** (ArchUnit on the port's
+  declared methods and parameter types — off-the-shelf host; the predicate is
+  authored per repo.)
+- **The cache key is the loader's full argument tuple, and the caller's
+  authorization scope is one of those arguments.** A key assembled separately
+  can omit the tenant and return a well-formed answer belonging to someone
+  else, with no exception and no schema violation. The key type has a private
+  constructor and one static factory per key family; no factory and no port
+  method accepts a free-text parameter. The scope type has no public
+  constructor, so the request-context accessor is its only source. Note what
+  the type cannot decide — that the scope passed is the *current caller's* —
+  which is why the backstops are not optional. **Do not write this as a ban on
+  string concatenation:** since Java 9 `+` on strings compiles to an
+  `invokedynamic`, so a bytecode rule has nothing to match. (ArchUnit on the
+  factory and port signatures — off-the-shelf host, predicate per repo; plus a
+  property test that distinct tuples render distinct keys, and a two-tenant
+  Testcontainers test per cached read path that seeds two tenants, warms as
+  one and reads as the other — bespoke. The two-tenant test is the outside
+  oracle; the property test only varies what its generator varies.)
+- **Every expiry comes from the committed cache catalog, and no catalog expiry
+  exceeds this repo's stated staleness ceiling.** "Has an expiry" is nearly
+  worthless alone — a thirty-day expiry satisfies it — so the ceiling is the
+  half that does the work, and it is a machine-readable value in the committed
+  catalog, not a sentence in this document, because a test cannot read prose.
+  The expiry is not the invalidation mechanism; it is the bound on a *missing*
+  invalidation, which is the bug that gets written when one of four write paths
+  is forgotten. The expiry type is constructible only in the catalog package,
+  so no call site can pass one the lint never sees. The ceiling's value is this
+  repo's call, stated here. **Named gap:** server-side eviction under a memory
+  policy can drop an entry before its expiry, and no check in this build can
+  see engine configuration. (ArchUnit for the construction confinement —
+  off-the-shelf host; a JUnit test over the committed catalog for the ceiling
+  — bespoke.)
+- **Caching an absent result is opt-in per catalog entry and carries a shorter
+  expiry.** A read-through adapter caches whatever the loader returns,
+  including "not found", unless it is built not to — and then the row exists in
+  the database while the API says it does not, intermittently and
+  unreproducibly. The loader's return type distinguishes a value from an
+  absence and the adapter drops an absence by default. (Type design plus a
+  Testcontainers test per path — read a missing key, create it, read again,
+  assert found — bespoke.)
+- **Invalidate by delete only, from the transaction seam's post-commit
+  callback. Never populate the cache from a write path.** Populating on write
+  races a concurrent read that already loaded the old value and is about to
+  store it. Deleting before commit lets a concurrent read repopulate
+  pre-commit state, which then lives until the expiry. Delete after commit
+  degrades to a miss, which is always correct. The ordering is enforced by
+  making the port's invalidate operation reachable only from that callback —
+  **not by a test**, because "a rolled-back write leaves nothing cached" and "a
+  committed write leaves nothing stale" are both satisfied by a
+  delete-before-commit implementation in a sequential test. Two exposures stay
+  and are accepted: the crash window between commit and delete is bounded by
+  the expiry ceiling and nothing else, and on an in-process cache a delete does
+  not reach other instances, so above one instance the ceiling is the whole
+  coherence guarantee. (ArchUnit for the confinement — off-the-shelf host,
+  predicate per repo; a Testcontainers rollback test — bespoke; the residual
+  ordering is spec-and-review.)
+- **Cached values are immutable and round-trip through the serializer
+  exactly.** An in-process cache handing one instance to two callers turns one
+  caller's mutation into the other's wrong answer. A lossy round-trip does the
+  same remotely: a decimal that loses scale, an instant that loses zone, an
+  amount that becomes a binary float — the float ban re-entering at a fourth
+  layer, after field, column and wire. **The check reads the concrete type at
+  its catalog registration site, not the port's type parameter:** generics
+  erase, so ArchUnit sees the parameter as `Object` and would report green
+  while protecting nothing — the same erasure trap this constitution already
+  records for the unloggable-domain-type rule. (Error Prone on source —
+  off-the-shelf host, check authored per repo; plus a serialize-then-compare
+  property test per cached type — bespoke.)
+- **A build-computed hash of each cached value's shape is part of its key
+  namespace, committed and diffed; deserialization is strict.** After a deploy
+  the cache holds bytes written by the previous shape, and the silent case is a
+  field added since — defaulting to zero, false or empty on read, wrong but
+  plausible, only on hits, decaying away before anyone reproduces it. The hash
+  turns that into a cold cache, which is the better failure; strict parsing
+  (`FAIL_ON_UNKNOWN_PROPERTIES`, constructor-bound deserialization) is the
+  backstop where the shape is unchanged but its meaning is not. A hand-bumped
+  version integer is rejected: forgetting to bump it is exactly the failure
+  this prevents. (A Maven plugin computing the hash into a committed file with
+  a `check` goal that diffs it — bespoke; Jackson configuration —
+  off-the-shelf.)
+- **On a cache error, answer from the database or fail with a coded error.**
+  Never a stale entry, a default, an empty collection, or a partly populated
+  result. Falling back to the database is correct and stays legal; what is
+  banned is substituting a value. The defensive `catch` returning an empty list
+  reads as robustness and returns the wrong answer with a 200. **Named gap:** a
+  swallowing catch is invisible to this toolchain — ArchUnit exposes a catch
+  block's caught type but not its body, and `catch (e) { return
+  Optional.empty(); }` is not empty, so the empty-catch check does not fire
+  either. Wiring an ArchUnit rule here would report green over the case it
+  exists to catch. (Error Prone `EmptyCatch` promoted to `ERROR` for the empty
+  case only — off-the-shelf; a Testcontainers Toxiproxy test per read-path
+  class cutting the cache connection and asserting a database answer or a coded
+  error — bespoke; the general case is spec-and-review.)
+- **The integration suite runs in three cache configurations — normal,
+  always-miss, and every-operation-errors.** Normal and always-miss must
+  produce identical observable results; under fault injection every answer
+  either matches the cache-off answer or is a coded error. The uncached system
+  is the one oracle here that the implementing model did not write. **The
+  normal run fails if any catalogued cache records zero hits** — a suite that
+  never warms a cache passes all three trivially. State what it does not catch:
+  a key that drops the tenant returns the same answer in both runs of a
+  single-tenant suite, and a stale read after a write is invisible unless the
+  suite writes and re-reads one key inside its expiry. (Three maven-failsafe
+  executions, a test-scoped always-miss binding, and Toxiproxy — bespoke.)
+- **Each of the three configurations proves it took effect.** The always-miss
+  run asserts zero hits on every catalogued cache and fails on any hit; the
+  normal run asserts at least one; the fault run asserts the injected fault was
+  observed. Nothing in a differential gate verifies its own wiring: a
+  test-scoped bean override that does not win, a profile never activated, or a
+  toxic never applied makes all three runs the normal run, so results are
+  trivially identical and the gate reports green over every failure it exists
+  to catch. This is not a clause of the rule above — it is the one that gets
+  omitted. (Hit and miss counters on the port, asserted per configuration —
+  bespoke.)
+- **A committed cache catalog names every cache, its key shape, its expiry, its
+  negative-caching decision and what invalidates it,** generated from the
+  adapter's registrations and diffed in CI. It is machinery, not
+  documentation: the ceiling test reads it, the negative-caching opt-in reads
+  it, the serialization check reads it, and the three-configuration gate
+  enumerates it. Without it an agent adds a fifth cache inside a helper method
+  and the first symptom is an inexplicable stale answer months later with no
+  list of suspects. The "what invalidates it" field is prose and no diff can
+  check it against behaviour — that field is the catalog's documentation half.
+  (An annotation processor or a test generating the catalog, regenerate-and-diff
+  in CI — bespoke.)

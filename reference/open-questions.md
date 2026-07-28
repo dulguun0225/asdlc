@@ -147,11 +147,12 @@ platform-neutral. It blocks nothing, including the release.
 **Sources live in `packs/rule-sources/`, and the mechanism is not money-only** (B-10, 2026-07-28).
 The path is what says "not a paste target" — adopt step 1 is a path rule now, not a Kind column to
 read. Every shared infrastructure concern has the source shape (portable directive, a different
-enforcing tool per language): `cache-discipline` is rostered as the expected second one under
-*Candidate sources* in [`packs/index.md`](../tools/spec-kit-bundle-nc/packs/index.md), with no
-research done and none due until a repo adopts it. **Adding any directory under `packs/` means
-re-reading the freshness step's glob** — it is recursive now because this move would otherwise have
-dropped the source from it silently.
+enforcing tool per language). **`cache-discipline` is the second source and it is written**
+(B-11, 2026-07-29) — the last-session note below has it, including the one committed statement it
+had to correct. **Adding any directory under `packs/` means re-reading the freshness step's
+glob** — it is recursive now because B-10's move would otherwise have dropped the source from it
+silently. Re-run the step's own code after any move; this session did, and the new source is
+reached (4 files carry `review-by`, up from 3, no false warnings).
 
 **One thing left to watch, and one now closed:**
 
@@ -172,7 +173,124 @@ choose between options here. Research it, decide it, record it, and say what wou
 
 ---
 
-### Last session: 2026-07-28 — rule sources get a directory, and the move nearly disabled a gate
+### Last session: 2026-07-29 — the cache source is written, and a committed reason was false
+
+The owner asked for deep research on cache principles and the cache technology choice, and
+proposed that **both** belong in `packs/rule-sources/` because both are independent of the backend
+language. The research says the discipline rules do and the engine pick does not — and it also
+says the reason the corpus already gave for excluding the pick was wrong.
+**[`packs/rule-sources/cache-discipline.md`](../tools/spec-kit-bundle-nc/packs/rule-sources/cache-discipline.md)
+is written, instantiated into `java-backend` in the same change, and recorded as
+[`DECISIONS.md`](../tools/spec-kit-bundle-nc/DECISIONS.md) B-11.**
+
+**The routing rule, because it is the reusable part and it will be asked again.**
+Language-independence is *not* what makes a source — `agent-traps` is language-independent and is
+an adoptable cross-stack *pack*. What forces the source shape is a portable directive whose check
+must be **authored differently on every stack**. A **technology pick** fails that on three counts:
+its gates (a banned-dependency rule, a pinned image digest, a licence scan) are the same gate
+everywhere; its answer varies **within** a stack, so it cannot be instantiated per stack at all;
+and it fails the premise-specificity test, because a wrong engine surfaces as a scan, a bill or an
+outage rather than as a wrong answer on an unread path. It is a dated seed-text line in each stack
+pack, beside the discipline rules it constrains.
+
+**The false statement, and it is the finding worth carrying.** `packs/index.md` gave the ground as
+*"one portable verdict with **no check behind it**"*. That is refuted by this corpus's own
+contents: `seed/agent-traps.md` already ships a technology pick — the jollyday fork — with *"
+(Enforcement: banned-dependency rule — off-the-shelf.)"* The conclusion survived on other grounds;
+the reason did not. **Do not reintroduce it** — left in place it would let a later pass disprove it
+and conclude, wrongly, that a pick is therefore source material. This is the same shape as the
+repository's known systemic defect: a statement that was true when written, built on afterwards,
+and never re-checked.
+
+**All three rules the corpus had rostered for this source were wrong as worded.** Each failed in a
+way this corpus has a name for, and the restatements are the substance of the pass:
+
+- *"Cache is never the source of truth"* — true and **undecidable**. No check can decide which
+  store is authoritative, so the gate reports green over exactly the case the rule exists to stop.
+  That is M-2's recorded failure mode, re-committed.
+- *"No entry without a TTL"* — enforceable and nearly worthless: a thirty-day expiry satisfies it.
+  The half that works is a **committed machine-readable staleness ceiling**; constitution prose
+  gives a lint no operand.
+- *"A cache failure fails loud"* — **actively wrong.** It bans falling back to the authoritative
+  store, which is the correct behaviour, while permitting the real hazard — substituting a value —
+  as long as something is logged.
+
+**Sixteen directives, `C-1` … `C-16`, and every one is marked convention.** None survived
+three-vote refutation against primary sources, because each is a design argument rather than an
+execution result; research-protocol §3 auto-downgrades those. The confirmed material is the tool,
+licence and price evidence, which lives in `java-backend.md` section 4 with sources and dates.
+**Do not upgrade a marker without a new pass.**
+
+**The scope decision that a hostile audit forced.** The rules cover an **in-process** cache, not
+just a cache server. Scoped to a cache *client*, a hash-map memo, a loading-cache library or a
+framework's in-memory cache manager would sit outside all sixteen checks — and the source's own
+first instruction is that **most repos here should run no cache server at all** (three-person
+teams, no operations role), so the in-process case is the common one. A discipline that misses the
+common case while reporting green is the failure `packs/README.md` principle 1 bans by name.
+
+**Two engine facts that must not be re-derived from memory.** Both checked 2026-07-29 against the
+projects' own artifacts. **"Redis is no longer open source" is stale and must not be the rejection
+ground** — it was true of 7.4–7.8 and is false of 8.x, which offers AGPLv3 as one of three
+licences at the recipient's choice, and AGPLv3 §13 fires only *"if you modify the Program"*, so an
+unmodified server as a backing service triggers nothing. The real grounds are that the choice is
+the recipient's to make and record, that two of the three branches are not OSI-approved, and that
+this org has no legal function to run the analysis. Redis **7.4–7.8 is banned** because it has no
+OSI-approved option at all. Also: a widely repeated claim that ElastiCache Serverless for Valkey is
+33% cheaper than for Redis OSS **could not be confirmed** against AWS's own page — the verified
+saving is in the **billing floor** (100 MB minimum for Valkey against 1 GB), not the rate.
+
+**The governance departure, stated so it is not read as a new default.** B-8 says a source is
+written in the PR of the first repo that adopts it, never ahead of it. No repo has adopted a
+cache. The owner directed the research and the write with the cost priced: the file starts a
+`review-by` clock nobody is using, and its licence and price facts decay fastest of anything in the
+corpus. **The next source waits for its adopting repo** unless the owner decides otherwise again.
+
+**Verified on this machine, which the previous three sessions could not do.** `check_specs.py
+--self` passes and `specify bundle validate --path . --offline` gives **0 errors and exactly the
+documented 3 warnings** at the pinned v0.14.2, both through `uv`. The freshness step's own code was
+run against the tree: it reaches the new source, 4 files carry `review-by` where 3 did, all dates
+in 2027, no false warnings. Zero broken relative links across every changed file. The seed file
+carries **no pointer back to this repository** — the rule that has only ever been hand-enforced.
+
+**The engine survey nearly went missing, and the near-miss is the lesson.** The pass steelmanned
+**nine** candidates with primary sources — Valkey, Redis, memcached, Garnet, Dragonfly, Hazelcast,
+Ignite, KeyDB, and no separate engine — and the synthesis compressed that to three before the files
+were written from the synthesis. The owner asking *"what other options did you consider?"* is what
+surfaced it. It is now **section 7 of the source**, an appendix that is explicitly evidence and not
+a directive: platform-neutral, so putting it in `java-backend` would have made the next nine stack
+packs re-run the same survey. Only the three Java-shaped grounds sit in the pack. **Generalise the
+near-miss: a synthesis step silently drops evidence, and the file written from it inherits the
+gap.** Check a synthesis against the per-agent record before writing from it.
+
+**Three factual errors were found by that same check and are fixed.** All three were mine, in
+already-written text. **Azure Cache for Redis Standard C0 is $0.055/hour, not $0.0275** — the
+first read did not filter `priceType`, and Premium P1 returns two meters ($0.277 effective
+2019-05-01, $0.555 effective 2016-01-01), so that SKU is now flagged rather than quoted flat. **The
+"33% lower for Valkey" claim is AWS's own**, verbatim on their pricing page — an earlier note said
+it "could not be confirmed", which was wrong; what is true is that AWS publishes no Redis OSS
+serverless rate, so nothing on the page lets a reader check it, and it is cited as a vendor claim.
+**Caffeine 3.2.4 (2026-05-03, Apache-2.0) was verified** and two places said it was not evaluated.
+
+**What this does *not* discharge.** Nine of the sixteen rules have no per-stack cell outside Java;
+Go, .NET and TypeScript are sketches in the research record, not instantiations, so a pack for any
+of them must walk the source itself. **Google Cloud Memorystore pricing was not obtained** — the
+tables render client-side — and no figure was guessed. The three-configuration gate triples
+integration CI time and nobody has measured it. The hand-rolled-memo half of the seam rule needs a
+reviewed opt-out list whose size is unknown; if it turns out large, the honest move is to name the
+gap rather than keep the rule.
+
+**What the next session picks up.** Unchanged and above: cutting `bundle-v0.2.0` is still the
+owner's call, and the two-approval-conventions reconciliation still needs its own ADR. This change
+is documents-only — no component, manifest, catalog or version moved — so the release-ready state
+described in START HERE still describes the tree that would be tagged. The changelog entry went
+into **`[0.2.0]`**, which is re-dated **2026-07-29** and now lists B-11 on its design line;
+`[Unreleased]` holds *"Nothing yet."* again. That follows the rule the previous two sessions set —
+**nothing may sit under `[Unreleased]` when the tag is cut** — and a first draft of this session
+got it wrong before correcting it.
+
+---
+
+### Session before: 2026-07-28 — rule sources get a directory, and the move nearly disabled a gate
 
 The owner asked where an out-of-scope technology choice goes — caching, Redis or Valkey — for the
 downstream repos that adopt the packs, then proposed a directory for the cross-stack files. Both are

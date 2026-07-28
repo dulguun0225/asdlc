@@ -32,7 +32,7 @@ component directories here are the source of truth; they reach projects via
 | `workflows/nc-sdd/` | Orchestrated cycle for `specify workflow run` | `bundle.yml` pin, `catalogs/workflows.json` (version AND url tag), bundle-checks.yml |
 | `ci/check_specs.py` | Stdlib-only merge gate; `--repo` for product repos, `--self` for `examples/` | README checker list, bundle-checks.yml negative probes |
 | `catalogs/*.json` | Org distribution; keys == ids; versions/URLs must match the manifests | bundle-release.yml asserts |
-| `packs/` | Researched decision packs (informative; adopted by paste-edit-PR into a product constitution, never installed by tooling). `packs/seed/<pack-id>.md` is the paste payload — nothing but the rules, so a pack change may touch two files. A **source** (`money-grade`) has no seed file and is never adopted: stack packs instantiate its rules with their own checks (B-8, amended 2026-07-28), and it lives in `packs/rule-sources/` — the path is what says "not a paste target" (B-10) | `packs/index.md` roster AND `packs/README.md` "The packs" table; bundle-checks.yml freshness step; B-8 governance. A source change also touches its instantiation table and every stack pack that instantiates it. **Adding a directory under `packs/` means checking that the freshness step still reaches it** — it `rglob`s, and a non-recursive glob is what B-10 had to fix |
+| `packs/` | Researched decision packs (informative; adopted by paste-edit-PR into a product constitution, never installed by tooling). `packs/seed/<pack-id>.md` is the paste payload — nothing but the rules, so a pack change may touch two files. A **source** (`money-grade`, `cache-discipline`) has no seed file and is never adopted: stack packs instantiate its rules with their own checks (B-8, amended 2026-07-28), and it lives in `packs/rule-sources/` — the path is what says "not a paste target" (B-10). A **technology pick** (which engine, which broker) is neither: it is a dated seed-text line in each stack pack, never a source directive (B-11) | `packs/index.md` roster AND `packs/README.md` "The packs" table; bundle-checks.yml freshness step; B-8 governance. A source change also touches its instantiation table and every stack pack that instantiates it. **Adding a directory under `packs/` means checking that the freshness step still reaches it** — it `rglob`s, and a non-recursive glob is what B-10 had to fix |
 | `examples/password-reset/` | Worked example (spec + plan); kept green by `--self` | — |
 | `README.md` | User docs; "Behavior this repo is built around" is the pin-forward contract | — |
 | `DECISIONS.md` | B-n registry. Read it before changing any design; append-only, never renumber; supersede with a dated note | — |
@@ -191,20 +191,14 @@ and diff the upstream `templates/commands/` between the two tags.
 
 ## Writing style
 
-Be precise first, simple second: say exactly what is true, no
-ambiguity. Keep technical terms when the everyday word is less exact.
-Within that: short sentences, everyday words, one idea per sentence.
-No business-speak or figurative filler.
-The style limits wording, not coverage: stay complete, keep every
-edge case.
+Always: precise first, simple second — exact over approximate, but
+plain words and short sentences within that. Keep technical terms
+when the everyday word is less exact. No business-speak or figurative
+speech; say what actually happens.
 
-This style applies to any text with a human reader — chat replies,
-documents, specs, plans, comments, reports — even if agents read it
-too. Only text no human reads (command definitions, agent
-instructions) is exempt; there, repeat key constraints and list every
-case when that helps reliability.
-
-Here the reach includes README, DECISIONS, CHANGELOG, comments,
-and the command and template texts the bundle ships — the last because a
-human reads them in the consumer project, so they are not the exempt
-agent-only case.
+The wording rules apply everywhere. Coverage defaults to complete —
+every edge case. The one exemption is chat and terminal session
+replies: answer what was asked; include an edge case only when it
+changes the answer. Anything used outside the session — a file, a
+spec, a commit message, a code comment — is complete even when
+drafted inside a reply.

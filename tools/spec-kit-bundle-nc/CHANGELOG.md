@@ -11,13 +11,44 @@ Versions 0.1.0 and 0.2.0 were development increments in this repository;
 
 *Nothing yet.*
 
-## [0.2.0] — 2026-07-28
+## [0.2.0] — 2026-07-29
 
 Bundle `nc-sdd` 0.2.0 · preset `nc-ears` 0.2.0 · extension `nc` 0.2.0 ·
-workflow `nc-sdd` 0.2.0. Design: DECISIONS.md B-8, B-9, B-10.
+workflow `nc-sdd` 0.2.0. Design: DECISIONS.md B-8, B-9, B-10, B-11.
 
 ### Added
 
+- `packs/rule-sources/cache-discipline.md` — the corpus's **second cross-stack
+  source**, sixteen directives `C-1` … `C-16` covering the cache seam, what a
+  cache may hold, keys and tenancy, expiry, coherence, serialization, failure
+  behaviour and evidence gates. No seed file; nobody adopts it. Its first
+  instruction is not to cache: with three-person teams and no operations role,
+  a cache server is a stateful service with nobody to run it. The rules cover
+  an **in-process** cache as well as a server. Every directive is marked
+  **convention**; the confirmed material is the tool, licence and price
+  evidence in `java-backend.md` section 4. Section 7 is an **appendix — the
+  engine landscape**: nine candidates (Valkey, Redis, memcached, Garnet,
+  Dragonfly, Hazelcast, Ignite, KeyDB, and no separate engine) with dated
+  licences, release cadence and numbered rejection grounds. It is explicitly
+  evidence and **not** a directive — the pick stays a seed-text line (B-11) —
+  and it sits in the source rather than a stack pack because it is
+  platform-neutral, so a pack carrying it would make the next nine re-run the
+  survey.
+- `packs/seed/java-backend.md` — a **Cache discipline** section instantiating
+  all sixteen with named Java checks, plus the engine seed line (Valkey;
+  Redis 7.4–7.8 banned by name; Redis 8.0.1+ permitted only with a recorded
+  plan decision). The seed text goes from 95 rules in 16 sections to **110 in
+  17**.
+- `packs/java-backend.md` — the 2026-07-29 evidence pass: confirmed licence
+  and version facts, partial managed-cache pricing with its gap named, three
+  confirmed toolchain limits that each forced a rule to be reworded, one
+  recorded divergence (serialization checks are hosted by a source-level
+  analyzer, not the bytecode tool, because generics erase), and five named
+  gaps where this stack can host no check. Section 3 gains the Spring
+  `@Cacheable` rejection, the Caffeine verdict, and the three engine grounds
+  that are Java-shaped rather than portable (Garnet's .NET runtime dependency,
+  Hazelcast's pull toward already-banned ambient state, memcached's thinner
+  Java client story); the portable six live in the source's appendix.
 - Decision records mechanism: constitution principle VI (engineering
   choices trace to decision records) and a seeded `Repo principles`
   section; a Decision discipline section in the wrapped `speckit.plan`
@@ -74,6 +105,21 @@ workflow `nc-sdd` 0.2.0. Design: DECISIONS.md B-8, B-9, B-10.
 
 ### Changed
 
+- `packs/index.md` — **corrected a false statement.** The candidate-source
+  roster gave "the engine pick has no check behind it" as the reason a
+  technology pick is not a source rule. `seed/agent-traps.md` already ships a
+  technology pick with an off-the-shelf banned-dependency rule, so the ground
+  was refuted by this corpus's own contents. The conclusion is unchanged and
+  now rests on three grounds that hold (B-11). The `cache-discipline` candidate
+  row is replaced by `message-broker` and `object-storage`.
+- `packs/README.md`, `packs/index.md` — both sources listed everywhere one was;
+  the sunset carve-out and the future-stack roster now name both.
+- `packs/seed/java-backend.md` — the runtime-silent ban list entry for
+  `@Cacheable` now names `@CachePut`, `@CacheEvict` and `@Caching`, and the
+  caching decorator behind a domain interface.
+- `java-backend.md` frontmatter — `holds-when` gains the cache condition.
+  `verified` stays **2026-07-21**: the cache pass re-verified no earlier rule,
+  and bumping the date would re-lease claims nobody checked.
 - `packs/` — a cross-stack rule that needs a different check on every
   platform is now a **source**, and stack packs **instantiate** it
   (DECISIONS.md B-8, amended 2026-07-28). A source has no seed file and is

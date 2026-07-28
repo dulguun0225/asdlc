@@ -373,3 +373,83 @@ the first repo that adopts it, not ahead of it.
 
 Reopened by: a third kind of pack file appearing, which would make a
 two-directory split the wrong shape; or tooling that needs `packs/` flat.
+
+## B-11 — `cache-discipline` is the second source; a technology pick is not a source rule (2026-07-29)
+
+`packs/rule-sources/cache-discipline.md` is written: sixteen directives
+(`C-1` … `C-16`), instantiated into `java-backend`'s seed text in the same
+change. It is the second cross-stack source and the first test of B-8's
+instantiation mechanism, which `money-grade` never got — one instantiation
+cannot show which directives are genuinely platform-neutral.
+
+**Written ahead of an adopting repo, which departs from B-8's governance.**
+That governance says a source is written in the PR of the first repo that
+adopts its stack, never ahead of it, on B-3 over-build grounds. The owner
+directed the research and the write on 2026-07-29 with the cost stated. The
+cost is real and is accepted: the file starts a `review-by` clock nobody is
+using, and its licence and price facts decay fastest of anything in the
+corpus. **This is a departure recorded once, not a new default** — the next
+source waits for its adopting repo unless the owner decides otherwise again.
+
+**The routing decision, which is the reusable part.** A **technology pick** —
+which cache engine, which broker, which cloud — is **not** a source directive.
+It is a dated line of seed text in each stack pack's own seed file, beside the
+discipline rules it constrains, or a plan decision at the first feature that
+needs one. Three grounds:
+
+1. **The gate does not vary by stack**, and that variation is the condition
+   B-8 requires. A pick's gates — a banned-dependency rule, a pinned image
+   digest, a licence scan over the dependency graph — are the same gate on
+   every stack, differing only in which file the deny entry goes in. A source
+   rule's check must be *authored* per stack.
+2. **Its answer varies within a stack.** A source's instantiation axis is the
+   stack, and every rule in a source holds for every repo on it. One Java repo
+   self-hosts and takes one engine; another runs managed and takes a different
+   one; a third caches in process. A directive whose answer varies within a
+   stack cannot be instantiated per stack — the table would carry a cell wrong
+   for half its column.
+3. **It fails the premise-specificity test.** A wrong engine shows up as a
+   licence exposure or an operations problem — a scan, a bill, an outage. It
+   never becomes a wrong-but-plausible answer on an unread path.
+
+**One committed statement was false and is corrected.** `packs/index.md` gave
+the ground as "one portable verdict with **no check behind it**".
+`seed/agent-traps.md` already ships a technology pick with an off-the-shelf
+banned-dependency rule, so the ground was refuted by this corpus's own
+contents. The conclusion survives on the three grounds above. **Do not
+reintroduce the false ground** — leaving it would let a later pass disprove it
+and conclude, wrongly, that a pick is therefore source material.
+
+**All three rules this source was rostered to carry were wrong as worded**,
+and each failed in a way the corpus has a name for:
+
+- *"The cache is never the source of truth"* — true and undecidable. No check
+  can decide which store is authoritative, so the gate reports green over
+  exactly the case the rule exists to stop. That is M-2's recorded failure
+  mode. Split into a write-path property plus confinement.
+- *"No entry without a TTL"* — enforceable and nearly worthless: a thirty-day
+  expiry satisfies it. The enforceable half is a **committed machine-readable
+  staleness ceiling**; constitution prose gives a lint no operand.
+- *"A cache failure fails loud"* — actively wrong. It bans falling back to the
+  authoritative store, which is correct behaviour, while permitting the real
+  hazard (substituting a value) as long as something is logged.
+
+**Every directive is marked convention.** None survived three-vote refutation
+against primary sources, because each is a design argument rather than an
+execution result — research-protocol §3 auto-downgrades those. The confirmed
+material is the tool evidence and the licence and price facts, which sit in
+`java-backend.md` section 4 with their sources and the date checked.
+
+**Scope accepted, and it is larger than the previous source's.** The rules
+cover an **in-process** cache as well as a cache server. A discipline scoped to
+a cache client would leave a hash-map memo, a loading-cache library and a
+framework's in-memory cache manager outside all sixteen checks — and the source
+states that most repos in this organisation should run no cache server at all,
+so the in-process case is the common one. A hostile audit found that scoping as
+a fatal defect before it shipped.
+
+Reopened by: the triggers in `packs/rule-sources/cache-discipline.md` section
+6. The one that bears on this entry rather than on the rules is a second stack
+instantiating the source — six directives lean on type design, and a
+structurally or dynamically typed stack will convert several into runtime
+guards, which is weaker and is the source's first predicted gap.

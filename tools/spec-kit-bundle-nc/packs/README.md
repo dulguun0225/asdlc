@@ -255,7 +255,7 @@ below. New research follows [research-protocol.md](research-protocol.md).
 
 **Some cross-stack rules are a source, not a pack** (B-8, amended
 2026-07-28). Where a rule needs a different check on every platform — money
-is the standing case — it cannot be pasted on its own: the directive would
+and caching are the two written so far — it cannot be pasted on its own: the directive would
 land in one section of a constitution and its enforcing rule in another,
 which breaks the one-rule-one-check shape and leaves an adopter holding a
 rule with no gate. Such rules live in a **cross-stack source**: no seed file,
@@ -284,5 +284,6 @@ and §5.
 | Pack | Kind | For repos where… | Status |
 | ---- | ---- | ---------------- | ------ |
 | [agent-traps](agent-traps.md) | cross-stack | any code is written by LLM agents — corpus traps, banned by name | decided, not yet validated (researched) |
-| [java-backend](java-backend.md) | stack | the backend is Java (Spring Boot MVC, jOOQ, PostgreSQL) — money-grade rules included, binding from the first money field; API-contract rules when it exposes an HTTP API; observability rules when nobody watches the running system | decided, not yet validated (researched) |
+| [java-backend](java-backend.md) | stack | the backend is Java (Spring Boot MVC, jOOQ, PostgreSQL) — money-grade rules included, binding from the first money field; cache-discipline rules included, binding from the first cached value; API-contract rules when it exposes an HTTP API; observability rules when nobody watches the running system | decided, not yet validated (researched) |
 | [money-grade](rule-sources/money-grade.md) | cross-stack **source** — no seed file, never adopted | not picked; its 29 rules reach a repo inside the stack pack that instantiates them, today `java-backend` | decided, not yet validated (researched inside java-backend; lifted 2026-07-28 with no new pass) |
+| [cache-discipline](rule-sources/cache-discipline.md) | cross-stack **source** — no seed file, never adopted | not picked; its 16 rules reach a repo inside the stack pack that instantiates them, today `java-backend`. Its first instruction is not to cache | decided, not yet validated (researched 2026-07-29; every directive is **convention**) |

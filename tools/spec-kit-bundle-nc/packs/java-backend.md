@@ -1,12 +1,17 @@
 ---
 id: java-backend
-status: decided, not yet validated (researched; verified pass 2026-07-21)
+status: decided, not yet validated (researched; verified pass 2026-07-21.
+  The cache-discipline section was added 2026-07-29 from its own pass and
+  carries that date in section 4; no earlier rule was re-verified then, so
+  `verified` below is unmoved)
 holds-when: code is written by LLM agents and no human reads it line by
   line; the platform decision (Java, Spring Boot MVC, jOOQ, PostgreSQL)
   already passed the dominant criterion — the team can run this stack in
   production. A pack is never a reason to adopt a stack. The money-grade
   rules additionally require a feature that carries an amount of money
-  the system computes with; until one exists they are dormant.
+  the system computes with; until one exists they are dormant. The
+  cache-discipline rules additionally require a cached value — in memory or
+  in a cache server — and are dormant until the first one.
 verified: 2026-07-21
 review-by: 2027-01-21
 maintained-by: Dulguun Otgon
@@ -40,6 +45,14 @@ staffed operations rota keeps that section's emission rules — they are code
 rules, and they hold under the pack's main premise — and re-decides its
 alerting rules against how its rota actually works.
 
+The cache-discipline section works the same way as money-grade: keep it even
+in a repo that caches nothing, because the first cached value is the tripwire.
+It differs from every other section in one respect worth reading before
+adopting — **its first instruction is not to cache.** With eighteen
+three-person teams and no operations role, a cache server is a stateful
+service with nobody to run it, and the section says so before it states a
+rule.
+
 Tripwires out of coverage: the first LLM call, hard real-time deadline,
 or shipped SDK means the repo has left this pack's assumptions entirely
 ([index.md](index.md), candidates).
@@ -47,7 +60,7 @@ or shipped SDK means the repo has left this pack's assumptions entirely
 ## 2. The decisions
 
 The seed text is one file: **[`seed/java-backend.md`](seed/java-backend.md)**
-— 95 rules in 16 sections. It holds nothing but the text that gets pasted:
+— 110 rules in 17 sections. It holds nothing but the text that gets pasted:
 no title, no evidence, no commentary. So adoption is "copy the whole file",
 with no boundary to judge.
 
@@ -62,8 +75,10 @@ enforcing check in parentheses. Skim the bold text for what the repo must
 do; read on where you want to know why.
 
 Paste it under *Repo principles*, then edit: delete what your situation does
-not need (keep the Money-grade heading and its condition even in a no-money
-repo), tighten what it does, and keep the enforcement markers honest — a ban
+not need (keep the Money-grade and Cache discipline headings and their
+conditions even in a repo with neither), tighten what it does — the cache
+section leaves the **staleness ceiling** unset and it is a value this repo
+must state — and keep the enforcement markers honest — a ban
 is real only when a named check fails the build on it (a check not yet wired
 is marked deferred with a reason, never described as enforced).
 
@@ -207,6 +222,44 @@ best 2026 form, decided 2026-06-11..14).
   Rejected: an alert rule that cannot fire is a gate reporting green over an
   unwatched failure, which principle 1 forbids by name. The fire-test is
   off-the-shelf, so the reason not to write one is habit.
+- **`@Cacheable` and Spring's cache abstraction** — the corpus default for
+  "add caching" in this stack by a wide margin, and the reason the
+  cache-discipline rules exist as rules rather than advice. Rejected on four
+  grounds: the effect fires from no written call, so the caller's text reads
+  identically whether the value is fresh or three days old; key generation is
+  implicit, which makes the omitted tenant the default rather than a mistake;
+  `CacheErrorHandler` is a silent fallback by design, which is the banned
+  failure shape shipped as a feature; and "which methods are cached" becomes a
+  fact only the annotations know and nothing enumerates. Already on the ban
+  list as runtime-silent behaviour — the cache section is what gives it its
+  checks. The platform-neutral rejections are in
+  [`rule-sources/cache-discipline.md`](rule-sources/cache-discipline.md)
+  section 5; this pack adds the Spring-specific one.
+- **Caffeine or Guava as the answer to "we need a cache"** — the corpus's
+  in-process default. **Not rejected**: Caffeine 3.2.4 (2026-05-03,
+  Apache-2.0, actively maintained — checked 2026-07-29) is the zero-operations
+  answer, and its single failure mode is precisely characterised, so it is
+  ruled in or out by one sentence in a spec rather than by a benchmark: no
+  cross-instance coherence, so N instances hold N independently stale copies.
+  Guava's cache was **not** checked this pass. What is rejected is reaching for
+  either *outside the cache adapter*, where it imports no cache client and
+  therefore sits outside every check in the section.
+- **The other cache engines — memcached, Garnet, Dragonfly, Hazelcast, Ignite,
+  KeyDB.** All six were steelmanned and rejected with numbered grounds, and
+  because that survey is platform-neutral it lives once, in
+  [`rule-sources/cache-discipline.md`](rule-sources/cache-discipline.md)
+  section 7, rather than being re-derived in every stack pack. **Read it before
+  re-opening the engine line.** Three grounds are Java-shaped and belong here
+  instead: **Garnet** would add the .NET runtime as an operational dependency
+  to a JVM shop, for a permissive licence Valkey already has; **Hazelcast**'s
+  Java gravity runs toward embedded distributed maps and near-cache used as
+  ambient state, which this constitution's ban list already forbids, so
+  adopting it would mean fighting the library's idiom on every review; and
+  **memcached**'s Java client story is thinner than the RESP ecosystem's, which
+  is a cost even though the friction it adds to the banned `@Cacheable` path is
+  a benefit. The generalisable one is Ignite's and it is in the appendix: an
+  engine designed to be authoritative cannot host a rule saying the cache never
+  is.
 
 ## 4. Evidence notes
 
@@ -945,8 +998,164 @@ staleness visible; re-verify at adoption.
   error-code catalog, the codegen-diff, the standing invariants. The
   enforcement is not independent confirmation.
 
+### Cache discipline — the 2026-07-29 pass
+
+This section's rules are the Java instantiation of
+[`rule-sources/cache-discipline.md`](rule-sources/cache-discipline.md); that
+file holds the directives, the platform-neutral evidence and the instantiation
+table. What belongs here is what is true of **this** stack.
+
+**Every cache directive is convention.** None survived three-vote refutation
+against primary sources, because each is a design argument rather than an
+execution result. Two tool facts behind them are **confirmed, 2026-07-29**, and
+they are why the three-configuration gate carries a separate positive-control
+rule: Spring's `NoOpCacheManager` documentation states it "will simply accept
+any items into the cache, not actually storing them", so the always-miss arm's
+pass condition is byte-identical to the arm never having been applied; and the
+Testcontainers Toxiproxy module documents toxics applied imperatively with no
+toxic-verification API and no assertion helper. Spring Boot's profile
+validation governs the profile-name *pattern*, not whether a profile exists or
+is used, so a mis-named test profile raises nothing.
+
+**The engine pick's licence facts are confirmed, 2026-07-29, each read from
+the project's own artifact.** The pick is a seed-text line rather than a
+source directive
+([`rule-sources/cache-discipline.md`](rule-sources/cache-discipline.md)
+section 1 records why), so its evidence sits here:
+
+| Fact | Value | Source, read 2026-07-29 |
+| ---- | ----- | ----------------------- |
+| Valkey current stable | 9.1.1, published 2026-07-21 | GitHub API, `repos/valkey-io/valkey/releases/latest` |
+| Valkey licence | BSD-3-Clause, in `COPYING` at the repository root | `valkey-io/valkey`, `COPYING` |
+| Valkey governance | Technical Steering Committee under LF Projects, LLC, with a written cap: no more than one third of TSC members may represent one organisation | `valkey-io/valkey`, `GOVERNANCE.md` |
+| Valkey compatibility | Guaranteed against "Redis OSS 7.2 and all earlier open-source Redis versions"; existing Redis clients connect unchanged | `valkey.io/topics/migration/` |
+| The one stated incompatibility | "RDB files produced by Redis CE 7.4 and later are not compatible" | `valkey.io/topics/migration/` |
+| Redis current stable | 8.8.1, published 2026-07-23 | GitHub API, `repos/redis/redis/releases/latest` |
+| Redis 8.x licence | Tri-licence, recipient's choice: RSALv2, **or** SSPLv1, **or** AGPLv3 | `redis/redis`, `LICENSE.txt` |
+| Redis 7.4–7.8 licence | RSALv2 or SSPLv1 only — no OSI-approved option | `redis/redis`, `LICENSE.txt` at those tags |
+| AGPLv3 §13's trigger | "**if you modify the Program**, your modified version must prominently offer all users interacting with it remotely through a computer network …" — §0 defines modifying as adapting, "other than the making of an exact copy" | `gnu.org/licenses/agpl-3.0.txt` |
+
+**The rejection ground for Redis is not "it is no longer open source", and that
+claim must not be reintroduced.** It was true of 7.4–7.8 and is false of 8.x.
+Redis 8 may be taken under the AGPLv3, which the OSI approved in 2008, and
+running an **unmodified** server as a backing service does not trigger §13 —
+that is plain on the licence text as shipped. This design already treats
+AGPLv3 as licence-cost-free elsewhere. The actual grounds are narrower: the
+tri-licence is a **choice the recipient must make and record**, two of its
+three branches are not OSI-approved, and an organisation with no legal
+function has nobody to run that analysis. Valkey has no such analysis to run.
+The 7.4–7.8 line is banned because it has no exit at all.
+
+**Managed cache pricing — partly checked, and the gap is named.** Prices move,
+so each figure carries its source and date and must be re-checked at adoption:
+
+- **Azure**, from Microsoft's own retail-prices API, `eastus`, USD,
+  `priceType eq 'Consumption'`, read 2026-07-29: Azure Managed Redis
+  **Balanced B0 at $0.016/hour**; Azure Cache for Redis **Basic C0 at
+  $0.022/hour** and **Standard C0 at $0.055/hour**. No free tier. **Filter on
+  `priceType` and check for duplicate meters before quoting** — Premium P1
+  returns two rows, $0.277/hour on a meter effective 2019-05-01 and
+  $0.555/hour on one effective 2016-01-01, so a naive read of that SKU gives
+  whichever row came first.
+- **AWS ElastiCache Serverless**, from the AWS pricing page, US East (N.
+  Virginia), read 2026-07-29: **$0.084 per GB-hour** of data stored and
+  **$0.0023 per million ECPUs** for Valkey; Memcached is $0.125 and $0.00340.
+  The discriminator that matters at this scale is not the rate but the
+  **billing floor**: the minimum is **100 MB per cache for Valkey** against
+  **1 GB for Redis OSS and Memcached** — a ten-fold difference in the monthly
+  minimum for a small cache.
+- **Not obtained: Google Cloud Memorystore pricing.** The pricing tables are
+  rendered client-side and did not resolve to text. No figure is quoted rather
+  than one guessed.
+- **The 33% claim is AWS's own and is not checkable from that page.** The page
+  states verbatim: "You can further optimize costs on ElastiCache Serverless
+  for Valkey with 33% lower pricing." It publishes Valkey's and Memcached's
+  serverless rates but **not** Redis OSS's, so nothing on the page lets a
+  reader verify the comparison. Cite it as a vendor claim, never as a computed
+  saving. The saving this pass can stand behind is the **billing floor**.
+
+**Three toolchain limits are confirmed and each one forced a rule to be
+worded differently.** They are recorded because the unsound version is the one
+that reads better:
+
+- **ArchUnit cannot follow a lambda or a method reference into its body**
+  (TNG/ArchUnit #1258, opened 2024-03-05, closed unresolved, read 2026-07-29).
+  So "the loader must query the database" is unsound by construction and must
+  not be written. The rule makes the lambda *uncompilable* instead — a loader
+  port with two abstract members — which turns the question into a type
+  dependency, and those ArchUnit reads soundly from bytecode. This is the same
+  ArchUnit/Error Prone division of labour this pack recorded on 2026-07-27.
+- **ArchUnit exposes a catch block's caught type but not its body**
+  (TNG/ArchUnit #1120, still open, read 2026-07-29), and Error Prone's
+  `EmptyCatch` does not fire on a catch that returns a default. So a
+  cache-error catch that swallows is invisible to this toolchain. Wiring an
+  ArchUnit rule there would report green over the case it exists to catch —
+  the general half stays spec-and-review, the same shape and the same recorded
+  reason as the money rule on caught exceptions.
+- **Since Java 9, `+` on strings compiles to an `invokedynamic`**, so a
+  bytecode rule banning key concatenation has nothing to match. The key rule is
+  a parameter-type rule instead.
+
+**The divergence this stack forced, recorded in the source's table.** The
+serialization checks are hosted by **Error Prone, not ArchUnit**: generics
+erase, so a bytecode reader sees the cache port's value parameter as `Object`
+and can decide nothing about the concrete cached type. That is the same
+erasure trap this pack already records for the unloggable-domain-type rule,
+where "ArchUnit sees the logger's erased `Object...` signature, not the
+argument's static type". The concrete type is known at the catalog
+registration site and a source-level checker sees static types. A stack with
+reified generics will not have this divergence; a structurally typed one will
+have it worse.
+
+**Named gaps — where this stack can host no check.** Silence would read as
+coverage, so each is stated:
+
+1. **"The loader reads the authoritative store" is not decidable.** Confinement
+   makes the banned *shape* uncompilable and puts loaders where the database
+   client is the only reachable data source. It does not decide semantics.
+2. **A swallowing catch is invisible** — see above. Spec-and-review.
+3. **Engine-side eviction is invisible to every check in this build.** Nothing
+   in the Java toolchain reads the cache server's memory policy, so "has an
+   expiry" is not "lives until its expiry".
+4. **The three-configuration gate is coverage-shaped.** It proves
+   recomputability only for the paths the suite drives. A green run is not a
+   proof.
+5. **The hand-rolled-memo half of the seam rule is partly undecidable.** A
+   dependency ban catches the library case completely; a field-type rule over
+   long-lived beans catches the plain-map case over-broadly and needs a
+   reviewed opt-out list, which is a hole an agent can widen. **Unmeasured:**
+   nobody has wired it and counted how many legitimate entries the list needs.
+   If that number is large the rule is not carrying its weight and the honest
+   move is to name the gap instead of keeping the rule.
+
+**Not measured, and it is a real number for a three-person team:** running the
+integration suite in three configurations triples integration CI time. No repo
+has run it.
+
+**In-process libraries — one checked, the rest not.** Caffeine 3.2.4
+(2026-05-03, Apache-2.0, last push 2026-07-28) was verified from its own
+release API. **Guava's cache and every other in-process library were not** —
+no licence, version or API-surface check. The rules ban them *outside* the
+seam, which needs no such check; a repo that permits one *inside* the seam
+does that evaluation itself.
+
+**The nine-candidate engine survey is not repeated here.** It is
+platform-neutral, so it lives once in
+[`rule-sources/cache-discipline.md`](rule-sources/cache-discipline.md) section
+7 — an appendix that is explicitly evidence and not a directive, because the
+pick remains a seed-text line (B-11). The licence table above is this pack's
+own dated record for the two engines its seed line names.
+
 ## 5. Re-open triggers
 
+- Cache discipline: the triggers live with the directives in
+  [`rule-sources/cache-discipline.md`](rule-sources/cache-discipline.md)
+  section 6. Two are Java-shaped and land here — if ArchUnit gains sound lambda
+  or method-reference resolution, the loader port's two-abstract-member shape
+  stops being necessary and the cost of it is refundable; if Error Prone or a
+  successor can decide that a catch swallows rather than propagates, the
+  cache-error rule's general half promotes from spec-and-review to a build
+  gate.
 - Persistence (jOOQ): if a jOOQ stewardship change or its vendor risk
   fires, the named exit is Spring Data JDBC — explicit persistence with
   no dirty checking or lazy loading, so the property that chose jOOQ

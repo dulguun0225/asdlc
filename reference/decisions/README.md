@@ -40,3 +40,4 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0019](0019-testing-agent-written-code.md) | Testing agent-written code: the oracle comes from the signed spec, and coverage is never a gate | accepted; part 1's strength qualified by 0020 | 2026-07-28 |
 | [0020](0020-agent-instruction-layers.md) | Four instruction layers, and the agent may not write any of them | accepted | 2026-07-28 |
 | [0021](0021-units-of-work.md) | The three units of work: session, change, and deploy batch | accepted | 2026-07-28 |
+| [0022](0022-defect-attribution.md) | Defect attribution: tooling narrows, a human decides, and unattributed is a first-class outcome | accepted | 2026-07-28 |

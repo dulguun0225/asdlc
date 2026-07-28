@@ -51,8 +51,11 @@ and a pilot is staffing, bring-up, and two facts only the owner holds — not re
 
 | Gap | Blocks |
 |---|---|
-| Platform owner and backup — **a role that does not exist yet** ([OQ-10](reference/open-questions.md)) | Everything. It owns almost every artifact in the design, and four decisions in one day added an observability stack, a registry, and a signing key to it. **This is now the single largest unstaffed dependency.** |
+| Platform owner and backup — **a role that does not exist yet** ([OQ-10](reference/open-questions.md)) | Everything. It owns almost every artifact in the design, and one day's decisions added an observability stack, a registry, a signing key and an attribution countersignature to it. **This is the single largest unstaffed dependency, and the only blocking item the owner must supply.** |
 | The deployment target, and what the greenfield projects are ([context.md](reference/context.md)) | The progressive-rollout answer off Kubernetes, and the concrete path→tier map |
+
+**No research question is open.** [OQ-18](reference/open-questions.md) closed on 2026-07-28 and was
+the last one. What remains is staffing, code, and a pilot.
 | Post-merge defect attribution to a tier ([OQ-18](reference/open-questions.md)) | Not phase 0. The T3 automatic-deploy exit condition, and the rule that relaxes a tier on evidence. |
 
 **The engineer-facing layer now has a shape.** The spec, plan and task templates exist

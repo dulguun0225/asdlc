@@ -120,7 +120,11 @@ A deploy whose entire content is T3 may go **automatic**, per service, once **al
 1. Progressive rollout exists for the service.
 2. Automated rollback exists **and has been exercised** — every failed canary counts, plus the
    mandatory deliberate-failure drill (§2).
-3. Per-tier defect attribution shows T3 **not leaking defects**.
+3. Per-tier defect attribution shows T3 **not leaking defects** — defined in §6. The comparison is
+   **relative** (T3's per-tier defect rate no higher than T2's), and **no volume threshold is set**,
+   because it depends on a base rate nobody has measured. **Until pilot data determines that volume,
+   no service flips.** A single T3-attributed defect tightens that path immediately regardless
+   ([tiers.md](tiers.md) §7).
 
 Meeting the condition does not flip the switch. **Flipping it is itself a T1 configuration
 change** ([ADR-0005](../reference/decisions/0005-roles-gate-signers-and-the-reviewer-ring.md)
@@ -141,18 +145,50 @@ The far upgrade path — replacing the ordered-rule tier function with a **learn
 ([ADR-0003](../reference/decisions/0003-graduated-gating-machine-derived-tier.md)). It is
 recorded as a direction, not a plan item.
 
+## 6. How a defect is attributed to a tier
+
+Set by [ADR-0022](../reference/decisions/0022-defect-attribution.md). This is what makes condition 3
+in §4 evaluable and gives the relaxation rule its evidence.
+
+**Attribute to one change, not to a deploy and not to a tier directly** — the tier follows from the
+change's recorded `tier`. The path uses records that already exist:
+
+**incident → the failed deploy → its batch → the batch's change list → the named change → its tier.**
+
+**Narrowing order: the violated requirement, then blame-style tooling, then a human.** The
+requirements trace names the changes that touched a requirement's tests and plan elements, which is
+usually a candidate set of one or two. Blame tooling produces **candidates, never a verdict** — it
+is well attested to misattribute refactorings and tangled commits. **The investigating engineer
+names the change; the platform owner countersigns**, because a producer may not classify their own
+work after the fact any more than before it.
+
+| Case | Rule |
+|---|---|
+| One change named | Charge its tier |
+| Two changes jointly necessary | Charge **both**, flagged `interaction` |
+| The defect is in a change that was itself a fix | Charge the fix, not the original |
+| No single change nameable | Strictest tier in the batch, flagged **`unattributed`** |
+
+**`unattributed` is a measurement, not a fallback.** If the unattributed rate is high, the per-tier
+rates are not trustworthy and **the exit condition is not evaluable** — a fact worth being able to
+state plainly rather than hiding behind a clean T3 number.
+
+**Two rates, never conflated:** our **per-tier defect rate** (defects charged to tier *N* ÷ changes
+merged at tier *N*), which the exit condition reads; and DORA's **change fail rate**, *"The ratio of
+deployments that require immediate intervention following a deployment"* — collected because it is
+the comparable industry number, and useless for the tier question because it counts deployments.
+
+### What it measures, and what it does not
+
+**It measures where a defect entered. It does not measure whether a gate would have caught it.**
+A T3-attributed defect tells you the change was unreviewed and defective; it does not tell you a
+reviewer would have spotted it, and a T1 defect passed a human gate and got through anyway. The
+counterfactual is unavailable. Per-tier defect rates make the design's bet **measurable, not
+proven** — consistent with the standing fact that no published evidence shows human gates improve
+outcomes.
+
 ## Not yet specified
 
-- **How post-merge defects are attributed to a tier** —
-  [OQ-18](../reference/open-questions.md), and now the blocking gap in this stage. The metric is
-  mandatory from day one and no attribution method is defined. Without it, condition 3 in §4 can
-  never be evaluated, so the one automation on the table is unreachable.
-  [ADR-0014](../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md) makes
-  the finer-grained half possible — an incident can name the requirement it violated, and that
-  requirement names its tests and the changes that touched them — and
-  [ADR-0015](../reference/decisions/0015-observability-backend.md) supplies the store and five
-  years of history. But **enabling attribution is not defining it**, and the tier-level rule is
-  still missing.
 - **Alerting.** Which dashboard signals page a human, and through what. Left to phase-0 bring-up;
   the chosen components all carry alerting, so no further selection is needed
   ([ADR-0015](../reference/decisions/0015-observability-backend.md)).

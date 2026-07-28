@@ -25,7 +25,37 @@ computer and the agent's local memory does not travel, so this section — not a
 the conversation — is where the state lives. Anyone finishing a session updates it
 ([`CLAUDE.md`](../CLAUDE.md) → "Assume every session starts on a different computer").
 
-### Last session: 2026-07-28 — the units of work, and a consistency pass
+### Last session: 2026-07-28 — defect attribution. **No research question is open.**
+
+Landed [ADR-0022](decisions/0022-defect-attribution.md), closing
+[OQ-18](#oq-18--how-is-a-post-merge-defect-attributed-to-a-tier) — the last one. The T3
+automatic-deploy exit condition is now evaluable in principle, gated on pilot data rather than on a
+missing definition.
+
+**Attribute to one change, not to a deploy.** The path runs through records that already exist:
+incident → failed deploy → its batch → the batch's change list → the named change → its tier.
+[ADR-0021](decisions/0021-units-of-work.md) built that bridge hours earlier without knowing it.
+Narrowing order is **requirement, then blame tooling, then a human**; the investigating engineer
+names the change and **the platform owner countersigns**.
+
+**Four things not to soften:**
+
+- **`unattributed` is a measurement, not a fallback.** A high unattributed rate means the exit
+  condition is **not evaluable**, and the design should say so rather than publish a clean T3 number.
+- **DORA's change fail rate counts deployments, not changes** — wrong unit for the tier question.
+  Collect both, never conflate.
+- **No volume threshold is set**, deliberately, for the second time in two records. It depends on an
+  unmeasured base rate. Interim rule: no service flips to T3 auto-deploy until pilot data determines
+  it. A single T3-attributed defect still tightens immediately.
+- **Attribution measures where a defect entered, never whether a gate would have caught it.** The
+  counterfactual is unavailable. Per-tier rates make the design's bet measurable, not proven.
+
+**This one is an invention** — no published rule exists for attributing defects to a governance
+tier, because the tier concept is this design's. It rests on internal consistency plus a
+scale-specific judgement: SZZ-style automation exists because manual attribution does not scale to a
+large codebase's history, and 18 engineers on greenfield projects are not that.
+
+### Session before: 2026-07-28 — the units of work, and a consistency pass
 
 Landed [ADR-0021](decisions/0021-units-of-work.md), closing the last two named stage-file gaps:
 **what a deploy batch is scoped to**, and **when to open a new agent session**. They turned out to
@@ -278,27 +308,35 @@ below rather than referred upward.
   artifacts are **done**. What remains: per-repository agent configuration, a testing strategy
   for agent-written code, and how the agent is prompted at each stage.
 
-**Every design decision this project can make without a running pilot has been made.** What is left
-falls into three kinds, and only the first is a research session.
+**Every design decision this project can make without a running pilot has been made, and no
+research question is open.** [OQ-18](#oq-18--how-is-a-post-merge-defect-attributed-to-a-tier) was
+the last, and it closed on 2026-07-28. What remains is three kinds of thing, and **none of them is
+a research session**:
 
-1. **[OQ-18](#oq-18--how-is-a-post-merge-defect-attributed-to-a-tier)** — how a post-merge defect is
-   attributed to a tier. The one live research question. It blocks no bring-up step, only the T3
-   auto-deploy exit condition and the relaxation rule, both of which need a running pilot anyway.
-   **Take this next** if another research session runs.
-2. **Decide whether prompt injection from repository content needs its own `OQ-N`.** Flagged by
-   [ADR-0020](decisions/0020-agent-instruction-layers.md) and deliberately not opened. The agent
-   reads the repository and repository content can contain instructions; instruction-file custody
-   does not solve it.
-3. **Code and staffing, not decisions.** The feature-artifact checker, the four stage-skill texts,
-   the CI emitters for gate records and requirements traces, the phase-0 verifications — all listed
-   in [rollout/open-parameters.md](../rollout/open-parameters.md). And
-   [OQ-10](#oq-10--who-fills-the-platform-owner-role), which is the single largest dependency in the
-   design and the only thing here the owner must supply.
+1. **Staffing — [OQ-10](#oq-10--who-fills-the-platform-owner-role).** The platform owner and a
+   backup. It is the single largest dependency in the design, the only blocking item the owner must
+   supply, and it grew in every session of this run: it now owns an observability stack, a registry,
+   a signing key, and a defect-attribution countersignature.
+2. **Code and configuration**, all listed in
+   [rollout/open-parameters.md](../rollout/open-parameters.md): the feature-artifact checker, the
+   four stage-skill texts, the CI emitters for gate records and requirements traces, and the phase-0
+   verifications — including three that can genuinely fail (Harbor's referrers path, the toolchain
+   under TLS termination, enterprise-scope skill distribution).
+3. **One open call, deliberately not opened as a question:** whether prompt injection from
+   repository content needs its own `OQ-N`. The agent reads the repository and repository content
+   can contain instructions; instruction-file custody
+   ([ADR-0020](decisions/0020-agent-instruction-layers.md)) does not solve it. **A later session
+   should decide this rather than inherit it.**
 
-**The honest summary for whoever picks this up:** the remaining risk is not that a decision is
-missing. It is that nine ADRs landed in one day, most of them resting on sources dated the same day,
-several on preprints — and that **nobody has run any of it**. The instrumentation to find out is
-specified; the pilot is what produces the evidence.
+**The honest summary for whoever picks this up.** The remaining risk is not a missing decision. It
+is that **ten ADRs landed on 2026-07-28**, most resting on sources dated the same day and several on
+unreviewed preprints — and that **nobody has run any of it.** Two records set no threshold where a
+reader will expect one ([ADR-0021](decisions/0021-units-of-work.md) part 4 on batch size,
+[ADR-0022](decisions/0022-defect-attribution.md) part 6 on T3 volume), both deliberately, both
+naming the signal that would set it. Every ADR from 2026-07-28 carries reversal conditions. **The
+instrumentation to find out whether any of this works is specified; the pilot is what produces the
+evidence.** That was always the intended loop — decide, run, measure, revise — and the project is
+now at the end of "decide".
 
 [OQ-18](#oq-18--how-is-a-post-merge-defect-attributed-to-a-tier) is the remaining research
 question, and it blocks no bring-up step — only the T3 auto-deploy exit condition and the
@@ -982,7 +1020,36 @@ Phase-2 content needs research sessions, not assembly — the research-before-co
 
 ## OQ-18 — How is a post-merge defect attributed to a tier?
 
-- **Status:** open
+- **Status:** closed → [ADR-0022](decisions/0022-defect-attribution.md) (2026-07-28)
+- **Answer:** attribute to **one change**, not to a deploy and not to a tier directly — the tier
+  follows from the change's recorded `tier`. The path is **incident → failed deploy → its batch →
+  the batch's change list → the named change**, all from records that already exist
+  ([ADR-0021](decisions/0021-units-of-work.md) made the batch carry its change list, for unrelated
+  reasons). Narrowing order: **the violated requirement first** (the requirements trace names the
+  changes that touched it), **blame-style tooling second** (candidates only, never a verdict), **a
+  human third**. The investigating engineer names the change; the **platform owner countersigns**,
+  because a producer may not classify their own work after the fact any more than before it.
+- **Four things a later session must not soften:**
+  - **`unattributed` is a first-class outcome, not a fallback.** When no single change can be
+    named, the defect is charged to the strictest tier in the batch *and* flagged. The unattributed
+    rate is itself a metric: if it is high, **the exit condition is not evaluable**, and the design
+    can say so instead of publishing a clean-looking T3 number.
+  - **DORA's change fail rate is the wrong unit** — verbatim, *"The ratio of deployments that
+    require immediate intervention following a deployment."* It counts deployments; the tier is a
+    property of a change. Collect both, never conflate them.
+  - **No threshold is set for "T3 is not leaking defects", deliberately.** The comparison is
+    relative (T3's rate ≤ T2's), and the volume needed for it to mean anything depends on an
+    unmeasured base rate. Interim rule, which is the safe status quo: **no service flips to T3
+    automatic deploy until pilot data determines that volume.** A single T3-attributed defect still
+    tightens immediately, per the existing incident rule.
+  - **Attribution measures where a defect entered, never whether a gate would have caught it.** The
+    counterfactual is unavailable and no amount of data fixes it. Anyone citing per-tier defect
+    rates as proof that graduated gating works is over-reading them.
+- **This record is an invention.** No published rule exists for attributing defects to a governance
+  tier — the tier concept is this design's. It rests on internal consistency plus a scale-specific
+  judgement: SZZ-style automation exists because manual attribution does not scale to a large
+  codebase, and **18 engineers on greenfield projects are not that.**
+- **Superseded framing below**, kept for why the question existed.
 - **Opened by:** [ADR-0015](decisions/0015-observability-backend.md) (2026-07-28). It had been
   living in a bullet in [07-operate.md](../asdlc/07-operate.md) and in this file's handover note
   since 2026-07-27; standing up the store made it countable, so it is promoted to a numbered

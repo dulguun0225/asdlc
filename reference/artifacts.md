@@ -99,7 +99,7 @@ the change on the host **and** exported to the observability store
 
 ```json
 {
-  "gate": "merge",                      // spec | plan | merge | deploy | launch
+  "gate": "merge",                      // spec | plan | merge | deploy | launch | attribution
   "tier": 1,
   "rule_fired": 2,
   "signer": {"id": "user:aise-07", "role": "ring-reviewer"},
@@ -120,6 +120,13 @@ Deploy-gate records additionally carry the batch's tier breakdown:
 ```json
 {"t1": 0, "t2": 3, "t3": 11}
 ```
+
+**An `attribution` gate record** is the platform owner's countersignature on a defect attribution
+([ADR-0022](decisions/0022-defect-attribution.md) part 3). Its `artifact_ref` names the change the
+defect is charged to, or `unattributed`. The incident record it accompanies carries: the violated
+requirement if there is one, the failed deploy's digest, the named change or `unattributed`, and the
+`interaction` flag when two changes were jointly necessary. **The tracking tool is a bring-up
+choice; these fields are the requirement on it.**
 
 **On a deploy gate, `artifact_ref` names the artifact's digest**, never a tag
 ([ADR-0017](decisions/0017-artifact-registry.md) part 4) — for example

@@ -25,7 +25,41 @@ computer and the agent's local memory does not travel, so this section — not a
 the conversation — is where the state lives. Anyone finishing a session updates it
 ([`CLAUDE.md`](../CLAUDE.md) → "Assume every session starts on a different computer").
 
-### Last session: 2026-07-28 — how agent-written code is tested
+### Last session: 2026-07-28 — where agent instructions live
+
+Landed [ADR-0020](decisions/0020-agent-instruction-layers.md) and its
+[research note](research/2026-07-28-agent-instruction-layers.md), closing the prompting gap. **It
+found and fixed two defects, which is why it mattered more than the topic suggests.**
+
+**Defect 1 — the agent could rewrite its own instructions.** The sandbox auto-denies writes to
+`settings.json`; it does **not** cover `CLAUDE.md`, `.claude/rules/`, `.claude/skills/`,
+`.claude/commands/`, `CLAUDE.local.md` or `AGENTS.md`, which are read as instructions every session.
+Worse, they are markdown — a repository mapping a docs glob to T3 would have let the agent merge a
+change to its own standing instructions **with no human gate**. Now: never-write list, T1, and
+explicitly excluded from the T3 documentation allowlist. *An agent may never rewrite its own
+instructions* — ADR-0003's rule one level up.
+
+**Defect 2 — [ADR-0019](decisions/0019-testing-agent-written-code.md) part 1 read as enforcement.**
+It is guidance. CI can check a test *cites* a requirement; nothing can check it was *derived from*
+one. The backstops are mutation testing at T1 and the human signature, and ADR-0020 part 5 says so
+in a table.
+
+**The structure:** four layers ordered by who can write them — enforcement (managed settings, hooks,
+CI), standing instructions (managed-policy CLAUDE.md, which *"cannot be excluded"*), stage
+procedures (one skill per stage, enterprise scope, `disable-model-invocation: true` so the engineer
+enters a stage and the model does not decide it has), and repository facts (project CLAUDE.md,
+trusted for facts and nothing else). **No gate-bearing rule lives in a repository file.**
+
+**Auto memory is off**, deliberately: unreviewed agent-written instruction, and machine-local, so it
+would make behaviour differ per laptop.
+
+**Two bring-up tasks:** write the four stage skills against the templates, and **verify that
+enterprise-scope skill distribution works** — that mechanism was not read first-party this session.
+
+**Flagged, not opened:** prompt injection from repository content. Distinct from instruction-file
+custody, unsolved by it, and a later session should decide whether it needs an `OQ-N`.
+
+### Session before: 2026-07-28 — how agent-written code is tested
 
 Landed [ADR-0019](decisions/0019-testing-agent-written-code.md) and its
 [research note](research/2026-07-28-testing-agent-written-code.md), closing the largest hole in the
@@ -217,21 +251,24 @@ below rather than referred upward.
   artifacts are **done**. What remains: per-repository agent configuration, a testing strategy
   for agent-written code, and how the agent is prompted at each stage.
 
-**Next: how the agent is prompted at each stage**, and per-repository agent configuration
-([04-implementation.md](../asdlc/04-implementation.md)). This moved from "nice to have" to
-load-bearing on 2026-07-28: [ADR-0019](decisions/0019-testing-agent-written-code.md) makes a
-*prompting rule* carry a security property — "write a test that verifies `FR-nnn`" and "write tests
-for this file" produce different artifacts, and only the first is evidence. A rule that exists in
-an ADR but nowhere in the agent's actual instructions is not enforced.
+**Next, in order:**
 
-Then, in order:
-
-1. **What a deploy batch is scoped to** ([06-deploy.md](../asdlc/06-deploy.md)) — per service, per
-   repository, or per team. The only undecided thing left in that stage.
-2. **The remaining "Not yet specified" entries** across the stage files.
+1. **Sweep the remaining "Not yet specified" entries** across the stage files. They are now few and
+   small — the largest is **what a deploy batch is scoped to**
+   ([06-deploy.md](../asdlc/06-deploy.md)): per service, per repository, or per team. It is the only
+   undecided thing in that stage, and it interacts with the batch-size metric ADR-0005 calls the
+   direct measure of whether the deploy gate is real.
+2. **A consistency pass over the whole design.** Six ADRs landed in one day and several amended
+   earlier records. Worth one session reading the product documents end to end as a stranger would,
+   checking that the stage files, the stack sheets and `artifacts.md` all still agree with the ADRs
+   — the repository's own rule is that on conflict the ADR wins and the document has a bug.
 3. **[OQ-18](#oq-18--how-is-a-post-merge-defect-attributed-to-a-tier)** — the one live research
    question. It blocks no bring-up step, only the T3 auto-deploy exit condition and the relaxation
    rule, both of which need a running pilot anyway.
+
+**Also decide, at some point:** whether prompt injection from repository content needs its own
+`OQ-N`. Flagged by [ADR-0020](decisions/0020-agent-instruction-layers.md) and deliberately not
+opened.
 
 [OQ-18](#oq-18--how-is-a-post-merge-defect-attributed-to-a-tier) is the remaining research
 question, and it blocks no bring-up step — only the T3 auto-deploy exit condition and the

@@ -257,7 +257,24 @@ Rules that go with the sandbox block, fixed by
   scope added.
 - **`excludedCommands` excludes a command from filesystem isolation only** — the proxy still
   applies. It is not a fix for a TLS problem.
-- **`denyWrite` entries** for every never-write class
+- **`denyWrite` entries for the agent's own instruction files**
+  ([ADR-0020](decisions/0020-agent-instruction-layers.md) part 4). The sandbox denies writes to
+  `settings.json` automatically; **it does not cover these**, and they are read as instructions
+  every session:
+
+  ```
+  CLAUDE.md            .claude/CLAUDE.md      CLAUDE.local.md      AGENTS.md
+  .claude/rules/**     .claude/skills/**      .claude/commands/**
+  ```
+
+  These paths are also **T1 in the tier map and excluded from the T3 documentation allowlist** —
+  they are markdown, and a docs glob would otherwise let the agent merge a change to its own
+  instructions with no human gate. *An agent may never rewrite its own instructions.*
+- **Auto memory is off** — `autoMemoryEnabled: false`, plus `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` in
+  the `env` block. It is unreviewed agent-written instruction loaded into every session, and it is
+  machine-local, so it would make agent behaviour differ per laptop
+  ([ADR-0020](decisions/0020-agent-instruction-layers.md) part 6).
+- **`denyWrite` entries** for every other never-write class
   ([ADR-0008](decisions/0008-agent-write-scope-and-enforcement.md) part 2): the tier map, gate
   policy, ring and competency files, sandbox policy (settings paths are denied automatically),
   **and the IAM and network-configuration paths of the fifth class**. Credential files are

@@ -75,6 +75,15 @@ The job's output is a **required artifact posted on the change**, not a log line
 Path-based T1 beats change-kind T3: formatting inside `src/auth/` is T1. **There is no
 "author says it is formatting-only."**
 
+**The agent's instruction files are never T3, whatever their extension.** `CLAUDE.md`,
+`.claude/CLAUDE.md`, `CLAUDE.local.md`, `AGENTS.md`, `.claude/rules/**`, `.claude/skills/**` and
+`.claude/commands/**` are **T1** and are excluded from the documentation kind above
+([ADR-0020](../reference/decisions/0020-agent-instruction-layers.md) part 4). They are markdown, so
+a docs glob would otherwise route a change to how every future change gets made straight to
+automatic merge. They are also on the never-write list, so the agent cannot author such a change in
+the first place — *an agent may never rewrite its own instructions*, the same rule as rule 1 one
+level up.
+
 ## 5. The path→tier map
 
 One committed YAML file per repository. Owner: platform owner. Changes at T1 by rule 1 — so

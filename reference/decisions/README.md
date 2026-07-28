@@ -37,4 +37,5 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0016](0016-tls-terminating-proxy-and-credential-masking.md) | TLS termination is a setting on the proxy we already have, not a product to select | accepted | 2026-07-28 |
 | [0017](0017-artifact-registry.md) | Every deployable is an OCI artifact, so one registry answers the question in both variants | accepted | 2026-07-28 |
 | [0018](0018-self-hosted-provenance.md) | Self-hosted provenance: cosign signing in a Zuul trusted playbook, verified against a pinned builder | accepted | 2026-07-28 |
-| [0019](0019-testing-agent-written-code.md) | Testing agent-written code: the oracle comes from the signed spec, and coverage is never a gate | accepted | 2026-07-28 |
+| [0019](0019-testing-agent-written-code.md) | Testing agent-written code: the oracle comes from the signed spec, and coverage is never a gate | accepted; part 1's strength qualified by 0020 | 2026-07-28 |
+| [0020](0020-agent-instruction-layers.md) | Four instruction layers, and the agent may not write any of them | accepted | 2026-07-28 |

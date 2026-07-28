@@ -27,6 +27,9 @@ rows point at an open question because the parameter cannot be set until that re
 | Which credentials the agent needs, and their delivery as **environment variables** (a file credential cannot be masked) | platform owner at bring-up — constraint fixed by [ADR-0016](../reference/decisions/0016-tls-terminating-proxy-and-credential-masking.md) §4 | **yes, both variants** |
 | **Harbor referrers path end to end** — push an artifact, attach an attestation as a referrer, list it via `/v2/<name>/referrers/<digest>`, verify from the deploy pipeline | platform owner at bring-up — registry settled by [ADR-0017](../reference/decisions/0017-artifact-registry.md) | **yes, self-hosted** — the one thing ADR-0017 depends on that no first-party capability statement covers |
 | Repository layout in the registry, and what each greenfield project actually produces | platform owner + each team at bring-up | no — ADR-0017 answers the question without it |
+| **The four stage-skill texts** (`/asdlc-spec`, `/asdlc-plan`, `/asdlc-tasks`, `/asdlc-implement`), drafted against [the templates](../asdlc/templates/README.md) | platform owner at bring-up — structure fixed by [ADR-0020](../reference/decisions/0020-agent-instruction-layers.md) | **yes, both variants** — without them the stage rules reach the agent only as prose |
+| **Enterprise-scope skill distribution verified** | platform owner at bring-up | **yes** — the mechanism was not read first-party; the fallback (commit skills per repository) is weaker |
+| Mutation-testing tool per language | platform owner + each team at bring-up — rule fixed by [ADR-0019](../reference/decisions/0019-testing-agent-written-code.md) | before the first T1 change |
 | Gerrit and Zuul licences (unrecorded) | verification ([self-hosted sheet](../variants/self-hosted.md) §3) | yes for the self-hosted variant, which is defined by licence cost |
 
 ## The three owner-held facts

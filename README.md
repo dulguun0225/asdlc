@@ -55,12 +55,12 @@ and a pilot is staffing, bring-up, and two facts only the owner holds — not re
 | The deployment target, and what the greenfield projects are ([context.md](reference/context.md)) | The progressive-rollout answer off Kubernetes, and the concrete path→tier map |
 | Post-merge defect attribution to a tier ([OQ-18](reference/open-questions.md)) | Not phase 0. The T3 automatic-deploy exit condition, and the rule that relaxes a tier on evidence. |
 
-**Thin, and named as such:** the day-to-day engineer-facing layer. The spec, plan and task
-templates exist ([asdlc/templates/](asdlc/templates/README.md)) and the testing strategy is now
-decided ([ADR-0019](reference/decisions/0019-testing-agent-written-code.md)), but the checker that
-enforces the templates is unwritten and **there is still no specification of how the agent is
-prompted at each stage** — which ADR-0019 made load-bearing rather than cosmetic, because "write a
-test that verifies this requirement" and "write tests for this file" produce different things.
+**The engineer-facing layer now has a shape.** The spec, plan and task templates exist
+([asdlc/templates/](asdlc/templates/README.md)), the testing strategy is decided
+([ADR-0019](reference/decisions/0019-testing-agent-written-code.md)), and how the agent is
+instructed at each stage is decided
+([ADR-0020](reference/decisions/0020-agent-instruction-layers.md)). What is still missing is
+**code, not decisions**: the feature-artifact checker and the four stage-skill texts are unwritten.
 Each stage file in [`asdlc/`](asdlc/README.md) ends with a "Not yet specified" section listing
 exactly what is missing from it.
 

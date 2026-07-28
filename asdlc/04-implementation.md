@@ -183,16 +183,66 @@ passing test — which the requirements trace already emits
 gates anything; both make this record falsifiable
 ([07-operate.md](07-operate.md) §3).
 
+## 7. How the agent is instructed
+
+Set by [ADR-0020](../reference/decisions/0020-agent-instruction-layers.md). Converges across
+variants — it is all properties of the runner.
+
+**The governing fact:** instructions are context, not enforcement. The vendor states it directly —
+*"Claude treats them as context, not enforced configuration"*, and *"Settings rules are enforced by
+the client regardless of what Claude decides to do. CLAUDE.md instructions shape Claude's behavior
+but are not a hard enforcement layer."* So anything mandatory needs a mechanism that is not prose.
+
+### Four layers, ordered by who can write them
+
+| Layer | Where | Written by | Repository can change it? |
+|---|---|---|---|
+| **Enforcement** | managed settings, hooks, CI checks | platform owner | **no** |
+| **Standing instructions** | managed-policy `CLAUDE.md`, or the `claudeMd` managed-settings key | platform owner | **no** — *"cannot be excluded"* |
+| **Stage procedures** | skills, enterprise scope | platform owner | **no** |
+| **Repository facts** | project `CLAUDE.md`, `.claude/rules/` | the team, at T1 | yes, by design |
+
+**No gate-bearing rule lives in a repository file.** If a rule touches a gate, a tier, a signature
+or a credential, it lives in one of the top three. The bottom layer holds facts about the codebase
+and is treated as helpful, not trusted — and it may not import anything from outside the repository.
+
+### A stage is entered deliberately
+
+One skill per stage — `/asdlc-spec`, `/asdlc-plan`, `/asdlc-tasks`, `/asdlc-implement` — each with
+`disable-model-invocation: true`, so **the engineer enters a stage and the model does not decide it
+has moved on**. Per-stage `allowed-tools` and `disallowed-tools` scope the tools to the stage; the
+spec stage does not need to write source files. Skill bodies load only when invoked, so the
+procedures can carry the full template guidance without costing context in unrelated sessions.
+
+### The agent may never rewrite its own instructions
+
+`CLAUDE.md`, `.claude/CLAUDE.md`, `CLAUDE.local.md`, `AGENTS.md`, `.claude/rules/**`,
+`.claude/skills/**` and `.claude/commands/**` are on the **never-write list** and are **T1**,
+explicitly excluded from the T3 documentation allowlist ([tiers.md](tiers.md) §4). The sandbox's
+automatic protection covers `settings.json` and **not** these.
+
+**Auto memory is off** (`autoMemoryEnabled: false`, `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`). It is
+unreviewed agent-written instruction loaded into every session, and it is machine-local — two
+engineers on the same repository would get different agent behaviour with no way to tell why.
+
+### What a prompting rule is worth
+
+§6's oracle rule is **guidance, not a control**. CI can check a test *cites* a requirement; nothing
+can check it was *derived from* one rather than from the code. The backstops that actually bite are
+**mutation testing at T1** and **the human merge signature**. Do not read §6 as a hard control.
+
 ## Not yet specified
 
-- **What an agent session actually looks like in practice** — how the engineer hands the agent
-  a task, what context the agent is given, what per-repository agent configuration exists.
-  Nothing in the record covers this, and it is now the largest remaining gap:
-  [ADR-0019](../reference/decisions/0019-testing-agent-written-code.md) made a **prompting rule
-  load-bearing** ("write a test that verifies `FR-nnn`", never "write tests for this file"), and
-  there is nowhere yet that specifies how the agent is prompted at each stage.
+- **The text of the four stage skills.** [ADR-0020](../reference/decisions/0020-agent-instruction-layers.md)
+  fixes their structure, scope and invocation controls; the procedures themselves are bring-up work,
+  drafted against [the templates](templates/README.md).
 - **When to open a new session versus continue one**, and how session boundaries map to
   changes.
+- **Prompt injection from repository content.** The agent reads the repository, and repository
+  content can contain instructions. Distinct from instruction-file custody (§7), not solved by it,
+  and not yet a numbered question.
 
-How agent-written code is tested was listed here until 2026-07-28 and is now specified by
-[ADR-0019](../reference/decisions/0019-testing-agent-written-code.md) — see §6 below.
+How agent-written code is tested, and how the agent is prompted at each stage, were both listed
+here until 2026-07-28 and are now specified by
+[ADR-0019](../reference/decisions/0019-testing-agent-written-code.md) and
+[ADR-0020](../reference/decisions/0020-agent-instruction-layers.md) — see §6 and §7.

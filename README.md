@@ -36,36 +36,29 @@ decision record. On any conflict, the ADR wins and the design document has a bug
 
 ## Status, honestly
 
+**No research question is open, and both stack sheets are complete bills of materials.** The design
+is finished to the point where the next thing that can teach anyone anything is running it.
+
 **Decided:** the gate structure and who signs each gate; the tier system and the function that
 computes a tier; the agent runner and its containment; the code host for both variants; the
 progressive-rollout layer; the runner's licensing; the spec, plan and task artifacts and the
-traceability chain through them; the observability backend; TLS termination and credential
-masking at the agent's egress boundary; the artifact registry; the provenance chain in both
-variants.
+traceability chain through them; the observability backend; TLS termination and credential masking
+at the agent's egress boundary; the artifact registry; the provenance chain in both variants; how
+agent-written code is tested; how the agent is instructed at each stage; the units of work; how a
+post-merge defect is attributed to a tier.
 
-**Both stack sheets are now complete bills of materials.** Every technology gap the
-[variant sheets](variants/README.md) exposed closed on 2026-07-28. What stands between this design
-and a pilot is staffing, bring-up, and two facts only the owner holds — not research.
-
-**Not decided, and blocking:**
+**Not decided, and blocking — both are the owner's to supply:**
 
 | Gap | Blocks |
 |---|---|
-| Platform owner and backup — **a role that does not exist yet** ([OQ-10](reference/open-questions.md)) | Everything. It owns almost every artifact in the design, and one day's decisions added an observability stack, a registry, a signing key and an attribution countersignature to it. **This is the single largest unstaffed dependency, and the only blocking item the owner must supply.** |
+| Platform owner and backup — **a role that does not exist yet** ([OQ-10](reference/open-questions.md)) | Everything. It owns almost every artifact in the design, and one day's decisions added an observability stack, a registry, a signing key and an attribution countersignature to it. **The single largest unstaffed dependency.** |
 | The deployment target, and what the greenfield projects are ([context.md](reference/context.md)) | The progressive-rollout answer off Kubernetes, and the concrete path→tier map |
 
-**No research question is open.** [OQ-18](reference/open-questions.md) closed on 2026-07-28 and was
-the last one. What remains is staffing, code, and a pilot.
-| Post-merge defect attribution to a tier ([OQ-18](reference/open-questions.md)) | Not phase 0. The T3 automatic-deploy exit condition, and the rule that relaxes a tier on evidence. |
-
-**The engineer-facing layer now has a shape.** The spec, plan and task templates exist
-([asdlc/templates/](asdlc/templates/README.md)), the testing strategy is decided
-([ADR-0019](reference/decisions/0019-testing-agent-written-code.md)), and how the agent is
-instructed at each stage is decided
-([ADR-0020](reference/decisions/0020-agent-instruction-layers.md)). What is still missing is
-**code, not decisions**: the feature-artifact checker and the four stage-skill texts are unwritten.
-Each stage file in [`asdlc/`](asdlc/README.md) ends with a "Not yet specified" section listing
-exactly what is missing from it.
+**Missing, but code rather than decisions:** the feature-artifact checker, the four stage-skill
+texts, and the CI emitters for gate records and requirements traces. Each stage file in
+[`asdlc/`](asdlc/README.md) ends with a "Not yet specified" section listing what is missing from it;
+[06-deploy.md](asdlc/06-deploy.md)'s is empty. Three phase-0 verifications can genuinely fail and
+are listed in [rollout/open-parameters.md](rollout/open-parameters.md).
 
 ## The design's own footing
 
@@ -74,5 +67,14 @@ measured effect is that a gate *loosens* over time. Every gating rule here is an
 carrying the instrumentation that would show it wrong. The intended loop is **decide → run →
 measure → revise**, and every decision record is written so it can be reversed: it states the
 bet, the signal that would falsify it, and what would reopen the question.
+
+**Read this before trusting any of it.** A large share of the design was decided on 2026-07-28,
+against sources dated the same day, and several load-bearing findings are unreviewed preprints —
+each one is marked as such in its research note. Two records deliberately set **no threshold** where
+a reader will expect one: deploy batch size
+([ADR-0021](reference/decisions/0021-units-of-work.md) part 4) and the T3 volume needed to evaluate
+defect leakage ([ADR-0022](reference/decisions/0022-defect-attribution.md) part 6). Both refuse
+because no measured basis exists, and both name the signal that would set the number. Where a figure
+could not be verified, the research notes say so and carry a **"do not reintroduce"** list.
 
 Nothing here has been run. Treat it as a starting point, not settled practice.

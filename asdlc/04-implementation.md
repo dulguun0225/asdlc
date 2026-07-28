@@ -254,9 +254,12 @@ cost.
 - **The text of the four stage skills.** [ADR-0020](../reference/decisions/0020-agent-instruction-layers.md)
   fixes their structure, scope and invocation controls; the procedures themselves are bring-up work,
   drafted against [the templates](templates/README.md). **Code, not a decision.**
-- **Prompt injection from repository content.** The agent reads the repository, and repository
-  content can contain instructions. Distinct from instruction-file custody (§7), not solved by it,
-  and not yet a numbered question.
+*(Prompt injection from repository content was listed here until 2026-07-28. It is decided rather
+than open — [ADR-0023](../reference/decisions/0023-adversarial-repository-content.md) inventories
+the controls that bound the **effect** of the agent doing the wrong thing, whether induced or
+merely mistaken, closes the one hole it found, and names what would reopen it. Two residuals are
+accepted in writing: source code can leave through domain fronting, and one human reads a T2
+change.)*
 
 Three gaps were listed here until 2026-07-28 and are now specified: how agent-written code is
 tested ([ADR-0019](../reference/decisions/0019-testing-agent-written-code.md), §6), how the agent is

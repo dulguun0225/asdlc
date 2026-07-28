@@ -69,11 +69,21 @@ The job's output is a **required artifact posted on the change**, not a log line
 | Documentation | every touched path declared `tier: 3` |
 | Comments-only | diff empty after stripping comments with a **pinned parser** |
 | Formatting-only | diff empty after running the **pinned formatter** on both sides |
-| Tests-only | every touched path matches declared `test_globs` |
+| Tests-only | every touched path matches declared `test_globs`, **and** no `NNN:FR-nnn` citation is removed, **and** the requirements trace's `tested` count does not decrease |
 | Lockfile bump | only the lockfile changed; every resolved-version delta within the declared upgrade policy |
 
 Path-based T1 beats change-kind T3: formatting inside `src/auth/` is T1. **There is no
 "author says it is formatting-only."**
+
+**Why tests-only carries two extra conditions** ([ADR-0023](../reference/decisions/0023-adversarial-repository-content.md)):
+T3 merges with no human and mutation testing does not run at T3, so without them a tests-only change
+could delete an assertion or drop a requirement citation and merge unattended — while the
+requirements trace kept reporting the requirement `verified`, because a citing test still existed
+and CI was still green. **The trace would be reporting evidence that had just been removed**, and no
+adversary is needed: "clean up the tests" reaches it by accident. A tests-only change that fails
+either condition takes the tier its paths carry, normally T2. **Still not caught:** assertions
+weakened *inside* a test that keeps its citation — a mutation-testing question, and mutation testing
+does not run at T3.
 
 **The agent's instruction files are never T3, whatever their extension.** `CLAUDE.md`,
 `.claude/CLAUDE.md`, `CLAUDE.local.md`, `AGENTS.md`, `.claude/rules/**`, `.claude/skills/**` and

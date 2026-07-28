@@ -25,7 +25,38 @@ computer and the agent's local memory does not travel, so this section — not a
 the conversation — is where the state lives. Anyone finishing a session updates it
 ([`CLAUDE.md`](../CLAUDE.md) → "Assume every session starts on a different computer").
 
-### Last session: 2026-07-28 — defect attribution. **No research question is open.**
+### Last session: 2026-07-28 — adversarial repository content, and the final handover pass
+
+**This was the last session of the run. The design is finished to the point where running it is the
+only thing that can teach anyone anything more.**
+
+Landed [ADR-0023](decisions/0023-adversarial-repository-content.md), deciding the open call
+[ADR-0020](decisions/0020-agent-instruction-layers.md) had flagged rather than leaving it inherited.
+
+- **Reframed before answering:** "prompt injection" names a cause; the design should be robust to
+  the **effect** — the agent doing the wrong thing — and that is identical whether content induced
+  it or the model was simply wrong. **The second is far more likely.**
+- **The inventory is the deliverable.** Twelve ways the agent could misbehave, each mapped to the
+  control that already bounds it. None of those controls asks the agent to cooperate, which is the
+  return on having built containment structurally.
+- **A real defect found and closed.** `tests-only` was a T3 proof, T3 merges with no human, and
+  mutation testing does not run at T3 — so a tests-only change could delete an assertion or drop a
+  `NNN:FR-nnn` citation and merge unattended, **while the requirements trace kept reporting the
+  requirement verified.** No adversary needed: "clean up the tests" reaches it by accident. The
+  proof now also requires that no citation is removed and the trace's `tested` count does not
+  decrease.
+- **No new `OQ-N`, and the reasoning is explicit** — an OQ promises research could close something,
+  and here it cannot. Two residuals are accepted in writing (source code can leave via domain
+  fronting; one human reads a T2 change), and three reopen triggers are named.
+- **Standing rule added:** adding a capability to the agent means re-reading ADR-0023 part 1's
+  table. An inventory is worth what its currency is worth.
+
+**Handover pass also done.** Fixed an orphaned table row left in the root `README.md` by an earlier
+edit, and rewrote "Status, honestly" — it now leads with the fact that no research question is open,
+and adds a *"read this before trusting any of it"* paragraph naming the same-day sourcing, the
+preprints, and the two deliberate refusals to set a threshold.
+
+### Session before: 2026-07-28 — defect attribution. **No research question is open.**
 
 Landed [ADR-0022](decisions/0022-defect-attribution.md), closing
 [OQ-18](#oq-18--how-is-a-post-merge-defect-attributed-to-a-tier) — the last one. The T3
@@ -322,21 +353,23 @@ a research session**:
    four stage-skill texts, the CI emitters for gate records and requirements traces, and the phase-0
    verifications — including three that can genuinely fail (Harbor's referrers path, the toolchain
    under TLS termination, enterprise-scope skill distribution).
-3. **One open call, deliberately not opened as a question:** whether prompt injection from
-   repository content needs its own `OQ-N`. The agent reads the repository and repository content
-   can contain instructions; instruction-file custody
-   ([ADR-0020](decisions/0020-agent-instruction-layers.md)) does not solve it. **A later session
-   should decide this rather than inherit it.**
+3. **Nothing else.** The last open call — whether prompt injection from repository content needed
+   its own question — was **decided, not inherited**, by
+   [ADR-0023](decisions/0023-adversarial-repository-content.md) on 2026-07-28. Do not reopen it as
+   a research question without one of that record's three named triggers.
 
 **The honest summary for whoever picks this up.** The remaining risk is not a missing decision. It
-is that **ten ADRs landed on 2026-07-28**, most resting on sources dated the same day and several on
-unreviewed preprints — and that **nobody has run any of it.** Two records set no threshold where a
-reader will expect one ([ADR-0021](decisions/0021-units-of-work.md) part 4 on batch size,
+is that **eleven ADRs landed on 2026-07-28**, most resting on sources dated the same day and several
+on unreviewed preprints — and that **nobody has run any of it.** Two records set no threshold where
+a reader will expect one ([ADR-0021](decisions/0021-units-of-work.md) part 4 on batch size,
 [ADR-0022](decisions/0022-defect-attribution.md) part 6 on T3 volume), both deliberately, both
-naming the signal that would set it. Every ADR from 2026-07-28 carries reversal conditions. **The
-instrumentation to find out whether any of this works is specified; the pilot is what produces the
-evidence.** That was always the intended loop — decide, run, measure, revise — and the project is
-now at the end of "decide".
+naming the signal that would set it. Every ADR from that day carries reversal conditions, and every
+research note from it carries a **"do not reintroduce"** list of figures that failed verification.
+**Read those lists before quoting any number back into this repository.**
+
+**The instrumentation to find out whether any of this works is specified; the pilot is what produces
+the evidence.** That was always the intended loop — decide, run, measure, revise — and the project
+is now at the end of "decide".
 
 [OQ-18](#oq-18--how-is-a-post-merge-defect-attributed-to-a-tier) is the remaining research
 question, and it blocks no bring-up step — only the T3 auto-deploy exit condition and the

@@ -61,6 +61,9 @@ jobs:
 
       - name: Install the bundle into a fresh project (local flow)
         run: |
+          # The default shell here is `bash -e`, not `bash -eo pipefail`, so
+          # the install's exit code would be lost through the `tee` below.
+          set -o pipefail
           mkdir -p /tmp/proj && cd /tmp/proj
           git init -q
           git config user.email ci@example.com && git config user.name ci
@@ -68,7 +71,12 @@ jobs:
           specify preset add    --dev "$GITHUB_WORKSPACE/presets/nc-ears"
           specify extension add --dev "$GITHUB_WORKSPACE/extensions/nc"
           specify workflow add  --dev "$GITHUB_WORKSPACE/workflows/nc-sdd"
-          specify bundle install "$GITHUB_WORKSPACE/bundle.yml" --offline
+          # Assert the report text: all three components must resolve from the
+          # --dev installs above. "1 added" would mean the bundler reinstalled
+          # something from elsewhere; a failure line would mean it resolved none.
+          # `tee` keeps the output in the log.
+          specify bundle install "$GITHUB_WORKSPACE/bundle.yml" --offline | tee /tmp/install.txt
+          grep -q '0 added, 3 already present' /tmp/install.txt
 
       - name: Composed commands are real compositions, not placeholders
         run: |

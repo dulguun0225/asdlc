@@ -18,8 +18,12 @@
   bulleted FR examples inside comments must not become phantom FRs;
   `### Approval` must not satisfy the `## Approval` section check;
   `contracts/` prose without a file extension is not a link; a checkbox line
-  that does not parse as `- [ ] Tnnn …` is a violation; a zero-FR spec is a
-  violation; bogus task FR references are violations even when the spec
+  that does not parse as `- [ ] Tnnn …` is a violation; a spec with no FR
+  bullets at all is a violation (the shipped template's five placeholder
+  bullets mean this fires only after they are deleted, not when they are
+  left unfilled — placeholder wording is phrasing, and B-6 leaves phrasing
+  to the agent and the reviewer);
+  bogus task FR references are violations even when the spec
   defines no FRs; a Decision Trace with only its header row is a violation
   (separators are detected cell-wise — GFM allows omitting the trailing
   pipe), and so is a trace row holding an angle-bracket placeholder token

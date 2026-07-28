@@ -159,7 +159,10 @@ version it like any other file), then:
 ```
 
 It fails the merge on: a feature folder without `spec.md`; a spec that
-defines no `FR-nnn` at all; `tasks.md` without `plan.md`; duplicate FR-ids or
+defines no `FR-nnn` at all (the spec template ships five placeholder FR
+bullets, so this fires only once they are deleted rather than filled —
+unfilled placeholder wording in a requirement is the reviewer's job at the
+gate, not the checker's); `tasks.md` without `plan.md`; duplicate FR-ids or
 task ids; a plan missing the `## Requirements Traceability`, `## Decision
 Trace`, or `## Approval` section, or whose traceability table rows miss or
 over-claim FR-ids, or whose decision trace has no data rows or still holds
@@ -206,6 +209,13 @@ harvest map: `packs/index.md`. (DECISIONS.md B-8.)
   was ratified** — the checker verifies the trace's shape only (B-6 as
   amended by B-8); conformance is the review command's job, ratification is
   the human plan approval.
+- **Unfilled template placeholder text inside a requirement** — the spec
+  template's five placeholder FR bullets are live bullets, so a scaffolded
+  but unwritten spec counts as defining five FRs and passes the shape
+  checks. Catching `[trigger]` left in a merged requirement is the
+  reviewer's job at the gate. (The Decision Trace's angle-bracket check
+  still turns a wholly untouched plan red, so an entirely unfilled artifact
+  set does not merge; a lazily filled one can.)
 
 ## Behavior this repo is built around (verified 2026-07-27, Spec Kit v0.14.2)
 
@@ -233,12 +243,23 @@ harvest map: `packs/index.md`. (DECISIONS.md B-8.)
   dispatch the project's installed commands headlessly, so preset wraps and
   extension hooks apply there too — but the agent CLI exits 0 even when a
   hook halts the run, so the pipeline cannot detect a hook-gate failure.
-- Command frontmatter `description` values must stay short (≤ ~66
-  characters): composing a longer one into a claude skill folds the line
-  and splices `argument-hint` into the fold, corrupting the SKILL.md
+- `catalogs/workflows.json` carries no `schema_version`, unlike the other
+  three catalogs, and that is fine. The reader
+  (`specify_cli/workflows/catalog.py`, `_get_merged_workflows`) requires only
+  a top-level `workflows` dict or list and never looks at `schema_version`.
+  Adding one is harmless consistency; leaving it out is also correct. Checked
+  against the installed v0.14.2 source — do not re-investigate.
+- Wrapped **preset** command frontmatter `description` values must stay
+  short (≤ ~66 characters). Composing a longer one into a claude skill
+  re-emits the value unquoted, folds it at ~80 columns, and splices the
+  following `argument-hint` into the fold, corrupting the SKILL.md
   frontmatter (observed on a 156-character description at v0.13.4 and
   re-observed on a 153-character one at v0.14.2; an 80-character one
-  composed cleanly — stay well under).
+  composed cleanly — stay well under). Extension commands compose with no
+  `argument-hint`, so a fold there stays valid YAML; the two shipped
+  extension descriptions (95 and 116 characters) are verified to parse.
+  Stock spec-kit commands are unaffected — their frontmatter is copied
+  verbatim with quoted values.
 
 ## Versioning and maintenance
 

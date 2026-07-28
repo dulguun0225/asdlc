@@ -113,6 +113,10 @@ one reason: **GitHub Actions cannot be verified from this environment**, and a m
 release is worse than no release. Parked, in
 [open-parameters.md](../../rollout/open-parameters.md).
 
+**Done later the same day — and the tag prefix was not the whole problem.** See *"What was actually
+done"* item 5: the port landed, and it exposed that every catalog URL still names the standalone
+repository, which is public while this one is not.
+
 ### 5. LF at the root, in its own commit, before anything pins a hash
 
 The bundle requires LF and enforces it in `ci/check_specs.py`. This design already requires it for
@@ -232,6 +236,31 @@ variable (the seven `$GITHUB_WORKSPACE` references needed rewriting — `working
 help a step that `cd`s away first), `release.yml` left parked, and a convention note added to both
 worked examples. `python ci/check_specs.py --self` passes from the new location, and the ported
 workflow diffs against the original in exactly the intended places and nowhere else.
+
+**5. Part 4 was carried out later the same day, and doing it found the thing part 4 had not looked
+for.** `release.yml` is now ported to [`.github/workflows/bundle-release.yml`](../../.github/workflows/bundle-release.yml)
+on the `bundle-v*` trigger, so a `v1.0.0` cut for the design can no longer publish a bundle. Part 4
+had treated the tag prefix as the whole problem. It is not:
+
+**Every catalog URL points at the wrong repository, and the right one is private.** All four
+`tools/spec-kit-bundle-nc/catalogs/*.json` name `dulguun0225/spec-kit-bundle-nc` at tag `v0.2.0`.
+The bundle now lives in `dulguun0225/asdlc`, which is **private** — an unauthenticated raw fetch
+returns 404, and both release assets and raw catalog files need public read. Dry-running the ported
+asserts with `GITHUB_REF_NAME=bundle-v0.2.0` gives three passes and **four failures**, all of them
+catalog URLs. That is the asserts working: they exist so a release cannot go green while pointing
+consumers at an asset that does not exist.
+
+**Co-location moved the code and did not move the distribution channel.** Nothing in this record
+noticed, because the channel is described in the bundle's own README and catalogs rather than
+anywhere the migration touched. **The general lesson: when a component moves, its published
+identity does not move with it, and the published identity is not in the files you edit.**
+
+The owner decided on 2026-07-28 to **park the release** rather than resolve this now. The three ways
+out are in [open-parameters.md](../../rollout/open-parameters.md), and the choice is the owner's
+rather than a research question because it turns on whether the ASDLC design and
+[context.md](../context.md) may be public. Nothing is stranded meanwhile: the standalone repository
+has **zero tags and zero releases**, so no consumer URL is live and rewriting the catalogs is still
+free.
 
 ## Variant answers
 

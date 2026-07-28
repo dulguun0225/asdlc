@@ -121,6 +121,14 @@ scratch dir, `git init` → `specify init --here --force --integration claude`
 "0 added, 3 already present". checks.yml also carries negative probes — a
 probe must go red for the right reason, so never delete one to make CI pass.
 
+**The copies of `checks.yml` and `release.yml` in this directory do not run.**
+GitHub reads workflows only from the repository root, and this bundle is a
+subdirectory of a monorepo (ADR-0025). The live workflows are
+`.github/workflows/bundle-checks.yml` and `.github/workflows/bundle-release.yml`
+at the repository root; the copies here are kept so the diff against the
+standalone repository stays readable. **Any change to a workflow here must be
+made in the root copy too, or it has no effect.**
+
 CI pins spec-kit at `SPECKIT_PIN: v0.14.2`. Every behavior claim was verified
 at that version. A pin-forward means: bump `SPECKIT_PIN` and the
 `speckit_version` ranges (the floor tracks the pin — only the pinned version
@@ -133,9 +141,12 @@ and diff the upstream `templates/commands/` between the two tags.
 1. Bump versions everywhere they live: the component manifest(s), the
    `bundle.yml` pins, `catalogs/*.json` (including `bundles.json` provides
    counts and the workflow url tag), and a CHANGELOG entry.
-2. Tag `v<bundle.yml version>` and push the tag. release.yml re-validates,
-   asserts tag/version/URL consistency, builds the zips (preset, extension,
-   bundle — the workflow ships as the raw file at the tag), and publishes.
+2. Tag `bundle-v<bundle.yml version>` and push the tag. The root
+   `bundle-release.yml` re-validates, asserts tag/version/URL consistency,
+   builds the zips (preset, extension, bundle — the workflow ships as the raw
+   file at the tag), and publishes. **The `bundle-` prefix is not decoration:
+   this repository also releases the ASDLC design, so a bare `v*` tag must not
+   trigger a bundle release** (ADR-0025 part 4).
 3. Consumers fetch `catalogs/*.json` from `master`, so master must hold the
    final catalog JSONs when the tag is cut.
 

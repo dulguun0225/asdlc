@@ -52,22 +52,75 @@ Reconciling them is the top row of [open-parameters.md](../rollout/open-paramete
 its own decision record.** Both worked examples now carry a header note saying which convention
 they follow; that is a signpost, not a fix.
 
+**The bundle's v0.2.0 release is fixed but parked, and the reason is an owner decision.** The
+previous developer's pre-release fix list was executed on 2026-07-28 (see the session note below).
+What stopped the release is not on that list: **every catalog URL still names
+`dulguun0225/spec-kit-bundle-nc`, which is public, while this repository is private.** Release
+assets and raw catalog files both need public read, so the distribution channel did not move when
+the code did. The owner chose to park rather than resolve it. Three ways out, and the choice turns
+on whether the design may be public — [open-parameters.md](../rollout/open-parameters.md), the row
+titled *"Where the bundle is published from"*. **Do not tag `bundle-v0.2.0` until it is answered:**
+the release workflow would fail four asserts, correctly.
+
 **Two things to watch on the next push:**
 
 1. **`.github/workflows/bundle-checks.yml` has never run.** GitHub Actions cannot be exercised from
    a workstation. It was diffed against the original and differs only in the intended places, and
    `python ci/check_specs.py --self` passes from the new location — but the first real run is the
-   proof. It should fire on a `tools/**` change and **not** on a design-only change.
-2. **`release.yml` is parked, not ported.** It fires on `v*` and this repository has no tags, so
-   **the first `v1.0.0` cut for the design would try to publish a bundle release.** The convention
-   to adopt is `bundle-v*`.
+   proof. It should fire on a `tools/**` change and **not** on a design-only change. This push
+   changes `tools/**`, so it should fire.
+2. **`.github/workflows/bundle-release.yml` has never run either**, and it fires only on
+   `bundle-v*`, so a `v1.0.0` cut for the design is now safe. It is dormant by design — see above.
 
 **One standing instruction, because it was asked twice and answered twice:** the owner does not
 choose between options here. Research it, decide it, record it, and say what would reverse it.
 
 ---
 
-### Last session: 2026-07-28 — the monorepo, executed
+### Last session: 2026-07-28 — the bundle's release fixes, and why the release did not happen
+
+The owner pointed at `release-fixes.md`, an untracked scratch note from the previous developer
+listing what to change before cutting `spec-kit-bundle-nc` v0.2.0. **All of it is now applied, the
+note is deleted, and everything durable in it lives in a committed file** — an untracked note is
+exactly the state that does not travel between machines.
+
+- **The CHANGELOG described a tag it did not contain.** `## [Unreleased]` held most of what v0.2.0
+  would ship, including the whole v0.14.2 pin-forward. Folded into `[0.2.0]`, re-dated to
+  2026-07-28, B-9 added to the design line, and the version history now says plainly that 0.1.0 and
+  0.2.0 were development increments and nothing has ever been published.
+- **A README rule contradicted two shipped files, and the rule was wrong, not the files.** The
+  ≤66-character `description` limit was stated for all command frontmatter; two extension
+  descriptions (95 and 116 characters) exceed it and are verified to parse. The trap is narrower
+  than it looked: spec-kit copies stock frontmatter verbatim with **quoted** values, while preset
+  and extension wraps are re-emitted **unquoted** and fold at ~80 columns. Corruption needs
+  unquoted + folded + an `argument-hint` key to splice into the fold — the preset shape, not the
+  extension shape. The rule is now scoped to preset commands and says why.
+- **CI now asserts what `CLAUDE.md` claimed it asserted.** The e2e installed the bundle and never
+  checked the report, so the strongest signal that the bundle resolves rather than reinstalls
+  (`0 added, 3 already present`) was unasserted. Added to the live root workflow **and** the inert
+  copy in the subtree, with `set -o pipefail` — GitHub's default `run` shell is `bash -e`, not
+  `bash -eo pipefail`, so the exit code would otherwise be lost through the `tee`.
+- **One open decision, decided rather than referred up.** The spec template ships five *live*
+  placeholder FR bullets, so the documented "a spec that defines no `FR-nnn` is a violation" check
+  cannot fire on a scaffolded-but-unwritten spec — the checker counts five. Documented as
+  by-design in all four places that claimed otherwise, per B-6's bounded scope: unfilled
+  placeholder wording is phrasing, and phrasing is the reviewer's job at the gate. **A blocking
+  placeholder check was considered and rejected for now** — it would widen B-6's scope and needs a
+  pattern that spares `[NEEDS CLARIFICATION: …]` and markdown links. Revisit only if a real product
+  repo merges a placeholder spec.
+- **A hazard the move created and nobody had written down:** the copies of `checks.yml` and
+  `release.yml` inside the subtree do not run, and nothing in the bundle's own `CLAUDE.md` said so.
+  An agent editing the bundle would have edited a dead file. Now stated there, next to the rule
+  that any workflow change must be made in the root copy too.
+- **Also recorded so it is not re-investigated:** `catalogs/workflows.json` has no `schema_version`
+  and does not need one — the reader never looks at it (checked against the installed v0.14.2
+  source).
+
+**What stopped the release is not on the fix list**, and it is the finding worth carrying forward:
+**a component's published identity does not move when the component does, and it is not in the
+files you edit.** See **START HERE** above and ADR-0025's *"What was actually done"* item 5.
+
+### Session before: 2026-07-28 — the monorepo, executed
 
 The owner lifted the documents-only restriction and copied the bundle in; this session executed the
 rest of [ADR-0025](decisions/0025-monorepo.md) in its stated order and flipped it to `accepted`.

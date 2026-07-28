@@ -47,11 +47,18 @@ the standalone repository stays readable, not because they execute.
   with `paths` filters so a design-document change does not install the spec-kit CLI, and with
   `working-directory` plus a `$BUNDLE_DIR` variable for the steps that `cd` away and reach back.
   **Delete that file and the bundle silently loses its CI.**
-- **`release.yml` is deliberately not ported.** It fires on `v*`, and this repository has no tags —
-  so the first `v1.0.0` cut for the design would try to publish a bundle release. The convention to
-  adopt at the next release is **`bundle-v*`**
-  ([open-parameters.md](../rollout/open-parameters.md),
-  [ADR-0025](../reference/decisions/0025-monorepo.md) part 4).
+- **`release.yml` is ported** to [`.github/workflows/bundle-release.yml`](../.github/workflows/bundle-release.yml),
+  on a **`bundle-v*`** trigger rather than `v*`, so a `v1.0.0` cut for the design cannot publish a
+  bundle release ([ADR-0025](../reference/decisions/0025-monorepo.md) part 4). It is **dormant and
+  cannot succeed yet**, and that is not a defect in the port: the bundle's four
+  `catalogs/*.json` still point at the public standalone repository, while this repository is
+  **private** — and release assets and raw catalog files both need public read. Deciding where the
+  bundle publishes from is an owner call, in
+  [open-parameters.md](../rollout/open-parameters.md). **Do not tag `bundle-v0.2.0` until it is
+  answered.**
+
+**Both root workflows have a copy in the subtree, and the copies are the ones that look editable.**
+A change to either must be made in the root copy too, or it does nothing.
 
 ## Provenance of `spec-kit-bundle-nc`
 

@@ -1,0 +1,146 @@
+# Ported from tools/spec-kit-bundle-nc/.github/workflows/release.yml when the
+# bundle moved into this monorepo (ADR-0025 part 4, which parked the port
+# rather than doing it).
+#
+# WHY THIS FILE EXISTS AT THE ROOT: GitHub runs workflows only from the
+# repository root `.github/workflows/`. The bundle's own copy still sits at
+# tools/spec-kit-bundle-nc/.github/workflows/release.yml and is INERT there —
+# kept so the diff against the standalone repository stays readable, not
+# because it runs. Delete this file and the bundle has no release path.
+#
+# Four differences from the original, and nothing else:
+#   1. The trigger is `bundle-v*`, not `v*`. This repository also holds the
+#      ASDLC design, so a bare `v1.0.0` cut for the design must not publish a
+#      bundle release. That mis-trigger is the reason ADR-0025 parked the port.
+#   2. The tag/version assert compares against `bundle-v$BUNDLE_V`.
+#   3. `defaults.run.working-directory`, which fixes every relative path.
+#   4. $BUNDLE_DIR, because the zip steps `cd` into a component directory and
+#      then reach back with an absolute path — and $GITHUB_WORKSPACE is the
+#      repository root here, not the bundle.
+#
+# THIS WORKFLOW HAS NEVER RUN. GitHub Actions cannot be exercised from a
+# workstation. Every assert below was dry-run locally against the working tree
+# with GITHUB_REF_NAME=bundle-v0.2.0; the first real run is the proof.
+#
+# AND IT CANNOT SUCCEED YET — do not tag until this is resolved. In that same
+# dry-run the three version asserts passed and ALL FOUR catalog-url asserts
+# failed. The catalogs still point at dulguun0225/spec-kit-bundle-nc at tag
+# v0.2.0, but the bundle lives in dulguun0225/asdlc, which is private —
+# release assets and raw catalog files both need public read. Deciding where
+# the bundle is published from is an owner call (it turns on whether the
+# design may be public) and is the open-parameters row next to the one that
+# retired this port. The failures are correct behaviour: the asserts exist so
+# a release cannot go green while pointing consumers at a nonexistent asset.
+
+name: bundle-release
+
+on:
+  push:
+    tags: ['bundle-v*']
+
+permissions:
+  contents: write
+
+env:
+  SPECKIT_PIN: v0.14.2
+  BUNDLE_DIR: ${{ github.workspace }}/tools/spec-kit-bundle-nc
+
+defaults:
+  run:
+    working-directory: tools/spec-kit-bundle-nc
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Install pinned specify CLI
+        run: uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@${{ env.SPECKIT_PIN }}
+
+      # A tag can point at any commit, so re-run the gates here: a release
+      # publishes to the org's distribution channel and must not skip them.
+      - name: Validate before packaging
+        run: |
+          specify bundle validate --path . --offline
+          python3 ci/check_specs.py --self
+
+      - name: Tag must match the bundle version
+        run: |
+          BUNDLE_V=$(sed -n 's/^  version: "\(.*\)"/\1/p' bundle.yml | head -1)
+          [ -n "$BUNDLE_V" ] || { echo "could not extract version from bundle.yml" >&2; exit 1; }
+          [ "$GITHUB_REF_NAME" = "bundle-v$BUNDLE_V" ] || {
+            echo "tag $GITHUB_REF_NAME does not match bundle version $BUNDLE_V - the tag must be bundle-v$BUNDLE_V; bump bundle.yml (and catalogs/) or retag" >&2; exit 1; }
+
+      # The workflow component ships as a raw file, not a zip: its catalog
+      # entry must point at workflows/nc-sdd/workflow.yml at THIS tag, and
+      # the advertised version must match the file (bundle install compares
+      # the bundle.yml pin against the catalog-advertised version).
+      #
+      # The url assert matches the tag segment and the file path but not the
+      # repository between them, because the raw url gained a
+      # tools/spec-kit-bundle-nc/ path segment when the bundle moved here.
+      - name: Workflow catalog entry must match the file and the tag
+        run: |
+          WF_V=$(sed -n 's/^  version: "\(.*\)"/\1/p' workflows/nc-sdd/workflow.yml | head -1)
+          [ -n "$WF_V" ] || { echo "could not extract version from workflows/nc-sdd/workflow.yml" >&2; exit 1; }
+          grep -q "\"version\": \"$WF_V\"" catalogs/workflows.json || {
+            echo "catalogs/workflows.json version does not match workflow.yml ($WF_V)" >&2; exit 1; }
+          grep -A2 '^  workflows:' bundle.yml | grep -q "version: \"$WF_V\"" || {
+            echo "bundle.yml workflow pin does not match workflow.yml ($WF_V)" >&2; exit 1; }
+          grep -q "/$GITHUB_REF_NAME/.*workflows/nc-sdd/workflow.yml" catalogs/workflows.json || {
+            echo "catalogs/workflows.json url must pin this tag ($GITHUB_REF_NAME)" >&2; exit 1; }
+
+      # The zip catalogs embed version AND tag in every download_url; nothing
+      # else checks them, so a stale entry would release green and point
+      # consumers at a nonexistent asset.
+      - name: Preset/extension/bundle catalog entries must match the manifests and the tag
+        run: |
+          PRESET_V=$(sed -n 's/^  version: "\(.*\)"/\1/p' presets/nc-ears/preset.yml | head -1)
+          EXT_V=$(sed -n 's/^  version: "\(.*\)"/\1/p' extensions/nc/extension.yml | head -1)
+          BUNDLE_V=$(sed -n 's/^  version: "\(.*\)"/\1/p' bundle.yml | head -1)
+          grep -q "\"version\": \"$PRESET_V\"" catalogs/presets.json || {
+            echo "catalogs/presets.json version does not match preset.yml ($PRESET_V)" >&2; exit 1; }
+          grep -q "download/$GITHUB_REF_NAME/nc-ears-$PRESET_V.zip" catalogs/presets.json || {
+            echo "catalogs/presets.json download_url must be $GITHUB_REF_NAME/nc-ears-$PRESET_V.zip" >&2; exit 1; }
+          grep -q "\"version\": \"$EXT_V\"" catalogs/extensions.json || {
+            echo "catalogs/extensions.json version does not match extension.yml ($EXT_V)" >&2; exit 1; }
+          grep -q "download/$GITHUB_REF_NAME/nc-$EXT_V.zip" catalogs/extensions.json || {
+            echo "catalogs/extensions.json download_url must be $GITHUB_REF_NAME/nc-$EXT_V.zip" >&2; exit 1; }
+          grep -q "\"version\": \"$BUNDLE_V\"" catalogs/bundles.json || {
+            echo "catalogs/bundles.json version does not match bundle.yml ($BUNDLE_V)" >&2; exit 1; }
+          grep -q "download/$GITHUB_REF_NAME/nc-sdd-$BUNDLE_V.zip" catalogs/bundles.json || {
+            echo "catalogs/bundles.json download_url must be $GITHUB_REF_NAME/nc-sdd-$BUNDLE_V.zip" >&2; exit 1; }
+
+      # Component zips: preset.yml / extension.yml at the zip root, matching
+      # what PresetManager/ExtensionManager.install_from_zip expects and the
+      # download_url filenames in catalogs/*.json.
+      #
+      # $BUNDLE_DIR, not $GITHUB_WORKSPACE: `mkdir -p dist` runs in the bundle
+      # directory via defaults.run.working-directory, so dist/ is there too.
+      - name: Build component zips
+        run: |
+          mkdir -p dist
+          PRESET_V=$(sed -n 's/^  version: "\(.*\)"/\1/p' presets/nc-ears/preset.yml | head -1)
+          [ -n "$PRESET_V" ] || { echo "could not extract version from presets/nc-ears/preset.yml" >&2; exit 1; }
+          EXT_V=$(sed -n 's/^  version: "\(.*\)"/\1/p' extensions/nc/extension.yml | head -1)
+          [ -n "$EXT_V" ] || { echo "could not extract version from extensions/nc/extension.yml" >&2; exit 1; }
+          (cd presets/nc-ears && zip -r "$BUNDLE_DIR/dist/nc-ears-$PRESET_V.zip" . -x '.composed/*')
+          (cd extensions/nc  && zip -r "$BUNDLE_DIR/dist/nc-$EXT_V.zip" . -x '.composed/*')
+
+      # Bundle zip: `specify bundle build` requires bundle.yml + README.md and
+      # zips the whole directory, so build from a staging dir to keep the
+      # artifact minimal (install reads only bundle.yml anyway).
+      - name: Build bundle zip
+        run: |
+          mkdir -p stage
+          cp bundle.yml README.md stage/
+          specify bundle build --path stage --output dist
+
+      - name: Create release with artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --title "$GITHUB_REF_NAME" \
+            --notes "spec-kit-bundle-nc. See tools/spec-kit-bundle-nc/CHANGELOG.md. Catalogs: tools/spec-kit-bundle-nc/catalogs/*.json point at these assets."

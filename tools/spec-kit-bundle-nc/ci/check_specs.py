@@ -9,6 +9,8 @@ Checks every feature folder (`specs/*/`; with --self the bundle repo's
 artifact before scanning, so template guidance comments never count.
 
   * spec.md exists in every feature folder and defines at least one FR-nnn
+    (the preset's spec template ships five placeholder FR bullets, so this
+    fires only once they are deleted rather than filled)
   * artifact order holds by presence: no tasks.md without plan.md (a missing
     spec.md is already a violation on its own)
   * FR-ids are unique within spec.md

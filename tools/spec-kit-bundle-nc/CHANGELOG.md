@@ -4,10 +4,40 @@ All notable changes to this repository. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the bundle and
 each of its components carry independent semver (each noted per release).
 
-## [Unreleased]
+Versions 0.1.0 and 0.2.0 were development increments in this repository;
+`bundle-v0.2.0` is the first published tag.
+
+## [0.2.0] — 2026-07-28
+
+Bundle `nc-sdd` 0.2.0 · preset `nc-ears` 0.2.0 · extension `nc` 0.2.0 ·
+workflow `nc-sdd` 0.2.0. Design: DECISIONS.md B-8, B-9.
 
 ### Added
 
+- Decision records mechanism: constitution principle VI (engineering
+  choices trace to decision records) and a seeded `Repo principles`
+  section; a Decision discipline section in the wrapped `speckit.plan`
+  command (Technical Context resolves from the records; uncovered entries
+  are decided visibly and proposed, never picked silently or left to the
+  stock Phase 0 loop); a `## Decision Trace` appended to every plan
+  (section order: Requirements Traceability, Decision Trace, Approval).
+- `ci/check_specs.py`: structural Decision Trace check — section presence,
+  data rows shaped `| entry | decision |`, no angle-bracket placeholder
+  text (B-6 as amended by B-8). New negative probe; existing probes
+  extended.
+- `speckit.nc.review`: decision-conformance step (reads the constitution;
+  technology in the code that traces to no record, ratified row, or
+  divergence is a finding) and a `## Decision conformance` notes section.
+- `packs/` — researched decision packs (informative, never installed):
+  `agent-traps` (cross-stack corpus landmines, banned by name) and
+  `java-backend` (researched, premise-conditioned; money-grade rules
+  are a conditional section that binds from the first money field);
+  `packs/README.md` (authority, markers, freshness
+  incl. the lapse rule), `packs/index.md` (candidates + harvest map),
+  `packs/research-protocol.md` (adversarial-panel research method).
+- checks.yml: advisory pack-freshness step (warns past `review-by`).
+- `examples/password-reset/plan.md` — worked plan showing the three
+  appended sections and all four Decision Trace row kinds.
 - `packs/java-backend.md` — an **Observability** section in the seed text,
   plus an `Observability (money-grade)` subsection. The rules close a loop
   the pack already had open: three existing rules (alert on
@@ -40,6 +70,22 @@ each of its components carry independent semver (each noted per release).
 
 ### Changed
 
+- Workflow `nc-sdd`: the review-plan gate message now points the human at
+  the Decision Trace (ratify or reject its proposed rows there).
+- `speckit.nc.gate`: FAIL guidance tells the reviewer the plan's Decision
+  Trace rows are part of what the approval ratifies (hard rules and PASS
+  evidence unchanged).
+- `speckit.specify`: the plan handoff prompt points at the decision
+  records instead of the bare "I am building with...".
+- `speckit.constitution`: the propagation guard also checks the Decision
+  Trace append and the decision-records principle with its Repo
+  principles section; the constitution's Governance scopes principle VI
+  as adjustable while the Decision Trace stays mandatory.
+- Plan and constitution command frontmatter descriptions shortened:
+  composing a long description into a claude skill corrupts the SKILL.md
+  frontmatter (new verified-behavior bullet in the README; release.yml
+  also gained catalog-consistency asserts for the preset/extension/bundle
+  entries).
 - `packs/java-backend.md` — corrected the Concurrency bullet that preferred
   a Scoped Value over a `ThreadLocal` for per-request context. The
   preference stands on the bounded lifetime and write-once binding, but not
@@ -52,7 +98,6 @@ each of its components carry independent semver (each noted per release).
   now a rule in the new Observability section.
 - `packs/README.md` — the java-backend row of "The packs" names the
   observability rules and their condition.
-
 - Pinned Spec Kit forward from v0.13.4 to v0.14.2 (DECISIONS.md B-9).
   `SPECKIT_PIN` in both CI workflows, and the required range in every
   manifest and catalog entry, are now `>=0.14.2,<1.0.0` — the floor tracks
@@ -105,57 +150,6 @@ each of its components carry independent semver (each noted per release).
   pack decisions: a closed `RoundingOccasion` registry and portfolio-wide
   mutation testing. Frontmatter `verified`/`review-by` unchanged — the
   pass was scoped to the additions, not a full re-verification.
-
-## [0.2.0] — 2026-07-24
-
-Bundle `nc-sdd` 0.2.0 · preset `nc-ears` 0.2.0 · extension `nc` 0.2.0 ·
-workflow `nc-sdd` 0.2.0. Design: DECISIONS.md B-8.
-
-### Added
-
-- Decision records mechanism: constitution principle VI (engineering
-  choices trace to decision records) and a seeded `Repo principles`
-  section; a Decision discipline section in the wrapped `speckit.plan`
-  command (Technical Context resolves from the records; uncovered entries
-  are decided visibly and proposed, never picked silently or left to the
-  stock Phase 0 loop); a `## Decision Trace` appended to every plan
-  (section order: Requirements Traceability, Decision Trace, Approval).
-- `ci/check_specs.py`: structural Decision Trace check — section presence,
-  data rows shaped `| entry | decision |`, no angle-bracket placeholder
-  text (B-6 as amended by B-8). New negative probe; existing probes
-  extended.
-- `speckit.nc.review`: decision-conformance step (reads the constitution;
-  technology in the code that traces to no record, ratified row, or
-  divergence is a finding) and a `## Decision conformance` notes section.
-- `packs/` — researched decision packs (informative, never installed):
-  `agent-traps` (cross-stack corpus landmines, banned by name) and
-  `java-backend` (researched, premise-conditioned; money-grade rules
-  are a conditional section that binds from the first money field);
-  `packs/README.md` (authority, markers, freshness
-  incl. the lapse rule), `packs/index.md` (candidates + harvest map),
-  `packs/research-protocol.md` (adversarial-panel research method).
-- checks.yml: advisory pack-freshness step (warns past `review-by`).
-- `examples/password-reset/plan.md` — worked plan showing the three
-  appended sections and all four Decision Trace row kinds.
-
-### Changed
-
-- Workflow `nc-sdd`: the review-plan gate message now points the human at
-  the Decision Trace (ratify or reject its proposed rows there).
-- `speckit.nc.gate`: FAIL guidance tells the reviewer the plan's Decision
-  Trace rows are part of what the approval ratifies (hard rules and PASS
-  evidence unchanged).
-- `speckit.specify`: the plan handoff prompt points at the decision
-  records instead of the bare "I am building with...".
-- `speckit.constitution`: the propagation guard also checks the Decision
-  Trace append and the decision-records principle with its Repo
-  principles section; the constitution's Governance scopes principle VI
-  as adjustable while the Decision Trace stays mandatory.
-- Plan and constitution command frontmatter descriptions shortened:
-  composing a long description into a claude skill corrupts the SKILL.md
-  frontmatter (new verified-behavior bullet in the README; release.yml
-  also gained catalog-consistency asserts for the preset/extension/bundle
-  entries).
 
 ## [0.1.0] — 2026-07-23
 

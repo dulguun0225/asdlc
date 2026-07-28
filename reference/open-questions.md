@@ -75,13 +75,31 @@ git tag bundle-v0.2.0 && git push origin bundle-v0.2.0
 `master` already holds the final catalog JSONs, which is the ordering requirement — consumers read
 catalogs from `master` and assets from the tag. Nothing else is pending.
 
-**One thing surfaced that nobody has decided: `dulguun0225/asdlc` is public.** Every ADR and
-[context.md](context.md) — team shape, roles, data boundary — is world-readable right now, and **no
-record chooses that.** It is the current state, not a decision
-([ADR-0026](decisions/0026-bundle-distribution.md) part 5). New owner row in
-[open-parameters.md](../rollout/open-parameters.md). **Cheapest to change now**: nothing has been
-released, so no consumer depends on a public URL, and going private costs one
-`~/.specify/auth.json` per consumer and changes no URL.
+**The design is public by decision now, not by default** — [ADR-0027](decisions/0027-design-is-public.md),
+2026-07-28. The owner was asked directly, with the private alternative priced (one
+`~/.specify/auth.json` per consumer, no URL change), and chose **public deliberately**. Verified
+live before asking: `visibility: public`, **0 tags, 0 releases, 0 forks**, so nothing external
+depended on the URL and the switch was still free.
+
+**Two rules come out of it and bind every session from here, including this one:**
+
+1. **A disclosure boundary.** No secrets, no internal hostnames or IPs of the org's GitLab /
+   Jenkins / registry / proxy, no customer names or data, and **no real gate records** lifted from a
+   project repository — they carry signer identities. Examples here stay synthetic.
+2. **No real names.** When [OQ-10](#oq-10--who-fills-the-platform-owner-role) is answered, record
+   the **role, the appointment date and the responsibilities**; carry the two names in a private
+   channel. A person's name in a public repository is a disclosure that person did not make, and no
+   decision here depends on which human holds the role.
+
+**Reversal is bounded only until something is released and externally consumed.** Today going
+private costs one `auth.json` per consumer. After `bundle-v0.2.0` is cut and installed outside the
+org, it costs that file to each of those consumers, discovered by them as a 404.
+
+**One thing ADR-0027 deliberately did not close: the licence.** There is **no root `LICENSE`** and
+GitHub reports none, so the public design is **all rights reserved** by default — while
+`tools/spec-kit-bundle-nc/LICENSE` grants MIT. One tree, two rights positions. That allocates the
+org's rights, so it is the owner's call, not research. New row in
+[open-parameters.md](../rollout/open-parameters.md); it blocks nothing.
 
 **The inert workflow copies are gone.** `tools/spec-kit-bundle-nc/.github/` is deleted, both files
 with it, on 2026-07-28 — see ADR-0025 *"What was actually done"* item 6 for why the readable-diff
@@ -107,7 +125,49 @@ choose between options here. Research it, decide it, record it, and say what wou
 
 ---
 
-### Last session: 2026-07-28 — the java-backend pack's seed text, made reviewable
+### Last session: 2026-07-28 — was the monorepo a good idea, and the design is public on purpose
+
+The owner asked a review question, not a build question: **was moving `spec-kit-bundle-nc` into
+this repository a good idea?** The assessment, kept here because it is a finding and would
+otherwise exist only in a conversation:
+
+- **Yes on net, but for one reason, not two.** The argument that holds is the **checker**: the
+  feature-artifact checker is specified as an extension of `ci/check_specs.py`, and a specification
+  in one repository with the program it extends in another drifts. That alone justifies
+  co-location.
+- **The "one repository to hand over" argument does not carry the weight ADR-0025 gives it.** That
+  test is met by the design plus the checker. It does not require importing 37 files that include a
+  second decision registry, four catalogs, a release pipeline, language packs, and a worked example
+  built on the **superseded** gate model. ADR-0025's four options are all *where does the bundle
+  go*; none is *does all of it need to come*. Bringing it whole is defensible because the bundle is
+  a live product in its own right — **not** because of the handover argument. The two are run
+  together in the record. Practical consequence: when the checker is built, do not assume the whole
+  bundle stays; ADR-0025's "the bundle is retired" reopen condition is stronger than it looks.
+- **Exposing the two gate models was a benefit, not a cost.** The contradiction existed on
+  2026-07-27 across two repositories with nothing forcing it into the open. Co-location put a
+  deadline on it. It is still the top row of
+  [open-parameters.md](../rollout/open-parameters.md) and still the largest live risk.
+- **The unpriced cost was visibility**, and it is now paid — see below. Two subjects with different
+  disclosure profiles ended up sharing one switch. ADR-0026 part 5 framed that as a pre-existing
+  state; it is also a coupling the monorepo created, and
+  [ADR-0027](decisions/0027-design-is-public.md) records it as such.
+- **The lost git history scores lower than the handover note gives it.** It was an execution
+  deviation, not a property of the decision, and the archived standalone repository still holds it.
+
+**Then the visibility question was put to the owner and answered: public, deliberately.**
+[ADR-0027](decisions/0027-design-is-public.md) — full detail in START HERE above. It adds a
+disclosure boundary and a no-real-names rule, and it leaves the **licence** open as a new owner row
+(no root `LICENSE`, so the design is all rights reserved while the bundle subtree grants MIT).
+
+Facts were re-checked from the authenticated API before asking rather than quoted from ADR-0026,
+because that record exists partly to document a wrong escalation built on an unchecked fact.
+Records touched: ADR-0027 created; ADR-0026 part 5 gained its closing pointer; the ADR index gained
+a row **and had ADR-0026's title corrected** — it still read *"and this repository stays private"*,
+a leftover from the hour the release was parked, contradicting the body of the record it named.
+Item 3 of "Two bodies of work are live" was corrected too: it described ADR-0025 as `proposed` and
+unexecuted, which stopped being true the day it was written.
+
+### Session before: 2026-07-28 — the java-backend pack's seed text, made reviewable
 
 The owner said the `java-backend` pack's *The decisions* section is hard for a human to read, and
 that people may want to review those rules even though the text is written for an LLM. It was: 95
@@ -682,9 +742,13 @@ a research session**:
    [ADR-0024](decisions/0024-stage-skill-distribution.md) on 2026-07-28. **Two remain unrun:**
    Harbor's OCI referrers path, and the toolchain under TLS termination. Neither can be settled from
    documentation; both need hardware.
-3. **One decision made but not carried out** — [ADR-0025](decisions/0025-monorepo.md), status
-   `proposed`. It is the only such record here and it is the next session's first action; see
-   **START HERE** at the top of this section. Everything else is decided *and* landed.
+3. **No decision is outstanding.** This entry used to name
+   [ADR-0025](decisions/0025-monorepo.md) as `proposed` and unexecuted; it was executed the same
+   day, 2026-07-28, and its follow-ons closed with it —
+   [ADR-0026](decisions/0026-bundle-distribution.md) (where the bundle publishes from) and
+   [ADR-0027](decisions/0027-design-is-public.md) (the design is public by decision). **Every ADR
+   here is accepted and landed.** What is left to *do* is in item 2 and in
+   [open-parameters.md](../rollout/open-parameters.md), not in a pending record.
 4. **Nothing else.** The last open call — whether prompt injection from repository content needed
    its own question — was **decided, not inherited**, by
    [ADR-0023](decisions/0023-adversarial-repository-content.md) on 2026-07-28. Do not reopen it as

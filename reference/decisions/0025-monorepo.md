@@ -338,6 +338,27 @@ re-read ADR-0024 parts 3 and 4 at that point.
 - **Nothing is destroyed.** The standalone repository and its clone are untouched, and the
   unpushed commit is carried across deliberately.
 
+### Assessed on request, 2026-07-28
+
+The owner asked whether the move was a good idea. **Yes on net — and the two justifications above
+are not equally strong, which matters for the reopen conditions below.**
+
+- **The checker argument holds and is sufficient on its own.** A specification in one repository
+  and the program it extends in another drifts.
+- **"One repository to hand over" does not carry its stated weight.** That test is met by the
+  design plus the checker. It does not require importing a second decision registry, four catalogs,
+  a release pipeline, language packs, and a worked example built on the gate model this design
+  replaced. The four options above are all *where does the bundle go*; **none is *does all of it
+  need to come***. Importing it whole is defensible because the bundle is a live product in its own
+  right — not because of the handover test. **So the first reopen condition below is stronger than
+  it reads:** when the checker exists, the case for the rest of the bundle living here is the
+  bundle's own, and should be re-argued rather than inherited.
+- **Exposing the two gate models was a benefit.** The contradiction predates the move; two
+  repositories simply hid it.
+- **One cost went unpriced at the time: visibility.** Two subjects with different disclosure
+  profiles ended up sharing one switch. Recorded and closed by
+  [ADR-0027](0027-design-is-public.md).
+
 ### What would reopen this
 
 - **The bundle is retired** once the ASDLC's own tooling covers it. Then `tools/spec-kit-bundle-nc/`

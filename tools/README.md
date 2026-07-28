@@ -52,7 +52,9 @@ placed anywhere under `tools/` is inert, so `tools/spec-kit-bundle-nc/` delibera
   bundle release ([ADR-0025](../reference/decisions/0025-monorepo.md) part 4). **The bundle is
   distributed from this repository** —
   [ADR-0026](../reference/decisions/0026-bundle-distribution.md); the four `catalogs/*.json` point
-  here, and consumers need no credential because the repository is public. Every release assert
+  here, and consumers need no credential because the repository is **public by decision**
+  ([ADR-0027](../reference/decisions/0027-design-is-public.md), which also sets what may never be
+  committed to a public tree). Every release assert
   passes in a local dry-run at `GITHUB_REF_NAME=bundle-v0.2.0`. **Cutting the tag is the owner's
   call and has not been done.**
 

@@ -143,6 +143,12 @@ depends on a public URL, because nothing has been released. Making the repositor
 exactly part 3's fallback: one `auth.json` per consumer. If it *is* intended, this record is where
 someone will look for the reasoning, and there is none to point at.
 
+**Closed the same day by [ADR-0027](0027-design-is-public.md).** The owner was asked directly and
+chose public **deliberately**, with part 3's private alternative priced in front of them. There is
+now a record to point at, and it adds two things this record could not: a **disclosure boundary**
+for what may never be committed here, and a **naming rule** for [OQ-10](../open-questions.md). Part
+3's private-fallback paragraph above stays exactly as written — it is now the reversal runbook.
+
 ## Variant answers
 
 **Converges.** This is repository and distribution hygiene, not a stack choice: the same tag, the

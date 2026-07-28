@@ -78,6 +78,8 @@ has ([05-merge.md](05-merge.md) §3).
 ## Not yet specified
 
 - **The checker is not written.** The seven checks are specified; the program is a phase-0
-  bring-up task ([rollout/open-parameters.md](../rollout/open-parameters.md)).
+  bring-up task ([rollout/open-parameters.md](../rollout/open-parameters.md)). The
+  [`/asdlc:tasks` procedure](skills/tasks/SKILL.md) reproduces the seven checks so the agent can
+  predict the failure, which is not a substitute for the program.
 - **Nothing rewrites the pinned hashes for the agent.** Whether that is a checker flag, a
   pre-commit hook, or a manual step is a bring-up decision.

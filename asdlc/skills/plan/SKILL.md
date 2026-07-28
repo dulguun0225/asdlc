@@ -1,0 +1,139 @@
+---
+description: Draft a feature plan for the ASDLC plan/design stage — architecture, contracts, requirements traceability, tier-map entries for every new path, and non-functional enforcement. Use after the spec is signed. Produces specs/<NNN>-<slug>/plan.md for a ring reviewer to sign. This is the heaviest gate in the life cycle.
+argument-hint: [NNN-kebab-slug]
+disable-model-invocation: true
+allowed-tools: Read, Grep, Glob, Edit(specs/**), Bash(git log *), Bash(git show *), Bash(sha256sum *), Bash(shasum *), AskUserQuestion
+disallowed-tools: PowerShell, NotebookEdit
+---
+
+# Stage 2 — Plan / design
+
+You are drafting `specs/$ARGUMENTS/plan.md`. The signer asserts *"this is a sound approach to that
+problem."* You do not sign it.
+
+**This is the heaviest gate in the design**, because three of this document's sections are required
+by records outside it and nothing else produces them: §6 traceability, §7 tier-map entries, §8
+non-functional enforcement. A plan missing any of the three fails the automated check.
+
+## Before writing anything
+
+1. **Read the signed spec** at `specs/<NNN>-<slug>/spec.md` and the template at
+   `asdlc/templates/plan.md`.
+2. **Record the spec's hash.** `sha256sum` (Linux, WSL2) or `shasum -a 256` (macOS) over the
+   committed bytes of `spec.md`. Put the prefix in the header table. The tasks stage will pin the
+   full 64 characters.
+3. **Confirm the spec is actually signed.** If there is no gate record for it, stop. Planning
+   against an unsigned spec produces a plan that has to be redone, and the tasks stage will fail on
+   the hash anyway.
+
+## The sections
+
+`1. Summary` · `2. Architecture` · `3. Synchronous contracts` · `4. Asynchronous contracts` ·
+`5. Data and storage` · `6. Requirements traceability` · `7. Tier-map entries` ·
+`8. Non-functional enforcement` · `9. Decision trace` · `10. Risks` · `11. Phase plan`
+
+Delete §3 or §4 only if the feature genuinely exposes no synchronous operation or produces and
+consumes no messages. Deletion is a review question, not a formatting choice. **An empty
+idempotency cell on a mutating operation is a question the reviewer asks now instead of in the
+incident review.**
+
+**§5 must say whether this feature writes state that redeploying does not undo.** That sentence
+decides the service's `reversibility`, and an `irreversible` service is barred from the automatic
+deploy path. Do not leave it implicit.
+
+## §6 — Requirements traceability
+
+Every active `FR` and `NFR` from the spec appears **exactly once**. None missing, none invented —
+both fail the check.
+
+A requirement this plan does not address is stated here as out-of-scope-for-now **with a reason**.
+Silence is not an answer.
+
+## §7 — Tier-map entries for new paths
+
+The plan that creates a path classifies it. This is the whole answer to the greenfield cold start:
+the map cannot be written up front because the code does not exist.
+
+Write the entries as a YAML block inside §7, using the schema in `reference/artifacts.md` §1:
+
+```yaml
+services:
+  <service-name>:
+    reversibility: full | partial | irreversible   # does redeploying undo its writes?
+    blast_radius: internal | users | all
+
+paths:
+  - glob: "src/<area>/**"
+    tier: 1 | 2 | 3
+    service: <service-name>
+    sensitivity: auth | secret | iam              # omit unless one applies
+```
+
+**You do not edit the map file itself. Ever.** The map file is tier configuration, it is on the
+never-write list, and **a change to it authored by the agent identity is rejected outright, not
+escalated.** You draft the block here; a human applies it to the map file in this same change, and
+the platform owner reviews that diff at T1 even though this plan is not T1. That is the mechanism
+by which an agent can never widen its own permissions through a plan.
+
+**No new paths?** State that explicitly in §7 rather than deleting the section.
+
+A path nobody declares here hits tier-function rule 4 at merge, routes to T1, and **fails the build
+naming the path**. That failure is a plan defect surfaced late. Expect it to fire often in early
+greenfield work; it is measured, not tolerated silently.
+
+## §8 — Non-functional enforcement
+
+One row per `NFR`. A `canary` row is a **proposal** for the service's progressive-rollout policy;
+the platform owner sets the final value at T1.
+
+Off Kubernetes the canary route may not exist. If that is this service's situation, say so and fall
+back to `test` or `none` with a reason — do not propose a threshold that has nothing to enforce it.
+
+## §9 — Decision trace
+
+One row per technology or approach choice: what was chosen, **what was rejected**, and the record
+that settles it. Where no record does, mark the row `NEW — proposed`; the plan signature ratifies
+it.
+
+*"We chose X"* with no alternative named is a preference, not a decision. Do not write one.
+
+## §10 — Risks, and the critique pass
+
+**Run a critique pass over your own plan and put the result in §10.** Frame it as **finding
+faults** — never as confirming that the plan is good. An agent asked *"is this plan sound?"* is not
+performing review; it is producing agreement.
+
+Ask, at minimum: what would make this approach wrong? What is the cheapest signal that would show
+it early? Which requirement is this design weakest at satisfying? What did §5 assume about state
+that might not hold?
+
+Pre-execution is where a model's judgement is least badly calibrated, which is why the critique
+belongs here and not at merge.
+
+## The advisory tier
+
+Run the tier function at plan time and record its output in the header table as **advisory**. It is
+**not binding**. The binding tier is computed on the final diff at merge, and if it comes out
+higher than the tier this plan was signed at, **the plan must be re-signed before merge.**
+
+Do not present the advisory tier as the tier. Do not choose it.
+
+## Hard rules
+
+- **Write nothing outside `specs/<NNN>-<slug>/`.** Not the tier map, not CI configuration, not
+  `CLAUDE.md`, not `.claude/` anything, not source. This stage designs; it does not build.
+- **Add no `Status:` or approval line.** The approval is the gate record carrying this file's
+  sha256.
+- **Do not sign, rate, or approve.** You drafted it, so you are the producer and are excluded.
+- **Do not assert that a requirement is satisfied.** §6 maps a requirement to the design element
+  intended to satisfy it. Verification happens at merge, against a passing test.
+
+## When you are done
+
+Report: the path, the spec hash prefix you recorded, the advisory tier and which rule produced it,
+every new path declared in §7 and **the fact that a human must apply them to the map file**, every
+`NEW — proposed` row in §9, and the faults your critique pass found. Then say that a **ring
+reviewer** signs this — or a team leader recorded as review-competent — and that at T2 this signer
+asserts the problem as well as the approach.
+
+Do not start the tasks stage. The engineer invokes `/asdlc:tasks` when the plan is signed.

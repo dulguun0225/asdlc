@@ -260,11 +260,16 @@ cost.
 
 ## Not yet specified
 
-- **The text of the four stage skills.** [ADR-0020](../reference/decisions/0020-agent-instruction-layers.md)
-  fixes their structure, scope and invocation controls and
-  [ADR-0024](../reference/decisions/0024-stage-skill-distribution.md) fixes their layout, names and
-  delivery; the procedures themselves are bring-up work, drafted against
-  [the templates](templates/README.md). **Code, not a decision.**
+- ~~**The text of the four stage skills.**~~ **Written 2026-07-28** —
+  [skills/](skills/README.md). All four exist and are **unrun**; no engineer has walked one, and
+  the first pilot week should be expected to rewrite them. Writing them established one thing worth
+  reading before relying on §7's tool scoping: `allowed-tools` is a **pre-approval, not a
+  restriction**, and both it and `disallowed-tools` **clear at the end of the turn**, not at the
+  end of the stage ([skills/README.md](skills/README.md)).
+- **No `PreToolUse` hook is defined.** Hooks are the enforcement layer
+  ([ADR-0020](../reference/decisions/0020-agent-instruction-layers.md) option 4) and which one, if
+  any, should back a stage rule is a bring-up design task. The clearest candidate is named in
+  [skills/README.md](skills/README.md).
 *(Prompt injection from repository content was listed here until 2026-07-28. It is decided rather
 than open — [ADR-0023](../reference/decisions/0023-adversarial-repository-content.md) inventories
 the controls that bound the **effect** of the agent doing the wrong thing, whether induced or

@@ -93,7 +93,11 @@ is subordinate.
 - [`asdlc/`](asdlc/README.md) — the life cycle. `README.md` (overview + the flow diagram),
   `roles.md`, `tiers.md`, and `01-spec.md` … `07-operate.md`, one file per stage. Every stage
   file ends with a **"Not yet specified"** section — keep that rule; it is how the design's
-  gaps stay visible.
+  gaps stay visible. Two subdirectories hold the artifacts the life cycle produces and consumes:
+  [`templates/`](asdlc/templates/README.md) (the spec, plan and tasks templates) and
+  [`skills/`](asdlc/skills/README.md) (the four stage procedures the agent is given —
+  **prompt text, and the one place in this repository where repetition and exhaustive case lists
+  are correct**, because no human reads them for pleasure).
 - [`variants/`](variants/README.md) — the two stacks. `cloud.md` and `self-hosted.md` are
   **self-contained bills of materials plus host configuration**: building one variant needs
   one document open. `README.md` states the axis and the ~70% that converges.

@@ -53,11 +53,8 @@ second trigger list ([tiers.md](../tiers.md)).
   ([open-parameters.md](../../rollout/open-parameters.md)). The two in-house conventions
   ([`sdd-standard`](https://github.com/dulguun0225/sdd-standard),
   [`spec-kit-bundle-nc`](https://github.com/dulguun0225/spec-kit-bundle-nc)) are usable prior art.
-- **The text of the four stage skills** that drive these templates — `/asdlc:spec`, `/asdlc:plan`,
-  `/asdlc:tasks`, `/asdlc:implement`. Their structure, scope and invocation controls are fixed
-  ([ADR-0020](../../reference/decisions/0020-agent-instruction-layers.md)), and their layout, names
-  and delivery by
-  ([ADR-0024](../../reference/decisions/0024-stage-skill-distribution.md)); the procedures are
-  bring-up work. Code, not a decision.
+- ~~**The text of the four stage skills** that drive these templates.~~ **Written 2026-07-28** —
+  [../skills/](../skills/README.md). `/asdlc:spec`, `/asdlc:plan`, `/asdlc:tasks`,
+  `/asdlc:implement`, all unrun.
 - **The authoring language** is English by default, unconfirmed — see
   [context.md](../../reference/context.md).

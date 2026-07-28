@@ -26,6 +26,7 @@ reference/    the working record — decisions, research, open questions, schema
 |---|---|
 | **Understand the life cycle** | [asdlc/README.md](asdlc/README.md) — includes the flow diagram |
 | **Write a spec, a plan, or a task list** | [asdlc/templates/](asdlc/templates/README.md) |
+| **See what the agent is actually told at each stage** | [asdlc/skills/](asdlc/skills/README.md) |
 | **Build one variant** | [variants/cloud.md](variants/cloud.md) or [variants/self-hosted.md](variants/self-hosted.md) — each is self-contained |
 | **Know what to do first** | [rollout/plan.md](rollout/plan.md) |
 | **Know why something was decided** | [reference/decisions/](reference/decisions/README.md) |
@@ -54,8 +55,9 @@ reach eighteen machines**; the units of work; how a post-merge defect is attribu
 | Platform owner and backup — **a role that does not exist yet** ([OQ-10](reference/open-questions.md)) | Everything. It owns almost every artifact in the design, and one day's decisions added an observability stack, a registry, a signing key and an attribution countersignature to it. **The single largest unstaffed dependency.** |
 | The deployment target, and what the greenfield projects are ([context.md](reference/context.md)) | The progressive-rollout answer off Kubernetes, and the concrete path→tier map |
 
-**Missing, but code rather than decisions:** the feature-artifact checker, the four stage-skill
-texts, and the CI emitters for gate records and requirements traces. Each stage file in
+**Missing, but code rather than decisions:** the feature-artifact checker and the CI emitters for
+gate records and requirements traces. The **four stage procedures now exist**
+([asdlc/skills/](asdlc/skills/README.md)) and are unrun. Each stage file in
 [`asdlc/`](asdlc/README.md) ends with a "Not yet specified" section listing what is missing from it;
 [06-deploy.md](asdlc/06-deploy.md)'s is empty. Three phase-0 verifications were recorded as able to
 genuinely fail ([rollout/open-parameters.md](rollout/open-parameters.md)); **one has now been run and

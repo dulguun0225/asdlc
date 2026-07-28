@@ -72,6 +72,14 @@ alone holds. The map file is T1 by tier-function rule 1, so the platform owner r
 even though the plan itself is not T1 — which is the point: the agent can never widen its own
 permissions through a plan.
 
+**A human applies that diff, and the agent never touches the map file.** This was implicit until
+2026-07-28 and is now stated, because it is where two rules meet: this stage requires a map diff,
+and [ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) part 2 rejects a
+never-write class 1 change authored by the agent identity **outright, not by escalating it**. The
+agent drafts the YAML block in plan §7; the engineer or the platform owner applies it. If the agent
+edited the map file, the change would simply fail — which is the mechanism working, but it is
+cheaper to know than to discover.
+
 ## Records
 
 Gate record with `gate: "plan"`, the signer, and the hash of the plan text
@@ -86,11 +94,8 @@ host — see [05-merge.md](05-merge.md) §3.
 
 ## Not yet specified
 
-- **The text of the `/asdlc:plan` stage skill**, including how the critique pass above is invoked.
-  Structure and scope are fixed
-  ([ADR-0020](../reference/decisions/0020-agent-instruction-layers.md)), delivery by
-  [ADR-0024](../reference/decisions/0024-stage-skill-distribution.md); the procedure is bring-up
-  work. Code, not a decision.
+- ~~**The text of the `/asdlc:plan` stage skill**, including how the critique pass above is
+  invoked.~~ **Written 2026-07-28** — [skills/plan/SKILL.md](skills/plan/SKILL.md). Unrun.
 - **The contract table shapes are generic.** They fit an HTTP-and-messaging service; a feature of
   another shape (a batch job, a library) has no worked example to follow.
 - **Nothing yet checks that a proposed SLO value is achievable.** The plan proposes, the platform

@@ -95,6 +95,17 @@ decisions rather than defaults:
   picks is not a life cycle.
 - **`allowed-tools` and `disallowed-tools` per stage.** The spec stage does not need to write source
   files. Tool scope follows the stage, which is a cheap structural boundary on top of the sandbox's.
+
+  > **Overstated, corrected 2026-07-28** while writing the four procedures
+  > ([asdlc/skills/](../../asdlc/skills/README.md)). Two documented facts narrow this claim.
+  > **`allowed-tools` is a pre-approval, not a restriction** — it names what will not prompt; it
+  > removes nothing. Only `disallowed-tools` removes a tool, and it takes whole tools, so
+  > path-scoped denial needs managed `permissions.deny` or a `PreToolUse` hook. And **both fields
+  > clear at the end of the turn, not the end of the stage** — verbatim, the grant and the
+  > restriction each *"clears when you send your next message."* So a three-exchange spec session
+  > has the scope for the first exchange only. Tool scope is a first-turn convenience that
+  > documents intent; **the boundaries that do not expire are the sandbox, the never-write list and
+  > the egress allowlist.**
 - **On-demand loading.** *"A skill's body loads only when it's used, so long reference material
   costs almost nothing until you need it."* The procedures can carry the template guidance in full
   without spending context in every unrelated session.

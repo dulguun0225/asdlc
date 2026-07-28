@@ -25,7 +25,37 @@ computer and the agent's local memory does not travel, so this section — not a
 the conversation — is where the state lives. Anyone finishing a session updates it
 ([`CLAUDE.md`](../CLAUDE.md) → "Assume every session starts on a different computer").
 
-### Last session: 2026-07-28 — the first bring-up verification was run, and it failed
+### Last session: 2026-07-28 — the four stage procedures are written
+
+[`asdlc/skills/`](../asdlc/skills/README.md) now holds `spec`, `plan`, `tasks` and `implement` —
+the text an engineer's agent actually receives when it enters a stage. **They are unrun**, and the
+first pilot week should be expected to rewrite them. That is the intended loop, not a defect.
+
+Writing them turned up **three things the design had left implicit or overstated**, which is the
+argument for writing procedures before running them rather than during a pilot:
+
+- **`allowed-tools` is a pre-approval, not a restriction, and both tool fields clear at the end of
+  the *turn*, not the stage.** Verbatim, each *"clears when you send your next message."*
+  [ADR-0020](decisions/0020-agent-instruction-layers.md) part 2 called per-stage tool scope *"a
+  cheap structural boundary on top of the sandbox's"* — **it is cheaper and less structural than
+  that.** The correction is in the record. The boundaries that do not expire are the sandbox, the
+  never-write list and the egress allowlist.
+- **Nobody had said who applies the tier-map diff.** [02-plan.md](../asdlc/02-plan.md) requires one
+  in the same change; [ADR-0008](decisions/0008-agent-write-scope-and-enforcement.md) part 2
+  **rejects** a class-1 change authored by the agent identity outright. Both are right: the agent
+  drafts the YAML in plan §7 and **a human applies it**. Now stated.
+- **No frontmatter `name` field on any of the four**, deliberately. In a plugin skill `name`
+  replaces the last command segment, and before runner v2.1.216 it replaced the **whole** command
+  name — dropping the `asdlc:` prefix that
+  [ADR-0024](decisions/0024-stage-skill-distribution.md) depends on.
+
+**What the next session should pick up.** The remaining non-owner items are code rather than prose:
+the **feature-artifact checker** (seven blocking checks, ADR-0014 part 7, specified in full) and the
+**CI emitters** for gate records and requirements traces. Both are real programs, and this
+repository has deliberately never held code — **whether they are written here or in the plugin
+repository is an unanswered layout question, and worth deciding before writing the first line.**
+
+### Session before: 2026-07-28 — the first bring-up verification was run, and it failed
 
 **The design was declared finished last session. This session ran one of the three phase-0 checks
 that were recorded as able to genuinely fail, and it failed.** That is the system working: the

@@ -33,6 +33,17 @@ Two obligations follow, and neither is optional:
 so and offer to commit it. "Don't commit unless asked" means do not commit silently; it does not
 mean leave the work stranded on one machine.
 
+**Nor does unpushed work, and this had already gone wrong.** On 2026-07-28 the repository was
+**thirteen commits ahead of `origin/master`** — four from that session and **nine from earlier
+ones**. Every one of those sessions wrote a careful handover note into
+[`reference/open-questions.md`](reference/open-questions.md), and none of it would have reached the
+next machine, because the note was committed and the commit never left the laptop. A perfect
+handover note on an unpushed commit is worth nothing.
+
+So: **a session that commits also pushes**, or says plainly that it did not and why. Check with
+`git status -sb` or `git rev-list --count origin/master..HEAD` before declaring a session finished.
+This is part of "write the state before finishing", not a separate courtesy.
+
 ## Two variants, tracked in parallel
 
 Every part of the target ASDLC must be answered for **both** deployment variants. Treat this as the primary axis of the design — a section that only addresses one variant is incomplete.

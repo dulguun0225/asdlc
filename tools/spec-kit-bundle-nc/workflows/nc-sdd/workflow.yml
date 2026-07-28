@@ -1,0 +1,103 @@
+schema_version: "1.0"
+
+workflow:
+  id: "nc-sdd"
+  name: "NC SDD Cycle"
+  version: "0.2.0"
+  author: "Dulguun Otgon"
+  description: "The stock SDD cycle (specify - plan - tasks - implement) with NC's human approval recorded in the artifacts before implementation starts."
+
+requires:
+  # Advisory only — spec-kit does not enforce workflow `requires` at run time.
+  # The real floor is the bundle's pin: the commands this workflow dispatches
+  # are the project's installed commands, composed by spec-kit >=0.14.2 with
+  # the nc-ears preset and the nc extension.
+  speckit_version: ">=0.14.2,<1.0.0"
+  integrations:
+    # Non-exhaustive compatibility hint (the documented `any:` schema). The
+    # workflow dispatches core speckit commands, so any integration whose CLI
+    # is installed works; the nc hooks ride inside the composed commands.
+    any:
+      - "claude"
+      - "copilot"
+      - "gemini"
+      - "opencode"
+
+inputs:
+  spec:
+    type: string
+    required: true
+    prompt: "Describe what you want to build"
+  integration:
+    type: string
+    default: "auto"
+    prompt: "Integration to use ('auto' uses the project's initialized integration)"
+
+# Command steps dispatch the project's INSTALLED commands headlessly (for
+# claude: `claude -p "/speckit-<name> ..."`), so the nc-ears command wraps and
+# the nc extension hooks apply here exactly as they do in interactive use.
+steps:
+  - id: specify
+    command: speckit.specify
+    integration: "{{ inputs.integration }}"
+    input:
+      args: "{{ inputs.spec }}"
+
+  - id: review-spec
+    type: gate
+    message: >-
+      Review spec.md. Every functional requirement must use one EARS pattern
+      under a stable FR-nnn ID. If the spec needs clarification, run the
+      clarify command interactively in your agent now — clarification is a
+      dialogue, so it has no headless step in this pipeline — then approve.
+    options: [approve, reject]
+    on_reject: abort
+
+  - id: plan
+    command: speckit.plan
+    integration: "{{ inputs.integration }}"
+    input:
+      args: "{{ inputs.spec }}"
+
+  - id: review-plan
+    type: gate
+    message: >-
+      Review plan.md. The Requirements Traceability table must map every
+      FR-nnn to the design element that satisfies it; the Decision Trace must
+      account for every Technical Context entry — a record citation, a
+      spec-fixed feature-local value, a 'NEW — proposed' row, or a recorded
+      divergence, and the proposed rows and divergences are what your
+      approval will ratify (reject to send the plan back); and the plan must
+      end with the Approval section still reading 'Status: Pending review'.
+    options: [approve, reject]
+    on_reject: abort
+
+  - id: tasks
+    command: speckit.tasks
+    integration: "{{ inputs.integration }}"
+    input:
+      args: "{{ inputs.spec }}"
+
+  # The approval of record lives in the artifacts, not in this terminal
+  # prompt. Approving here without editing the files does not unblock
+  # implementation: the nc extension's before_implement hook re-checks the two
+  # lines and ends the implement run — with nothing implemented — if they are
+  # missing. The pipeline cannot see that stop (the agent CLI exits 0 either
+  # way), so this gate is the pipeline's real stop point.
+  - id: approve
+    type: gate
+    message: >-
+      Human approval gate. Read spec.md and plan.md for this feature, then
+      record the approvals yourself: in spec.md replace the word Draft in the
+      Status line with: Approved, an em dash, your name, a comma, the date
+      (YYYY-MM-DD). In plan.md replace the whole 'Status: Pending review ...'
+      line under ## Approval with the same approval line. Approve here only
+      after both lines are written.
+    options: [approve, reject]
+    on_reject: abort
+
+  - id: implement
+    command: speckit.implement
+    integration: "{{ inputs.integration }}"
+    input:
+      args: "{{ inputs.spec }}"

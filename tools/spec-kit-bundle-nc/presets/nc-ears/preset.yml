@@ -1,0 +1,92 @@
+schema_version: "1.0"
+
+preset:
+  id: "nc-ears"
+  name: "NC EARS Requirements"
+  version: "0.2.0"
+  description: "Write spec-kit requirements in EARS format with stable FR-nnn IDs, carry FR-nnn traceability through plan and tasks, trace technology choices to the project's decision records, and seed one constitution that makes these rules non-negotiable."
+  author: "Dulguun Otgon"
+  repository: "https://github.com/dulguun0225/spec-kit-bundle-nc"
+  license: "MIT"
+
+requires:
+  # Verified against spec-kit v0.14.2 by a real install (2026-07-27): command
+  # `wrap` composition and the `{CORE_TEMPLATE}` placeholder work there. The
+  # floor is the CI-pinned version — the only one every run re-verifies. The
+  # upper bound guards against a 1.x behavior change.
+  speckit_version: ">=0.14.2,<1.0.0"
+
+provides:
+  # Every override — templates AND commands — lives under `provides.templates`
+  # with a `type` discriminator, matching spec-kit's own shipped presets.
+  #
+  # Templates use only `replace`. Verified against v0.14.2 by a real install:
+  # the scaffold scripts resolve templates by path convention and copy the
+  # first match verbatim — a template with strategy `wrap` is copied with its
+  # literal `{CORE_TEMPLATE}` placeholder unexpanded. (See DECISIONS.md B-2.)
+  # Commands compose correctly at install time, so `wrap` is safe for them.
+  templates:
+    # --- Template replaces: this preset owns these two documents outright ---
+
+    # The one default constitution. EARS, specify-and-approve-before-building,
+    # and FR-nnn traceability are seeded as non-negotiable principles.
+    - type: "template"
+      name: "constitution-template"
+      file: "templates/constitution-template.md"
+      description: "Default constitution — EARS requirements, human approval before implementation, and FR-nnn traceability are non-negotiable"
+      replaces: "constitution-template"
+      strategy: "replace"
+
+    # The core deliverable. Rewrites the Functional Requirements section to
+    # EARS while preserving spec-kit's native structure (FR-nnn IDs, SC-nnn
+    # success criteria, Given/When/Then scenarios, [NEEDS CLARIFICATION]).
+    - type: "template"
+      name: "spec-template"
+      file: "templates/spec-template.md"
+      description: "Feature spec — every functional requirement written in an EARS pattern"
+      replaces: "spec-template"
+      strategy: "replace"
+
+    # Deliberately NO plan-template or tasks-template override: the stock
+    # templates stay, and the wrapped speckit.plan / speckit.tasks commands
+    # below add the traceability and approval sections to the generated
+    # artifacts. ci/check_specs.py is the deterministic backstop.
+
+    # --- Command wraps: keep the stock command machinery, layer rules on top ---
+    # Each wrapper inherits the full stock command (extension hooks, template
+    # resolution, quality checklist) via {CORE_TEMPLATE}, then adds rules.
+
+    - type: "command"
+      name: "speckit.specify"
+      file: "commands/speckit.specify.md"
+      description: "Create the spec, with every functional requirement in EARS format and validated as such"
+      replaces: "speckit.specify"
+      strategy: "wrap"
+
+    - type: "command"
+      name: "speckit.plan"
+      file: "commands/speckit.plan.md"
+      description: "Create the plan from decision records; append required sections"
+      replaces: "speckit.plan"
+      strategy: "wrap"
+
+    - type: "command"
+      name: "speckit.tasks"
+      file: "commands/speckit.tasks.md"
+      description: "Generate tasks, with every task citing the FR-nnn requirement(s) it implements"
+      replaces: "speckit.tasks"
+      strategy: "wrap"
+
+    - type: "command"
+      name: "speckit.constitution"
+      file: "commands/speckit.constitution.md"
+      description: "Create or update the constitution; guard the seeded principles"
+      replaces: "speckit.constitution"
+      strategy: "wrap"
+
+tags:
+  - "ears"
+  - "requirements"
+  - "traceability"
+  - "constitution"
+  - "quality"

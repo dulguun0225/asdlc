@@ -1,0 +1,18 @@
+{
+  "workflows": {
+    "nc-sdd": {
+      "id": "nc-sdd",
+      "name": "NC SDD Cycle",
+      "description": "The stock SDD cycle (specify - plan - tasks - implement) with NC's human approval recorded in the artifacts before implementation starts.",
+      "author": "Dulguun Otgon",
+      "version": "0.2.0",
+      "url": "https://raw.githubusercontent.com/dulguun0225/spec-kit-bundle-nc/v0.2.0/workflows/nc-sdd/workflow.yml",
+      "repository": "https://github.com/dulguun0225/spec-kit-bundle-nc",
+      "license": "MIT",
+      "requires": { "speckit_version": ">=0.14.2,<1.0.0" },
+      "tags": ["sdd", "ears", "gates", "traceability"],
+      "created_at": "2026-07-23",
+      "updated_at": "2026-07-27"
+    }
+  }
+}

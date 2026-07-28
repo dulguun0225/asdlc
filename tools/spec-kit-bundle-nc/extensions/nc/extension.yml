@@ -1,0 +1,48 @@
+schema_version: "1.0"
+
+extension:
+  # id "nc" because extension command names must match
+  # speckit.{extension-id}.{command} (spec-kit v0.14.2 validator), and the
+  # commands are speckit.nc.gate / speckit.nc.review.
+  id: nc
+  name: "NC Gates & Review"
+  version: "0.2.0"
+  description: "One human approval gate before implementation (a human approved spec.md and plan.md, recorded in the artifacts) and an agent self-review after it (implementation compared against spec/plan/tasks and the project's decision records, findings written to review-notes.md)"
+  category: "process"
+  effect: "read-write"
+  author: "Dulguun Otgon"
+  repository: "https://github.com/dulguun0225/spec-kit-bundle-nc"
+  license: "MIT"
+
+requires:
+  # before_implement / after_implement hook dispatch verified against spec-kit
+  # v0.14.2 (stock implement command, Pre-Execution Checks and Mandatory
+  # Post-Execution Hooks sections). The floor is the CI-pinned version — the
+  # only one every run re-verifies; the upper bound guards against a 1.x
+  # behavior change.
+  speckit_version: ">=0.14.2,<1.0.0"
+
+provides:
+  commands:
+    - name: speckit.nc.gate
+      file: commands/gate.md
+      description: "Human approval gate — verify a human approved spec.md and plan.md before implementation starts"
+    - name: speckit.nc.review
+      file: commands/review.md
+      description: "Compare the implementation with the spec, plan, and tasks; write the findings to review-notes.md"
+
+hooks:
+  before_implement:
+    command: speckit.nc.gate
+    optional: false
+    description: "Implementation starts only after a human approved the spec and the plan (constitution principle II)"
+  after_implement:
+    command: speckit.nc.review
+    optional: false
+    description: "The review runs after implementation completes, before the item is marked done"
+
+tags:
+  - "gates"
+  - "review"
+  - "process"
+  - "quality"

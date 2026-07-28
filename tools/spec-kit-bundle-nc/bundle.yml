@@ -1,0 +1,59 @@
+schema_version: "1.0"
+
+bundle:
+  id: "nc-sdd"
+  name: "NC Spec-Driven Development"
+  version: "0.2.0"
+  role: "developer"
+  description: "Spec-Driven Development the NC way: requirements in EARS format with stable FR-nnn IDs, FR-nnn traceability through plan and tasks, technology choices traced to decision records, one human approval gate before implementation, and an agent self-review after it."
+  author: "Dulguun Otgon"
+  license: "MIT"
+
+requires:
+  # Floor verified against a real spec-kit v0.14.2 install (2026-07-27); the
+  # component manifests carry the same range and their own rationale comments.
+  # The floor tracks the CI pin: only the pinned version is re-verified on
+  # every run, so a lower floor would be an unchecked claim (DECISIONS B-9).
+  speckit_version: ">=0.14.2,<1.0.0"
+  tools: []
+  mcp: []
+
+# No `integration` key: the bundle is integration-agnostic and inherits the
+# project's active integration (claude, copilot, ...).
+
+# A spec-kit v0.14.2 bundle is a pointer list, not a payload container:
+# `specify bundle install` reads ONLY bundle.yml and resolves each component
+# from (1) components already installed in the project, (2) spec-kit's own
+# bundled assets, (3) HTTPS catalogs. The presets/, extensions/, and
+# workflows/ directories in this repository are the components' source of
+# truth — install them with `--dev` for local use, or publish them via
+# catalogs/ (see README).
+provides:
+  presets:
+    - id: "nc-ears"
+      version: "0.2.0"
+      priority: 10
+      # `strategy` here is required by the bundle-manifest validator; the
+      # per-file strategies in the preset's own preset.yml govern composition.
+      strategy: "replace"
+  extensions:
+    - id: "nc"
+      version: "0.2.0"
+  # Workflows have no zip channel and, through v0.14.2, no working install
+  # path through the bundler either: its in-process call into `workflow add`
+  # binds unparsed CLI defaults and dies in the --dev branch on a bare id.
+  # Install the workflow BEFORE `bundle install` (locally with --dev, or
+  # `specify workflow add nc-sdd` via catalogs/workflows.json); this entry
+  # then declares the component and pins its version for `bundle validate`,
+  # and `bundle install` reports it as already present.
+  workflows:
+    - id: "nc-sdd"
+      version: "0.2.0"
+
+tags:
+  - "ears"
+  - "requirements"
+  - "traceability"
+  - "gates"
+  - "review"
+  - "sdd"

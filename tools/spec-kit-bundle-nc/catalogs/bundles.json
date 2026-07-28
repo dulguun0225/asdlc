@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "bundles": {
+    "nc-sdd": {
+      "id": "nc-sdd",
+      "name": "NC Spec-Driven Development",
+      "version": "0.2.0",
+      "role": "developer",
+      "description": "Spec-Driven Development the NC way: requirements in EARS format with stable FR-nnn IDs, FR-nnn traceability through plan and tasks, technology choices traced to decision records, one human approval gate before implementation, and an agent self-review after it.",
+      "author": "Dulguun Otgon",
+      "license": "MIT",
+      "repository": "https://github.com/dulguun0225/spec-kit-bundle-nc",
+      "download_url": "https://github.com/dulguun0225/spec-kit-bundle-nc/releases/download/v0.2.0/nc-sdd-0.2.0.zip",
+      "requires": { "speckit_version": ">=0.14.2,<1.0.0" },
+      "provides": { "extensions": 1, "presets": 1, "steps": 0, "workflows": 1 },
+      "tags": ["ears", "requirements", "traceability", "gates", "review", "sdd"],
+      "verified": false
+    }
+  }
+}

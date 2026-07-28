@@ -1,0 +1,9 @@
+# Spec Kit writes composed command output here during dev installs.
+.composed/
+
+# Built bundle artifacts (specify bundle build): <id>-<version>.zip
+*.zip
+
+# Local scratch
+tree.txt
+__pycache__/

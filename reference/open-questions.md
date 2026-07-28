@@ -112,13 +112,15 @@ that existed.
 
 1. **`.github/workflows/bundle-release.yml` has never run**, and it fires only on `bundle-v*`, so a
    `v1.0.0` cut for the design is safe. Its first run will be the real release.
-2. ~~`bundle-checks.yml`~~ — **closed 2026-07-28, both halves verified.** It fires on `tools/**`
-   and passes: five green runs (`12401a3`, `465e089`, `beae3eb`, `bf0ab33`, `f86ba54`), the first
-   on the commit that added it. It correctly does **not** fire on a design-only change: `5c6bbcc`
-   touched only `reference/open-questions.md` and produced no run, so the
-   `tools/spec-kit-bundle-nc/**` path filter declines as well as accepts. An earlier version of
-   this note said the workflow "has never run" — that was a prediction written before its own push
-   and left uncorrected. **Do not re-derive the doubt from it.**
+2. ~~`bundle-checks.yml`~~ — **closed 2026-07-28, both halves verified.** It fires on
+   **`tools/spec-kit-bundle-nc/**` and on its own file** — *not* on `tools/**`, which an earlier
+   version of this line said — and passes: five green runs (`12401a3`, `465e089`, `beae3eb`,
+   `bf0ab33`, `f86ba54`), the first on the commit that added it. **The filter declines as well as
+   accepts, verified twice and the second is the tighter case:** `5c6bbcc` touched only
+   `reference/open-questions.md` and produced no run, and `184b5f9` touched
+   **`tools/README.md`** — inside `tools/`, outside the bundle — and also produced no run. An
+   earlier version of this note said the workflow "has never run" — that was a prediction written
+   before its own push and left uncorrected. **Do not re-derive the doubt from it.**
 
 **One standing instruction, because it was asked twice and answered twice:** the owner does not
 choose between options here. Research it, decide it, record it, and say what would reverse it.

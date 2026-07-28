@@ -134,7 +134,7 @@ The bundle's `CLAUDE.md` now forbids creating a `.github/` there rather than war
 that existed.
 
 **The pack corpus gained a rule *source*, and it is written.**
-[`packs/money-grade.md`](../tools/spec-kit-bundle-nc/packs/money-grade.md) holds 29 money
+[`packs/rule-sources/money-grade.md`](../tools/spec-kit-bundle-nc/packs/rule-sources/money-grade.md) holds 29 money
 directives (`M-1` … `M-29`) stated platform-neutrally
 ([`DECISIONS.md`](../tools/spec-kit-bundle-nc/DECISIONS.md) B-8, amended 2026-07-28): no seed
 file, never adopted, and **every stack pack instantiates it** — each rule written into that pack's
@@ -143,6 +143,15 @@ divergence the platform forces. `java-backend` is
 the only instantiation so far and its text was not touched. **The next stack pack is where this
 gets tested**, since one instantiation cannot show which directives are genuinely
 platform-neutral. It blocks nothing, including the release.
+
+**Sources live in `packs/rule-sources/`, and the mechanism is not money-only** (B-10, 2026-07-28).
+The path is what says "not a paste target" — adopt step 1 is a path rule now, not a Kind column to
+read. Every shared infrastructure concern has the source shape (portable directive, a different
+enforcing tool per language): `cache-discipline` is rostered as the expected second one under
+*Candidate sources* in [`packs/index.md`](../tools/spec-kit-bundle-nc/packs/index.md), with no
+research done and none due until a repo adopts it. **Adding any directory under `packs/` means
+re-reading the freshness step's glob** — it is recursive now because this move would otherwise have
+dropped the source from it silently.
 
 **One thing left to watch, and one now closed:**
 
@@ -163,12 +172,82 @@ choose between options here. Research it, decide it, record it, and say what wou
 
 ---
 
-### Last session: 2026-07-28 — money rules become a cross-stack *source* that stack packs instantiate
+### Last session: 2026-07-28 — rule sources get a directory, and the move nearly disabled a gate
+
+The owner asked where an out-of-scope technology choice goes — caching, Redis or Valkey — for the
+downstream repos that adopt the packs, then proposed a directory for the cross-stack files. Both are
+settled. **No cache research was done and none was due**: per B-8's governance a source is written in
+the PR of the first repo that adopts it, so what landed is the routing and a candidate row, with no
+verdict that can go stale.
+
+**The routing, because it is the reusable part.** A product-technology choice has three possible
+homes and the question picks one: the ASDLC's own stack (both `variants/` sheets plus an ADR here —
+in scope), one feature's implementation (that plan's §9 decision trace, ratified at the plan gate),
+or a standing rule for every repo on a platform (a rule in that stack pack's seed text). Caching
+splits across the last two, and the split is the finding: **the engine pick and the discipline rules
+are different artifacts.** Which cache a repo runs is one portable verdict with no check behind it
+and it fails the premise-specificity test — a seed-text line or a plan decision. "Cache is never the
+source of truth", "no entry without a TTL", "a cache failure fails loud" each turn invisible-forever
+once no human reads the code and each needs a different check per stack — which is `money-grade`'s
+shape exactly, so they are a **source**. Recorded as the `cache-discipline` candidate in
+[`packs/index.md`](../tools/spec-kit-bundle-nc/packs/index.md) → *Candidate sources*, a section the
+corpus did not have: it rostered candidate packs and had nowhere to put a second source.
+
+**The generalisation worth keeping.** `money-grade` reads as the money special case — README calls
+money "the standing case". It is not: every shared infrastructure concern has the same shape
+(portable directive, different enforcing tool per language) — cache, message broker, object storage,
+search index, feature flags. The source mechanism is the general form for cross-stack
+infrastructure, and that is now stated where the next author will read it.
+
+**The decision** — [`DECISIONS.md`](../tools/spec-kit-bundle-nc/DECISIONS.md) **B-10**. Sources live
+in `packs/rule-sources/`; `money-grade.md` moved there. The kind was carried only by a frontmatter
+field, and README's own Anatomy says that field exists *because* "the difference has to be visible
+before anyone looks for one" — a field you must open the file to read is the weakest form of that.
+Adopt step 1 is now a path rule: everything in `packs/*.md` is pickable, nothing under
+`packs/rule-sources/` is. Names rejected: `cross-pack/` and `cross-stack/` (`agent-traps` is a
+cross-stack *pack*, adoptable — either name names the one kind the directory excludes) and
+`sources/` (this corpus uses "sources" for bibliography, including a Sources column in the same
+file). `rule-sources/` was already the term index.md used.
+
+**The defect the move would have introduced, and it is the third instance of one pattern.**
+`bundle-checks.yml`'s freshness step globbed `pathlib.Path("packs").glob("*.md")` — **not
+recursive.** Moving the file one level down would have dropped it from the tripwire silently:
+`money-grade`'s `review-by` would stop being checked, nothing would warn, and the step would keep
+reporting green — the blind-spot-reports-green failure `packs/README.md` principle 1 bans by name.
+Now `rglob`, and **verified by running the step's own code against this tree: the old glob checks 2
+files after the move, the new one checks 3, no false warnings** (the seed files carry no frontmatter
+and skip on the existing no-match branch). The pattern: root `CLAUDE.md` rule 9 (the two
+`repository:` fields ADR-0026 missed) and the nine stale files the audit found are the first two —
+**when something moves, the things that point at it are not in the files you edit.** It nearly
+repeated inside this session: the first ripple grep excluded `open-questions.md`, and two stale
+links in *this note* were caught only by a second sweep over the whole tree. The bundle's
+`CLAUDE.md` `packs/` row now carries the check to re-read.
+
+**The release is still ready to cut, and this was checked rather than assumed.** `packs/` is
+referenced by no manifest, no catalog and not by `check_specs.py` — only by the freshness step — so
+neither `specify bundle validate --offline` nor `check_specs.py --self` reads anything this session
+touched, and the START HERE re-verification above still describes the tree that would be tagged. No
+version, catalog, or component file changed.
+
+**Not verified on this machine:** `specify bundle validate --offline` and `check_specs.py --self`.
+No `python` on PATH (the Windows Store stub only) and `specify` is not installed; the freshness
+step was run through `uv run --no-project python`, which worked. This is the same gap the previous
+two sessions recorded — it is a property of the machines, not of the tree.
+
+**What the next session picks up.** Nothing here blocks. The live items are unchanged and above:
+cut `bundle-v0.2.0` (owner's call), and the two-approval-conventions reconciliation that still needs
+its own ADR. If a Go or .NET backend repo is actually coming, that PR is where `money-grade` gets its
+first real instantiation test *and* where `cache-discipline` would be written — one PR, and a
+substantial one.
+
+---
+
+### Session before: 2026-07-28 — money rules become a cross-stack *source* that stack packs instantiate
 
 The owner asked where a language-agnostic money rule belongs, then asked that future packs
 consider it, then **corrected the mechanism**, then caught that the mechanism pointed at a file
 that did not exist. All four are settled: the corrected model is recorded and
-[`packs/money-grade.md`](../tools/spec-kit-bundle-nc/packs/money-grade.md) is written.
+[`packs/rule-sources/money-grade.md`](../tools/spec-kit-bundle-nc/packs/rule-sources/money-grade.md) is written.
 
 **The mid-session defect, because it is the reusable lesson.** For most of this session the tree
 carried the rules *about* the money rule — in `README.md`, `index.md`, `research-protocol.md` and

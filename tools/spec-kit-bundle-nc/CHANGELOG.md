@@ -14,7 +14,7 @@ Versions 0.1.0 and 0.2.0 were development increments in this repository;
 ## [0.2.0] — 2026-07-28
 
 Bundle `nc-sdd` 0.2.0 · preset `nc-ears` 0.2.0 · extension `nc` 0.2.0 ·
-workflow `nc-sdd` 0.2.0. Design: DECISIONS.md B-8, B-9.
+workflow `nc-sdd` 0.2.0. Design: DECISIONS.md B-8, B-9, B-10.
 
 ### Added
 
@@ -90,7 +90,7 @@ workflow `nc-sdd` 0.2.0. Design: DECISIONS.md B-8, B-9.
   Anatomy item 1, a Kind column in The packs, Governance), `packs/index.md`
   ("Rule sources", Shipped, the candidate roster),
   `packs/research-protocol.md` (§1 and §5 authoring checks).
-- `packs/money-grade.md` — the first source, and the reason the mechanism
+- `packs/rule-sources/money-grade.md` — the first source, and the reason the mechanism
   above is checkable. Its 29 directives (`M-1` … `M-29`, grouped Money /
   Rounding / Storage / Wire / API contract / Observability / Evidence gates)
   are `packs/seed/java-backend.md`'s `### Money-grade rules` section restated
@@ -111,6 +111,28 @@ workflow `nc-sdd` 0.2.0. Design: DECISIONS.md B-8, B-9.
   its date; where that trail is silent the marker is **convention**, however
   obvious the rule looks. No rule changed meaning, no existing pack file
   changed, and adoption is unchanged.
+- `packs/rule-sources/` — rule sources live in their own directory, and
+  `money-grade.md` moved into it (DECISIONS.md B-10). The three kinds were
+  distinguishable only by a frontmatter `kind` field, which has to be opened to
+  be read; the path now carries the distinction, and adopt step 1 becomes a
+  path rule — everything in `packs/*.md` is pickable, nothing under
+  `packs/rule-sources/` is. `cross-pack/` and `cross-stack/` were rejected as
+  names: `agent-traps` is a cross-stack *pack*, adoptable and with a seed file,
+  so either name would name the one kind the directory excludes. `sources/` was
+  rejected too — this corpus uses "sources" for bibliography, including a
+  literal Sources column in `packs/index.md`'s harvest map. `rule-sources/` is
+  the term that index already coined. **The move would have silently dropped the
+  source from the freshness tripwire:** `bundle-checks.yml` globbed
+  `packs/*.md` non-recursively, so `money-grade`'s `review-by` would have
+  stopped being checked while the step kept reporting green — the
+  blind-spot-reports-green failure `packs/README.md` principle 1 bans by name.
+  The glob is now `rglob`; the seed files it newly reaches carry no
+  frontmatter, so they are skipped as `README.md` and `index.md` already were.
+  No rule changed meaning and adoption is unchanged. Ripples:
+  `packs/README.md` (The packs table, adopt step 1, Governance),
+  `packs/index.md` (Shipped, the kind table, Rule sources, Sunset, and a
+  candidate-source roster the corpus did not have), `bundle-checks.yml`, the
+  `packs/` row in `CLAUDE.md`.
 - `presets/nc-ears/preset.yml` and `extensions/nc/extension.yml` —
   `repository` now points at `dulguun0225/asdlc`, not at the archived
   `dulguun0225/spec-kit-bundle-nc`. Both files ship at the root of their

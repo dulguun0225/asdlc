@@ -263,6 +263,9 @@ Governance: the twelve-month sunset targets a pack nobody adopts. Nobody
 adopts a source, so `money-grade` is instead retired when no stack pack
 instantiates it — today `java-backend` does.
 
+Where sources live is set by **B-10** (2026-07-28): `packs/rule-sources/`, not
+`packs/`. Nothing else in this entry changes.
+
 ## B-9 — Pin forward to Spec Kit v0.14.2; the floor tracks the pin (2026-07-27)
 
 CI pins `SPECKIT_PIN: v0.14.2` and every manifest and catalog entry requires
@@ -316,3 +319,57 @@ is real and accepted: a project still on 0.13.4 cannot install these
 components, and no behavior forces that. Alternative considered and rejected
 as more machinery than the claim is worth: a CI matrix over floor and pin to
 keep the wider range honest.
+
+## B-10 — Rule sources live in `packs/rule-sources/` (2026-07-28)
+
+Amends B-8's 2026-07-28 amendment on one point: where a source file sits. The
+corpus holds three kinds — stack pack, cross-stack pack, cross-stack source —
+and two of them are adoptable while the third is not. That difference was
+carried only by a frontmatter `kind` field, which has to be opened to be read,
+and `packs/README.md` Anatomy item 1 states the field exists *because* "the
+difference has to be visible before anyone looks for one". A field you must
+open the file to see is the weakest form of that visibility. The path is the
+strongest, and `packs/seed/` already establishes that a subdirectory here marks
+a different kind of file rather than a different topic.
+
+So `money-grade.md` moves to `packs/rule-sources/money-grade.md`, and every
+source written from here goes in that directory.
+
+What it buys beyond legibility: adopt step 1 becomes a path rule. Everything in
+`packs/*.md` is pickable; nothing under `packs/rule-sources/` is. Before this,
+not-picking a source meant reading a Kind column correctly.
+
+Name: rejected `cross-pack/` and `cross-stack/` because `agent-traps` is a
+cross-stack *pack* — adoptable, with a seed file — so either name names the one
+kind the directory excludes, blurring exactly the distinction it exists to
+make. Rejected `sources/` because this corpus uses "sources" for bibliography
+throughout, including a literal Sources column in `packs/index.md`'s harvest
+map. `rule-sources/` is the term `packs/index.md` already coined for this set.
+
+**The defect this would have introduced, and it is the reason to record the
+entry at all.** `bundle-checks.yml`'s advisory freshness step globbed
+`pathlib.Path("packs").glob("*.md")` — not recursive. Moving the file down one
+level would have dropped it from the tripwire silently: `money-grade`'s
+`review-by` would stop being checked, no warning would be emitted, and the step
+would keep reporting green. That is the failure `packs/README.md` principle 1
+bans by name — never wire a gate whose blind spot lets the banned thing pass
+while it reports green. The glob is now `rglob`, verified safe because the two
+seed files carry no frontmatter and are skipped on the same no-match branch
+that already skips `README.md` and `index.md`.
+
+It is also the second instance of one pattern in a week. Root `CLAUDE.md`
+rule 9 records the first: the two `repository:` fields still pointing at the
+archived repo after ADR-0026 moved everything, because **when a component
+moves, the things that point at it are not in the files you edit.** A workflow
+at the repository root watching a path inside a subtree is that blind spot in
+its purest form. A move inside `packs/` now has a named check to re-read.
+
+Cost accepted: `packs/rule-sources/` holds one file until a second source is
+written. That is intentional, not an oversight to be tidied away — flattening
+it back would restore the frontmatter-only distinction and re-break the path
+rule. `cache-discipline` is the expected second occupant and is recorded as a
+candidate in `packs/index.md`; per B-8's governance it is written in the PR of
+the first repo that adopts it, not ahead of it.
+
+Reopened by: a third kind of pack file appearing, which would make a
+two-directory split the wrong shape; or tooling that needs `packs/` flat.

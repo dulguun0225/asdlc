@@ -54,12 +54,17 @@ jobs:
       # Advisory freshness tripwire for packs/ (never failing): a pack past
       # its review-by reads as convention-strength until re-verified — this
       # step makes the lapse visible in every run.
+      #
+      # rglob, not glob: rule sources live in packs/rule-sources/ (B-10) and a
+      # non-recursive glob would drop them from this check while the step kept
+      # reporting green. Files with no review-by frontmatter (README.md,
+      # index.md, research-protocol.md, seed/*.md) are skipped below.
       - name: Pack freshness (advisory)
         run: |
           python3 - <<'EOF'
           import datetime, pathlib, re
           today = datetime.date.today()
-          for pack in sorted(pathlib.Path("packs").glob("*.md")):
+          for pack in sorted(pathlib.Path("packs").rglob("*.md")):
               match = re.search(r"^review-by:\s*(\d{4}-\d{2}-\d{2})",
                                 pack.read_text(encoding="utf-8"), re.M)
               if not match:

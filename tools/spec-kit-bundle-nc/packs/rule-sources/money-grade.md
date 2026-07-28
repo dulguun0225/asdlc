@@ -21,13 +21,13 @@ maintained-by: Dulguun Otgon
 **Informative, and a source — not a pack.** **This file has no seed file and
 nobody adopts it.** Its rules reach a repo only inside the stack pack that
 instantiates them. How sources work and why money is one:
-[README.md](README.md) (Governance) and [index.md](index.md) (Rule sources).
+[README.md](../README.md) (Governance) and [index.md](../index.md) (Rule sources).
 
 A wrong cent is a defect with a victim, and that is true in every language.
 The directives below are therefore stated platform-neutrally. What is *not*
 portable is the enforcement: nearly every rule needs a different tool per
 stack, and a money rule without its stack's named check is a wish
-([README.md](README.md), principle 1). So the rules are not pasted on their
+([README.md](../README.md), principle 1). So the rules are not pasted on their
 own — pasted separately they would put the directive in one section of a
 constitution and its static-analysis rule in another. Each stack pack writes
 them into its own seed text with its own checks. Section 3 records who has.
@@ -68,7 +68,7 @@ The kinds: *type design* (the construct cannot be written), *static rule*
 *characterization replay*, *production invariant*, and *spec-and-review*
 (no gate exists; the rule says so).
 
-Confidence markers per [README.md](README.md); dates differ per claim, and
+Confidence markers per [README.md](../README.md); dates differ per claim, and
 the trail is section 4.
 
 ### Money
@@ -284,12 +284,12 @@ exists in several stack packs by design; this table is what catches drift.
 
 **No divergences recorded yet**, which is expected and not reassuring: one
 stack cannot show which directives are genuinely platform-neutral. The first
-real test is the second instantiation ([index.md](index.md), candidates).
+real test is the second instantiation ([index.md](../index.md), candidates).
 
 ## 4. Evidence notes
 
 **The trail is not duplicated here.** These rules were researched as part of
-[java-backend](java-backend.md); its **section 4** holds the dated claims,
+[java-backend](../java-backend.md); its **section 4** holds the dated claims,
 sources, confidence markers and negative citations, and it stays the trail of
 record. Lifting them into this file on 2026-07-28 was a re-presentation — new
 ids, platform-neutral wording — and **not a new research pass**, which is why
@@ -373,5 +373,5 @@ Platform-neutral rejections only; each stack pack adds its own.
   modules traced to vacuous machine-written tests, or diff-scoped mutation
   testing becoming affordable portfolio-wide.
 - **No stack pack instantiates this source.** A source nobody instantiates is
-  retired, the way an unadopted pack is demoted ([README.md](README.md),
+  retired, the way an unadopted pack is demoted ([README.md](../README.md),
   Governance). Today `java-backend` instantiates it.

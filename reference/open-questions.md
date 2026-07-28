@@ -90,20 +90,17 @@ and each says **THIS IS THE ONLY COPY** in its header. **Nothing needs keeping i
 The bundle's `CLAUDE.md` now forbids creating a `.github/` there rather than warning about the one
 that existed.
 
-**One and a half things to watch on the next push:**
+**One thing left to watch, and one now closed:**
 
-1. **`.github/workflows/bundle-checks.yml` runs, and passes — the positive half is settled.** Five
-   green runs as of 2026-07-28 (`12401a3`, `465e089`, `beae3eb`, `bf0ab33`, `f86ba54`), the first
-   on the commit that added it. An earlier version of this note said it "has never run"; that was a
-   prediction written before its own push and nobody came back to correct it. **Do not re-derive
-   the doubt from this note.**
-   **The negative half is still untested:** the workflow is path-filtered to
-   `tools/spec-kit-bundle-nc/**` and must *not* fire on a design-only change, but every commit
-   since it landed touched `tools/**`, so the filter has never had to say no. The next push that
-   changes only `asdlc/`, `variants/`, `rollout/` or `reference/` is the test — check that no run
-   appears for it (`gh run list`).
-2. **`.github/workflows/bundle-release.yml` has never run**, and it fires only on `bundle-v*`, so a
+1. **`.github/workflows/bundle-release.yml` has never run**, and it fires only on `bundle-v*`, so a
    `v1.0.0` cut for the design is safe. Its first run will be the real release.
+2. ~~`bundle-checks.yml`~~ — **closed 2026-07-28, both halves verified.** It fires on `tools/**`
+   and passes: five green runs (`12401a3`, `465e089`, `beae3eb`, `bf0ab33`, `f86ba54`), the first
+   on the commit that added it. It correctly does **not** fire on a design-only change: `5c6bbcc`
+   touched only `reference/open-questions.md` and produced no run, so the
+   `tools/spec-kit-bundle-nc/**` path filter declines as well as accepts. An earlier version of
+   this note said the workflow "has never run" — that was a prediction written before its own push
+   and left uncorrected. **Do not re-derive the doubt from it.**
 
 **One standing instruction, because it was asked twice and answered twice:** the owner does not
 choose between options here. Research it, decide it, record it, and say what would reverse it.
@@ -149,9 +146,10 @@ them would re-lease claims this session did not re-verify. `specify bundle valid
 gives 0 errors and the documented 3 warnings; `python ci/check_specs.py --self` passes. Changelog
 entry under `[Unreleased]`.
 
-**Also corrected, in START HERE above:** that section claimed `bundle-checks.yml` "has never run".
-It has run five times and passed every time. The claim was a prediction written before its own
-push, left uncorrected. Only the path filter's negative case is still untested.
+**Also closed, in START HERE above:** that section claimed `bundle-checks.yml` "has never run".
+It has run five times and passed every time, and this session's own design-only commit (`5c6bbcc`)
+produced no run — so the path filter both accepts and declines correctly. The item is closed; only
+`bundle-release.yml` is still unexercised.
 
 ### Session before: 2026-07-28 — the bundle's release fixes, and where it publishes from
 

@@ -32,7 +32,7 @@ component directories here are the source of truth; they reach projects via
 | `workflows/nc-sdd/` | Orchestrated cycle for `specify workflow run` | `bundle.yml` pin, `catalogs/workflows.json` (version AND url tag), bundle-checks.yml |
 | `ci/check_specs.py` | Stdlib-only merge gate; `--repo` for product repos, `--self` for `examples/` | README checker list, bundle-checks.yml negative probes |
 | `catalogs/*.json` | Org distribution; keys == ids; versions/URLs must match the manifests | bundle-release.yml asserts |
-| `packs/` | Researched decision packs (informative; adopted by paste-edit-PR into a product constitution, never installed by tooling). `packs/seed/<pack-id>.md` is the paste payload — nothing but the rules, so a pack change may touch two files | `packs/index.md` roster AND `packs/README.md` "The packs" table; bundle-checks.yml freshness step; B-8 governance |
+| `packs/` | Researched decision packs (informative; adopted by paste-edit-PR into a product constitution, never installed by tooling). `packs/seed/<pack-id>.md` is the paste payload — nothing but the rules, so a pack change may touch two files. A **source** (`money-grade`) has no seed file and is never adopted: stack packs instantiate its rules with their own checks (B-8, amended 2026-07-28) | `packs/index.md` roster AND `packs/README.md` "The packs" table; bundle-checks.yml freshness step; B-8 governance. A source change also touches its instantiation table and every stack pack that instantiates it |
 | `examples/password-reset/` | Worked example (spec + plan); kept green by `--self` | — |
 | `README.md` | User docs; "Behavior this repo is built around" is the pin-forward contract | — |
 | `DECISIONS.md` | B-n registry. Read it before changing any design; append-only, never renumber; supersede with a dated note | — |
@@ -136,6 +136,18 @@ repo is built around"; reasons: DECISIONS.md).
 specify bundle validate --path . --offline   # 0 errors; exactly 3 warnings (offline component refs)
 python ci/check_specs.py --self              # examples stay green
 ```
+
+**Neither binary is on every machine** (sessions run on more than one — root
+`CLAUDE.md`). Both run through `uv` with nothing installed permanently, and
+`uvx` gets you the pinned CLI rather than whatever is on PATH:
+
+```sh
+uvx --from git+https://github.com/github/spec-kit.git@v0.14.2 specify bundle validate --path . --offline
+uv run --no-project python ci/check_specs.py --self
+```
+
+Keep the `uvx` tag equal to `SPECKIT_PIN` below — an unpinned `uvx specify`
+validates against a version nothing here was verified at.
 
 For component changes, run the e2e smoke locally (same as
 bundle-checks.yml): in a scratch dir, `git init` →

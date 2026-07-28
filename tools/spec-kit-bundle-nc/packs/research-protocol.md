@@ -21,6 +21,12 @@ State, in writing, before any candidate is compared:
   is what lets a different repo know the verdict does not apply.
 - **The decision owner.** Who decides: the user, the panel, or delegated —
   and record which, verbatim, in the provenance line.
+- **What a cross-stack source already decided.** Read the sources first and
+  strike their directives from the frame — a panel spent re-deriving a decided
+  verdict produces a second copy, not a second opinion. Money is the standing
+  case: `money-grade` owns those directives, so a stack pack's frame covers
+  only *this stack's check* for each of them, plus whatever the platform needs
+  that no source carries. See [index.md](index.md), "Rule sources".
 
 ## 2. Run an adversarial panel, not a survey
 
@@ -83,6 +89,21 @@ reader changes its stakes — the prevented failure turns invisible-forever or
 unbounded. A rule whose stakes are unchanged is generic advice — cut it, or
 keep it only as marked **convention** and say it is not premise-derived. Set
 `verified` and `review-by` in the frontmatter.
+
+Three checks specific to a **stack** pack, before it ships (DECISIONS.md B-8,
+amended 2026-07-28):
+
+- **Every rule in every cross-stack source is accounted for.** Walk the source
+  rule by rule. Each one is written into this pack's seed text *with this
+  stack's named check*, or named as a gap with the reason no check can be
+  hosted, or recorded as a divergence the platform's type system or database
+  forces. A rule passed over in silence reads as covered.
+- **The source's instantiation table gains this pack's column, in the same
+  PR.** The same rule now exists in several stack packs by design; that table
+  is the only thing between deliberate duplication and drift.
+- **No seed text cites a rule id.** An id belongs in the pack file. A seed
+  file lands in a constitution that holds no copy of this corpus, so a cited
+  id is a dangling pointer — a failure this corpus has already made once.
 
 ## 6. Re-verification pass (adoption or lapse)
 

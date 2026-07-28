@@ -219,6 +219,50 @@ material) are stated in
 only as marked convention. This is an authoring bar on pack rules; the
 bundle's own texts stay technology-free.
 
+Amended 2026-07-28: money rules get a cross-stack **rule source**,
+`money-grade`, which stack packs **instantiate**. Grounds: a wrong cent has a
+victim in every language, so the directives are portable — but a money rule
+without its stack's named check is a wish (principle 1), and nearly every one
+needs a different tool per stack. So the general rules cannot be an adoption
+payload of their own: pasted separately they would put the directive in one
+section of a constitution and its ArchUnit rule in another, breaking the seed
+text's one-rule-one-check shape and leaving an adopter holding a rule with no
+gate. This qualifies where the rules are **authored from**; it does not change
+where they are read, so the original "a conditional section, not a separate
+pack" still describes what an adopting repo sees.
+
+How it works, and it binds every stack pack written from here:
+
+1. **`money-grade` is a source, never a paste target.** It has **no seed
+   file** and nobody adopts it. It carries the directives under stable ids
+   (`M-n`), the evidence, the re-open triggers, and a table of which stack
+   pack has instantiated each rule.
+2. **Creating a stack pack walks the source.** For every `M-n`: write the rule
+   into that pack's seed text **with that stack's named check**; or record
+   that the stack can host no check, with the reason; or record the divergence
+   its type system or database forces. A rule passed over in silence is a
+   defect — silence reads as coverage.
+3. **Nothing moves out of `java-backend`.** Its `### Money-grade rules`
+   section already is the first instantiation and stays where it is. The
+   source is lifted *from* it; the Java text is not relocated.
+4. **Ids live in pack files, never in seed text.** A seed file citing `M-3`
+   lands in a constitution as a dangling pointer — the adopting repo has no
+   copy of this corpus. The instantiation is traced in the stack *pack*; the
+   seed text states the whole rule.
+5. **Adoption is unchanged** — one stack pack, plus the cross-stack packs that
+   are adoptable in their own right. `agent-traps` stays adoptable because its
+   rules carry checks that hold anywhere. `money-grade` does not.
+
+Cost accepted: the same money rule will exist in each stack pack's seed text,
+and the copies can drift. Bought deliberately — the alternative splits a rule
+from its check across two pasted sections. The source plus its instantiation
+table is the anti-drift mechanism, checked when a stack pack ships
+(`packs/research-protocol.md` §5), not by a tool.
+
+Governance: the twelve-month sunset targets a pack nobody adopts. Nobody
+adopts a source, so `money-grade` is instead retired when no stack pack
+instantiates it — today `java-backend` does.
+
 ## B-9 — Pin forward to Spec Kit v0.14.2; the floor tracks the pin (2026-07-27)
 
 CI pins `SPECKIT_PIN: v0.14.2` and every manifest and catalog entry requires

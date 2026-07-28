@@ -133,6 +133,17 @@ and each says **THIS IS THE ONLY COPY** in its header. **Nothing needs keeping i
 The bundle's `CLAUDE.md` now forbids creating a `.github/` there rather than warning about the one
 that existed.
 
+**The pack corpus gained a rule *source*, and it is written.**
+[`packs/money-grade.md`](../tools/spec-kit-bundle-nc/packs/money-grade.md) holds 29 money
+directives (`M-1` … `M-29`) stated platform-neutrally
+([`DECISIONS.md`](../tools/spec-kit-bundle-nc/DECISIONS.md) B-8, amended 2026-07-28): no seed
+file, never adopted, and **every stack pack instantiates it** — each rule written into that pack's
+own seed text with that stack's named check, or named as a gap with its reason, or recorded as a
+divergence the platform forces. `java-backend` is
+the only instantiation so far and its text was not touched. **The next stack pack is where this
+gets tested**, since one instantiation cannot show which directives are genuinely
+platform-neutral. It blocks nothing, including the release.
+
 **One thing left to watch, and one now closed:**
 
 1. **`.github/workflows/bundle-release.yml` has never run**, and it fires only on `bundle-v*`, so a
@@ -152,7 +163,177 @@ choose between options here. Research it, decide it, record it, and say what wou
 
 ---
 
-### Last session: 2026-07-28 — a whole-repository audit, and the defect it found has one shape
+### Last session: 2026-07-28 — money rules become a cross-stack *source* that stack packs instantiate
+
+The owner asked where a language-agnostic money rule belongs, then asked that future packs
+consider it, then **corrected the mechanism**, then caught that the mechanism pointed at a file
+that did not exist. All four are settled: the corrected model is recorded and
+[`packs/money-grade.md`](../tools/spec-kit-bundle-nc/packs/money-grade.md) is written.
+
+**The mid-session defect, because it is the reusable lesson.** For most of this session the tree
+carried the rules *about* the money rule — in `README.md`, `index.md`, `research-protocol.md` and
+B-8 — while the money rule itself did not exist. Four files described walking a source, and there
+was no source to walk. The owner's question was *"and where is that cross pack rule?"*, which is
+the correct reaction: **governance written ahead of the artifact it governs reads as decided and
+is unusable.** Write the artifact in the same session, or write neither.
+
+**The decision** — [`DECISIONS.md`](../tools/spec-kit-bundle-nc/DECISIONS.md) B-8, amended. A
+cross-stack rule that needs a **different check on every platform** is a **source**, not a pack. A
+source has no seed file and nobody adopts it; it carries the directives under stable ids (`M-n`),
+the evidence, the re-open triggers, and a table of which stack pack has instantiated each rule.
+**Creating a stack pack walks the source rule by rule**: each rule is written into that pack's
+seed text *with that stack's named check*, or named as a gap with the reason no check can be
+hosted, or recorded as a divergence the platform's type system or database forces. Silence about a
+rule is a defect — it reads as coverage.
+
+**The mechanism the owner overturned, because the reasoning is the load-bearing part.** The first
+version had `money-grade` as an ordinary cross-stack *pack*: it would state the directive and the
+*kind* of check, a stack pack would name only the tool, and an adopter would paste both seed
+files. That is wrong, and the reason generalises — **it splits a rule from its check across two
+pasted sections.** The seed-text convention is directive, then reasoning, then the enforcing check
+in parentheses, all in one bullet; the split version leaves an adopter holding "all arithmetic
+goes through the money type" in one section and an ArchUnit rule in another, which is a rule with
+no gate at the point of reading. Instantiation keeps them together and keeps adoption at one stack
+pack. **Do not re-derive the split model** — it looks tidier and it is worse.
+
+**The duplication is bought, not overlooked.** The same money rule will sit in `java-backend`'s
+seed text and in `dotnet-backend`'s. The source plus its instantiation table is the anti-drift
+mechanism, and it is a ship check on the stack pack, not a tool.
+
+**Nothing moved out of `java-backend`, and this is what the correction bought.** The earlier plan
+was to relocate 162 lines of seed text and reduce the Java section to bindings. Under the
+corrected model that section **stays exactly where it is** and is the instantiation table's first
+column. `java-backend.md` and its seed file are **unmodified this session.**
+
+**The source, as written.** 29 directives, `M-1` … `M-29`, grouped Money / Rounding / Storage /
+Wire / API contract / Observability / Evidence gates — the Java seed section restated
+platform-neutrally and given ids: its 28 bullets, plus that section's preamble obligation that the
+plan introducing the first money feature cite the rules in its Decision Trace, which is M-29. Each
+names the **kind** of check it needs (type design, static rule, compiler/linter check, schema lint,
+parse test, property test, golden test, contract lint, integration test, mutation gate, conformance
+fuzz, characterization replay, production invariant, spec-and-review — fourteen kinds; the copy in
+`money-grade.md` section 2 is the one of record) and leaves the tool to the stack pack. Two groups keep their own condition: API contract binds only over an HTTP
+API, observability only where nobody watches the system. Section 3 holds the walk and the
+instantiation table; section 5 carries the platform-neutral rejections (binary floating point,
+integer minor units on the wire, a repo-wide default rounding mode, rounding split parts
+independently) and deliberately does **not** pre-judge the money-library question, which is
+per-ecosystem.
+
+**The dates are inherited, and that is deliberate.** Lifting the rules was a re-presentation, not
+a research pass, so the source carries java-backend's `verified: 2026-07-21` rather than today's,
+says so in section 4, and does not copy the evidence trail — that stays in `java-backend.md`
+section 4, which remains the record. **Do not re-date it without running a pass.**
+
+**Wired into four places, so a future pack meets the obligation whichever door it comes through:**
+`packs/research-protocol.md` §1 (strike a source's directives from the frame before spending a
+panel re-deriving them) and §5 (three ship checks), `packs/README.md` (Governance, a **Kind**
+column in *The packs*, and adopt step 1 — which said "pick the pack for your stack" and so never
+told an adopter to take the cross-stack ones either), and `packs/index.md` (*"Rule sources"*, plus
+the candidate roster: **dotnet-backend** is the first pack to instantiate the source from scratch,
+and **typescript-node-backend** (IEEE-754 `number` is the corpus default) and **go-backend** (no
+fixed-point decimal in the standard library) are named as the two that will strain it).
+
+**Four things a later session should not re-derive:**
+
+1. **Rule ids never appear in seed text.** `M-n` belongs in the pack file. A constitution holds no
+   copy of this corpus, so a cited id is a dangling pointer — the failure the seed-text move
+   already made once, with "see the agent-traps pack".
+2. **The sunset rule does not apply as written.** Its twelve months target a pack nobody adopts;
+   nobody adopts a source. `money-grade` is retired when no stack pack instantiates it — today
+   `java-backend` does, so it is live.
+3. **No rule changed meaning**, and no existing pack file changed. The one honest weakness is
+   named in the source itself: **no divergences are recorded, because one stack cannot show which
+   directives are genuinely platform-neutral.** The first real test is the second instantiation.
+4. **No pack file changed, and a draft of this session put a "pending change" note in
+   `java-backend.md` before the owner cut it.** A pack states its researched rules; the corpus's
+   own pending work is `index.md`'s job. Repeating it there would have been another copy of one
+   fact — the drift this session's own §5 ship check exists to stop — and a note somebody must
+   remember to delete later, in a repository whose known systemic defect is exactly that
+   staleness. **Do not re-add it.**
+
+**Verified, and one thing added because verifying was harder than it should have been.** Both
+bundle checks ran green — `specify bundle validate --offline` (0 errors, the documented 3
+warnings, at the pinned `v0.14.2`) and `check_specs.py --self`. Neither binary was on PATH on this
+machine, which is the multi-computer assumption biting in a small way, so the bundle's `CLAUDE.md`
+*"Verify before you commit"* now carries the `uv` forms of both commands — `uvx --from
+git+https://github.com/github/spec-kit.git@v0.14.2` for the CLI, `uv run --no-project python` for
+the checker — with a note to keep the `uvx` tag equal to `SPECKIT_PIN`.
+
+**This lands inside the untagged `bundle-v0.2.0`.** The changelog entry went into `[0.2.0]`, not
+`[Unreleased]`, for the reason the previous session moved two entries there: nothing may sit under
+`[Unreleased]` when the tag is cut, and the tag is not cut. If the owner would rather tag first,
+the entry moves to a new section.
+
+**Reviewed before commit, and the review changed the file.** The owner asked for a review of the
+uncommitted change; six lenses ran over the seven files plus the new source, and the findings were
+verified by refutation. **The lift was not the faithful re-presentation the first draft claimed**,
+and three defects were fixed here:
+
+1. **M-2 had lost the word that made it enforceable.** The seed bans *all* raw exact-decimal
+   arithmetic outside the money module — unqualified, because no static rule can tell which
+   exact-decimal value holds an amount. The draft banned it "on amounts", which is undecidable by
+   the check it names, so the gate would have reported green over the case the rule exists to stop.
+   M-2 is now unqualified again and says why in the rule. **Do not re-scope it to amounts** — it
+   reads as more precise and it disarms the check.
+2. **Three confidence markers had been assigned fresh instead of copied.** M-2's float ban and
+   M-10's column-type bans read **confirmed** with nothing behind them in java-backend section 4;
+   M-10's scale-4 clause and M-14's premise read **convention** although that section confirms both
+   with named sources. All three now match the trail and carry 2026-07-21. The rule is now stated in
+   `money-grade.md` section 4: **a marker here is only ever a copy of one in java-backend section
+   4**, and where the trail is silent the marker is convention however obvious the rule looks. The
+   frontmatter's provenance was the same defect from the other end — it named two passes where
+   java-backend has four, omitting the 2026-07-24 money-library re-verification and the 2026-07-27
+   observability pass. It now names all four, and section 4 records why **M-20 … M-22 are convention
+   and must stay so**: the 2026-07-27 pass is scoped and short of the panel, and its one
+   three-vote claim was not a money rule.
+3. **One directive in the lifted section had no id.** The seed's preamble requires the plan that
+   introduces the first money feature to cite the rules in its Decision Trace — the obligation that
+   arms the tripwire at the one gate a human reads. A walk that goes rule by rule over `M-n` would
+   not have carried it, so it is now **M-29**. The count is 29 everywhere it is asserted.
+
+Plus the sunset carve-out, which existed only in B-8: `packs/index.md` *Sunset* and
+`packs/README.md` *Governance* both still applied the twelve-month unadopted-pack demotion to a
+file nobody can adopt. Both now say the clock does not reach a source and that retirement is "no
+stack pack instantiates it". `review-by` and the lapse rule still apply to a source unchanged.
+
+**What the review found and nobody has fixed yet.** None of it blocks the release; all of it is
+cheap, and the shape is this repository's own systemic defect — one fact copied and updated in some
+copies only.
+
+- **Drift.** "The instantiation table's first column" (`index.md`, `CHANGELOG.md`, and above at
+  *"Nothing moved out of `java-backend`"*) — the first column is `Rules`; java-backend is the
+  second. `index.md` tells a future author to add **a row** to that table where `money-grade.md`
+  and `research-protocol.md` §5 say **a column**. `CHANGELOG.md`'s kinds list still gives nine of
+  the fourteen. The changelog ripple list and *"Wired into four places"* above both omit the
+  bundle `CLAUDE.md` map row, which this change edits. B-8 item 3 attributes `### Money-grade
+  rules` to `java-backend`; the heading is in `seed/java-backend.md`.
+- **The new file.** The declared fourteen-kind vocabulary does not cover its own directives —
+  M-20, M-21 and M-22 name no kind from the list, and M-17 names a "replay test" that is not
+  *characterization replay*. The instantiation table's API-contract cell names M-16's *directive*
+  as its check; the check is a parse test posting a missing amount. The table's rows are id ranges,
+  so a single-rule gap or divergence has no cell even though section 3 says to state divergences
+  "here, in the table below" — go-backend is the pack expected to produce exactly that case.
+- **Half-finished governance.** `packs/README.md` *Anatomy* was amended at item 1 only: item 3
+  still requires a seed-text section a source must not have, `money-grade`'s section 3 is not in
+  the list, and items 4/5 are the reverse of both the declared order and java-backend's.
+  `kind` has no permitted values and is absent from the other two packs. The walk fires only on
+  creating or revising a *stack* pack, so a later change to the **source** leaves shipped packs
+  silently non-conforming with no trigger. And "silence about a rule is a defect" is stated in four
+  files as though enforced, while nothing detects silence — only B-8 admits "not by a tool".
+- **Cheap and pre-existing.** `packs/README.md` *Freshness* cites "step 3 above" for
+  re-verification; it is step 5. This file still carries one hit on root `CLAUDE.md`'s banned-wording
+  table, in the 2026-07-28 release-fixes note below — the sentence about the whole v0.14.2
+  pin-forward entry, which should read *"merged into"*. The START-HERE item above still says **four
+  commits** have
+  modified the bundle subtree; six have (add `f86ba54`, `99a2a37`).
+
+**Not verified on this machine:** that `specify bundle validate --offline` and `check_specs.py
+--self` still pass. Neither binary nor the network was available; the `uv` forms are in the bundle's
+`CLAUDE.md` now. Nothing edited here touches either checker's inputs.
+
+---
+
+### Session before: 2026-07-28 — a whole-repository audit, and the defect it found has one shape
 
 The owner asked for a review and audit of the whole repository. **No decision was found wrong. The
 systemic defect is staleness inside the 2026-07-28 burst:** eleven ADRs and the monorepo migration

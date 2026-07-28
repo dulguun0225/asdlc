@@ -74,6 +74,43 @@ workflow `nc-sdd` 0.2.0. Design: DECISIONS.md B-8, B-9.
 
 ### Changed
 
+- `packs/` — a cross-stack rule that needs a different check on every
+  platform is now a **source**, and stack packs **instantiate** it
+  (DECISIONS.md B-8, amended 2026-07-28). A source has no seed file and is
+  never adopted; it carries directives under stable ids, the evidence, and a
+  table of which stack pack instantiated each rule. Creating a stack pack
+  walks the source: every rule is written into that pack's seed text *with
+  that stack's named check*, or named as a gap with its reason, or recorded
+  as a divergence the platform forces. Money is the standing case — a money
+  rule without its stack's check is a wish, so the general rules cannot be a
+  paste target of their own; separately pasted they would put the directive
+  in one section of a constitution and its ArchUnit rule in another. The
+  resulting duplication across stack packs is accepted, and the instantiation
+  table is what catches drift. Ripples: `packs/README.md` (adopt step 1,
+  Anatomy item 1, a Kind column in The packs, Governance), `packs/index.md`
+  ("Rule sources", Shipped, the candidate roster),
+  `packs/research-protocol.md` (§1 and §5 authoring checks).
+- `packs/money-grade.md` — the first source, and the reason the mechanism
+  above is checkable. Its 29 directives (`M-1` … `M-29`, grouped Money /
+  Rounding / Storage / Wire / API contract / Observability / Evidence gates)
+  are `packs/seed/java-backend.md`'s `### Money-grade rules` section restated
+  platform-neutrally and given ids — its 28 bullets, plus the section
+  preamble's obligation that the plan introducing the first money feature
+  cite the rules in its Decision Trace, which becomes M-29 because a walk
+  that goes rule by rule would otherwise not carry it. Each names the
+  **kind** of check it needs
+  — type design, static rule, schema lint, property test, mutation gate,
+  conformance fuzz, characterization replay, production invariant,
+  spec-and-review — and the stack pack names the tool. **Nothing moved.** The
+  Java text stays exactly where it is and is the instantiation table's first
+  column; the evidence trail stays in `packs/java-backend.md` section 4 and
+  is not duplicated. Lifting the rules was a re-presentation, **not a new
+  research pass**, so the source carries java-backend's `verified`
+  (2026-07-21) rather than today's date, and says so. Every confidence
+  marker is a copy of one in `packs/java-backend.md` section 4 and carries
+  its date; where that trail is silent the marker is **convention**, however
+  obvious the rule looks. No rule changed meaning, no existing pack file
+  changed, and adoption is unchanged.
 - `presets/nc-ears/preset.yml` and `extensions/nc/extension.yml` —
   `repository` now points at `dulguun0225/asdlc`, not at the archived
   `dulguun0225/spec-kit-bundle-nc`. Both files ship at the root of their

@@ -36,7 +36,8 @@ Every pack carries, in order:
 1. **Frontmatter** — `id`, `status` (see tiers below), `holds-when` (the
    premises the verdicts are conditioned on), `verified` (date of the last
    research pass), `review-by` (date after which the pack is stale),
-   `maintained-by`.
+   `maintained-by`. A **source** adds `kind`, because it has no seed file and
+   the difference has to be visible before anyone looks for one.
 2. **When this pack applies** — the selection predicate, and the
    tripwires: the "first X" changes that either activate a conditional
    section of the seed text (first money field) or signal the repo has
@@ -105,7 +106,12 @@ is real editing — but every source and destination below is a named file.
 Prerequisite: the bundle is installed in the repo (repo README, Install).
 That is what put `.specify/memory/constitution.md` in place.
 
-1. **Pick the pack** for your stack from [The packs](#the-packs) below.
+1. **Pick your packs** from [The packs](#the-packs) below — the stack pack
+   for your platform, **plus every adoptable cross-stack pack**. Adoption is
+   per pack, so more than one seed file lands in the same
+   `## Repo principles` section. A row marked **source** is not picked: it
+   has no seed file, and its rules already sit inside the stack pack that
+   instantiates them.
 2. **Copy the seed text.** It is one file: `seed/<pack-id>.md` — e.g.
    [`seed/java-backend.md`](seed/java-backend.md). Copy the whole file.
    Nothing else in the pack is seed text; read the pack itself for the
@@ -239,14 +245,39 @@ it up as premise-derived.
 Recorded in DECISIONS.md B-8. The corpus stays capped at what one
 maintainer can re-verify in one bounded session. A new pack is written in
 the PR of the repo that adopts its stack — never ahead of it; candidates
-and pre-researched raw material are in [index.md](index.md). A pack with
-no adopting repo twelve months after its `verified` date is demoted to
-candidate notes in the index. New research follows
-[research-protocol.md](research-protocol.md).
+and pre-researched raw material are in [index.md](index.md). An **adoptable**
+pack with no adopting repo twelve months after its `verified` date is demoted
+to candidate notes in the index; a source is exempt from that clock — see
+below. New research follows [research-protocol.md](research-protocol.md).
+
+**Some cross-stack rules are a source, not a pack** (B-8, amended
+2026-07-28). Where a rule needs a different check on every platform — money
+is the standing case — it cannot be pasted on its own: the directive would
+land in one section of a constitution and its enforcing rule in another,
+which breaks the one-rule-one-check shape and leaves an adopter holding a
+rule with no gate. Such rules live in a **cross-stack source**: no seed file,
+never adopted, directives under stable ids. The twelve-month clock above
+cannot reach one, since nobody adopts a source: it is retired instead when no
+stack pack instantiates it (B-8). Its `verified`, `review-by` and the lapse
+rule work unchanged.
+
+Every stack pack **instantiates** the source. For each rule, that pack's seed
+text carries the rule *with that stack's named check*; or the pack records
+that no check can be hosted, with the reason; or it records the divergence
+its type system or database forces. Silence about a source rule reads as
+coverage, which is why naming the gap is the requirement rather than a
+courtesy. The ids stay in pack files and never in seed text — a constitution
+has no copy of this corpus, so a cited id is a dangling pointer.
+
+The same rule then exists in several stack packs, and that duplication is
+accepted deliberately; the source's instantiation table is what catches
+drift. Authoring checks: [research-protocol.md](research-protocol.md) §1
+and §5.
 
 ## The packs
 
-| Pack | For repos where… | Status |
-| ---- | ---------------- | ------ |
-| [agent-traps](agent-traps.md) | any code is written by LLM agents — cross-stack corpus traps, banned by name | decided, not yet validated (researched) |
-| [java-backend](java-backend.md) | the backend is Java (Spring Boot MVC, jOOQ, PostgreSQL) — money-grade rules included, binding from the first money field; API-contract rules when it exposes an HTTP API; observability rules when nobody watches the running system | decided, not yet validated (researched) |
+| Pack | Kind | For repos where… | Status |
+| ---- | ---- | ---------------- | ------ |
+| [agent-traps](agent-traps.md) | cross-stack | any code is written by LLM agents — corpus traps, banned by name | decided, not yet validated (researched) |
+| [java-backend](java-backend.md) | stack | the backend is Java (Spring Boot MVC, jOOQ, PostgreSQL) — money-grade rules included, binding from the first money field; API-contract rules when it exposes an HTTP API; observability rules when nobody watches the running system | decided, not yet validated (researched) |
+| [money-grade](money-grade.md) | cross-stack **source** — no seed file, never adopted | not picked; its 29 rules reach a repo inside the stack pack that instantiates them, today `java-backend` | decided, not yet validated (researched inside java-backend; lifted 2026-07-28 with no new pass) |

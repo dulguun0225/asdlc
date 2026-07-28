@@ -37,18 +37,18 @@ the superseded one is the one that runs in CI.
 Until it lands, do not treat either convention as this repository's answer — the bundle's is what
 is *deployed*, the design's is what is *decided*, and they disagree.
 
-## `tools/spec-kit-bundle-nc/.github/workflows/` does not run
+## The bundle's CI lives at the repository root, and only there
 
-GitHub runs workflows only from the **repository root** `.github/workflows/`. The bundle's own two
-workflow files still sit inside its subtree and are **inert** — kept unchanged so the diff against
-the standalone repository stays readable, not because they execute.
+GitHub runs workflows only from the **repository root** `.github/workflows/`. A workflow file
+placed anywhere under `tools/` is inert, so `tools/spec-kit-bundle-nc/` deliberately has **no
+`.github/` directory**. Both of the bundle's workflows are ported:
 
-- **`checks.yml` is ported** to [`.github/workflows/bundle-checks.yml`](../.github/workflows/bundle-checks.yml),
-  with `paths` filters so a design-document change does not install the spec-kit CLI, and with
+- **[`.github/workflows/bundle-checks.yml`](../.github/workflows/bundle-checks.yml)**, with `paths`
+  filters so a design-document change does not install the spec-kit CLI, and with
   `working-directory` plus a `$BUNDLE_DIR` variable for the steps that `cd` away and reach back.
   **Delete that file and the bundle silently loses its CI.**
-- **`release.yml` is ported** to [`.github/workflows/bundle-release.yml`](../.github/workflows/bundle-release.yml),
-  on a **`bundle-v*`** trigger rather than `v*`, so a `v1.0.0` cut for the design cannot publish a
+- **[`.github/workflows/bundle-release.yml`](../.github/workflows/bundle-release.yml)**, on a
+  **`bundle-v*`** trigger rather than `v*`, so a `v1.0.0` cut for the design cannot publish a
   bundle release ([ADR-0025](../reference/decisions/0025-monorepo.md) part 4). **The bundle is
   distributed from this repository** —
   [ADR-0026](../reference/decisions/0026-bundle-distribution.md); the four `catalogs/*.json` point
@@ -56,8 +56,10 @@ the standalone repository stays readable, not because they execute.
   passes in a local dry-run at `GITHUB_REF_NAME=bundle-v0.2.0`. **Cutting the tag is the owner's
   call and has not been done.**
 
-**Both root workflows have a copy in the subtree, and the copies are the ones that look editable.**
-A change to either must be made in the root copy too, or it does nothing.
+Each file's header comment records exactly how it differs from the bundle's original. The
+originals were kept in the subtree until 2026-07-28 and are **deleted** — two inert files that
+looked like live CI, kept in sync only by comments, and edited once in that state. See
+[ADR-0025](../reference/decisions/0025-monorepo.md) *"What was actually done"* item 6.
 
 ## Provenance of `spec-kit-bundle-nc`
 

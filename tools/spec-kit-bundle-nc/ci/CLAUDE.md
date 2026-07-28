@@ -3,7 +3,7 @@
 - `check_specs.py` stays a single stdlib-only file: product repos adopt it by
   copying this one file, so it must run on any Python 3 with no installs.
 - Two modes: `--repo <path>` checks `specs/*/` in a product repo; `--self`
-  checks `examples/*/` here (checks.yml runs it on every push).
+  checks `examples/*/` here (bundle-checks.yml runs it on every push).
 - Scope is fixed by DECISIONS B-6, as amended by B-8: block on structure and
   traceability (FR/T-id uniqueness, two-way task↔FR coverage, plan sections
   including the Decision Trace's row shape, contract links, kebab/LF); never
@@ -11,8 +11,8 @@
   Trace row names.
 - HTML comments are stripped before scanning — template guidance comments
   must never count as definitions or approvals.
-- Any behavior change needs a negative test: extend the checks.yml negative
-  probes (red for the right reason, asserted on the message text) or the
+- Any behavior change needs a negative test: extend the bundle-checks.yml
+  negative probes (red for the right reason, asserted on the message text) or the
   fixture pattern they follow. Known regressions to preserve: WITHDRAWN text
   after the last FR must not deactivate it (chunks end at the next heading);
   bulleted FR examples inside comments must not become phantom FRs;

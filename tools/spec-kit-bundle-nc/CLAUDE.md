@@ -1,12 +1,20 @@
 # CLAUDE.md — spec-kit-bundle-nc
 
-This repo is a GitHub Spec Kit **bundle** (`nc-sdd`): an installable package
-of NC's Spec-Driven Development practices — EARS requirements under stable
-FR-nnn IDs, FR-nnn traceability through plan and tasks, one human approval
-gate before implementation, and technology choices traced to decision
-records (with researched seed text under `packs/`). It is a toolkit repo,
-not a spec-kit project: there is no `.specify/` here. The `specs/` rules the
-components enforce apply to *product* repos that install the bundle.
+This directory is a GitHub Spec Kit **bundle** (`nc-sdd`): an installable
+package of NC's Spec-Driven Development practices — EARS requirements under
+stable FR-nnn IDs, FR-nnn traceability through plan and tasks, one human
+approval gate before implementation, and technology choices traced to
+decision records (with researched seed text under `packs/`). It is a
+toolkit, not a spec-kit project: there is no `.specify/` here. The `specs/`
+rules the components enforce apply to *product* repos that install the
+bundle.
+
+**It is a subdirectory of the `asdlc` monorepo, not a repository**
+([ADR-0025](../../reference/decisions/0025-monorepo.md)). The standalone
+`dulguun0225/spec-kit-bundle-nc` is archived and read-only; development and
+releases both happen here
+([ADR-0026](../../reference/decisions/0026-bundle-distribution.md)). Paths
+in this file are relative to this directory unless they say otherwise.
 
 A spec-kit bundle is a pointer list, not a payload container:
 `specify bundle install` reads only `bundle.yml` and resolves each component
@@ -18,13 +26,13 @@ component directories here are the source of truth; they reach projects via
 
 | Path | What it is | A change also touches |
 | ---- | ---------- | --------------------- |
-| `bundle.yml` | Manifest; pins component versions | `catalogs/bundles.json`, release.yml asserts |
-| `presets/nc-ears/` | Spec + constitution templates (replace-only), wrapped specify/plan/tasks/constitution commands | `catalogs/presets.json`, checks.yml assertions |
-| `extensions/nc/` | `speckit.nc.gate` (before_implement), `speckit.nc.review` (after_implement) | `catalogs/extensions.json`, checks.yml assertions |
-| `workflows/nc-sdd/` | Orchestrated cycle for `specify workflow run` | `bundle.yml` pin, `catalogs/workflows.json` (version AND url tag), checks.yml |
-| `ci/check_specs.py` | Stdlib-only merge gate; `--repo` for product repos, `--self` for `examples/` | README checker list, checks.yml negative probes |
-| `catalogs/*.json` | Org distribution; keys == ids; versions/URLs must match the manifests | release.yml asserts |
-| `packs/` | Researched decision packs (informative; adopted by paste-edit-PR into a product constitution, never installed by tooling) | `packs/index.md` roster AND `packs/README.md` "The packs" table; checks.yml freshness step; B-8 governance |
+| `bundle.yml` | Manifest; pins component versions | `catalogs/bundles.json`, bundle-release.yml asserts |
+| `presets/nc-ears/` | Spec + constitution templates (replace-only), wrapped specify/plan/tasks/constitution commands | `catalogs/presets.json`, bundle-checks.yml assertions |
+| `extensions/nc/` | `speckit.nc.gate` (before_implement), `speckit.nc.review` (after_implement) | `catalogs/extensions.json`, bundle-checks.yml assertions |
+| `workflows/nc-sdd/` | Orchestrated cycle for `specify workflow run` | `bundle.yml` pin, `catalogs/workflows.json` (version AND url tag), bundle-checks.yml |
+| `ci/check_specs.py` | Stdlib-only merge gate; `--repo` for product repos, `--self` for `examples/` | README checker list, bundle-checks.yml negative probes |
+| `catalogs/*.json` | Org distribution; keys == ids; versions/URLs must match the manifests | bundle-release.yml asserts |
+| `packs/` | Researched decision packs (informative; adopted by paste-edit-PR into a product constitution, never installed by tooling) | `packs/index.md` roster AND `packs/README.md` "The packs" table; bundle-checks.yml freshness step; B-8 governance |
 | `examples/password-reset/` | Worked example (spec + plan); kept green by `--self` | — |
 | `README.md` | User docs; "Behavior this repo is built around" is the pin-forward contract | — |
 | `DECISIONS.md` | B-n registry. Read it before changing any design; append-only, never renumber; supersede with a dated note | — |
@@ -93,7 +101,7 @@ repo is built around"; reasons: DECISIONS.md).
 - Command names MUST match `speckit.<extension-id>.<command>`: id `nc` +
   `commands/gate.md`/`review.md` yield `speckit.nc.gate`/`speckit.nc.review`.
   Renaming the id or a file renames the commands and breaks the hooks and
-  the checks.yml assertions.
+  the bundle-checks.yml assertions.
 - Hooks: `before_implement` → gate, `after_implement` → review, both
   `optional: false`. This is the bundle's one human gate (B-3) — no new
   hooks without a new B-n entry.
@@ -114,20 +122,24 @@ specify bundle validate --path . --offline   # 0 errors; exactly 3 warnings (off
 python ci/check_specs.py --self              # examples stay green
 ```
 
-For component changes, run the e2e smoke locally (same as checks.yml): in a
-scratch dir, `git init` → `specify init --here --force --integration claude`
-→ the three `--dev` adds → `bundle install --offline`; then assert no
-`{CORE_TEMPLATE}` anywhere, the skills exist, and the install reports
-"0 added, 3 already present". checks.yml also carries negative probes — a
-probe must go red for the right reason, so never delete one to make CI pass.
+For component changes, run the e2e smoke locally (same as
+bundle-checks.yml): in a scratch dir, `git init` →
+`specify init --here --force --integration claude` → the three `--dev` adds
+→ `bundle install --offline`; then assert no `{CORE_TEMPLATE}` anywhere, the
+skills exist, and the install reports "0 added, 3 already present".
+bundle-checks.yml also carries negative probes — a probe must go red for the
+right reason, so never delete one to make CI pass.
 
-**The copies of `checks.yml` and `release.yml` in this directory do not run.**
-GitHub reads workflows only from the repository root, and this bundle is a
-subdirectory of a monorepo (ADR-0025). The live workflows are
-`.github/workflows/bundle-checks.yml` and `.github/workflows/bundle-release.yml`
-at the repository root; the copies here are kept so the diff against the
-standalone repository stays readable. **Any change to a workflow here must be
-made in the root copy too, or it has no effect.**
+**This directory has no `.github/`, and must not get one.** GitHub reads
+workflows only from the repository root, so anything added here would be
+inert and would look live. The bundle's CI is two files at the repository
+root: [`.github/workflows/bundle-checks.yml`](../../.github/workflows/bundle-checks.yml)
+(path-filtered to `tools/spec-kit-bundle-nc/**`) and
+[`.github/workflows/bundle-release.yml`](../../.github/workflows/bundle-release.yml)
+(triggered by `bundle-v*`). **Edit those. There is no local copy to keep in
+sync, by design** — the copies existed until 2026-07-28 and are deleted;
+see [ADR-0025](../../reference/decisions/0025-monorepo.md) *"What was
+actually done"* item 6.
 
 CI pins spec-kit at `SPECKIT_PIN: v0.14.2`. Every behavior claim was verified
 at that version. A pin-forward means: bump `SPECKIT_PIN` and the
@@ -165,7 +177,7 @@ too. Only text no human reads (command definitions, agent
 instructions) is exempt; there, repeat key constraints and list every
 case when that helps reliability.
 
-In this repo the reach includes README, DECISIONS, CHANGELOG, comments,
+Here the reach includes README, DECISIONS, CHANGELOG, comments,
 and the command and template texts the bundle ships — the last because a
 human reads them in the consumer project, so they are not the exempt
 agent-only case.

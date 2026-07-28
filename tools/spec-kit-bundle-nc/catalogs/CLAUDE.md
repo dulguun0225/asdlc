@@ -8,8 +8,8 @@
   mismatches at install).
 - Versions here must match the component manifests and the `bundle.yml`
   pins; `bundles.json` `provides` counts must match `bundle.yml`.
-  release.yml asserts the workflow triplet (file version == catalog version
-  == tag in url) — extend those asserts when adding entries.
+  bundle-release.yml asserts the workflow triplet (file version == catalog
+  version == tag in url) — extend those asserts when adding entries.
 - Consumer-side traps to keep documented in README, not here: preset and
   extension catalog adds need `--install-allowed`; workflow catalog add has
   no such flag (it writes `install_allowed: true` itself); project-level

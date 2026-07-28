@@ -102,6 +102,10 @@ in the same change.
 - **Leave the originals in place** under the subtree, so the diff against the standalone repository
   stays readable.
 
+**That last bullet was reversed on 2026-07-28.** The originals are deleted. See *"What was actually
+done"* item 6 — the readable-diff benefit is one-time and was consumed by the port itself, while the
+inert copies are a standing hazard.
+
 ### 4. `release.yml` stays parked, and the tag namespace is named
 
 `release.yml` fires on `v*`. This repository has **no tags at all**, so the first `v1.0.0` anyone
@@ -273,6 +277,34 @@ so no consumer URL was ever live and rewriting the catalogs cost nothing. **The 
 escalation to the owner for a decision that did not exist**, which is the failure this project's
 "research it and decide it" rule exists to prevent — it applies to facts about the environment just
 as much as to tool choices.
+
+**6. Part 3's "leave the originals in place" was reversed on 2026-07-28, and the reason it was
+written had already expired.** `tools/spec-kit-bundle-nc/.github/` is deleted, both files with it.
+
+Part 3 kept the inert copies *"so the diff against the standalone repository stays readable."* That
+benefit is **one-time and was consumed by the port itself** — the diff was taken, and each root
+workflow's header comment now lists exactly how it differs from the bundle's original. What the
+copies leave behind is permanent: **two files that look like live CI, are not, and are guarded only
+by comments.** Three separate places carried that warning (the bundle's `CLAUDE.md`,
+[`tools/README.md`](../../tools/README.md), and both root workflow headers), which is the shape of
+a hazard being managed rather than removed.
+
+**It had already fired once, benignly.** Commit `465e089` added `set -o pipefail` and an install
+assert *"in the live root workflow and the inert subtree copy"* — the discipline held, at the cost
+of writing every fix twice. Nothing guarantees the next session reads all three warnings first.
+
+Deleting loses nothing. Both live files are strict supersets of the copies, verified by diff before
+removal; the bundle's git history, which holds the originals, is preserved in the archived
+standalone repository. **The archival is not the reason for the deletion** — an archived repository
+is read-only, not gone, so a diff against it is still possible. The reason is the hazard.
+
+**What replaces the warnings:** the bundle's `CLAUDE.md` now states that the directory has no
+`.github/` **and must not get one**, and each root workflow's header says **THIS IS THE ONLY COPY**.
+A prohibition on creating the file is checkable; a reminder to keep two files in sync is not.
+
+**Reopen if** the bundle is ever extracted back into a standalone repository — the workflows would
+have to move back, and `bundle-checks.yml`'s `paths` filters and `$BUNDLE_DIR` would have to be
+unwound. The header comments exist to make that reversal mechanical.
 
 ## Variant answers
 

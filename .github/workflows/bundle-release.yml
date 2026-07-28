@@ -3,12 +3,12 @@
 # rather than doing it).
 #
 # WHY THIS FILE EXISTS AT THE ROOT: GitHub runs workflows only from the
-# repository root `.github/workflows/`. The bundle's own copy still sits at
-# tools/spec-kit-bundle-nc/.github/workflows/release.yml and is INERT there —
-# kept so the diff against the standalone repository stays readable, not
-# because it runs. Delete this file and the bundle has no release path.
+# repository root `.github/workflows/`. A workflow under tools/ would be inert,
+# so the bundle keeps no copy of this file — its .github/ was deleted on
+# 2026-07-28 (ADR-0025 "What was actually done" item 6). THIS IS THE ONLY COPY.
+# Delete it and the bundle has no release path.
 #
-# Four differences from the original, and nothing else:
+# Four differences from the bundle's original, and nothing else:
 #   1. The trigger is `bundle-v*`, not `v*`. This repository also holds the
 #      ASDLC design, so a bare `v1.0.0` cut for the design must not publish a
 #      bundle release. That mis-trigger is the reason ADR-0025 parked the port.

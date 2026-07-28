@@ -215,7 +215,7 @@ it up as premise-derived.
 ## Freshness
 
 - Every claim is dated; every pack carries `verified` and `review-by` in
-  its frontmatter. A checks.yml step warns (never fails) when `review-by`
+  its frontmatter. A bundle-checks.yml step warns (never fails) when `review-by`
   has passed.
 - **The lapse rule**: past `review-by`, every **confirmed** marker in the
   pack reads as **convention** until a new research pass re-dates it. This

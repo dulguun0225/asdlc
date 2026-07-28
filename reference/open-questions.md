@@ -38,9 +38,16 @@ done"* section, which records two ways execution differed from the plan.
 the bundle's 19 commits. The import was a plain copy, so that history — including the reasoning
 behind every rule in its `CLAUDE.md` section *"Rules that exist because something broke"* — lives
 only in [`dulguun0225/spec-kit-bundle-nc`](https://github.com/dulguun0225/spec-kit-bundle-nc).
-**Do not delete that repository.** Re-importing is cheap now and gets expensive the moment a commit
-here modifies a file inside the subtree, so **decide before the bundle is next edited.** Nobody has
-to — the copy is correct and byte-identical to `master`; the history is elsewhere, not gone.
+**Do not delete that repository.** Nobody has to re-import — the copy was byte-identical to
+`master` at import; the history is elsewhere, not gone.
+
+**The deadline this item used to carry has passed, and the item is weaker for it.** It said
+*"decide before the bundle is next edited."* Four commits have since modified the subtree
+(`12401a3`, `465e089`, `beae3eb`, and the 2026-07-28 workflow-copy deletion), so a `git subtree add`
+would now have to be merged against local changes rather than laid down cleanly. Still possible,
+no longer cheap. **Treat this as "accept losing it unless someone wants to pay the merge"**, and
+note that the archived repository preserves the history either way — the cost is only that it is
+not readable from `git log` here.
 
 **The risk that outlives the migration, and it is the real one.** The bundle approves with a typed
 `Status: Approved — <name>, <date>` line, which
@@ -75,6 +82,13 @@ record chooses that.** It is the current state, not a decision
 [open-parameters.md](../rollout/open-parameters.md). **Cheapest to change now**: nothing has been
 released, so no consumer depends on a public URL, and going private costs one
 `~/.specify/auth.json` per consumer and changes no URL.
+
+**The inert workflow copies are gone.** `tools/spec-kit-bundle-nc/.github/` is deleted, both files
+with it, on 2026-07-28 — see ADR-0025 *"What was actually done"* item 6 for why the readable-diff
+reason had already expired. The bundle's CI is now exactly two files, both at the repository root,
+and each says **THIS IS THE ONLY COPY** in its header. **Nothing needs keeping in sync any more.**
+The bundle's `CLAUDE.md` now forbids creating a `.github/` there rather than warning about the one
+that existed.
 
 **Two things to watch on the next push:**
 
@@ -126,6 +140,8 @@ exactly the state that does not travel between machines.
   `release.yml` inside the subtree do not run, and nothing in the bundle's own `CLAUDE.md` said so.
   An agent editing the bundle would have edited a dead file. Now stated there, next to the rule
   that any workflow change must be made in the root copy too.
+  **Superseded the same day:** the copies are deleted, so there is no rule to follow and no dead
+  file to edit — ADR-0025 *"What was actually done"* item 6.
 - **Also recorded so it is not re-investigated:** `catalogs/workflows.json` has no `schema_version`
   and does not need one — the reader never looks at it (checked against the installed v0.14.2
   source).

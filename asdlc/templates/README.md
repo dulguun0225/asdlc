@@ -14,6 +14,9 @@ Copy them into the repository whose code they govern, at `specs/<NNN>-<kebab-slu
 | [plan.md](plan.md) | `specs/<NNN>-<slug>/plan.md` | [2. Plan / design](../02-plan.md) | ring reviewer, or a review-competent team leader |
 | [tasks.md](tasks.md) | `specs/<NNN>-<slug>/tasks.md` | [3. Tasks](../03-tasks.md) | nobody — automated check only |
 
+**A filled-in example is in [../examples/](../examples/README.md).** These templates state the
+rules; the example applies them, and records in its own §7 the places where the notation resisted.
+
 ## Four things to know before filling one in
 
 **Requirements are EARS sentences with stable ids.** One testable behaviour each; six patterns;

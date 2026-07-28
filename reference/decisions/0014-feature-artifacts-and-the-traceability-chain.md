@@ -202,6 +202,20 @@ conventions state and neither can enforce: that only a human writes the approval
 
 ### 7. The tasks-stage consistency check, defined
 
+> **The list of seven is no longer the whole program, noted 2026-07-28.** Two later records
+> assigned this same program further jobs without amending this part, and someone implementing
+> "the seven checks" would ship something three requirements short:
+>
+> - [ADR-0020](0020-agent-instruction-layers.md) part 7 — reject an `@` import in a project
+>   instruction file that resolves outside the repository.
+> - [ADR-0023](0023-adversarial-repository-content.md) part 4 — the tests-only T3 proof: no
+>   `NNN:FR-nnn` citation is removed, and the trace's `tested` count does not decrease.
+>
+> Whether those belong to this program or to separate checks is **OI-001** of
+> [the worked specification](../../asdlc/examples/001-feature-artifact-checker/spec.md) and is the
+> platform owner's call before implementation. What is decided here is the seven below; what is
+> recorded here is that the boundary drifted.
+
 **"Consistent with the signed plan" means these seven things.** One deterministic program,
 standard library only, no network, no model call. It runs on every change touching a feature
 folder, and again at merge on the final diff, as a **required status check** — blocking, which

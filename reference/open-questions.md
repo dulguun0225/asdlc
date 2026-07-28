@@ -25,7 +25,44 @@ computer and the agent's local memory does not travel, so this section — not a
 the conversation — is where the state lives. Anyone finishing a session updates it
 ([`CLAUDE.md`](../CLAUDE.md) → "Assume every session starts on a different computer").
 
-### Last session: 2026-07-28 — the four stage procedures are written
+### Last session: 2026-07-28 — the checker is specified, and the design was run against itself
+
+[`asdlc/examples/001-feature-artifact-checker/spec.md`](../asdlc/examples/001-feature-artifact-checker/spec.md)
+— the feature-artifact checker written out in this design's own notation: **44 EARS requirements,
+two NFRs, three success criteria, five open items.** It is simultaneously the checker's
+specification, the worked example the templates never had, and the first real test of the templates.
+
+**The owner pointed at [`spec-kit-bundle-nc`](https://github.com/dulguun0225/spec-kit-bundle-nc),
+and it settles a question that was about to be asked.** It already carries `ci/check_specs.py` —
+stdlib-only Python, run as merge-blocking CI. So the checker is an extension of a pattern this org
+already runs, and it belongs in a tooling repository of that shape, **not in this documents-only
+repository**. Do not re-open where the code lives.
+
+**Five open items, and OI-001 is a real defect in the records:**
+
+- **OI-001 — the checker's boundary has drifted and nothing says so.**
+  [ADR-0014](decisions/0014-feature-artifacts-and-the-traceability-chain.md) part 7 defines
+  **seven** blocking checks. [ADR-0020](decisions/0020-agent-instruction-layers.md) part 7 then
+  assigned this program an eighth job (reject `@` imports resolving outside the repository), and
+  [ADR-0023](decisions/0023-adversarial-repository-content.md) part 4 a ninth and tenth (the
+  tests-only T3 proof: no citation removed, `tested` count does not decrease). **Neither amended
+  ADR-0014.** Somebody implementing "the seven checks" would ship a program missing three
+  requirements that other records depend on.
+- **OI-002 — `merge` mode has undeclared inputs.** Three requirements need CI status and
+  gate-record hashes, and no record says how the program receives either.
+- **OI-003 — nothing defines what marks a test quarantined.** ADR-0019 requires quarantine and
+  names no mechanism; it is per language, and a quarantined test must not satisfy its requirement.
+- OI-004 (hash rewriting) and OI-005 (language and repository) were already known.
+
+**The notation held.** All 44 requirements fit an EARS pattern with no `[form: …]` escape needed —
+the complex `WHILE … WHEN …` pattern carried every mode-dependent rule. That is one data point in
+favour of ADR-0014's bet, not evidence; the requirements describe a program nobody has built.
+
+**What the next session should pick up:** `plan.md` and `tasks.md` for the same example. The plan is
+the more valuable of the two — it is where the **contract table shapes** get tested against a
+feature that has no HTTP surface, which [02-plan.md](../asdlc/02-plan.md) names as an unfilled gap.
+
+### Session before: 2026-07-28 — the four stage procedures are written
 
 [`asdlc/skills/`](../asdlc/skills/README.md) now holds `spec`, `plan`, `tasks` and `implement` —
 the text an engineer's agent actually receives when it enters a stage. **They are unrun**, and the

@@ -25,6 +25,48 @@ computer and the agent's local memory does not travel, so this section — not a
 the conversation — is where the state lives. Anyone finishing a session updates it
 ([`CLAUDE.md`](../CLAUDE.md) → "Assume every session starts on a different computer").
 
+### ▶ START HERE — the next session's first action
+
+**Execute [ADR-0025](decisions/0025-monorepo.md) and flip it from `proposed` to `accepted`.** It is
+the only record in this repository that is decided but not carried out, and it is deliberate: the
+owner asked to make this a monorepo and, in the same breath, to prepare for a new session. Starting
+a `git subtree` migration and handing over mid-migration was the worst available outcome, so the
+decision was written down in full instead.
+
+**Everything needed is in ADR-0025 part 7**, written as a runbook because the session that runs it
+will have none of the conversation that produced it: the import command, the order (root
+`CLAUDE.md` first, then `.gitattributes` alone, then the subtree), and the two traps.
+
+**The two traps, because they are the whole reason this is an ADR and not a one-line task:**
+
+1. **The bundle's CI goes inert on import and nothing reports it.** GitHub runs workflows only from
+   the root `.github/`; after the subtree they sit at `tools/spec-kit-bundle-nc/.github/workflows/`.
+   The bundle has working CI today. Port `checks.yml` in the same change.
+2. **`release.yml` fires on `v*` and this repository has no tags.** The first `v1.0.0` cut for the
+   design would try to publish a bundle release. Park it; the convention is `bundle-v*`.
+
+**And the risk that outlives the migration:** the bundle approves with a typed
+`Status: Approved — <name>, <date>` line, which
+[ADR-0014](decisions/0014-feature-artifacts-and-the-traceability-chain.md) part 3 replaced with a
+hash-bound gate record *precisely so approval cannot be forged by typing one*. After the move both
+conventions live in one tree, and **the superseded one has working tooling and CI while the new one
+has neither.** That is how an old convention wins — not by argument, by being the one that runs.
+Reconciling them is the top row of [open-parameters.md](../rollout/open-parameters.md) and needs its
+own record. **Do not merge the two gate models as part of the move.**
+
+Two facts the next session cannot rediscover from the repository:
+
+- The local clone at `/d/repos/nc/spec-kit-bundle-nc` sits on branch
+  `packs/java-backend-observability`, **one commit ahead of `master` and of `origin/master`** —
+  `47173eb`, *"packs/java-backend: add observability rules"*, which exists only on that disk.
+  ADR-0025 part 2 imports `master` and re-applies that commit separately, so unreviewed work never
+  becomes the baseline by accident.
+- The owner was asked twice to choose between options here and twice asked to clarify instead, then
+  re-issued *"you drive this project until the end."* **Both points are decided in ADR-0025. Do not
+  re-open them by asking.**
+
+---
+
 ### Last session: 2026-07-28 — the checker is specified, and the design was run against itself
 
 [`asdlc/examples/001-feature-artifact-checker/spec.md`](../asdlc/examples/001-feature-artifact-checker/spec.md)
@@ -452,7 +494,7 @@ below rather than referred upward.
 
 **Every design decision this project can make without a running pilot has been made, and no
 research question is open.** [OQ-18](#oq-18--how-is-a-post-merge-defect-attributed-to-a-tier) was
-the last, and it closed on 2026-07-28. What remains is three kinds of thing, and **none of them is
+the last, and it closed on 2026-07-28. What remains is four kinds of thing, and **none of them is
 a research session**:
 
 1. **Staffing — [OQ-10](#oq-10--who-fills-the-platform-owner-role).** The platform owner and a
@@ -467,7 +509,10 @@ a research session**:
    [ADR-0024](decisions/0024-stage-skill-distribution.md) on 2026-07-28. **Two remain unrun:**
    Harbor's OCI referrers path, and the toolchain under TLS termination. Neither can be settled from
    documentation; both need hardware.
-3. **Nothing else.** The last open call — whether prompt injection from repository content needed
+3. **One decision made but not carried out** — [ADR-0025](decisions/0025-monorepo.md), status
+   `proposed`. It is the only such record here and it is the next session's first action; see
+   **START HERE** at the top of this section. Everything else is decided *and* landed.
+4. **Nothing else.** The last open call — whether prompt injection from repository content needed
    its own question — was **decided, not inherited**, by
    [ADR-0023](decisions/0023-adversarial-repository-content.md) on 2026-07-28. Do not reopen it as
    a research question without one of that record's three named triggers.

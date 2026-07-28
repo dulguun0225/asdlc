@@ -122,7 +122,7 @@ The bring-up check: with `tlsTerminate` on, run the tools an engineer and a CI j
 against the allowed hosts, on each supported platform — macOS, Linux, and WSL2. Record what fails.
 **A tool that fails is not resolved by adding it to `excludedCommands`:** that exclusion is
 filesystem-only, and the proxy environment variables are still injected (research note, Finding 8).
-This lands in [rollout/open-parameters.md](../rollout/open-parameters.md), not here, because the
+This lands in [rollout/open-parameters.md](../../rollout/open-parameters.md), not here, because the
 answer depends on the projects.
 
 ### 6. What reopens this record

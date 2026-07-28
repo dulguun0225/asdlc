@@ -31,7 +31,7 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0010](0010-runner-licensing-token-spend-only.md) | The runner licence condition resolves: Claude Code is token-spend-only under API-key billing | accepted | 2026-07-27 |
 | [0011](0011-progressive-rollout.md) | Progressive rollout and automated rollback: achievable off the shelf, conditional on the deployment target | accepted; part 2's justification corrected by 0015 | 2026-07-27 |
 | [0012](0012-per-variant-stack-sheets.md) | Per-variant stack sheets, and why the layout is not split by variant | accepted; part 4 amended by 0013 | 2026-07-27 |
-| [0013](0013-layout-by-subject.md) | The repository is laid out by subject, and the design is the entry point | accepted | 2026-07-27 |
+| [0013](0013-layout-by-subject.md) | The repository is laid out by subject, and the design is the entry point | accepted; layout extended by 0025 | 2026-07-27 |
 | [0014](0014-feature-artifacts-and-the-traceability-chain.md) | The feature artifacts, EARS, and where the traceability chain ends | accepted | 2026-07-27 |
 | [0015](0015-observability-backend.md) | The observability backend: one architecture, self-hosted in one variant and managed in the other | accepted | 2026-07-28 |
 | [0016](0016-tls-terminating-proxy-and-credential-masking.md) | TLS termination is a setting on the proxy we already have, not a product to select | accepted | 2026-07-28 |
@@ -43,3 +43,4 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0022](0022-defect-attribution.md) | Defect attribution: tooling narrows, a human decides, and unattributed is a first-class outcome | accepted | 2026-07-28 |
 | [0023](0023-adversarial-repository-content.md) | Adversarial or mistaken repository content: what already bounds it, and one hole closed | accepted; inventory extended by 0024 | 2026-07-28 |
 | [0024](0024-stage-skill-distribution.md) | The stage skills ship as one force-enabled plugin, and their names change | accepted | 2026-07-28 |
+| [0025](0025-monorepo.md) | The repository becomes a monorepo, and `spec-kit-bundle-nc` moves in | **proposed — decided, not executed** | 2026-07-28 |

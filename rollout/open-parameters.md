@@ -10,6 +10,10 @@ rows point at an open question because the parameter cannot be set until that re
 | Parameter | Filled by | Blocking? |
 |---|---|---|
 | **Platform owner + backup names** | owner ([OQ-10](../reference/open-questions.md)) | **yes — start blocker** |
+| **Reconcile the two gate models.** Once [ADR-0025](../reference/decisions/0025-monorepo.md) is executed, one repository holds both `spec-kit-bundle-nc`'s typed `Status: Approved` line and [ADR-0014](../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md)'s hash-bound gate record — and **the superseded one has working tooling while the new one has none** | platform owner — needs its own decision record, not a merge | **yes, before the pilot.** Two approval conventions in one tree is how the weaker one wins by default |
+| Port `checks.yml` to the repository root with a `tools/spec-kit-bundle-nc/**` path filter | platform owner, during [ADR-0025](../reference/decisions/0025-monorepo.md) execution | **yes** — GitHub runs workflows only from the root `.github/`, so the bundle's CI **goes inert on import and nothing reports it** |
+| Tag namespace and `release.yml`. It fires on `v*`; this repository has no tags, so the first `v1.0.0` cut for the design would try to publish a bundle release. Convention to adopt: `bundle-v*` | platform owner, before the bundle's next release — [ADR-0025](../reference/decisions/0025-monorepo.md) part 4 | not for bring-up — but **before anyone tags this repository** |
+| Does the feature-artifact checker fork `ci/check_specs.py` or extend it in place? | platform owner before implementation — the bundle's checker enforces the *superseded* gate model, so extending it in place couples the two questions above | before writing the program |
 | **Deployment target** (Kubernetes or not) | owner | yes for the deployment layer |
 | **Engineers' OS inventory → WSL2 list** | owner | yes for the sandbox |
 | Per-tier session spend ceilings | pilot measurement ([OQ-7](../reference/open-questions.md)) | no — start with a generous ceiling, tighten on data |

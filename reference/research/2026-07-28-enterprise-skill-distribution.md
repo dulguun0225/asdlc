@@ -28,7 +28,7 @@ The skills page lists three non-plugin scopes. Two are paths; the third is not:
 
 | Location | Path | Applies to |
 |---|---|---|
-| Enterprise | *"See [managed settings](/docs/en/settings#settings-files)"* | *"All users in your organization"* |
+| Enterprise | *"See [managed settings](https://code.claude.com/docs/en/settings#settings-files)"* | *"All users in your organization"* |
 | Personal | `~/.claude/skills/<skill-name>/SKILL.md` | *"All your projects"* |
 | Project | `.claude/skills/<skill-name>/SKILL.md` | *"This project only"* |
 

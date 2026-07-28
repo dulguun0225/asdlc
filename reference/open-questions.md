@@ -25,7 +25,40 @@ computer and the agent's local memory does not travel, so this section — not a
 the conversation — is where the state lives. Anyone finishing a session updates it
 ([`CLAUDE.md`](../CLAUDE.md) → "Assume every session starts on a different computer").
 
-### Last session: 2026-07-28 — self-hosted provenance. **All four stack gaps are now closed.**
+### Last session: 2026-07-28 — how agent-written code is tested
+
+Landed [ADR-0019](decisions/0019-testing-agent-written-code.md) and its
+[research note](research/2026-07-28-testing-agent-written-code.md), closing the largest hole in the
+engineer-facing layer. First session of the phase-2 work, and the first in this run that is not a
+stack decision.
+
+**The problem is independence, not competence.** The agent writes the code and the tests, and a
+test written by reading an implementation cannot disagree with it — measured behaviour is that a
+model shown buggy code follows the implementation and encodes the bug as expected. So: **the
+oracle comes from the signed spec**, never from the code. That gives
+[ADR-0014](decisions/0014-feature-artifacts-and-the-traceability-chain.md)'s chain a stronger
+justification than traceability.
+
+- **Line coverage is measured and never gated**, anywhere. One study: 84.8% vs 88.5% coverage,
+  69% vs 17.2% fault detection. The adequacy criterion is **requirement** coverage, which the
+  requirements trace already emits.
+- **Mutation testing on the diff** — required T1, sampled T2, not T3. Review input, never an
+  automatic block.
+- **Flaky tests are quarantined, never retried until green**, and a quarantined test does not
+  satisfy its requirement. Flakiness is **measured to be contagious** through prompt context.
+- **Two new day-one metrics:** flaky-test rate per tier, surviving-mutant rate at T1.
+
+**A committed claim was wrong and is corrected** in [05-merge.md](../asdlc/05-merge.md) and
+[templates/README.md](../asdlc/templates/README.md): agent tests are *not* "broader and flakier
+than human ones". Flakier is right but *slight*; broader was never sourced and the fault-detection
+evidence points the other way.
+
+**Read the research note's caveats before building on this.** Two of the three load-bearing
+findings are 2026 arXiv preprints with no stated venue; one calls itself preliminary. Specific
+figures from Inozemtseva & Holmes (HTTP 403) and from Google's mutation-testing paper (unextractable
+PDF) were **not verified** — do not quote them.
+
+### Session before: 2026-07-28 — self-hosted provenance. **All four stack gaps are now closed.**
 
 Landed [ADR-0018](decisions/0018-self-hosted-provenance.md) and its
 [research note](research/2026-07-28-self-hosted-provenance.md), closing
@@ -184,18 +217,21 @@ below rather than referred upward.
   artifacts are **done**. What remains: per-repository agent configuration, a testing strategy
   for agent-written code, and how the agent is prompted at each stage.
 
-**Next: the engineer-facing layer.** With the stack settled, the binding constraint on this design
-is no longer "can it be built" but "could someone be handed this and build it". The work list is
-the **"Not yet specified"** section at the end of each file in [`asdlc/`](../asdlc/README.md).
-What remains there, in the order they block a pilot engineer:
+**Next: how the agent is prompted at each stage**, and per-repository agent configuration
+([04-implementation.md](../asdlc/04-implementation.md)). This moved from "nice to have" to
+load-bearing on 2026-07-28: [ADR-0019](decisions/0019-testing-agent-written-code.md) makes a
+*prompting rule* carry a security property — "write a test that verifies `FR-nnn`" and "write tests
+for this file" produce different artifacts, and only the first is evidence. A rule that exists in
+an ADR but nowhere in the agent's actual instructions is not enforced.
 
-1. **How agent-written code is tested** ([04-implementation.md](../asdlc/04-implementation.md)) —
-   no testing strategy is decided anywhere, and CI-green is a T3 precondition, so this is
-   load-bearing rather than cosmetic.
-2. **Per-repository agent configuration and what an agent session looks like** — how the engineer
-   hands the agent a task, and what context it gets at each stage.
-3. **What a deploy batch is scoped to** ([06-deploy.md](../asdlc/06-deploy.md)) — per service, per
+Then, in order:
+
+1. **What a deploy batch is scoped to** ([06-deploy.md](../asdlc/06-deploy.md)) — per service, per
    repository, or per team. The only undecided thing left in that stage.
+2. **The remaining "Not yet specified" entries** across the stage files.
+3. **[OQ-18](#oq-18--how-is-a-post-merge-defect-attributed-to-a-tier)** — the one live research
+   question. It blocks no bring-up step, only the T3 auto-deploy exit condition and the relaxation
+   rule, both of which need a running pilot anyway.
 
 [OQ-18](#oq-18--how-is-a-post-merge-defect-attributed-to-a-tier) is the remaining research
 question, and it blocks no bring-up step — only the T3 auto-deploy exit condition and the

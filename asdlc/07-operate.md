@@ -64,7 +64,11 @@ Four record families, all exported by **OpenTelemetry** from every agent session
 2. **Gate records** — signer, assertion, artifact hash, computed tier, and the rule that
    fired, for every signature at every gate.
 3. **Per-tier metrics** — volume, approval rate, change-request rate, post-merge defect
-   attribution, revert rate, deploy batch size, reviewer-reassignment count.
+   attribution, revert rate, deploy batch size, reviewer-reassignment count, and — added by
+   [ADR-0019](../reference/decisions/0019-testing-agent-written-code.md) — **flaky-test rate** and
+   **surviving-mutant rate at T1**. The last two make the testing strategy falsifiable: if
+   quarantine is never used, the rule is being bypassed by retries; if surviving mutants stay high,
+   the tests are passing without asserting.
 4. **Requirements traces** — per feature and per requirement: verification coverage, escape-hatch
    use, requirements amended after signature
    ([reference/artifacts.md](../reference/artifacts.md) §7). This is the record that makes

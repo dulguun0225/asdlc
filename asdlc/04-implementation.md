@@ -134,12 +134,65 @@ One cloud-only option: a hosted async agent may be added for low-tier asynchrono
 **no gate may depend on it** — if one did, the self-hosted variant would lose that gate
 ([ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) part 7).
 
+## 6. How the code is tested
+
+Set by [ADR-0019](../reference/decisions/0019-testing-agent-written-code.md). Converges across
+variants — it is a prompting rule, a CI job, and a merge check.
+
+**The problem this solves is independence, not competence.** The agent writes the code *and* the
+tests, and a test written by reading an implementation cannot disagree with it. The measured
+behaviour is worse than neutral: shown buggy code, a model follows the implementation and encodes
+the bug as the expected result.
+
+### The oracle comes from the signed spec, never from the implementation
+
+- A test's expected behaviour is derived from the **EARS requirement text and the plan's
+  contract** — signed by a human before the code existed, and hash-pinned so editing it
+  invalidates the signature ([ADR-0014](../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md)).
+- **"Write tests for this file" is a prohibited instruction at T1 and T2.** The instruction is
+  "write a test that verifies `FR-nnn`, whose text is this."
+- Measured effect of grounding tests in a specification rather than inferring from code:
+  **+38 percentage points** more often correct, against a baseline already told to probe edge
+  cases. **Doubling test quantity barely helped.**
+
+### Line coverage is measured and never gated
+
+**No coverage threshold exists anywhere in this design.** Coverage is a dashboard number that finds
+code nobody tested; it is not evidence of quality. In one study on real bugs, two suites had line
+coverage of **84.8% and 88.5%** and fault-detection rates of **69% and 17.2%**. A target the agent
+can satisfy by executing lines without asserting is worse than no target.
+
+**The adequacy criterion is requirement coverage** — every `FR` a completed task cites appears in a
+passing test — which the requirements trace already emits
+([reference/artifacts.md](../reference/artifacts.md) §7).
+
+### Mutation testing on the diff, and flakiness as a defect
+
+- **Mutation testing:** required at **T1**, sampled at **T2**, not run at **T3**. Mutate the diff,
+  never the codebase; suppress aggressively; surface few. A surviving mutant is **review input to
+  the signer, not an automatic block**.
+- **Flaky tests are quarantined, never retried until green.** A test that needed a retry is not
+  evidence, and in this design a passing test is what makes a requirement `verified`.
+- **Flakiness is contagious, and that is measured** — models transfer flakiness from existing
+  tests through prompt context. A flaky test left in the repository is a template the agent copies.
+  Greenfield is a genuine advantage here; keeping it clean is cheaper than cleaning it later.
+- **Look for the dominant cause by name:** dependence on unguaranteed ordering accounted for
+  **63%** of flaky tests in the study behind this rule.
+
+**Two new day-one metrics:** flaky-test rate per tier, and surviving-mutant rate at T1. Neither
+gates anything; both make this record falsifiable
+([07-operate.md](07-operate.md) §3).
+
 ## Not yet specified
 
 - **What an agent session actually looks like in practice** — how the engineer hands the agent
   a task, what context the agent is given, what per-repository agent configuration exists.
-  Nothing in the record covers this.
-- **How agent-written code is tested**, beyond CI being green as a T3 precondition. No
-  testing strategy is decided anywhere in this design.
+  Nothing in the record covers this, and it is now the largest remaining gap:
+  [ADR-0019](../reference/decisions/0019-testing-agent-written-code.md) made a **prompting rule
+  load-bearing** ("write a test that verifies `FR-nnn`", never "write tests for this file"), and
+  there is nowhere yet that specifies how the agent is prompted at each stage.
 - **When to open a new session versus continue one**, and how session boundaries map to
   changes.
+
+How agent-written code is tested was listed here until 2026-07-28 and is now specified by
+[ADR-0019](../reference/decisions/0019-testing-agent-written-code.md) — see §6 below.

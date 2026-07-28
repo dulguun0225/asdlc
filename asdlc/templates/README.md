@@ -31,8 +31,15 @@ matching — mechanically, with no convention to uphold.
 requirement → design element (plan §6), requirement ↔ task (both directions), requirement →
 verifying test (at merge, per task completed), and non-functional requirement → enforcement
 point, which for operational properties is the canary threshold that aborts a bad deploy. A test
-citing a requirement is *evidence*, never proof: agent-written tests are broader and flakier than
-human ones, so the merge gate's human assertion is unchanged.
+citing a requirement is *evidence*, never proof: the same agent wrote the code and the test, so the
+test's independence comes from the requirement it was written against, not from its author. The
+merge gate's human assertion is unchanged.
+
+**This is why the signed spec is load-bearing rather than ceremonial.** A test written by reading
+the implementation cannot disagree with it — the measured behaviour is that a model shown buggy
+code follows the implementation and encodes the bug as expected. Grounding the test in the
+requirement is what makes it evidence
+([ADR-0019](../../reference/decisions/0019-testing-agent-written-code.md)).
 
 **T3 changes need none of this.** A documentation, comments-only, formatting-only, tests-only or
 qualifying lockfile change carries no feature artifacts. T1 and T2 changes must reference a

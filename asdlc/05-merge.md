@@ -38,9 +38,18 @@ T1 work between signature and merge
   task this change marks done, each `FR` it cites must appear as `NNN:FR-nnn` in at least one
   test file in the repository, and CI must be green
   ([ADR-0014](../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md) part 4).
-  A test citing a requirement is **evidence, not proof** — agent-written tests are broader and
-  flakier than human ones, so this check narrows what the human signer has to look for; it does
-  not replace the assertion.
+  A test citing a requirement is **evidence, not proof** — the same agent wrote the code and the
+  test, so the test's independence comes from the **requirement it was written against**, not from
+  its author ([ADR-0019](../reference/decisions/0019-testing-agent-written-code.md)). The check
+  narrows what the human signer has to look for; it does not replace the assertion.
+- **A quarantined test does not satisfy its requirement.** Flaky tests are quarantined, never
+  retried until green — a test that needed a retry is not evidence — and the requirements trace
+  must show the requirement as unverified while its only test is quarantined
+  ([ADR-0019](../reference/decisions/0019-testing-agent-written-code.md) part 5).
+- **Mutation testing runs on the diff: required at T1, sampled at T2, not at T3.** Surviving
+  mutants are **review input to the human signer, not an automatic block** — blocking on a mutation
+  score would create exactly the gameable target that keeps line coverage out of every gate in this
+  design.
 - **A T1 or T2 change with no feature folder fails.** T3 changes carry no feature artifacts at
   all ([03-tasks.md](03-tasks.md)). This is the same failure shape as a tier escalation: a change
   that turns out T1 or T2 without a signed spec and plan is a plan defect surfaced at merge.

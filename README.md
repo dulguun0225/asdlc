@@ -56,10 +56,13 @@ and a pilot is staffing, bring-up, and two facts only the owner holds — not re
 | Post-merge defect attribution to a tier ([OQ-18](reference/open-questions.md)) | Not phase 0. The T3 automatic-deploy exit condition, and the rule that relaxes a tier on evidence. |
 
 **Thin, and named as such:** the day-to-day engineer-facing layer. The spec, plan and task
-templates now exist ([asdlc/templates/](asdlc/templates/README.md)), but the checker that
-enforces them is unwritten, and there is still no per-repository agent configuration and no
-testing strategy for agent-written code. Each stage file in [`asdlc/`](asdlc/README.md) ends with
-a "Not yet specified" section listing exactly what is missing from it.
+templates exist ([asdlc/templates/](asdlc/templates/README.md)) and the testing strategy is now
+decided ([ADR-0019](reference/decisions/0019-testing-agent-written-code.md)), but the checker that
+enforces the templates is unwritten and **there is still no specification of how the agent is
+prompted at each stage** — which ADR-0019 made load-bearing rather than cosmetic, because "write a
+test that verifies this requirement" and "write tests for this file" produce different things.
+Each stage file in [`asdlc/`](asdlc/README.md) ends with a "Not yet specified" section listing
+exactly what is missing from it.
 
 ## The design's own footing
 

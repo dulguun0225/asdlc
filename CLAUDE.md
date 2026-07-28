@@ -176,31 +176,14 @@ point for a human**.
 Always: precise first, simple second — exact over approximate, but
 plain words and short sentences within that. Keep technical terms
 when the everyday word is less exact. No business-speak or figurative
-filler. This limits wording, not coverage — stay complete, keep every
-edge case.
+speech; say what actually happens.
 
-### Banned wording
-
-Never use these, in any file or chat reply. This is a hard list, not a
-preference. Each was removed from the repository once already; a
-re-appearance is a defect.
-
-| Banned | Use instead |
-|---|---|
-| folded into / folds into / fold into | say what actually happens: "no separate gate; the plan signer asserts both", "merged into", "is part of" |
-
-Add to this table whenever the owner rejects a word. Removing an entry
-needs the owner's say-so.
-
-## Formatting
-
-Always lead with the direct answer, then support it. Keep reasoning
-and argument in prose; bullets for parallel items only. Headers only
-when a reply covers three or more distinct topics. Use a table when
-comparing three or more things across two or more attributes. Collect
-caveats at the end. When you give me more than one option, always
-list them: bold short label, then one sentence on what it trades off,
-and your recommendation in one line after.
+The wording rules apply everywhere. Coverage defaults to complete —
+every edge case. The one exemption is chat and terminal session
+replies: answer what was asked; include an edge case only when it
+changes the answer. Anything used outside the session — a file, a
+spec, a commit message, a code comment — is complete even when
+drafted inside a reply.
 
 ## Open items for this file
 

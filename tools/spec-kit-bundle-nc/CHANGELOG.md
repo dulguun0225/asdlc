@@ -14,7 +14,7 @@ Versions 0.1.0 and 0.2.0 were development increments in this repository;
 ## [0.2.0] — 2026-07-29
 
 Bundle `nc-sdd` 0.2.0 · preset `nc-ears` 0.2.0 · extension `nc` 0.2.0 ·
-workflow `nc-sdd` 0.2.0. Design: DECISIONS.md B-8, B-9, B-10, B-11.
+workflow `nc-sdd` 0.2.0. Design: DECISIONS.md B-8, B-9, B-10, B-11, B-12.
 
 ### Added
 
@@ -286,6 +286,45 @@ workflow `nc-sdd` 0.2.0. Design: DECISIONS.md B-8, B-9, B-10, B-11.
   pack decisions: a closed `RoundingOccasion` registry and portfolio-wide
   mutation testing. Frontmatter `verified`/`review-by` unchanged — the
   pass was scoped to the additions, not a full re-verification.
+- `packs/java-backend.md` — **section 4 is regrouped by rule instead of by
+  research pass.** It was a 727-line flat bullet list ordered by when each
+  pass ran, while the seed text it justifies has seventeen topical sections;
+  finding the evidence for a rule meant scanning for a date. It now carries one
+  `###` per seed-text `###`, in the seed's order, with the pass history and
+  every scope caveat in a table at the top. 54 bullets moved verbatim. Four
+  dissolved: three pass announcements into the table, and one 2026-07-21
+  convention list whose five items governed five different sections, now
+  stated under each. Two things the regroup surfaced and fixed: a correction
+  the 2026-07-27 pass made to a concurrency rule had been sitting 500 lines
+  from the rule, and one of the three semantic gates had been promoted from
+  money-grade to general on 2026-07-25 without the money section saying so.
+- `packs/README.md` — **ordered for its two readers instead of by subject.**
+  Adopter path first and contiguous (mechanism, anatomy, markers, roster,
+  the six-step procedure, freshness); the author's material last, under one
+  `## Authoring a pack` heading. The roster moved above the procedure whose
+  first step links to it. The Freshness section pointed at "step 3" for
+  re-verifying dates, which is step 5 — fixed. **Markers** gains
+  **primary-source verified**, which the packs had been citing this file for
+  without it being defined here.
+- `packs/README.md` — **the eight design principles carry stable ids `P-1` …
+  `P-8`.** They were cited by list position from 27 lines across seven files,
+  so a reorder would silently falsify all of them with no check. Order is
+  unchanged, so an older "principle 3" means `P-3`. Citations inside `packs/`
+  were converted; the two historical registries were left as written and stay
+  correct. Ids stay out of seed text — in a constitution `P-3` dangles and
+  "principle 3" reads as that constitution's own principle III.
+- `packs/README.md`, `packs/index.md`, `packs/rule-sources/cache-discipline.md`
+  — **the roster no longer exists three times.** Each pack's frontmatter is the
+  sole authority for status and dates; `index.md`'s Shipped table is a labelled
+  mirror, kept so a freshness sweep is one file open; `README.md`'s table
+  carries kind and selection predicate only. `cache-discipline`'s
+  convention-only status, previously only in `README.md`'s Status column, is
+  now in its frontmatter.
+- `packs/research-protocol.md` — **states its scope.** §§1–4 and §6 are the
+  method and are cited from outside this corpus; §5 is pack-specific; the file
+  stays under `packs/` because §5 and the B-8 ship checks are bundle rules. The
+  auto-downgrade rule moved from §2 to §3, where two outside citations already
+  pointed. §5 gains the evidence-grouping rule that item 1 above implements.
 
 ## [0.1.0] — 2026-07-23
 

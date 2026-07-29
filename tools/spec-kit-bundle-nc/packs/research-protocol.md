@@ -1,10 +1,23 @@
-# Research protocol — how a pack (or any org decision) gets made
+# Research protocol — the bar a verdict clears before it enters a pack
 
 **Informative, and the bar.** A verdict enters a pack only through this
-procedure. The procedure is the reusable part: it is the bar every
-verdict clears before it enters a pack. Skipping steps produces the
-failure the packs exist to prevent — plausible-but-unverified verdicts
-that downstream agents follow faithfully.
+procedure. Skipping steps produces the failure the packs exist to prevent —
+plausible-but-unverified verdicts that downstream agents follow faithfully.
+
+**Scope, stated because the method outlives the packs.** Sections 1–4 and 6
+are the method for deciding anything at this org's evidence bar, and they are
+cited that way from outside this corpus: the ASDLC design registry at the
+repository root cites §3's marker rules when it grades its own ADRs, and
+`DECISIONS.md` does the same. Section 5 is the only pack-specific part — it
+says what the pack file must contain and carries the B-8 ship checks for a
+stack pack.
+
+The file stays here rather than moving up to `reference/` for one reason:
+section 5 and the ship checks are bundle rules, and the four design
+directories hold no bundle rules ([root `CLAUDE.md`](../../../CLAUDE.md),
+"Where things live"). Splitting the method from the ship checks would put one
+procedure in two subtrees under two registries. An outside caller cites a
+section number here instead, which costs one hop and cannot drift.
 
 ## 1. Frame the decision before naming candidates
 
@@ -49,16 +62,28 @@ Rules that make panels honest:
 - Hostile audits carry **canaries**: each audit lens gets a planted defect
   of its class it must detect. "Found nothing" counts only from a lens
   that caught its canary.
-- Evidence is execution or a primary source, not prose. A claim without
-  either auto-downgrades to convention.
+- Evidence is execution or a primary source, not prose. A claim backed by
+  neither is downgraded in §3 below.
 
 ## 3. Verify claims by refutation
+
+**Evidence is execution or a primary source. A claim backed by neither
+auto-downgrades to convention** — there is nothing for a refuter to attack,
+so no vote is spent on it. This is the rule the rest of the corpus cites this
+section for, and a whole source can land on it: every directive in
+[`rule-sources/cache-discipline.md`](rule-sources/cache-discipline.md) is
+**convention** because each is a design argument rather than an execution
+result.
 
 Every load-bearing claim gets **three independent refutation votes**
 (fresh-context agents told to refute it; a claim survives on majority).
 Mark the outcome per claim:
 
 - **confirmed** — survived, against independent primary sources.
+- **primary-source verified** — checked by one researcher against a primary
+  source, with no panel. A pass that runs out of budget lands claims here
+  honestly rather than promoting them; running the votes is what makes one
+  **confirmed**, and the pack says which passes stopped short.
 - **convention** — kept without surviving external evidence; say why it
   is kept (cheap, enforceable, fails toward safety).
 - **uncertain** — a known gap, stated.
@@ -80,11 +105,15 @@ is recorded as "do not cite", so the next pass does not re-import it.
 ## 5. Write the pack
 
 Sections and markers per [README.md](README.md) (Anatomy, Markers). Seed
-text carries directives only; evidence notes carry the trail. Every ban
+text carries directives only; evidence notes carry the trail, **grouped by
+the seed-text section each rule lives in** — never by research pass, which
+orders the file by its own history instead of by what a reader is looking
+for. The pass dates and each pass's scope go in a table at the top of the
+evidence section. Every ban
 in the seed text names its enforcing check and its enforcement marker
 (off-the-shelf / bespoke / convention). Every rule also clears the
 **premise-specificity test** and serves at least one design principle
-(README.md, Design principles): a rule earns its place only when the absent
+(README.md, `P-1` … `P-8`): a rule earns its place only when the absent
 reader changes its stakes — the prevented failure turns invisible-forever or
 unbounded. A rule whose stakes are unchanged is generic advice — cut it, or
 keep it only as marked **convention** and say it is not premise-derived. Set

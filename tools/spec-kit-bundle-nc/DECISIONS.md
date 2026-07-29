@@ -453,3 +453,81 @@ Reopened by: the triggers in `packs/rule-sources/cache-discipline.md` section
 instantiating the source — six directives lean on type design, and a
 structurally or dynamically typed stack will convert several into runtime
 guards, which is weaker and is the source's first predicted gap.
+
+## B-12 — `packs/` is structured by what a reader is looking for, not by how it accreted (2026-07-29)
+
+Five structural defects in `packs/`, found by reading the corpus against its
+own organising claims. None is a rule change: no directive, marker, date or
+verdict moved, and no pack gained or lost a rule. What moved is where a fact
+sits and what it is cited by.
+
+**The directory layout was examined and left alone.** The three-way split —
+`packs/*.md` adoptable, `packs/rule-sources/` never adopted, `packs/seed/` the
+paste payload — is load-bearing: it makes "can I adopt this?" a path question
+(B-10). Regrouping by topic, so that a source, its directives and its evidence
+sat in one `packs/money/` directory, would destroy that and was rejected for
+the same reason B-10 rejected `cross-pack/`. The defects were all *inside*
+files.
+
+1. **`java-backend.md` section 4 was ordered by research pass, not by rule.**
+   A flat bullet list 727 lines long, with three passes announced as bullets
+   inside it and a `###` heading for the fourth only because it was newest.
+   The seed text it justifies has seventeen topical sections, so a reader
+   asking "what is behind the API-contract rules?" scanned for a date. The
+   section now carries one `###` per seed-text `###`, in the seed's order, and
+   the pass history — including every scope caveat, which is the part that must
+   not be lost — is a table at the top. 54 bullets moved verbatim; four
+   dissolved: three pass announcements into the table, and one 2026-07-21
+   convention list whose five items governed five different sections and are
+   now stated under each. This is now an authoring rule
+   (`README.md` Anatomy item 5, `research-protocol.md` §5), because a pack that
+   accretes will otherwise re-acquire the defect one pass at a time.
+2. **The roster existed three times** — each pack's frontmatter, `index.md`'s
+   Shipped table, and `README.md`'s "The packs" table — and this file's own map
+   documented the two-place update as a ripple to remember rather than removing
+   it. The frontmatter is now the sole authority for status and dates;
+   `index.md`'s table is a labelled mirror kept because a freshness sweep
+   should be one file open; `README.md`'s table carries kind and selection
+   predicate only. A status copied into three files goes stale in two.
+   `cache-discipline`'s convention-only status, which had lived only in
+   `README.md`'s dropped Status column, moved into its frontmatter.
+3. **`README.md` was ordered by subject, so neither of its two readers had a
+   contiguous path.** An adopter needed the anatomy, the markers, the roster
+   and a six-step procedure; an author needed the review model, the principles
+   and the governance. They interleaved, and the procedure's first step linked
+   forward past 130 lines to the roster. The file is now adopter-first and ends
+   with one `## Authoring a pack` section holding the author's material. Two
+   defects surfaced in the move: the Freshness section pointed at "step 3" for
+   re-verifying dates, which is step 5; and the packs cited `README.md` for a
+   **primary-source verified** marker that `README.md` never defined, which it
+   and `research-protocol.md` §3 now do.
+4. **The eight design principles were cited by list position.** 27 lines
+   across seven files, including this registry and the design registry at the
+   repository root, all of the form "principle 1" — so reordering the list
+   would silently falsify every one of them, with no check. They now carry
+   stable ids **`P-1` … `P-8`**, never renumbered, and the citations inside
+   `packs/` were converted. The order is unchanged, so a reference written
+   before today reading "principle 3" means `P-3`; references in this file and
+   in `CHANGELOG.md` were left as written, because both are historical records
+   and both stay correct. **Ids never enter seed text** — in a constitution
+   `P-3` is a dangling pointer and "principle 3" reads as that constitution's
+   own principle III, which is the failure recorded in the 0.2.0 changelog.
+5. **`research-protocol.md` claimed a scope it had no home for** — "how a pack
+   (or any org decision) gets made", inside one bundle's `packs/`. It now
+   states the split: §§1–4 and §6 are the method and are cited from outside
+   this corpus, §5 is the pack-specific part, and the file stays here because
+   §5 and the B-8 ship checks are bundle rules that cannot live in the
+   documents-only design subtree. Fixing the scope claim exposed a mis-aimed
+   pointer: two outside citations name §3 for the auto-downgrade rule, which
+   was stated in §2. The rule moved to §3, where its callers already look.
+
+**What this does not fix.** The same rule still exists in several stack packs
+by design (B-8), and the instantiation tables are still the only thing
+catching drift between them. Nothing here adds a check; every claim above is
+verified by reading. The evidence-grouping rule has no gate either — it is a
+convention in `research-protocol.md` §5, and the next multi-pass pack is where
+it gets tested.
+
+Reopened by: a pack whose seed text has no topical sections, which would leave
+the evidence section nothing to mirror; or a third reader of `README.md` whose
+path is neither adopting nor authoring.

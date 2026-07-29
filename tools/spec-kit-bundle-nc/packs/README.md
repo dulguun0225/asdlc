@@ -14,6 +14,20 @@ proper research is slow and gets redone per project. A pack is research
 done once, well — so a downstream agent consults a verdict instead of
 re-deriving one.
 
+## Where to start
+
+This file serves two readers and is ordered for the first of them.
+
+- **Adopting a pack into a repo.** Read on from here to *How to adopt one*,
+  then stop. That run — the mechanism, the anatomy, the markers, the roster,
+  the six-step procedure, and the freshness rules that decide what a date
+  means — is the whole path, and nothing after it is needed to adopt.
+- **Writing or revising a pack.** The authoring bar is the last section,
+  *Authoring a pack*: the review model the rules are written for, the eight
+  principles every rule clears, and the governance that caps the corpus. The
+  method — how a research pass is actually run — is
+  [research-protocol.md](research-protocol.md).
+
 ## How packs meet the bundle's mechanism
 
 The nc-ears preset seeds a constitution whose principle VI says engineering
@@ -39,7 +53,9 @@ Every pack carries, in order:
    `maintained-by`. A **source** adds `kind`, because it has no seed file and
    the difference has to be visible before anyone looks for one — and it lives
    in [`rule-sources/`](rule-sources/), so the path carries that difference
-   without the file being opened (DECISIONS.md B-10).
+   without the file being opened (DECISIONS.md B-10). **The frontmatter is
+   authoritative for status and dates**; no table in this corpus restates
+   them except [index.md](index.md)'s roster, which is a labelled mirror.
 2. **When this pack applies** — the selection predicate, and the
    tripwires: the "first X" changes that either activate a conditional
    section of the seed text (first money field) or signal the repo has
@@ -66,7 +82,12 @@ Every pack carries, in order:
    shape) carries its rejections inline and omits the separate section.
 5. **Evidence notes** — dated claims with confidence markers, sources
    cited, negative citations recorded ("did not survive verification — do
-   not cite").
+   not cite"). **Grouped by the seed-text section the rule lives in**, so a
+   rule and its evidence are one hop apart, with the research passes and
+   each one's scope recorded in a table at the top of the section rather
+   than as the organising principle. A pack that accretes over several
+   passes will otherwise end up ordered by research date, which is a
+   history of the pack and not a map of it.
 6. **Re-open triggers** — the named conditions that reopen each decision.
    Absent its trigger, a decision is not re-litigated.
 
@@ -76,6 +97,9 @@ Confidence, per claim:
 
 - **confirmed** — survived adversarial verification (three independent
   refutation votes) against independent sources, on the stated date.
+- **primary-source verified** — one researcher checked the claim against a
+  primary source, with no panel. Whatever its evidentiary strength this is
+  *not* **confirmed**; running the panel is what promotes it.
 - **convention** — defensible practice the research did not (or could not)
   confirm from independent sources; kept because it is cheap, enforceable,
   and fails toward safety.
@@ -99,6 +123,23 @@ Status tier, per pack (and per rule where they differ):
 - **deferred — evidence-driven** — recorded for a future decision; not
   seed text.
 
+## The packs
+
+| Pack | Kind | For repos where… |
+| ---- | ---- | ---------------- |
+| [agent-traps](agent-traps.md) | cross-stack | any code is written by LLM agents — corpus traps, banned by name |
+| [java-backend](java-backend.md) | stack | the backend is Java (Spring Boot MVC, jOOQ, PostgreSQL) — money-grade rules included, binding from the first money field; cache-discipline rules included, binding from the first cached value; API-contract rules when it exposes an HTTP API; observability rules when nobody watches the running system |
+| [money-grade](rule-sources/money-grade.md) | cross-stack **source** — no seed file, never adopted | not picked; its 29 rules reach a repo inside the stack pack that instantiates them, today `java-backend` |
+| [cache-discipline](rule-sources/cache-discipline.md) | cross-stack **source** — no seed file, never adopted | not picked; its 16 rules reach a repo inside the stack pack that instantiates them, today `java-backend`. Its first instruction is not to cache |
+
+**This table does not carry status or dates.** Those live in each pack's
+frontmatter, and [index.md](index.md) mirrors the `verified` dates in one
+table for a freshness sweep. A status copied into three files is a status
+that goes stale in two of them, so the frontmatter is the only authority and
+everything else says which of the two it is. Open the pack you are about to
+adopt and read its frontmatter — that is step 1 of the procedure below, not
+an extra courtesy.
+
 ## How to adopt one
 
 Adoption is one PR: copy one pack's seed file into one section of your
@@ -108,7 +149,7 @@ is real editing — but every source and destination below is a named file.
 Prerequisite: the bundle is installed in the repo (repo README, Install).
 That is what put `.specify/memory/constitution.md` in place.
 
-1. **Pick your packs** from [The packs](#the-packs) below — the stack pack
+1. **Pick your packs** from [The packs](#the-packs) above — the stack pack
    for your platform, **plus every adoptable cross-stack pack**. Adoption is
    per pack, so more than one seed file lands in the same
    `## Repo principles` section. **The directory is the rule: everything in
@@ -157,7 +198,27 @@ diverges from and the situational reason. The human plan approval reviews
 it like any other row. Recurring divergences are the signal to amend the
 pack or write a new one — feed them back.
 
-## The review model packs assume
+## Freshness
+
+- Every claim is dated; every pack carries `verified` and `review-by` in
+  its frontmatter. A bundle-checks.yml step warns (never fails) when `review-by`
+  has passed.
+- **The lapse rule**: past `review-by`, every **confirmed** marker in the
+  pack reads as **convention** until a new research pass re-dates it. This
+  holds by definition — it needs no maintainer action, and an agent or
+  human reading a lapsed pack applies it as written.
+- Adoption is the real re-verification checkpoint (step 5 above). A pack
+  is re-verified when someone needs it, not on a calendar.
+- Superseded verdicts get dated notes pointing at the successor, never
+  silent edits.
+
+## Authoring a pack
+
+Everything from here is for whoever writes or revises a pack. It is the
+*bar* — what a rule must clear and who decides. The *method*, how a research
+pass is run end to end, is [research-protocol.md](research-protocol.md).
+
+### The review model packs assume
 
 Downstream repos run "SDD, no human reads code": agents implement, code
 volume outruns human reading, and the bundle's one human gate (B-3) reads
@@ -173,7 +234,7 @@ volume outruns human reading, and the bundle's one human gate (B-3) reads
   model checking model output — it shares the implementer's blind spots,
   so it is a backstop, never the gate.
 
-## Design principles — the authoring bar
+### Design principles — the authoring bar
 
 The premise above forces a specific kind of rule. A rule earns its place only
 when the absent reader changes its **stakes**: the failure it prevents turns
@@ -190,60 +251,57 @@ serves none of them is advice, not seed text: cut it, or — if it is kept
 because it is cheap and fails safe — mark it **convention** and never dress
 it up as premise-derived.
 
-1. **Machine-enforced or it is not a rule.** Ship a rule only with a named
-   check that fails the build; a ban with no check is a wish. Never wire a
-   gate whose blind spot lets the banned thing pass while it reports green —
-   false assurance is worse than none.
-2. **Unwritable beats banned.** Prefer a construct that cannot be written (an
-   absent method, a compile error, an uninjectable object) over one
-   written-then-flagged. Confine a capability that cannot be designed out to
-   the fewest named seams, so the static check is complete.
-3. **The source is the whole behavior.** What a written call does is fixed by
-   the call and its arguments at that call site — never by an ambient
-   **modifier**: a mode, a surrounding scope, configuration, or in-memory
-   object state. This governs where a call's inputs come from.
-4. **No silent runtime behavior.** An effect fires only from a written, named
-   call — never from an ambient **trigger**. Ban ambient dispatch by name:
-   annotation-driven aspects, field or setter injection, AOP, reflection
-   dispatch, classpath scanning, hidden dirty-state flush. This governs what
-   fires the call.
-5. **Fail loud, never silently wrong.** On a value-bearing path, throw or
-   reject rather than take the silent default — null, an arbitrary row, a
-   swallowed catch, a silent round, a defaulted-missing field. A
-   wrong-but-plausible value on an unread path is invisible forever; a crash
-   is caught by any test.
-6. **Distrust what the agent picks and what it reads.** Where the
-   corpus-dominant pick is wrong, name that favorite and ban it — "the
-   default is Y, rejected because Z" overrides an instinct that a bare
-   "use X" does not. Treat every input the agent selects or reads —
-   dependencies, tool versions, generated code — as untrusted until pinned,
-   verified to exist, and shielded from the channels the agent reads.
-7. **Deterministic output from committed inputs.** Make every generated
-   artifact and computed output a pure function of committed inputs — an
-   injected clock, stable ordering, no wall-clock or live database — so a
-   regenerate-and-diff or replay gate is trustworthy. Here the diff is the
-   review.
-8. **Gates need an outside oracle.** Draw a semantic gate's ground truth from
-   outside the implementer model — a spec-derived fuzzer, a human-approved
-   golden corpus, an invariant on real data, mutation testing that probes
-   the tests — never only from tests the same model wrote to describe its own
-   output.
+**Each principle carries a stable id, `P-1` … `P-8`, and the ids are never
+renumbered.** They are cited by id from the packs, from the sources, from
+`DECISIONS.md` and from the design registry at the repository root, and a
+citation that names a *list position* instead breaks silently the first time
+the list is reordered — the same class of failure as a moved file nothing
+points at correctly (DECISIONS.md B-10). The order below is unchanged from
+when these were a numbered list, so a citation written before 2026-07-29
+reading "principle 3" means P-3. **Ids in a pack file only**: a seed file
+citing `P-3` lands in a constitution as a dangling pointer, and reads there
+as that constitution's own principle III.
 
-## Freshness
+- **P-1 — Machine-enforced or it is not a rule.** Ship a rule only with a
+  named check that fails the build; a ban with no check is a wish. Never wire
+  a gate whose blind spot lets the banned thing pass while it reports green —
+  false assurance is worse than none.
+- **P-2 — Unwritable beats banned.** Prefer a construct that cannot be
+  written (an absent method, a compile error, an uninjectable object) over one
+  written-then-flagged. Confine a capability that cannot be designed out to
+  the fewest named seams, so the static check is complete.
+- **P-3 — The source is the whole behavior.** What a written call does is
+  fixed by the call and its arguments at that call site — never by an ambient
+  **modifier**: a mode, a surrounding scope, configuration, or in-memory
+  object state. This governs where a call's inputs come from.
+- **P-4 — No silent runtime behavior.** An effect fires only from a written,
+  named call — never from an ambient **trigger**. Ban ambient dispatch by
+  name: annotation-driven aspects, field or setter injection, AOP, reflection
+  dispatch, classpath scanning, hidden dirty-state flush. This governs what
+  fires the call.
+- **P-5 — Fail loud, never silently wrong.** On a value-bearing path, throw
+  or reject rather than take the silent default — null, an arbitrary row, a
+  swallowed catch, a silent round, a defaulted-missing field. A
+  wrong-but-plausible value on an unread path is invisible forever; a crash
+  is caught by any test.
+- **P-6 — Distrust what the agent picks and what it reads.** Where the
+  corpus-dominant pick is wrong, name that favorite and ban it — "the
+  default is Y, rejected because Z" overrides an instinct that a bare
+  "use X" does not. Treat every input the agent selects or reads —
+  dependencies, tool versions, generated code — as untrusted until pinned,
+  verified to exist, and shielded from the channels the agent reads.
+- **P-7 — Deterministic output from committed inputs.** Make every generated
+  artifact and computed output a pure function of committed inputs — an
+  injected clock, stable ordering, no wall-clock or live database — so a
+  regenerate-and-diff or replay gate is trustworthy. Here the diff is the
+  review.
+- **P-8 — Gates need an outside oracle.** Draw a semantic gate's ground truth
+  from outside the implementer model — a spec-derived fuzzer, a
+  human-approved golden corpus, an invariant on real data, mutation testing
+  that probes the tests — never only from tests the same model wrote to
+  describe its own output.
 
-- Every claim is dated; every pack carries `verified` and `review-by` in
-  its frontmatter. A bundle-checks.yml step warns (never fails) when `review-by`
-  has passed.
-- **The lapse rule**: past `review-by`, every **confirmed** marker in the
-  pack reads as **convention** until a new research pass re-dates it. This
-  holds by definition — it needs no maintainer action, and an agent or
-  human reading a lapsed pack applies it as written.
-- Adoption is the real re-verification checkpoint (step 3 above). A pack
-  is re-verified when someone needs it, not on a calendar.
-- Superseded verdicts get dated notes pointing at the successor, never
-  silent edits.
-
-## Governance
+### Governance
 
 Recorded in DECISIONS.md B-8. The corpus stays capped at what one
 maintainer can re-verify in one bounded session. A new pack is written in
@@ -278,12 +336,3 @@ The same rule then exists in several stack packs, and that duplication is
 accepted deliberately; the source's instantiation table is what catches
 drift. Authoring checks: [research-protocol.md](research-protocol.md) §1
 and §5.
-
-## The packs
-
-| Pack | Kind | For repos where… | Status |
-| ---- | ---- | ---------------- | ------ |
-| [agent-traps](agent-traps.md) | cross-stack | any code is written by LLM agents — corpus traps, banned by name | decided, not yet validated (researched) |
-| [java-backend](java-backend.md) | stack | the backend is Java (Spring Boot MVC, jOOQ, PostgreSQL) — money-grade rules included, binding from the first money field; cache-discipline rules included, binding from the first cached value; API-contract rules when it exposes an HTTP API; observability rules when nobody watches the running system | decided, not yet validated (researched) |
-| [money-grade](rule-sources/money-grade.md) | cross-stack **source** — no seed file, never adopted | not picked; its 29 rules reach a repo inside the stack pack that instantiates them, today `java-backend` | decided, not yet validated (researched inside java-backend; lifted 2026-07-28 with no new pass) |
-| [cache-discipline](rule-sources/cache-discipline.md) | cross-stack **source** — no seed file, never adopted | not picked; its 16 rules reach a repo inside the stack pack that instantiates them, today `java-backend`. Its first instruction is not to cache | decided, not yet validated (researched 2026-07-29; every directive is **convention**) |

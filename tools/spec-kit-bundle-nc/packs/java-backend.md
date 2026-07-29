@@ -29,7 +29,9 @@ document. The observability rules bind when the deployed system has no
 human watching it continuously. The money-grade rules bind from the first
 feature that carries an amount of money the system computes with. How packs
 work, and their authority: [README.md](README.md). The evidence behind each
-rule, with dates and honest gaps: [section 4](#4-evidence-notes).
+rule, with dates and honest gaps: [section 4](#4-evidence-notes) — its
+subsection headings are the seed text's, in the same order, so a rule and its
+research are one hop apart.
 
 ## 1. When this pack applies
 
@@ -156,7 +158,7 @@ best 2026 form, decided 2026-06-11..14).
   scheme. Rejected: it selects the applied contract per request from an
   ambient input and rewrites the response back through runtime
   version-change modules (Stripe engineering blog, confirmed) — a
-  runtime-silent transformation (principle 4), and the version never
+  runtime-silent transformation (P-4), and the version never
   appears in the committed contract, defeating regenerate-and-diff.
   URL-major keeps each version a diffable committed file. (GitHub is
   date/header-versioned too but ships separate dated contracts with no
@@ -192,7 +194,7 @@ best 2026 form, decided 2026-06-11..14).
   applications" (confirmed). Rejected as runtime-silent: the JVM calls the
   agent's `premain` before the application starts and the agent registers a
   transformer that rewrites classes as they load, so an effect fires from a
-  launcher flag and not from any written call — principle 4, the same
+  launcher flag and not from any written call — P-4, the same
   grounds that banned `@Transactional`. The cost is honest and real: the
   SDK-plus-instrumentation-libraries path covers fewer libraries and each
   addition is a written dependency. That is the trade the pack takes.
@@ -220,7 +222,7 @@ best 2026 form, decided 2026-06-11..14).
   responder can query.
 - **Alert rules committed without tests** — the near-universal practice.
   Rejected: an alert rule that cannot fire is a gate reporting green over an
-  unwatched failure, which principle 1 forbids by name. The fire-test is
+  unwatched failure, which P-1 forbids by name. The fire-test is
   off-the-shelf, so the reason not to write one is habit.
 - **`@Cacheable` and Spring's cache abstraction** — the corpus default for
   "add caching" in this stack by a wide margin, and the reason the
@@ -263,198 +265,65 @@ best 2026 form, decided 2026-06-11..14).
 
 ## 4. Evidence notes
 
-Each verdict below survived adversarial verification (three independent
-votes per claim) on 2026-07-21 — or on the later date a bullet states,
-where its claim was re-verified since — except where marked
-**convention** — those rules are defensible practice the research did
-not (or could not) confirm from independent sources. Dates make
-staleness visible; re-verify at adoption.
+The research behind every rule, grouped by the seed-text section the rule
+lives in, so a rule and its evidence are one hop apart. The subsection
+headings below are the `###` headings of
+[`seed/java-backend.md`](seed/java-backend.md), in the same order; the two
+conditional sections, Money-grade rules and Cache discipline, carry their own
+evidence at the end.
 
-- **Hand-rolled `Money` over a library — decision holds, earlier
-  rationale corrected (re-verified 2026-07-24, three-vote adversarial
-  pass against the live sources).** The prior reason — the libraries
-  "ship no monetary algorithms, so allocation and rounding stay
-  hand-written either way" — is true but mis-framed: it treats a missing
-  *algorithm* as a missing *value type*. Joda-Money (v2.0.3, 2025-12-14;
-  actively maintained; Java 21+ on the 2.x line) provides most of the
-  value type above natively — `Money.of` binds to the ISO 4217 minor-unit
-  scale and rejects excess precision via `RoundingMode.UNNECESSARY`
-  (throws `ArithmeticException`, no silent rounding — the rule above,
-  near-verbatim); `plus`/`minus` throw `CurrencyMismatchException`; the
-  type is immutable. The real reason to own the type is API surface: the
-  same public `Money` also ships precision-losing operations — the
-  rounding constructor `of(currency, amount, RoundingMode)`, the `double`
-  overloads, and scalar `dividedBy(long, RoundingMode)` (per-quotient
-  rounding — the non-conserving split the allocation rule forbids). A type
-  you own omits them, so they are unwritable, not merely lint-banned.
-  Honest size of that win: each is a specific signature ArchUnit can ban,
-  so it is "unwritable for free because we build the type anyway," not "a
-  ban would not hold." Not footguns (the earlier draft implied otherwise):
-  `dividedBy(x, RoundingMode)` and `multipliedBy(BigDecimal, RoundingMode)`
-  name the mode at the call site — the Rounding rule itself — and division
-  has no exact overload, so any correct money type reproduces them.
-  Allocation and the separate higher-precision rate/factor type are
-  shipped by neither library and stay hand-written regardless. Runner-up
-  the binary framing hides: a thin wrapper over Joda's `Money`, exposing
-  only the safe subset. It wins on one axis — Joda maintains the ISO 4217
-  minor-unit table (JPY scale 0, BHD scale 3, and the no-minor-unit
-  pseudo-currencies), which a hand-roll otherwise takes from
-  `java.util.Currency`; it does not shrink the highest-risk code
-  (allocation, rounding policy, rate type stay bespoke) and is slightly
-  weaker on the unwritable goal — the footgun-bearing inner `Money` sits
-  one accessor away. Moneta (JSR 354; maintenance-mode, 1.4.5 2025-03-22,
-  Java 8): correcting the old "no algorithms" wording, it does ship
-  percent/permil/minor-part/rounding operators, but no allocation, no
-  call-site rounding discipline, and defaults that make silent rounding
-  the easy path (`multiply`/`divide` apply a context `HALF_EVEN` with no
-  call-site mode, `getDefaultRounding` is repo-wide, `FastMoney` rounds to
-  scale 5). Sources: joda.org/joda-money javadoc and JodaOrg/joda-money
-  README; JavaMoney/jsr354-ri repository.
-- **No universal banker's-rounding mandate — confirmed for the surveyed
-  regimes.** EU euro-conversion law (Reg. 1103/97 Art. 5) mandates
-  round-half-*up* at ties and minor-unit rounding only for amounts "to be
-  paid or accounted for"; EU VAT law prescribes neither method nor level
-  (ECJ C-302/07); HMRC's penny rule is arithmetic half-up with
-  alternatives allowed (VATREC12030). That is the argument for
-  per-operation explicit rounding rather than a repo default. Gap: no
-  US-tax, IFRS/GAAP, or interest-accrual source survived verification —
-  the per-operation rule is also the hedge against what those may
-  require.
-- **Scale 4 covers ISO 4217 — confirmed.** Minor-unit exponents run 0
-  (JPY) to 3 (BHD-class); ISO 4217's maximum is 4 (CLF only). Caveat,
-  also confirmed: processor exponent tables deviate from ISO (Adyen for
-  CLP, IDR, ISK, CVE; PayPal for HUF) — hence the counterparty-table
-  rule. No evidence survived on `numeric(20,4)` versus `numeric(19,4)`
-  versus bigint minor units; the precision digits are the repo's call.
-- **String-decimal wire format — a convention, not the industry
-  standard.** Confirmed split: PayPal Orders v2 sends major-unit decimal
-  strings; Adyen requires integer minor units. String-decimal is kept as
-  the org's chosen contract shape, with the alternative named. Stripe
-  and bank-API practice did not survive verification — do not cite them.
-- **pitest ≥ 1.25.8 — confirmed.** pitest supports bytecode through Java
-  26 and is actively maintained; a real Java 25 defect in the
-  `BigDecimal`/`BigInteger` mutators — the mutators money code
-  exercises — was fixed in 1.25.8 (2026-07-20).
-- **jqwik caveat — confirmed.** Moved to the agent-traps pack (it is
-  cross-cutting, not money-specific): pin ≤ 1.9.3 with a version-ceiling
-  check in CI, and treat the library as re-decidable at every dependency
-  review.
-- **JSpecify + NullAway — confirmed mainstream.** Spring Boot 4 /
-  Framework 7 (GA 2025-11) ship JSpecify-annotated null-safe APIs across
-  ~20 portfolio projects and deprecate Spring's own nullability
-  annotations; Spring's build checks with NullAway.
-- **Virtual threads final since JDK 21 — API-stability confirmed, the
-  corpus-correctness inference is not (verified 2026-07-24,
-  three-vote adversarial pass).** Virtual threads are a final
-  (non-preview) feature since JDK 21 (JEP 444, GA 2023-09-19), and the
-  request-handling API (`Thread.ofVirtual`, `Thread.startVirtualThread`,
-  `Executors.newVirtualThreadPerTaskExecutor`) has been stable since —
-  confirmed. **Do not cite** the further inference that "the corpus
-  therefore generates correct virtual-thread code": that was refuted as
-  unverifiable and overstated. A stable API surface only means the *API
-  names* are unlikely to be wrong; the corpus still emits the pooling
-  anti-pattern and pre-JDK-24 `synchronized`-pinning workarounds, which
-  is why the seed bans pooling and states the pinning residuals
-  explicitly. Source:
-  https://docs.oracle.com/en/java/javase/21/core/virtual-threads.html
-  (JEP 444 page itself returned HTTP 403 this pass — API facts
-  triangulated from the Oracle core docs).
-- **`synchronized` no longer pins on JDK 25 — confirmed (verified
-  2026-07-24).** JEP 491 (delivered JDK 24, GA 2025-03-18) removed
-  `synchronized` pinning; on JDK 25 the remaining pinning causes are
-  native methods and foreign functions (and blocking class
-  initializers, which load classes through native frames — removed only
-  in JDK 26). Pinning does not make an application incorrect, but it
-  hinders scalability; a liveness caveat survives, in that pinning that
-  exhausts all carriers can stall the scheduler, so treat sustained
-  pinning as an operability hazard, not a mere slowdown. The single
-  cited page names only the native/foreign causes; the `synchronized`
-  and class-initializer facts rest on JEP 491. Source:
-  https://docs.oracle.com/en/java/javase/25/core/virtual-threads.html
-  (JEP 491).
-- **Never pool virtual threads; the connection pool is the semaphore —
-  confirmed (verified 2026-07-24).** The Oracle JDK 25 guide states
-  virtual threads "should never be pooled" (one per task) and, verbatim,
-  that "Database connection pools themselves serve as a semaphore... There
-  is no need to add an additional semaphore on top of the connection
-  pool." The pool bounds only DB concurrency; a non-database limited
-  resource still needs its own `Semaphore`. Source:
-  https://docs.oracle.com/en/java/javase/25/core/virtual-threads.html
-- **`StructuredTaskScope` is preview on JDK 25 — confirmed (verified
-  2026-07-24).** It is JEP 505, "Structured Concurrency (Fifth
-  Preview)"; it requires `--enable-preview` to compile and run, and per
-  JEP 12 a preview-compiled class file is stamped `minor_version` 65535
-  and will load only on the exact JDK feature release it was built on.
-  This is the load-bearing fact behind DEFERRING structured concurrency:
-  a preview API is a poor fit for a stability-seeking, agent-written
-  pack. The API was redesigned across previews (JDK 24 class with
-  `ShutdownOnFailure`/`ShutdownOnSuccess` constructors → JDK 25 sealed
-  interface with static `open()`/`Joiner` factories) and remains preview
-  after JDK 25; the fine-grained per-release API history is
-  **convention/uncertain**, not confirmed — the openjdk.org JEP pages
-  returned HTTP 403 to the fetcher this pass, and the deferral does not
-  rest on it. Source:
-  https://docs.oracle.com/en/java/javase/25/migrate/significant-changes-jdk-25.html
-  (JEP 505, JEP 12).
-- **Spring enables virtual threads via one property — confirmed;
-  `keep-alive` "required" refuted (verified 2026-07-24).**
-  `spring.threads.virtual.enabled=true` enables virtual threads for
-  request handling (confirmed). The starting claim that
-  `spring.main.keep-alive=true` is *required* to stop the JVM exiting
-  was refuted by majority: the Spring reference says keep-alive is
-  *recommended*, and the JVM-exit failure mode is scoped to
-  no-web-server / `@Scheduled`-only apps — a servlet Web MVC app's
-  embedded server keeps its own non-daemon thread alive, so it does not
-  exit without keep-alive. **Do not cite** keep-alive as required for
-  request handling. The introducing version ("since Spring Boot 3.2") is
-  **convention**, not confirmed from a primary source — re-verify against
-  the pinned Spring Boot line at adoption. Source:
-  https://docs.spring.io/spring-boot/reference/features/spring-application.html
-- **Fan-out while holding a connection can deadlock a small pool —
-  convention (verified 2026-07-24).** The pool-as-semaphore guarantee
-  holds only for one-connection-per-task. A request that holds a
-  connection or open transaction and fans out to subtasks that each check
-  out a connection can deadlock a small fixed pool; HikariCP's
-  deadlock-avoidance formula `pool size = Tn × (Cm − 1) + 1` covers the
-  multi-connection case (with `Cm` read at the logical-request level),
-  and the JDK guide addresses only the flat one-connection case. Marked
-  convention: the deadlock mechanics and formula are primary-sourced, but
-  the mapping to virtual-thread fan-out (connections spread across parent
-  and child threads) is this pack's synthesis, and the rule is not
-  statically detectable. Source:
-  https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing
-- **Convention (no surviving external evidence):** the ban list's
-  defect-source claim, the allocation/largest-remainder rule, the
-  Testcontainers-over-in-memory rule, injected `Clock` and the
-  business-date split, and the worked-example-plus-golden-test rule.
-  Each is stated because it is enforceable and cheap to keep; none
-  currently carries a citation. The enforcement — a ban-list ArchUnit
-  test, a meta-test asserting every ban is covered, and golden and
-  property suites — is not independent confirmation.
-- **Convention — the three semantic gates.** Contract-conformance
-  fuzzing, characterization replay with its reproducible-generation
-  precondition, and production invariants are researched conventions, not
-  cited findings. They
-  are in the seed because after implementation the review phase
-  (`speckit.nc.review`) is a model checking model output — it shares the
-  implementer's blind spots — and the bundle's one human gate reads the
-  plan, not the code (DECISIONS.md B-3). These gates are the
-  deterministic outside checks for plausible-but-wrong output — the
-  failure class neither the agent review nor the plan gate catches by
-  default. They are also the expensive part of the money-grade rules —
-  corpus maintenance, determinism preconditions, a production job —
-  priced for repos where money moves, which is why they sit in that
-  section and not in the general toolchain.
-- **2026-07-25 additions pass (scoped).** The rules verified below were
-  harvested from a prior deep-research result: guardrails for a codebase
-  written by LLM agents that no human reads line by line, which is why
-  each rule has to be machine-enforced. That prior work is a reference
-  implementation, not independent confirmation — every note grounds its
-  rule on a primary source and treats the prior result only as prior art.
-  The bullets below verify only the rules added on 2026-07-25; the rest
-  of section 4 was not re-run this pass, so its dates and the frontmatter
-  `verified`/`review-by` clock stand unchanged — bumping them would
-  silently re-lease claims this pass did not re-verify.
+**Reading the markers.** **confirmed** means the claim survived adversarial
+verification — three independent refutation votes — on the date it states.
+**primary-source verified** means one researcher checked it against a primary
+source with no panel; it is not **confirmed** in the [README.md](README.md)
+sense whatever its evidentiary strength, and running the panel is what
+promotes it. **convention** means the research did not, or could not, confirm
+the claim from independent sources; the rule is kept because it is
+enforceable, cheap, and fails toward safety, and enforcement is never
+confirmation. Dates make staleness visible: re-verify at adoption, and past
+the frontmatter `review-by` read every **confirmed** as **convention**
+(README.md, Freshness).
+
+**The passes, and what each one did not cover.** This section accreted over
+seven passes. Scope matters because a scoped pass re-leases nothing outside
+its own scope, so the limits are recorded here rather than beside the rules.
+
+| Pass | Scope | Panel | Where its notes sit |
+| ---- | ----- | ----- | ------------------- |
+| 2026-06-11..14 | The platform decision — persistence, and the corpus favorites it rejected | full research pass | section 3, and Platform below |
+| 2026-07-21 | The founding pass; the frontmatter `verified` date | adversarial, three votes per claim | Money-grade rules, Time, Null, Ban list, Evidence toolchain |
+| 2026-07-24 | Re-verification of the money type and of every concurrency claim | adversarial, three votes | Money-grade rules, Concurrency |
+| 2026-07-25 | Only the rules added that day: jOOQ persistence, and the coverage floor. Harvested from a prior deep-research result on guardrails for LLM-written code that no human reads — **prior art, not independent confirmation**; every note grounds its rule on a primary source | single researcher against primary sources | Platform, Evidence toolchain, Money-grade rules |
+| 2026-07-25 | Only the API-contract rules added that day, harvested from net-saas ADR-0023 and its topic research — **prior art, not independent confirmation** | single researcher against primary sources | API contract |
+| 2026-07-27 | Only the observability rules added that day, harvested from net-saas ADR-0019 — **prior art, not independent confirmation**. **Short of the panel**: exactly one claim, the fan-out context rule, went through the adversarial panel and three-vote refutation that [research-protocol.md](research-protocol.md) requires, and it alone carries **confirmed** | one panelled claim; every other claim single-researcher | Observability, plus one correction under Concurrency |
+| 2026-07-29 | Cache discipline — the Java instantiation of the cross-stack source | evidence pass, design steelman, hostile audit with a planted defect, three refutation votes on the load-bearing claims | Cache discipline |
+
+**No scoped pass moved the frontmatter clock.** Each verified only the rules
+it added, so `verified` and `review-by` stand at the 2026-07-21 pass. Bumping
+them would silently re-lease claims that no pass re-ran.
+
+One presentation note, so the provenance is not lost: the 2026-07-21 pass
+recorded five of its conventions as a single list, and they are now stated
+under the five sections they govern. No claim changed and none was dropped.
+
+### Platform
+
+The persistence decision is the 2026-06-11..14 pass, and section 3 carries the
+rejections it produced. Every note below is the 2026-07-25 additions pass.
+
+- **jOOQ codegen from the committed migrations — convention; the
+  mechanism is primary-sourced, the mandate is this pack's synthesis
+  (verified 2026-07-25).** jOOQ's own guidance recommends generating from
+  migrations applied to a throwaway Testcontainers database rather than
+  pointing the generator at a live DB; that mechanism is what makes the
+  committed-and-diff-gated claim sound — the generated tree becomes a pure
+  function of the committed Flyway migrations. Marked convention: jOOQ
+  presents it as one recommended approach, not the only one, and the
+  prior research is a reference implementation. Its build specifics
+  (dedicated profile, first-party plugins only, `jooq.version` override)
+  are deliberately not elevated — dependency hygiene, not a repo
+  principle. Source: blog.jooq.org "Using Testcontainers to Generate jOOQ
+  Code".
 - **jOOQ ships its own runtime-silent CRUD — confirmed against primary
   jOOQ docs (verified 2026-07-25, cross-checked against the prior
   research).** `UpdatableRecord.store()` runs INSERT when the record was
@@ -529,34 +398,130 @@ staleness visible; re-verify at adoption.
   which is why the seed makes the hazard class the rule and names the tool
   only as the enforcement host. Sources: postgresql.org ALTER TABLE and
   CREATE INDEX pages; squawkhq.com rules.
-- **Fail loud on money paths; no swallowed catch — convention (verified
-  2026-07-25).** The prior research carries "silent catches" as a
-  standing defect class its adversarial AI reviewer hunts — a
-  non-deterministic backstop, not a deterministic gate. Marked convention: the rule is
-  defensible, cheap, and fails safe, but no independent primary source
-  mandates it and it is not fully statically decidable. Primary docs bound
-  only the enforcement — Error Prone's `EmptyCatch` is WARNING by default
-  (must be promoted to ERROR), matches only the empty case, and skips a
-  block with an explanatory comment or an `ignored`/`expected` variable;
-  ArchUnit models the caught throwable type but not the catch-block body,
-  so it cannot tell a swallowing handler from a propagating one
-  (ArchUnit issue #1120). The deterministic backstop is therefore
-  partial; the general rule stays spec-and-review. Sources:
-  errorprone.info `EmptyCatch`; TNG/ArchUnit issue #1120.
-- **Same-currency `Money` ± is exact and takes no `RoundingMode` —
-  confirmed (verified 2026-07-25).** `BigDecimal.add(BigDecimal)` and
-  `subtract(BigDecimal)` return the exact result at scale `max(this.scale,
-  augend.scale)` and take no `RoundingMode` or `MathContext`; only the
-  two-argument `MathContext` variants round. `Money` fixes both operands
-  at the currency's minor-unit scale, so their sum/difference sits at that
-  same scale — no rounding, no mode to pass. Associativity follows from
-  exactness, so the property also serves as a tripwire for an accidental
-  rounding step slipped into ±. Scoped to ± only: not extended to multiply
-  or divide (`BigDecimal.multiply` is exact and an integer-scalar `Money`
-  multiply can stay at minor-unit scale, while division has no exact
-  overload — see the hand-rolled-`Money` note). The prior research
-  ratifies the identical rule; the confirmation is the `BigDecimal` spec.
-  Source: `java.math.BigDecimal` javadoc (JDK 25).
+
+### Concurrency
+
+Every claim here was re-verified on 2026-07-24 under the adversarial panel.
+The last note is a correction that the 2026-07-27 observability pass made to a
+concurrency rule.
+
+- **Virtual threads final since JDK 21 — API-stability confirmed, the
+  corpus-correctness inference is not (verified 2026-07-24,
+  three-vote adversarial pass).** Virtual threads are a final
+  (non-preview) feature since JDK 21 (JEP 444, GA 2023-09-19), and the
+  request-handling API (`Thread.ofVirtual`, `Thread.startVirtualThread`,
+  `Executors.newVirtualThreadPerTaskExecutor`) has been stable since —
+  confirmed. **Do not cite** the further inference that "the corpus
+  therefore generates correct virtual-thread code": that was refuted as
+  unverifiable and overstated. A stable API surface only means the *API
+  names* are unlikely to be wrong; the corpus still emits the pooling
+  anti-pattern and pre-JDK-24 `synchronized`-pinning workarounds, which
+  is why the seed bans pooling and states the pinning residuals
+  explicitly. Source:
+  https://docs.oracle.com/en/java/javase/21/core/virtual-threads.html
+  (JEP 444 page itself returned HTTP 403 this pass — API facts
+  triangulated from the Oracle core docs).
+- **`synchronized` no longer pins on JDK 25 — confirmed (verified
+  2026-07-24).** JEP 491 (delivered JDK 24, GA 2025-03-18) removed
+  `synchronized` pinning; on JDK 25 the remaining pinning causes are
+  native methods and foreign functions (and blocking class
+  initializers, which load classes through native frames — removed only
+  in JDK 26). Pinning does not make an application incorrect, but it
+  hinders scalability; a liveness caveat survives, in that pinning that
+  exhausts all carriers can stall the scheduler, so treat sustained
+  pinning as an operability hazard, not a mere slowdown. The single
+  cited page names only the native/foreign causes; the `synchronized`
+  and class-initializer facts rest on JEP 491. Source:
+  https://docs.oracle.com/en/java/javase/25/core/virtual-threads.html
+  (JEP 491).
+- **Spring enables virtual threads via one property — confirmed;
+  `keep-alive` "required" refuted (verified 2026-07-24).**
+  `spring.threads.virtual.enabled=true` enables virtual threads for
+  request handling (confirmed). The starting claim that
+  `spring.main.keep-alive=true` is *required* to stop the JVM exiting
+  was refuted by majority: the Spring reference says keep-alive is
+  *recommended*, and the JVM-exit failure mode is scoped to
+  no-web-server / `@Scheduled`-only apps — a servlet Web MVC app's
+  embedded server keeps its own non-daemon thread alive, so it does not
+  exit without keep-alive. **Do not cite** keep-alive as required for
+  request handling. The introducing version ("since Spring Boot 3.2") is
+  **convention**, not confirmed from a primary source — re-verify against
+  the pinned Spring Boot line at adoption. Source:
+  https://docs.spring.io/spring-boot/reference/features/spring-application.html
+- **Never pool virtual threads; the connection pool is the semaphore —
+  confirmed (verified 2026-07-24).** The Oracle JDK 25 guide states
+  virtual threads "should never be pooled" (one per task) and, verbatim,
+  that "Database connection pools themselves serve as a semaphore... There
+  is no need to add an additional semaphore on top of the connection
+  pool." The pool bounds only DB concurrency; a non-database limited
+  resource still needs its own `Semaphore`. Source:
+  https://docs.oracle.com/en/java/javase/25/core/virtual-threads.html
+- **Fan-out while holding a connection can deadlock a small pool —
+  convention (verified 2026-07-24).** The pool-as-semaphore guarantee
+  holds only for one-connection-per-task. A request that holds a
+  connection or open transaction and fans out to subtasks that each check
+  out a connection can deadlock a small fixed pool; HikariCP's
+  deadlock-avoidance formula `pool size = Tn × (Cm − 1) + 1` covers the
+  multi-connection case (with `Cm` read at the logical-request level),
+  and the JDK guide addresses only the flat one-connection case. Marked
+  convention: the deadlock mechanics and formula are primary-sourced, but
+  the mapping to virtual-thread fan-out (connections spread across parent
+  and child threads) is this pack's synthesis, and the rule is not
+  statically detectable. Source:
+  https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing
+- **`StructuredTaskScope` is preview on JDK 25 — confirmed (verified
+  2026-07-24).** It is JEP 505, "Structured Concurrency (Fifth
+  Preview)"; it requires `--enable-preview` to compile and run, and per
+  JEP 12 a preview-compiled class file is stamped `minor_version` 65535
+  and will load only on the exact JDK feature release it was built on.
+  This is the load-bearing fact behind DEFERRING structured concurrency:
+  a preview API is a poor fit for a stability-seeking, agent-written
+  pack. The API was redesigned across previews (JDK 24 class with
+  `ShutdownOnFailure`/`ShutdownOnSuccess` constructors → JDK 25 sealed
+  interface with static `open()`/`Joiner` factories) and remains preview
+  after JDK 25; the fine-grained per-release API history is
+  **convention/uncertain**, not confirmed — the openjdk.org JEP pages
+  returned HTTP 403 to the fetcher this pass, and the deferral does not
+  rest on it. Source:
+  https://docs.oracle.com/en/java/javase/25/migrate/significant-changes-jdk-25.html
+  (JEP 505, JEP 12).
+- **Correction to an existing rule (2026-07-27).** The Concurrency bullet
+  previously preferred a Scoped Value over a `ThreadLocal` without
+  qualification. The preference stands on the bounded lifetime and
+  write-once binding, but **not** on child-thread sharing: that property is
+  reachable only through `StructuredTaskScope`, which this pack bans. The
+  bullet now says so. Nothing else about the rule changed.
+
+### Time
+
+- **Injected `Clock`, and the business-date split — convention (2026-07-21).**
+  No external evidence survived for either, and neither carries a citation.
+  Both are kept because they are enforceable and cheap.
+
+### Null
+
+- **JSpecify + NullAway — confirmed mainstream.** Spring Boot 4 /
+  Framework 7 (GA 2025-11) ship JSpecify-annotated null-safe APIs across
+  ~20 portfolio projects and deprecate Spring's own nullability
+  annotations; Spring's build checks with NullAway.
+
+### Ban list — runtime-silent behavior
+
+- **The ban list's defect-source claim — convention (2026-07-21).** No
+  external evidence survived, and the claim carries no citation. It is kept
+  because it is enforceable and cheap. The enforcement — a ban-list ArchUnit
+  test class, plus a meta-test asserting every ban is covered — is not
+  independent confirmation.
+
+Which tool hosts a ban — ArchUnit on bytecode, Error Prone on source — is
+decided per rule by what each can read soundly. The worked cases are the
+logger ban under Observability and two more under Cache discipline.
+
+### Evidence toolchain
+
+- **Testcontainers over an in-memory database — convention (2026-07-21).** No
+  external evidence survived, and the rule carries no citation. It is kept
+  because it is enforceable and cheap.
 - **General coverage floor via JaCoCo `check` — mechanics confirmed;
   thresholds deliberately kept the repo's call (verified 2026-07-25).**
   JaCoCo's docs confirm the `jacoco-maven-plugin` `check` goal halts the
@@ -570,63 +535,13 @@ staleness visible; re-verify at adoption.
   its call —
   a floor tuned to one product's risk profile is not a platform default.
   Sources: jacoco.org check-mojo and changes pages.
-- **jOOQ codegen from the committed migrations — convention; the
-  mechanism is primary-sourced, the mandate is this pack's synthesis
-  (verified 2026-07-25).** jOOQ's own guidance recommends generating from
-  migrations applied to a throwaway Testcontainers database rather than
-  pointing the generator at a live DB; that mechanism is what makes the
-  committed-and-diff-gated claim sound — the generated tree becomes a pure
-  function of the committed Flyway migrations. Marked convention: jOOQ
-  presents it as one recommended approach, not the only one, and the
-  prior research is a reference implementation. Its build specifics
-  (dedicated profile, first-party plugins only, `jooq.version` override)
-  are deliberately not elevated — dependency hygiene, not a repo
-  principle. Source: blog.jooq.org "Using Testcontainers to Generate jOOQ
-  Code".
 
-- **2026-07-25 API-contract additions pass (scoped).** The rules
-  verified below were harvested from the net-saas ADR-0023 API-contract
-  work and its topic research: guardrails for an HTTP contract that no
-  human reads, so each rule names a machine gate. ADR-0023 and net-saas
-  GUARDRAILS are a reference implementation — **prior art, not
-  independent confirmation**; every note grounds its rule on a primary
-  source and treats the ADR only as a repo that made the same call. This
-  pass verified only the API-contract rules added on 2026-07-25; the
-  rest of section 4, and the frontmatter `verified`/`review-by` clock,
-  stand unchanged — bumping them would silently re-lease claims not
-  re-verified.
-- **RFC 9457 problem+json is the error shape — confirmed.** RFC 9457
-  (Standards Track / Proposed Standard, July 2023) obsoletes RFC 7807,
-  defines `application/problem+json`, the members
-  `type/title/status/detail/instance`, and MUST-ignore-unknown extension
-  members (the property that makes a machine `code` additive). Sources:
-  `rfc-editor.org/rfc/rfc9457.html`; IANA media-types registry. **Do not
-  cite RFC 7807** as current.
-- **Spring hosts RFC 9457 off-the-shelf — confirmed, with a dating
-  correction.** `org.springframework.http.ProblemDetail` ships since
-  Framework 6.0 (Nov 2022; labeled RFC 7807 at 6.0, relabeled RFC 9457
-  in the Javadoc after July 2023), with a properties map for extension
-  members rendered as top-level keys via Jackson;
-  `ResponseEntityExceptionHandler` is the documented funnel for MVC
-  exceptions, `@RestControllerAdvice` = `@ControllerAdvice` +
-  `@ResponseBody`. Carries forward on Framework 7.0 (GA 2025-11-13) /
-  Boot 4.0.0 (2025-11-20), current Javadoc 7.0.8. Sources:
-  `docs.spring.io` ProblemDetail Javadoc and
-  `web/webmvc/mvc-ann-rest-exceptions.html`. The
-  one-handler-no-message-leak guarantee rests on a bespoke leak test —
-  **convention/bespoke**, the funnel is Spring's.
-- **The error catalog is invisible to a structural OpenAPI diff —
-  convention.** Confirmed fact: oasdiff diffs only what the OpenAPI
-  document expresses (`github.com/oasdiff/oasdiff`,
-  `docs/BREAKING-CHANGES.md`). The "therefore snapshot the catalog"
-  conclusion is this pack's synthesis, with ADR-0023/GUARDRAILS G4 as
-  prior art. Honest correction: `(code, param-names)` associations *are*
-  expressible if each problem type is its own schema, so a structural
-  diff could then catch them; what has no native OpenAPI construct is
-  the catalog-level `code → status/params` invariant when the body is a
-  generic problem and the catalog is a Java enum — the reference
-  modeling. Marked convention: cheap, fails safe, git-visible; no
-  external source mandates it.
+### API contract
+
+The 2026-07-25 API-contract pass, which verified only the rules added that
+day. ADR-0023 and net-saas GUARDRAILS are prior art throughout — a repo that
+made the same call, not independent confirmation.
+
 - **OpenAPI 3.1-or-later on JSON Schema 2020-12 — confirmed.** OpenAPI
   3.1 bases data types on JSON Schema Draft 2020-12; 3.2.0 (19 Sept
   2025) is the current release and still parses per Draft 2020-12. So a
@@ -681,7 +596,7 @@ staleness visible; re-verify at adoption.
   reproducible runs (documented; an open bug
   #2504 affects only the legacy `--hypothesis-seed`). Source:
   `github.com/schemathesis/schemathesis`, `schemathesis.readthedocs.io`.
-  Promoting the gate from money-grade to general rests on principle 8
+  Promoting the gate from money-grade to general rests on P-8
   (one model wrote spec and impl, so self-authored tests share the blind
   spot) — the pack's reasoning, **convention**. The run harness
   (Testcontainers boot, one tenant, deterministic) is bespoke wiring.
@@ -697,12 +612,38 @@ staleness visible; re-verify at adoption.
   so japicmp adds nothing (fails the premise test). Kept only as a
   re-open trigger (a cross-build-boundary `api` artifact or a released
   library/SDK).
-- **JSON Merge Patch null = remove — confirmed.** RFC 7396 (obsoletes
-  RFC 7386, both Oct 2014): "if Value is null … remove the Name/Value
-  pair from Target." Cite RFC 7396. This is the confirmed fact behind
-  the repo-wide PATCH ban; the categorical ban is convention built on it
-  (JSON Patch RFC 6902 lacks the footgun, but merge-patch is the
-  corpus-default body).
+- **RFC 9457 problem+json is the error shape — confirmed.** RFC 9457
+  (Standards Track / Proposed Standard, July 2023) obsoletes RFC 7807,
+  defines `application/problem+json`, the members
+  `type/title/status/detail/instance`, and MUST-ignore-unknown extension
+  members (the property that makes a machine `code` additive). Sources:
+  `rfc-editor.org/rfc/rfc9457.html`; IANA media-types registry. **Do not
+  cite RFC 7807** as current.
+- **Spring hosts RFC 9457 off-the-shelf — confirmed, with a dating
+  correction.** `org.springframework.http.ProblemDetail` ships since
+  Framework 6.0 (Nov 2022; labeled RFC 7807 at 6.0, relabeled RFC 9457
+  in the Javadoc after July 2023), with a properties map for extension
+  members rendered as top-level keys via Jackson;
+  `ResponseEntityExceptionHandler` is the documented funnel for MVC
+  exceptions, `@RestControllerAdvice` = `@ControllerAdvice` +
+  `@ResponseBody`. Carries forward on Framework 7.0 (GA 2025-11-13) /
+  Boot 4.0.0 (2025-11-20), current Javadoc 7.0.8. Sources:
+  `docs.spring.io` ProblemDetail Javadoc and
+  `web/webmvc/mvc-ann-rest-exceptions.html`. The
+  one-handler-no-message-leak guarantee rests on a bespoke leak test —
+  **convention/bespoke**, the funnel is Spring's.
+- **The error catalog is invisible to a structural OpenAPI diff —
+  convention.** Confirmed fact: oasdiff diffs only what the OpenAPI
+  document expresses (`github.com/oasdiff/oasdiff`,
+  `docs/BREAKING-CHANGES.md`). The "therefore snapshot the catalog"
+  conclusion is this pack's synthesis, with ADR-0023/GUARDRAILS G4 as
+  prior art. Honest correction: `(code, param-names)` associations *are*
+  expressible if each problem type is its own schema, so a structural
+  diff could then catch them; what has no native OpenAPI construct is
+  the catalog-level `code → status/params` invariant when the body is a
+  generic problem and the catalog is a Java enum — the reference
+  modeling. Marked convention: cheap, fails safe, git-visible; no
+  external source mandates it.
 - **Offset skip/duplicate vs keyset immunity — confirmed.** OFFSET
   counts positions, so a concurrent insert makes a seen row repeat
   (duplicate) and a delete makes an unseen row cross the boundary
@@ -719,7 +660,7 @@ staleness visible; re-verify at adoption.
   count)` overloads, `SelectQuery.addOffset`, and two-argument
   `addLimit` (Javadoc, jOOQ 3.20.x). So an ArchUnit ban must enumerate
   *every* offset-emitting target or it reports green while OFFSET stays
-  writable — the false-green gate principle 1 forbids. vacuum can ban
+  writable — the false-green gate P-1 forbids. vacuum can ban
   the `offset`/`page` request parameter in the contract (confirmed
   capability), a **bespoke** ruleset.
 - **Over-cap `limit` → 400 — convention.** Fail-loud choice: silent
@@ -756,6 +697,12 @@ staleness visible; re-verify at adoption.
   processor tables deviate from ISO (Adyen CLP/CVE/IDR/ISK, PayPal HUF)
   — cite ISO 4217 + processor docs; exponent 4 is not CLF-only (also
   UYW).
+- **JSON Merge Patch null = remove — confirmed.** RFC 7396 (obsoletes
+  RFC 7386, both Oct 2014): "if Value is null … remove the Name/Value
+  pair from Target." Cite RFC 7396. This is the confirmed fact behind
+  the repo-wide PATCH ban; the categorical ban is convention built on it
+  (JSON Patch RFC 6902 lacks the footgun, but merge-patch is the
+  corpus-default body).
 - **Optimistic concurrency, If-Match/412/428 — confirmed mechanism.**
   `UPDATE … SET version = version+1 WHERE id = ? AND version = ?`
   affects zero rows when stale or absent (JDBC `executeUpdate` count;
@@ -790,23 +737,11 @@ staleness visible; re-verify at adoption.
   premise absent from this pack — dropped from the seed text, not
   dismissed.
 
-- **2026-07-27 observability additions pass (scoped, and short of the
-  panel).** The rules verified below were harvested from net-saas ADR-0019,
-  which decides observability for a system whose operator is an AI invoked
-  in sessions. ADR-0019 is **prior art, not independent confirmation** —
-  every note below grounds its rule on a primary source and treats the ADR
-  only as a repo that made the same call. Two limits on this pass, stated so
-  they are visible. First, it is scoped: it verifies only the rules added on
-  2026-07-27, so the rest of section 4 and the frontmatter
-  `verified`/`review-by` clock stand unchanged. Second, the panel is
-  partial. Exactly one claim — the fan-out context rule — went through the
-  adversarial panel and three-vote refutation that
-  [research-protocol.md](research-protocol.md) requires, and it alone
-  carries **confirmed**. Every other claim below was checked by a single
-  researcher against primary sources and reads as **primary-source
-  verified**, which is not **confirmed** in the [README.md](README.md)
-  sense whatever its evidentiary strength; running the panel is what
-  promotes them. Treat each marker as written.
+### Observability
+
+The 2026-07-27 pass, scoped to the rules added that day and short of the panel
+— see the pass table above. Treat each marker as written.
+
 - **The observability section carries its own premise.** ADR-0019 rests on
   "the operator is an AI invoked in sessions — between sessions, nobody is
   watching", which is a *different* premise from this pack's "no human reads
@@ -833,6 +768,34 @@ staleness visible; re-verify at adoption.
   exists beside the grep. Sources: `opentelemetry.io/docs/zero-code/java/`,
   `/agent/` and `/spring-boot-starter/` under it, and
   `/docs/concepts/instrumentation/zero-code/`.
+- **Structured JSON logging is off-the-shelf in Spring Boot —
+  primary-source verified 2026-07-27.** Structured logging with the Elastic
+  Common Schema and Logstash formats ships natively since Spring Boot 3.4
+  (`logging.structured.format.console=ecs`), emitting JSON with
+  `@timestamp`, `log.level`, `service.name` and related fields; it carries
+  forward on the Boot 4.0 line (`CommonStructuredLogFormat` in the current
+  API). So the JSON-logs rule is a config-default assertion in the same
+  shape as the virtual-threads property, not bespoke work. Sources:
+  `docs.spring.io/spring-boot/reference/features/logging.html`;
+  `spring.io/blog/2024/08/23/structured-logging-in-spring-boot-3-4/`.
+- **The logger ban splits across two tools — primary-source verified
+  2026-07-27.** ArchUnit ships
+  `GeneralCodingRules.NO_CLASSES_SHOULD_ACCESS_STANDARD_STREAMS` and
+  `NO_CLASSES_SHOULD_USE_JAVA_UTIL_LOGGING` as public API, so the
+  console-output and wrong-framework halves are genuinely off-the-shelf.
+  They work because each is a *type dependency*, which ArchUnit reads from
+  bytecode. The unloggable-domain-type half is not of that kind — it turns
+  on an argument's static type, which the logger's erased `Object...`
+  signature hides — so it is Error Prone, per the agent-traps pack's
+  standing rule. Wiring it the other way round produces a rule that passes
+  while protecting nothing: P-1's named false-green case. Sources:
+  `TNG/ArchUnit` `GeneralCodingRules`; agent-traps pack.
+- **Call-site PII prevention over pipeline scrubbing — convention.** No
+  primary source survived this pass. Kept because it is cheap, type-checked
+  at compile time, and fails toward safety: a type the facade cannot accept
+  never produces the log line, whereas a pattern that misses reports
+  nothing. ADR-0019 calls pipeline scrubbing theater; that is prior art, not
+  evidence.
 - **The fan-out context rule — CONFIRMED 2026-07-27, three-vote adversarial
   pass, with the claim's wording corrected by the panel.** This is the one
   claim in this pass that did get the protocol's refutation panel: three
@@ -863,7 +826,7 @@ staleness visible; re-verify at adoption.
   even where it works — the JDK javadoc does not specify which thread
   invokes `newThread` in a per-task executor, so that path is unspecified
   behavior, and a system property deciding what a log call records is
-  principle 3's ambient modifier. The panel also confirmed the failure is
+  P-3's ambient modifier. The panel also confirmed the failure is
   silent: an absent key renders as the empty string and throws nothing, and
   `MDC.setContextMap(null)` is legal since SLF4J 2.0, so only an assertion
   catches it. Sources: `java.lang.ScopedValue`, `java.lang.Thread`, and
@@ -882,7 +845,7 @@ staleness visible; re-verify at adoption.
   declined auto-loading); there is no `ScopedValue` support at all (issue
   #108, open since 2023); and `ContextSnapshot` resolves accessors through a
   global static registry, which is ambient configuration deciding what a
-  call does — principle 3 again. So the hand-written capture is the more
+  call does — P-3 again. So the hand-written capture is the more
   principle-consistent route and the library is named as the alternative,
   not the default. Sources: `micrometer-metrics/context-propagation`
   `ContextExecutorService`, `ContextSnapshot`, `ContextRegistry`,
@@ -903,50 +866,6 @@ staleness visible; re-verify at adoption.
   `docs.spring.io/spring-boot/reference/actuator/observability.html`;
   `open-telemetry/opentelemetry-java` `Context`; the `logback-mdc-1.0`
   instrumentation README; `java.util.concurrent.Executors` javadoc.
-- **Do not cite, from the 2026-07-27 pass.** `openjdk.org/jeps/*` — HTTP 403
-  to the fetcher, the same failure the 2026-07-24 pass hit; use the Oracle
-  javadoc and the `openjdk/jdk` sources. `Thread.ofVirtual()` javadoc — it
-  does *not* state the inheritance default; cite
-  `Thread.Builder.OfVirtual.inheritInheritableThreadLocals`.
-  `Executors.newThreadPerTaskExecutor` javadoc — silent on when and on which
-  thread the thread is created; only the JDK source settles it, which is
-  precisely why the rule treats that path as unspecified.
-  `logging.apache.org/log4j/2.x/manual/thread-context.html` — says nothing
-  about child-thread inheritance; use the system-properties page. The
-  LOGBACK-624 issue *description* — it proposes a property that never
-  shipped; cite the fix version and commit. "slf4j-simple inherits the MDC"
-  — false, it installs a no-op adapter. `logback.qos.ch/news.html` — does
-  not reach back to 1.1.5. The Micrometer reference site pages for
-  `context-propagation` — too thin to document the classes used here; cite
-  the repository. Unauthenticated `api.github.com/search/code` — 403.
-- **Correction to an existing rule (2026-07-27).** The Concurrency bullet
-  previously preferred a Scoped Value over a `ThreadLocal` without
-  qualification. The preference stands on the bounded lifetime and
-  write-once binding, but **not** on child-thread sharing: that property is
-  reachable only through `StructuredTaskScope`, which this pack bans. The
-  bullet now says so. Nothing else about the rule changed.
-- **Structured JSON logging is off-the-shelf in Spring Boot —
-  primary-source verified 2026-07-27.** Structured logging with the Elastic
-  Common Schema and Logstash formats ships natively since Spring Boot 3.4
-  (`logging.structured.format.console=ecs`), emitting JSON with
-  `@timestamp`, `log.level`, `service.name` and related fields; it carries
-  forward on the Boot 4.0 line (`CommonStructuredLogFormat` in the current
-  API). So the JSON-logs rule is a config-default assertion in the same
-  shape as the virtual-threads property, not bespoke work. Sources:
-  `docs.spring.io/spring-boot/reference/features/logging.html`;
-  `spring.io/blog/2024/08/23/structured-logging-in-spring-boot-3-4/`.
-- **The logger ban splits across two tools — primary-source verified
-  2026-07-27.** ArchUnit ships
-  `GeneralCodingRules.NO_CLASSES_SHOULD_ACCESS_STANDARD_STREAMS` and
-  `NO_CLASSES_SHOULD_USE_JAVA_UTIL_LOGGING` as public API, so the
-  console-output and wrong-framework halves are genuinely off-the-shelf.
-  They work because each is a *type dependency*, which ArchUnit reads from
-  bytecode. The unloggable-domain-type half is not of that kind — it turns
-  on an argument's static type, which the logger's erased `Object...`
-  signature hides — so it is Error Prone, per the agent-traps pack's
-  standing rule. Wiring it the other way round produces a rule that passes
-  while protecting nothing: principle 1's named false-green case. Sources:
-  `TNG/ArchUnit` `GeneralCodingRules`; agent-traps pack.
 - **Cardinality is boundable off-the-shelf on both sides — primary-source
   verified 2026-07-27.** Prometheus's naming guidance states that every
   unique key-value label combination is a new time series and says not to
@@ -971,12 +890,6 @@ staleness visible; re-verify at adoption.
   Sources:
   `prometheus.io/docs/prometheus/latest/configuration/unit_testing_rules/`
   and `/command-line/promtool/`.
-- **Call-site PII prevention over pipeline scrubbing — convention.** No
-  primary source survived this pass. Kept because it is cheap, type-checked
-  at compile time, and fails toward safety: a type the facade cannot accept
-  never produces the log line, whereas a pattern that misses reports
-  nothing. ADR-0019 calls pipeline scrubbing theater; that is prior art, not
-  evidence.
 - **Correlation-id-only, no distributed tracing — deliberately not shipped
   as seed text.** ADR-0019 decides it for a single deployable and names the
   adoption trigger (two or more network-separated deployables that call each
@@ -997,8 +910,173 @@ staleness visible; re-verify at adoption.
   to keep, and each mirrors a rule shape the pack already carries — the
   error-code catalog, the codegen-diff, the standing invariants. The
   enforcement is not independent confirmation.
+- **Do not cite, from the 2026-07-27 pass.** `openjdk.org/jeps/*` — HTTP 403
+  to the fetcher, the same failure the 2026-07-24 pass hit; use the Oracle
+  javadoc and the `openjdk/jdk` sources. `Thread.ofVirtual()` javadoc — it
+  does *not* state the inheritance default; cite
+  `Thread.Builder.OfVirtual.inheritInheritableThreadLocals`.
+  `Executors.newThreadPerTaskExecutor` javadoc — silent on when and on which
+  thread the thread is created; only the JDK source settles it, which is
+  precisely why the rule treats that path as unspecified.
+  `logging.apache.org/log4j/2.x/manual/thread-context.html` — says nothing
+  about child-thread inheritance; use the system-properties page. The
+  LOGBACK-624 issue *description* — it proposes a property that never
+  shipped; cite the fix version and commit. "slf4j-simple inherits the MDC"
+  — false, it installs a no-op adapter. `logback.qos.ch/news.html` — does
+  not reach back to 1.1.5. The Micrometer reference site pages for
+  `context-propagation` — too thin to document the classes used here; cite
+  the repository. Unauthenticated `api.github.com/search/code` — 403.
 
-### Cache discipline — the 2026-07-29 pass
+### Money-grade rules
+
+The 2026-07-21 founding pass, with the money type re-verified on 2026-07-24
+and four rules added on 2026-07-25. Money's API-contract evidence — JSON
+string fields, constructor-bound deserialization, `Idempotency-Key`,
+`If-Match` — is under API contract above, beside the general rules it extends;
+its observability evidence is the last note under Observability.
+
+#### Money
+
+- **Hand-rolled `Money` over a library — decision holds, earlier
+  rationale corrected (re-verified 2026-07-24, three-vote adversarial
+  pass against the live sources).** The prior reason — the libraries
+  "ship no monetary algorithms, so allocation and rounding stay
+  hand-written either way" — is true but mis-framed: it treats a missing
+  *algorithm* as a missing *value type*. Joda-Money (v2.0.3, 2025-12-14;
+  actively maintained; Java 21+ on the 2.x line) provides most of the
+  value type above natively — `Money.of` binds to the ISO 4217 minor-unit
+  scale and rejects excess precision via `RoundingMode.UNNECESSARY`
+  (throws `ArithmeticException`, no silent rounding — the rule above,
+  near-verbatim); `plus`/`minus` throw `CurrencyMismatchException`; the
+  type is immutable. The real reason to own the type is API surface: the
+  same public `Money` also ships precision-losing operations — the
+  rounding constructor `of(currency, amount, RoundingMode)`, the `double`
+  overloads, and scalar `dividedBy(long, RoundingMode)` (per-quotient
+  rounding — the non-conserving split the allocation rule forbids). A type
+  you own omits them, so they are unwritable, not merely lint-banned.
+  Honest size of that win: each is a specific signature ArchUnit can ban,
+  so it is "unwritable for free because we build the type anyway," not "a
+  ban would not hold." Not footguns (the earlier draft implied otherwise):
+  `dividedBy(x, RoundingMode)` and `multipliedBy(BigDecimal, RoundingMode)`
+  name the mode at the call site — the Rounding rule itself — and division
+  has no exact overload, so any correct money type reproduces them.
+  Allocation and the separate higher-precision rate/factor type are
+  shipped by neither library and stay hand-written regardless. Runner-up
+  the binary framing hides: a thin wrapper over Joda's `Money`, exposing
+  only the safe subset. It wins on one axis — Joda maintains the ISO 4217
+  minor-unit table (JPY scale 0, BHD scale 3, and the no-minor-unit
+  pseudo-currencies), which a hand-roll otherwise takes from
+  `java.util.Currency`; it does not shrink the highest-risk code
+  (allocation, rounding policy, rate type stay bespoke) and is slightly
+  weaker on the unwritable goal — the footgun-bearing inner `Money` sits
+  one accessor away. Moneta (JSR 354; maintenance-mode, 1.4.5 2025-03-22,
+  Java 8): correcting the old "no algorithms" wording, it does ship
+  percent/permil/minor-part/rounding operators, but no allocation, no
+  call-site rounding discipline, and defaults that make silent rounding
+  the easy path (`multiply`/`divide` apply a context `HALF_EVEN` with no
+  call-site mode, `getDefaultRounding` is repo-wide, `FastMoney` rounds to
+  scale 5). Sources: joda.org/joda-money javadoc and JodaOrg/joda-money
+  README; JavaMoney/jsr354-ri repository.
+- **Same-currency `Money` ± is exact and takes no `RoundingMode` —
+  confirmed (verified 2026-07-25).** `BigDecimal.add(BigDecimal)` and
+  `subtract(BigDecimal)` return the exact result at scale `max(this.scale,
+  augend.scale)` and take no `RoundingMode` or `MathContext`; only the
+  two-argument `MathContext` variants round. `Money` fixes both operands
+  at the currency's minor-unit scale, so their sum/difference sits at that
+  same scale — no rounding, no mode to pass. Associativity follows from
+  exactness, so the property also serves as a tripwire for an accidental
+  rounding step slipped into ±. Scoped to ± only: not extended to multiply
+  or divide (`BigDecimal.multiply` is exact and an integer-scalar `Money`
+  multiply can stay at minor-unit scale, while division has no exact
+  overload — see the hand-rolled-`Money` note). The prior research
+  ratifies the identical rule; the confirmation is the `BigDecimal` spec.
+  Source: `java.math.BigDecimal` javadoc (JDK 25).
+- **Fail loud on money paths; no swallowed catch — convention (verified
+  2026-07-25).** The prior research carries "silent catches" as a
+  standing defect class its adversarial AI reviewer hunts — a
+  non-deterministic backstop, not a deterministic gate. Marked convention: the rule is
+  defensible, cheap, and fails safe, but no independent primary source
+  mandates it and it is not fully statically decidable. Primary docs bound
+  only the enforcement — Error Prone's `EmptyCatch` is WARNING by default
+  (must be promoted to ERROR), matches only the empty case, and skips a
+  block with an explanatory comment or an `ignored`/`expected` variable;
+  ArchUnit models the caught throwable type but not the catch-block body,
+  so it cannot tell a swallowing handler from a propagating one
+  (ArchUnit issue #1120). The deterministic backstop is therefore
+  partial; the general rule stays spec-and-review. Sources:
+  errorprone.info `EmptyCatch`; TNG/ArchUnit issue #1120.
+
+#### Rounding
+
+- **No universal banker's-rounding mandate — confirmed for the surveyed
+  regimes.** EU euro-conversion law (Reg. 1103/97 Art. 5) mandates
+  round-half-*up* at ties and minor-unit rounding only for amounts "to be
+  paid or accounted for"; EU VAT law prescribes neither method nor level
+  (ECJ C-302/07); HMRC's penny rule is arithmetic half-up with
+  alternatives allowed (VATREC12030). That is the argument for
+  per-operation explicit rounding rather than a repo default. Gap: no
+  US-tax, IFRS/GAAP, or interest-accrual source survived verification —
+  the per-operation rule is also the hedge against what those may
+  require.
+- **The allocation / largest-remainder rule — convention (2026-07-21).** No
+  external evidence survived, and the rule carries no citation. It is kept
+  because it is enforceable and cheap; its property suite is enforcement, not
+  independent confirmation.
+
+#### Storage
+
+- **Scale 4 covers ISO 4217 — confirmed.** Minor-unit exponents run 0
+  (JPY) to 3 (BHD-class); ISO 4217's maximum is 4 (CLF only). Caveat,
+  also confirmed: processor exponent tables deviate from ISO (Adyen for
+  CLP, IDR, ISK, CVE; PayPal for HUF) — hence the counterparty-table
+  rule. No evidence survived on `numeric(20,4)` versus `numeric(19,4)`
+  versus bigint minor units; the precision digits are the repo's call.
+
+#### Wire
+
+- **String-decimal wire format — a convention, not the industry
+  standard.** Confirmed split: PayPal Orders v2 sends major-unit decimal
+  strings; Adyen requires integer minor units. String-decimal is kept as
+  the org's chosen contract shape, with the alternative named. Stripe
+  and bank-API practice did not survive verification — do not cite them.
+
+#### Evidence gates for money
+
+- **Convention — the three semantic gates.** Contract-conformance
+  fuzzing, characterization replay with its reproducible-generation
+  precondition, and production invariants are researched conventions, not
+  cited findings. They
+  are in the seed because after implementation the review phase
+  (`speckit.nc.review`) is a model checking model output — it shares the
+  implementer's blind spots — and the bundle's one human gate reads the
+  plan, not the code (DECISIONS.md B-3). These gates are the
+  deterministic outside checks for plausible-but-wrong output — the
+  failure class neither the agent review nor the plan gate catches by
+  default. They are also the expensive part of the money-grade rules —
+  corpus maintenance, determinism preconditions, a production job —
+  priced for repos where money moves, which is why they sit in that
+  section and not in the general toolchain.
+- **Conformance fuzzing was promoted out of this section (2026-07-25).** Of
+  the three gates above, contract-conformance fuzzing is now a general rule:
+  the seed text carries the general gate and the money section adds the
+  edge-case input set on top. The evidence is the Schemathesis note under API
+  contract.
+- **pitest ≥ 1.25.8 — confirmed.** pitest supports bytecode through Java
+  26 and is actively maintained; a real Java 25 defect in the
+  `BigDecimal`/`BigInteger` mutators — the mutators money code
+  exercises — was fixed in 1.25.8 (2026-07-20).
+- **jqwik caveat — confirmed.** Moved to the agent-traps pack (it is
+  cross-cutting, not money-specific): pin ≤ 1.9.3 with a version-ceiling
+  check in CI, and treat the library as re-decidable at every dependency
+  review.
+- **The worked-example-plus-golden-test rule — convention (2026-07-21).** No
+  external evidence survived, and the rule carries no citation. It is kept
+  because it is enforceable and cheap; its golden suite is enforcement, not
+  independent confirmation.
+
+### Cache discipline
+
+The 2026-07-29 pass.
 
 This section's rules are the Java instantiation of
 [`rule-sources/cache-discipline.md`](rule-sources/cache-discipline.md); that

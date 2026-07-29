@@ -3,7 +3,10 @@ id: cache-discipline
 kind: cross-stack source — no seed file, never adopted
 status: decided, not yet validated (researched 2026-07-29 — evidence panel,
   design steelman, hostile audit with a planted canary, three-vote refutation
-  on the load-bearing claims; no production use anywhere)
+  on the load-bearing claims; no production use anywhere). Every one of the
+  sixteen directives is **convention** — none survived refutation against a
+  primary source, because each is a design argument rather than an execution
+  result. Read that before picking the stack pack that instantiates them.
 holds-when: code is written by LLM agents and no human reads it line by
   line; the repo caches a value it could recompute from a durable store.
   This covers an in-process cache as well as a shared one — the in-process
@@ -27,7 +30,7 @@ language. The directives below are therefore stated platform-neutrally. What
 is *not* portable is the enforcement: nearly every rule needs a different tool
 per stack — an architecture rule here, a source-level analyzer there, a
 compiler-enforced package boundary somewhere else — and a cache rule without
-its stack's named check is a wish ([README.md](../README.md), principle 1).
+its stack's named check is a wish ([README.md](../README.md), P-1).
 Section 3 records which stack packs have written them.
 
 **Every directive here is marked convention.** None survived three
@@ -132,7 +135,7 @@ cache client library, no in-process cache library, and no hand-rolled
 memoization construct is reachable outside it.** Every other directive here is
 a check on that adapter's API surface, so a second way in is not one bypass —
 it is the whole set reporting green while the banned shapes pass, which is the
-false assurance principle 1 forbids in its second clause. The in-process half
+false assurance P-1 forbids in its second clause. The in-process half
 is not optional: a hash-map memo inside a service method, a loading-cache
 library, or a framework's simple in-memory cache manager imports no cache
 *client* and would sit outside every other rule here, and that shape is what
@@ -145,9 +148,9 @@ the hand-rolled case. Convention.*
 **C-2 — No ambient cache dispatch. No caching annotation, attribute,
 decorator or aspect; and no class implementing a domain interface may depend
 on the cache adapter.** A caching annotation fires an effect from no written
-call — an ambient trigger (principle 4). A caching decorator wired behind a
+call — an ambient trigger (P-4). A caching decorator wired behind a
 domain interface leaves the caller's text unchanged while its answer now turns
-on cache state — an ambient modifier (principle 3). The second half is a
+on cache state — an ambient modifier (P-3). The second half is a
 separate rule from C-1 because the seam does not catch it: a decorator
 legitimately lives in an infrastructure module and legitimately imports the
 adapter, so the seam check passes over exactly this case. **State the
@@ -220,7 +223,7 @@ in order: a property test that equal keys imply equal uncached results, and —
 because that test varies only what its generator varies — a **two-tenant
 integration test per cached read path**, seeding different data for two
 tenants, warming as one and reading as the other. The second is the outside
-oracle principle 8 requires: its ground truth is the underlying store, not an
+oracle P-8 requires: its ground truth is the underlying store, not an
 assertion written by the model that wrote the key. *Type design + property
 test + integration test. Convention.*
 
@@ -324,7 +327,7 @@ always-miss, and every-operation-errors. The normal and always-miss runs must
 produce identical observable results; under fault injection every answer
 either matches the cache-off answer or is a coded error; and the normal run
 fails if any catalogued cache records zero hits.** The uncached system is an
-oracle outside the implementer model, which is what principle 8 requires of a
+oracle outside the implementer model, which is what P-8 requires of a
 semantic gate. The zero-hit assertion is not optional: a suite that never
 warms a cache passes all three runs trivially. **Claim only what it catches.**
 It catches a value that exists only in the cache on driven paths, an
@@ -480,8 +483,10 @@ instead).
 
 **The engine and licence evidence is confirmed and lives with the pick**, not
 here — it belongs in the stack pack's seed line and its own evidence section,
-because this source does not carry the pick. What must not be re-derived from
-memory is in section 5's do-not-reintroduce list.
+because this source does not carry the pick. Today that is
+[java-backend.md](../java-backend.md) section 4 under its `Cache discipline`
+heading. What must not be re-derived from memory is in section 5's
+do-not-reintroduce list.
 
 **The hostile audit's canary was caught**, so its other findings count. Three
 of them were fatal and each changed a rule: a draft rule cut an undecidable
@@ -544,7 +549,7 @@ defeating C-15.
   behaviour. **Kept as the stated fallback** for an in-process cache on more
   than one instance (C-9), where delete genuinely cannot cross instances.
 - **Picking the engine as the discipline.** *Steelman:* the engine decides what
-  is writable, so a restricted engine is principle 2 applied at the largest
+  is writable, so a restricted engine is P-2 applied at the largest
   grain — one decision instead of sixteen. *Rejected:* the restriction claimed
   is usually false; the pick is not decidable per stack; its answer varies
   within a stack; and the seam is the enforcement, on any engine. This is the
@@ -636,7 +641,7 @@ months.
 
 **Steelman then numbered grounds**, loser-first as the protocol requires:
 
-- **Memcached.** *Steelman, and it is the strongest one here:* principle 2 says
+- **Memcached.** *Steelman, and it is the strongest one here:* P-2 says
   unwritable beats banned, and memcached has no persistence, no scripting and
   no transactions, so several discipline hazards are structurally impossible
   rather than checked. Its absence of capability **is** the product. *Grounds:*
@@ -689,7 +694,7 @@ months.
   release since 2023-10-30 and no commit since 2024-05-29, which is a date
   rather than an opinion; (2) it still appears in training-corpus "Redis
   alternatives" lists, so it must be **named and rejected** rather than
-  omitted — principle 6; (3) even fully maintained, multi-master write conflict
+  omitted — P-6; (3) even fully maintained, multi-master write conflict
   resolution is a capability this premise argues against.
 - **No separate engine.** *Steelman:* zero new services, nothing to patch, and
   a derived store that a crash truncates automatically is structurally

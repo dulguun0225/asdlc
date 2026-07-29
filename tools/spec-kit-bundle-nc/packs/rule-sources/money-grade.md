@@ -27,7 +27,7 @@ A wrong cent is a defect with a victim, and that is true in every language.
 The directives below are therefore stated platform-neutrally. What is *not*
 portable is the enforcement: nearly every rule needs a different tool per
 stack, and a money rule without its stack's named check is a wish
-([README.md](../README.md), principle 1). So the rules are not pasted on their
+([README.md](../README.md), P-1). So the rules are not pasted on their
 own — pasted separately they would put the directive in one section of a
 constitution and its static-analysis rule in another. Each stack pack writes
 them into its own seed text with its own checks. Section 3 records who has.
@@ -289,9 +289,13 @@ real test is the second instantiation ([index.md](../index.md), candidates).
 ## 4. Evidence notes
 
 **The trail is not duplicated here.** These rules were researched as part of
-[java-backend](../java-backend.md); its **section 4** holds the dated claims,
-sources, confidence markers and negative citations, and it stays the trail of
-record. Lifting them into this file on 2026-07-28 was a re-presentation — new
+[java-backend](../java-backend.md); its **section 4, under the
+`Money-grade rules` heading**, holds the dated claims, sources, confidence
+markers and negative citations, and it stays the trail of record. Its
+subsections carry the same names as the directive groups above, so a rule here
+and its evidence there are one hop apart — except the money API-contract and
+observability rules, whose evidence sits with the general rules they extend
+(that pack's `API contract` and `Observability` headings). Lifting them into this file on 2026-07-28 was a re-presentation — new
 ids, platform-neutral wording — and **not a new research pass**, which is why
 the frontmatter carries java-backend's dates rather than today's.
 

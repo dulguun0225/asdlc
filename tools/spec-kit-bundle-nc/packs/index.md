@@ -13,6 +13,14 @@ cheap instead.
 
 ## Shipped
 
+**A mirror, and the only one.** Each pack's frontmatter is authoritative for
+its `verified` and `review-by` dates and its status; the bundle-checks.yml
+freshness step reads the frontmatter, never this table. The table exists so a
+freshness sweep is one file open instead of four, and it is the single place
+in this corpus that restates a date —
+[`README.md`](README.md)'s roster deliberately carries none, because a date
+copied into three files goes stale in two of them.
+
 | Pack | Verified |
 | ---- | -------- |
 | [agent-traps](agent-traps.md) | 2026-07-24 |
@@ -38,7 +46,7 @@ pickable, nothing under `packs/rule-sources/` is — rather than by reading the
 Kind column correctly.
 
 A source exists because a money rule without its stack's named check is a
-wish (README.md, principle 1), and nearly every money rule needs a different
+wish (README.md, P-1), and nearly every money rule needs a different
 tool per stack. Pasting the general rules separately would put a directive in
 one section of a constitution and its ArchUnit rule in another. So the rules
 are **instantiated into** each stack pack instead, and the source is what
@@ -64,7 +72,8 @@ and given ids — its 28 bullets, plus that section's preamble obligation that
 the plan introducing the first money feature cite the rules in its Decision
 Trace, which is M-29. **The Java text stays exactly where it is** and is the first
 column of the source's instantiation table. The evidence trail was *not*
-copied: it stays in [java-backend.md](java-backend.md) section 4, and the
+copied: it stays in [java-backend.md](java-backend.md) section 4 under that
+file's `Money-grade rules` heading, and the
 source carries that pack's dates because lifting the rules was not a new
 research pass. No `verified` date moved, and no rule changed meaning. The file
 itself moved later the same day — `packs/` → `packs/rule-sources/`, B-10 —

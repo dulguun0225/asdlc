@@ -168,12 +168,74 @@ reached (4 files carry `review-by`, up from 3, no false warnings).
    earlier version of this note said the workflow "has never run" — that was a prediction written
    before its own push and left uncorrected. **Do not re-derive the doubt from it.**
 
+**`packs/` now has structure rules, and they bind whoever writes the next pack** (B-12,
+2026-07-29). Three of them will be re-broken by default if nobody knows they exist. **A pack's
+evidence section is grouped by the seed-text section each rule lives in, never by research pass** —
+the pass dates and each pass's *scope* go in a table at the top of it. **A pack's frontmatter is
+the only authority for its status and dates**; `packs/index.md`'s Shipped table is a labelled
+mirror and `packs/README.md`'s roster carries no dates at all, so do not "helpfully" restore a
+Status column. **The eight design principles are cited as `P-1` … `P-8`, never by list position,
+and never from seed text** — in a constitution `P-3` dangles and "principle 3" reads as that
+constitution's own principle III. None of this changed a rule, a marker or a date.
+
 **One standing instruction, because it was asked twice and answered twice:** the owner does not
 choose between options here. Research it, decide it, record it, and say what would reverse it.
 
 ---
 
-### Last session: 2026-07-29 — the cache source is written, and a committed reason was false
+### Last session: 2026-07-29 — `packs/` restructured by logical relation; five defects, no rule changed
+
+The owner said the content under `packs/` felt like it could be better structured by the logical
+relation of its contents, and asked to be corrected if wrong. **Partly wrong, and the wrong part is
+the one worth recording:** the *directory* layout is the most deliberate thing there and was left
+alone. `packs/*.md` adoptable, `packs/rule-sources/` never adopted, `packs/seed/` the paste payload
+— that split makes "can I adopt this?" a path question (B-10), and the tempting regroup by topic
+(`packs/money/` holding a source, its directives and its evidence together) would destroy it for
+the same reason B-10 rejected `cross-pack/`. **Every real defect was inside a file**, and all five
+are fixed. [`DECISIONS.md` B-12](../tools/spec-kit-bundle-nc/DECISIONS.md) is the record.
+
+1. **`java-backend.md` section 4 was a 727-line flat list ordered by research pass**, while the
+   seed text it justifies has seventeen topical sections — so "what is the evidence for the
+   API-contract rules?" meant scanning for a date. It now carries one `###` per seed-text `###`, in
+   the seed's order. **54 bullets moved verbatim** (mechanically extracted and re-emitted, then
+   verified byte-for-byte); four dissolved — three pass announcements into the new pass table, and
+   one 2026-07-21 convention list whose five items governed five different sections.
+2. **The roster existed three times** — frontmatter, `index.md`, `README.md` — and the bundle's
+   `CLAUDE.md` had written the two-place update down as a ripple to remember instead of removing
+   it. One authority now, one labelled mirror.
+3. **`README.md` was ordered by subject, so neither of its two readers had a contiguous path.**
+   Adopter-first now, author's material last under `## Authoring a pack`.
+4. **The eight principles were cited by list position** from 27 lines across seven files. Stable
+   ids `P-1` … `P-8` now; order unchanged, so an older "principle 3" still means `P-3`.
+5. **`research-protocol.md` claimed "or any org decision"** while living inside one bundle's
+   `packs/`. It now states which sections are the general method and which is pack-specific, and
+   why it stays there rather than moving to `reference/`.
+
+**Four latent defects surfaced only because the regroup put related things side by side**, and each
+is fixed: the Freshness section pointed at "step 3" for re-verifying dates, which is step 5; the
+packs cited `README.md` for a **primary-source verified** marker `README.md` never defined; a
+correction the 2026-07-27 pass made to a concurrency rule had been sitting 500 lines from the rule;
+and one of the three semantic gates was promoted from money-grade to general on 2026-07-25 without
+the money section saying so. **This is the argument for the regroup, not a side effect** — the flat
+order was hiding contradictions between bullets that now sit together.
+
+**Verified, not assumed:** every relocated bullet is present byte-for-byte, sections 1–3 and 5 of
+the pack are untouched, all four pack frontmatters still parse as YAML and still match the CI
+freshness step's `^review-by:` regex, and every relative link and same-file anchor under `packs/`
+resolves. **No component version changed** — `packs/` is informative and no tooling installs it.
+
+**The changelog entry went into `[0.2.0]`, not `[Unreleased]`.** The tag is not cut yet, so these
+changes would ship inside `bundle-v0.2.0` while the release notes point at `CHANGELOG.md` — the
+exact defect the 2026-07-28 session fixed. `[Unreleased]` is empty again. **Nothing may sit under
+it when the tag is cut.**
+
+**What this does not fix, and it is the honest gap:** the evidence-grouping rule has no check.
+It is a convention in `research-protocol.md` §5 and in the bundle's `CLAUDE.md` map, and the next
+multi-pass pack is where it either holds or quietly re-accretes. Nothing here blocks the release.
+
+---
+
+### Session before: 2026-07-29 — the cache source is written, and a committed reason was false
 
 The owner asked for deep research on cache principles and the cache technology choice, and
 proposed that **both** belong in `packs/rule-sources/` because both are independent of the backend

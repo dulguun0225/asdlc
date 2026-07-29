@@ -503,6 +503,146 @@ promise through the runtime, the database, and the build.
 - **Rate and factor columns carry their own, higher precision.** They are not
   money columns and do not take the minor-unit scale. (Same lint.)
 
+#### Persistence
+
+The rules above say how a money column is declared. These say what may cross the
+database boundary, and they exist because every other money rule in this
+constitution is enforced by a check that reads **Java source** — ArchUnit,
+Error Prone, the compiler. A stored amount also passes through SQL, which none
+of them read.
+
+- **An amount whose scale exceeds the column's is rejected before it reaches
+  PostgreSQL, never rounded by it.** PostgreSQL rounds an over-scale value to
+  the column's scale and reports success; MySQL does the same and documents that
+  the loss is not an error even in strict mode. So the database is a default
+  rounding mode applied at every write, which is the thing the Rounding rules
+  above forbid. The write path asserts minor-unit scale before the statement
+  runs. (Bespoke — an integration test against real PostgreSQL in a throwaway
+  container writes an amount one digit past the column's scale and asserts a
+  thrown error, not a stored rounded row. An in-memory substitute database
+  cannot check this: the rounding is the engine's.)
+- **Money columns are `numeric(p,4)` with both numbers written; bare `numeric`
+  is banned.** Unconstrained `numeric` accepts any scale, so excess precision
+  survives a round trip and the money type's construction check is bypassed by
+  writing through SQL — and it is the only column type in which PostgreSQL can
+  store an infinity at all. (Bespoke — the same schema lint over the committed
+  Flyway migrations that enforces the column type.)
+- **Every money column carries a committed `CHECK` excluding `NaN`.**
+  PostgreSQL's `numeric` accepts `NaN`, and treats it as equal to itself and
+  **greater than all real values** so that it can be sorted and indexed. A
+  `NaN` amount therefore passes an ordering guard instead of tripping it, wins a
+  `MAX`, and propagates through a `SUM` — a wrong number no comparison can see.
+  (Bespoke — the schema lint asserts the constraint exists on every money
+  column, and an integration test writes `'NaN'::numeric` and asserts
+  rejection.)
+- **An amount column and its currency column are both `NOT NULL`, and neither is
+  nullable alone.** An amount and its currency are one value; a row with one half
+  missing is a row no `Money` can be constructed from, and the read path must
+  then invent a currency or a zero. Where a money value is genuinely optional the
+  row is absent, or the pair lives in its own table. (Bespoke — the same schema
+  lint. This one is ordinary schema hygiene kept because it is free, not a rule
+  the no-human-reader premise forced.)
+- **The currency column is constrained to a committed list of supported codes.**
+  Free text admits `usd`, `USD ` and `$` as three currencies. (Bespoke — a
+  `CHECK` or a foreign key to a committed reference table, asserted by the
+  schema lint, plus an integration test on a rejected code.)
+- **Arithmetic on money in SQL is banned: queries read and write amounts, they
+  do not compute them.** The ban on raw `BigDecimal` arithmetic outside the
+  money package is an ArchUnit rule over Java, and **SQL is invisible to it** —
+  a `SUM` in a report query, an `amount * rate` in a view, and a hand-written
+  incrementing `UPDATE` all pass. jOOQ is the trap worth naming: `Field.add`,
+  `Field.sub`, `Field.mul` and `Field.div` return `Field<T>`, and `DSL.sum` and
+  `DSL.avg` return `AggregateFunction<BigDecimal>`. None of them is ever a
+  `BigDecimal`, so a rule keyed on `BigDecimal` arithmetic reports green over
+  every one of them while the arithmetic itself runs in PostgreSQL.
+  Division in SQL is the worst case — it rounds, at a scale
+  PostgreSQL picks, with no `RoundingMode` named anywhere. The version helper's
+  `version = version + 1` is not money arithmetic and is unaffected.
+  (ArchUnit — off-the-shelf host; the banned-jOOQ-arithmetic predicate is
+  authored per repo. Plus a bespoke lint over committed SQL, view and function
+  definitions and Flyway migrations. **Named blind spot: SQL assembled at
+  runtime from fragments is reachable by neither check**, and on that path the
+  gates are the read-boundary rule below and the characterization replay, not
+  this lint. Do not describe the pair as complete coverage.)
+- **The one exception is an exact-decimal aggregate over rows, and it carries a
+  golden test.** Where the row count makes fetching them untenable, PostgreSQL
+  may total them — over `numeric`, never `real`/`double precision`, and never
+  with `AVG` or any dividing aggregate. PostgreSQL's own documentation shows a
+  `float8` sum returning `0` where the answer is `1`, and states that this is a
+  limitation of floating-point arithmetic in general: a float total depends on
+  the order the engine added the rows in. (Bespoke — a golden test comparing the
+  database's total against the same total computed through `Money` over a
+  committed corpus.)
+- **A row becomes a `Money` only through the money type's constructor, in one
+  named mapper.** No code outside that mapper holds a `BigDecimal` that came
+  from the database, and nothing sets an amount onto an already-constructed
+  object. This is the deserialization rule in the other direction, and it is the
+  weaker direction: the value it reads was not necessarily written by this code
+  path at all — a row may predate the `CHECK` above, or have been written by a
+  migration, a support script, or another service. **The generated jOOQ classes
+  are the boundary and the architecture rules exclude generated packages**, so
+  the rule is authored as *who may call a generated accessor for a money
+  column*, never as a constraint on generated code. (ArchUnit —
+  off-the-shelf host, predicate authored per repo; plus an integration test that
+  writes rows out of band — wrong scale, `NaN`, null currency — and asserts each
+  fails loud on read.)
+- **The record of a money effect is appended, never updated in place; a
+  correction is a new row.** Under PostgreSQL's default read-committed
+  isolation, a `SELECT` sees only what was committed before it began and two
+  successive `SELECT`s in one transaction can differ, so a read-compute-write
+  against a stored balance drops a concurrent effect — and the idiom that would
+  make it safe, incrementing inside the `UPDATE`, is banned above. An append has
+  no read-modify-write to lose. A current balance may exist as a projection; it
+  is then recomputable from the appended rows, and it is what the standing
+  production invariant checks. (Bespoke — the effect table's role holds no
+  `UPDATE` or `DELETE` grant, asserted by an integration test that attempts
+  both, plus a concurrency test running two effects at once and asserting both
+  are recorded.)
+- **A mutable money row, where one exists, is written only through the version
+  helper, and zero affected rows is a failure.** This is the optimistic-
+  concurrency rule above applied to the money path, on the same version column:
+  under read-committed an unguarded `UPDATE ... WHERE id = ?` re-evaluates its
+  `WHERE` clause against the concurrently committed row and then overwrites it,
+  reporting success. Under `REPEATABLE READ` the same case raises `could not
+  serialize access due to concurrent update` and the whole transaction must be
+  retried. State which of the two this repo relies on; relying on neither is the
+  defect. (Bespoke — an integration test with two concurrent transactions
+  asserting exactly one succeeds; the helper itself is already covered by the
+  architecture rule.)
+- **The effect row, its idempotency record, and the outbox row for its event are
+  written in one transaction.** Nothing that makes a cent reconstructable is
+  written in a second transaction, and a publish after commit does not satisfy
+  this. (Bespoke — the same-transaction integration test the idempotency rule
+  already requires, extended to assert the outbox row.)
+- **A Flyway migration that computes a money value is money math and carries
+  money math's evidence:** the worked numeric example in its spec, and a golden
+  test running the migration against real PostgreSQL over a committed
+  before-and-after corpus. A backfill applying a rate, a re-denomination, or a
+  split of one column into two is a computation that the mutation gate, the
+  property tests and the characterization replay all miss, because all three
+  gate Java. (Bespoke — the golden corpus runs against the same containerised
+  PostgreSQL as the migration tests.)
+- **Altering an existing money column's type, precision or scale is never
+  silent, and never narrows scale.** Narrowing rounds every stored row on the
+  spot, and the one-line migration is the whole diff a reviewer sees. (squawk
+  `changing-column-type` — off-the-shelf, and it needs no money-specific
+  configuration: it flags every column-type change for the `ACCESS EXCLUSIVE`
+  lock and the table rewrite, and its exemptions are binary-coercible changes
+  such as `VARCHAR` to `TEXT`, which a `numeric` scale change is not. So the
+  migration cannot merge without the reviewed per-migration opt-out the
+  migration rule above defines. What is **not** off-the-shelf: squawk flags the
+  lock, not the rounding, so the opt-out's stated reason must say what happens
+  to the values already in the column — that part is spec and review.)
+- **The precision digits are stated against a named maximum amount, and
+  exceeding it fails loud.** Which precision is this repo's call — no evidence
+  favours `numeric(19,4)` over `numeric(20,4)` — but the number is written down
+  beside the largest amount and the largest aggregate the repo intends to hold.
+  PostgreSQL raises an error when the digits left of the point exceed precision
+  minus scale, which is the wanted failure; the PostgreSQL `money` type instead
+  has a hard ceiling that cannot be widened, which is a second reason it is
+  banned above. (Convention — spec and review for the stated maximum, plus an
+  integration test at it and one digit past it.)
+
 #### Wire
 
 - **Money on the wire is a string decimal plus an explicit currency; a JSON

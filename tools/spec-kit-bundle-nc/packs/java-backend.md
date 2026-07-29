@@ -371,6 +371,7 @@ its own scope, so the limits are recorded here rather than beside the rules.
 | 2026-07-27 | Only the observability rules added that day, harvested from net-saas ADR-0019 — **prior art, not independent confirmation**. **Short of the panel**: exactly one claim, the fan-out context rule, went through the adversarial panel and three-vote refutation that [research-protocol.md](research-protocol.md) requires, and it alone carries **confirmed** | one panelled claim; every other claim single-researcher | Observability, plus one correction under Concurrency |
 | 2026-07-29 | Cache discipline — the Java instantiation of the cross-stack source | evidence pass, design steelman, hostile audit with a planted defect, three refutation votes on the load-bearing claims | Cache discipline |
 | 2026-07-29 | Event broker discipline — the Java instantiation of the cross-stack source, plus the transport pick | design steelman, two tool-evidence passes against primary sources, hostile audit with a planted canary (caught), candidate comparison. **Short of the panel: the three refutation votes were not run** — the session's agent budget was exhausted and four seats died with it | Event broker discipline |
+| 2026-07-29 | Money persistence — the fourteen new rules of the money source's Persistence group, and this stack's checks for them. Re-read the two existing Storage rules and gave one of them a reason it lacked; re-verified nothing else | **none at all** — one researcher against vendor documentation. No steelman duel, no hostile audit, no canary, no refutation votes | **the cross-engine trail is in the source, not here**, because it spans PostgreSQL, MySQL, SQL Server and SQLite and would be misfiled under a Java heading. This pack carries only the Java-specific findings, under Persistence below |
 
 **No scoped pass moved the frontmatter clock.** Each verified only the rules
 it added, so `verified` and `review-by` stand at the 2026-07-21 pass. Bumping
@@ -1009,6 +1010,13 @@ string fields, constructor-bound deserialization, `Idempotency-Key`,
 `If-Match` — is under API contract above, beside the general rules it extends;
 its observability evidence is the last note under Observability.
 
+The Persistence subsection is the 2026-07-29 pass and is the one place in this
+pack whose **cross-engine** trail deliberately sits elsewhere: the vendor
+documentation it rests on is PostgreSQL's, MySQL's, SQL Server's and SQLite's,
+which is the source's business rather than this pack's
+([`rule-sources/money-grade.md`](rule-sources/money-grade.md) section 4). What
+is below is what only a Java repo needs to know.
+
 #### Money
 
 - **Hand-rolled `Money` over a library — decision holds, earlier
@@ -1105,6 +1113,64 @@ its observability evidence is the last note under Observability.
   CLP, IDR, ISK, CVE; PayPal for HUF) — hence the counterparty-table
   rule. No evidence survived on `numeric(20,4)` versus `numeric(19,4)`
   versus bigint minor units; the precision digits are the repo's call.
+- **Scale 4 now has a second, independent vendor behind it — primary-source
+  verified 2026-07-29.** SQL Server's documentation, warning against its own
+  money type, tells readers to "use the **decimal** data type with at least four
+  decimal places". That is a different route to the same number than the ISO 4217
+  exponent argument above, and it is worth recording because the founding pass
+  reached 4 from one direction only.
+
+#### Persistence
+
+Every note here is the 2026-07-29 pass, and every one is about **this stack's
+checks**. The storage engines' documented behaviour is in the source.
+
+- **jOOQ's arithmetic is invisible to an Error Prone or ArchUnit rule keyed on
+  `BigDecimal` — primary-source verified 2026-07-29 against the current
+  javadoc.** `Field.add`, `Field.sub`, `Field.mul` and `Field.div` are declared
+  to return `Field<T>`; `DSL.sum` and `DSL.avg` are declared
+  `static @NotNull AggregateFunction<BigDecimal>`. **No value in that chain is
+  ever a `BigDecimal`**, so a check written against `BigDecimal` operations —
+  which is how this pack's existing money-arithmetic ban is enforced — passes
+  over `amountField.mul(rateField)` while the multiplication executes in
+  PostgreSQL, at a scale PostgreSQL chooses. This is the concrete Java form of
+  the source's central finding, and it is why the new rule needs its own
+  predicate rather than an extension of the existing one.
+- **The generated-package exclusion decides how the read-boundary rule must be
+  written — this pack's own prior decision, re-read 2026-07-29.** The
+  architecture rules here exclude generated packages, and the generated jOOQ
+  classes are exactly the store-to-money boundary: a generated record accessor
+  for a `numeric` column hands back a `BigDecimal`. A rule phrased as a
+  constraint *on* generated code is therefore unenforceable by construction. It
+  is phrased instead as **who may call a generated accessor for a money
+  column** — a caller-side predicate, which the exclusion does not touch.
+  Anyone tightening that exclusion later should read this note first.
+- **squawk hosts the money-column alteration rule off the shelf and needs no
+  money-specific configuration — primary-source verified 2026-07-29.** Its
+  `changing-column-type` rule flags column-type changes because they take an
+  `ACCESS EXCLUSIVE` lock that "blocks reads and writes while the table is
+  rewritten", and its documented exemptions are binary-coercible changes such as
+  `VARCHAR` to `TEXT` or a `VARCHAR` length extension. A `numeric` scale change
+  is not among them, so it is flagged, and this pack's existing rule already
+  makes a flagged migration unwritable without a reviewed per-migration opt-out.
+  **What squawk does not do: it flags the lock, not the rounding.** The values
+  already in the column are outside its subject entirely, which is why that half
+  of the rule is spec and review and must not be described as gated.
+- **Two of the new rules needed no new mechanism, stated so nobody builds one.**
+  The mutable-money-row rule reuses the version helper the Concurrency rules
+  already define, with the same `WHERE id = ? AND version = ?` and the same
+  zero-affected-rows treatment; the same-transaction rule reuses the outbox row
+  the Event broker rules already require. And the whole write-boundary group is
+  checkable only because this pack already mandates integration tests against
+  real PostgreSQL in a throwaway container and bans in-memory substitutes —
+  engine rounding cannot be observed against a substitute, so that earlier
+  decision is load-bearing here.
+- **Do not cite squawk for the rounding, and do not cite any lint in this
+  toolchain as covering money math in a migration.** The pass looked for an
+  off-the-shelf gate on a value-changing migration and found none: squawk reads
+  DDL hazards, and nothing here checks that a backfill computed the right
+  amount. That is why the migration rule's check is a bespoke golden corpus
+  rather than a linter setting.
 
 #### Wire
 

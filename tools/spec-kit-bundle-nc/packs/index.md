@@ -25,9 +25,46 @@ copied into three files goes stale in two of them.
 | ---- | -------- |
 | [agent-traps](agent-traps.md) | 2026-07-24 |
 | [java-backend](java-backend.md) | 2026-07-21 |
-| [money-grade](rule-sources/money-grade.md) — source, never adopted | 2026-07-21, inherited from java-backend's pass; lifting the rules on 2026-07-28 was not a new one |
+| [money-grade](rule-sources/money-grade.md) — source, never adopted | 2026-07-21 for `M-1` … `M-29`, inherited from java-backend's pass; lifting the rules on 2026-07-28 was not a new one. **2026-07-29 for the Persistence group (`M-30` … `M-43`) only** — a pass run in the source itself, with **no panel, no hostile audit and no refutation votes**, so nothing in it is confirmed and two of its outputs are bans. `review-by` deliberately did **not** move: it stays 2027-01-21, governed by the oldest unrefreshed pass |
 | [cache-discipline](rule-sources/cache-discipline.md) — source, never adopted | 2026-07-29 |
 | [event-broker-discipline](rule-sources/event-broker-discipline.md) — source, never adopted | 2026-07-29, **two passes that day** — the second closed five unexamined shapes as `E-29` … `E-36`. Pass 1 was **short of the three refutation votes**; pass 2 had **no panel and no hostile audit** either, and two of its rules are bans. Its frontmatter says so |
+
+## Audits owed
+
+**This is the backlog for three defect classes the corpus has found in itself, and
+an empty cell is the item.** Each check is defined in
+[research-protocol.md](research-protocol.md) §5 and named by the decision that
+recorded the failure: **B-13** (the predicate is framed on what the rules must
+reach, not on the technology in the name or the current recommendation),
+**B-15** (the shapes a repo assembles *out of* the primitives are enumerated and
+each marked permitted / banned / out of scope), **B-16** (for each directive, the
+language its check reads is named, and so is every other language the value
+passes through).
+
+**None of the three is machine-checkable**, which is why they need a table rather
+than a CI step. All three were found *after* the file in question had shipped and
+been read repeatedly — B-16's was found in the oldest source in the corpus, on a
+file that had been lifted and re-reconciled three times. **An empty cell is not
+evidence of a clean file; it is a check nobody has run.**
+
+This table records **audits**, not verification dates. Each file's frontmatter
+stays the only authority for `verified` and `review-by`, and the Shipped table
+above is the only mirror of those.
+
+| File | B-13 predicate | B-15 composite shapes | B-16 layer |
+| ---- | -------------- | --------------------- | ---------- |
+| [money-grade](rule-sources/money-grade.md) | run 2026-07-29 for `M-30` … `M-43`; **not run for `M-1` … `M-29`**, whose predicate names a domain rather than a technology and is the lowest-risk cell in this table | run 2026-07-29 | run 2026-07-29 — **this is the source that failed it** |
+| [cache-discipline](rule-sources/cache-discipline.md) | effectively run at authoring — its client-scoped seam draft was caught and widened, which is where B-13 came from | **owed** | **owed** — its values cross into a serializer and into whatever the cache stores on the wire, and no directive names either |
+| [event-broker-discipline](rule-sources/event-broker-discipline.md) | run 2026-07-29 (B-13 is its own entry) | run 2026-07-29 — **this is the source that failed it** | **owed** — its values cross into a payload contract, an outbox row and, if one is ever added, a schema registry |
+| [java-backend](java-backend.md) | n/a — a stack pack has no portable predicate | n/a — it instantiates other files' shapes | **owed for its own rules**, the ones that are not an instantiation of a source |
+| [agent-traps](agent-traps.md) | n/a — adoptable cross-stack pack | **owed** | **owed** |
+
+**Doing one of these is a bounded session, not a research project.** The B-16 check
+is a read of the file asking one question per directive; the B-15 check is a list
+written before anything is verified. Neither needs a panel, and neither is allowed
+to promote a marker — a check that finds nothing changes no confidence marker,
+because finding nothing is not verification. What it may do is add directives, and
+then those arrive at the normal bar.
 
 ## Rule sources, and what creating a new stack pack must do
 
@@ -79,6 +116,22 @@ source carries that pack's dates because lifting the rules was not a new
 research pass. No `verified` date moved, and no rule changed meaning. The file
 itself moved later the same day — `packs/` → `packs/rule-sources/`, B-10 —
 which changed its path and nothing else.
+
+**It then grew for the first time by research rather than by lifting.** On
+2026-07-29 a persistence pass added `M-30` … `M-43` — a Persistence group
+covering the store boundary, plus the composite-shape table B-15 now requires of
+every source (DECISIONS.md B-16). Two things about it are new to this corpus and
+are the reason it is recorded here rather than only in the source. **The trail
+direction reversed:** the evidence is PostgreSQL's, MySQL's, SQL Server's and
+SQLite's documentation, so it sits in the *source* and the Java pack carries only
+its own checks — the opposite of every earlier money note, and correct for the
+same stated reason (evidence about one platform belongs to that platform's pack;
+evidence spanning platforms belongs to the source). And **the source produced its
+first concrete predicted divergence**: a repo whose store is SQLite can host
+neither the column-type rule nor most of the new group, because SQLite has no
+decimal storage class and ignores declared precision. That is the first evidence
+in this corpus about which money directives are genuinely platform-neutral, and
+it arrived without a second stack pack being written.
 
 ## Candidate sources
 
@@ -172,6 +225,22 @@ next source is framed:** list the shapes a repo will assemble *out of* the
 primitives the rules govern, and say for each whether it is permitted, banned, or
 out of scope. Silence there reads as nothing at all, which is worse than reading
 as coverage.
+
+**A fourth lesson, and it came from the oldest source rather than the newest**
+(DECISIONS.md B-16). `money-grade` shipped twenty-nine directives about money and
+every one of them was enforced by a check that reads **application source**. A
+stored amount also passes through the store's query language, and nothing in the
+source reached it: the arithmetic ban reported green over a `SUM` and over a
+query-builder expression whose static type is the builder's own, and the
+construction check was bypassed by letting the column round on write. The gap was
+not a missing rule — the file's Storage section looked answered, and the question
+"which column type?" *was* answered. **The gap was a missing layer.** So the
+check to run beside the composite-shape enumeration: **for each directive, name
+the language the check reads, then name every other language the same value
+passes through.** Query text, migration text, view definitions, a template, a
+serialized document, a spreadsheet a support engineer runs — a value that crosses
+into any of them has left the reach of the rule that governs it, and the rule
+still reads as complete.
 
 ## Harvest map — researched, unwritten
 

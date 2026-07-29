@@ -10,12 +10,63 @@ Versions 0.1.0 and 0.2.0 were development increments in this repository;
 ## [Unreleased]
 
 Design: DECISIONS.md B-13, **B-14, which supersedes B-13's routing
-recommendation the same day**, and **B-15, which extends the same source a third
-time that day**. One component change: `ci/check_packs.py` widens a pattern that
+recommendation the same day**, **B-15, which extends the same source a third
+time that day**, and **B-16, which extends the oldest source instead**. One
+component change: `ci/check_packs.py` widens a pattern that
 was reporting green over `E-n` in seed text. `packs/` itself is informative and no
 tooling installs it.
 
 ### Added
+
+- `packs/rule-sources/money-grade.md` — a **Persistence** group, `M-30` … `M-43`,
+  taking the source from twenty-nine directives to forty-three, plus the
+  composite-shape table B-15 now requires of every source. It governs what
+  crosses the store boundary: the store must reject an over-scale amount rather
+  than round it, money columns are constrained decimals with committed
+  constraints against non-finite values and against a null half of an
+  amount/currency pair, **arithmetic on money in the store's query language is
+  banned** with one conditioned aggregate exception, a row becomes a money value
+  only by construction at one named read boundary, the record of a money effect
+  is appended rather than updated, a mutable balance carries a version
+  precondition, a value-computing migration carries money math's evidence, and
+  the precision digits are stated against a named maximum. Two shapes are
+  **banned**: money computed by a trigger or generated column, and a money amount
+  in a document or JSON column.
+  **The finding behind it (B-16): a rule set is scoped to the layer its checks
+  read, and the rules never say so.** All twenty-nine earlier directives are
+  enforced by checks that read application source, so a `SUM`, a view that
+  multiplies by a rate, and a write that lets the column round were all outside
+  every one of them. The Storage section answered "which column type?" correctly
+  and read as complete.
+  **The pass had no panel, no hostile audit and no refutation votes** — nothing
+  in the group is confirmed, two of its outputs are bans, and `review-by` was
+  deliberately left at 2027-01-21 rather than re-leasing rules nobody re-checked.
+  Its cross-engine evidence sits in the source rather than in the Java pack,
+  reversing the trail direction for the first time, because it spans PostgreSQL,
+  MySQL, SQL Server and SQLite.
+- `packs/seed/java-backend.md` — a **Persistence** subsection under
+  `Money-grade rules` instantiating all fourteen with named checks: integration
+  tests against real PostgreSQL in a throwaway container for the rejection cases,
+  the existing schema lint extended over the committed Flyway migrations, an
+  ArchUnit predicate for the jOOQ arithmetic ban, one named row mapper as the only
+  store-to-money conversion, and squawk `changing-column-type` hosting the
+  column-alteration rule off the shelf. **Named blind spot, written into the seed
+  text rather than left implied:** query text assembled at runtime is reachable by
+  neither the lint nor the architecture rule.
+- `packs/research-protocol.md` — **three named pre-ship checks for a source**, in
+  §5 beside the three that already existed for a stack pack: the **B-13** check
+  (frame the predicate on what the rules must reach, not on the technology in the
+  name or the current recommendation), the **B-15** check (enumerate the shapes a
+  repo assembles out of the primitives and mark each permitted / banned / out of
+  scope), and the **B-16** check (name the language each directive's check reads,
+  then every other language the value passes through). All three were prose
+  scattered across `packs/index.md` and `CLAUDE.md`; they are now checks with
+  stable citations, and §5 says to run them on sources that already shipped.
+- `packs/index.md` — an **Audits owed** table: which pack or source has had which
+  of those three checks, with four cells outstanding. **None of the three is
+  machine-checkable**, which is why it is a table and not a CI step — a file can
+  pass `ci/check_packs.py` and fail all three — and an empty cell is a check
+  nobody ran rather than a clean file.
 
 - `packs/rule-sources/event-broker-discipline.md` — the corpus's **third
   cross-stack source**, twenty-eight directives `E-1` … `E-28` covering the

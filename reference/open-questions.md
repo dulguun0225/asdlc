@@ -134,8 +134,9 @@ The bundle's `CLAUDE.md` now forbids creating a `.github/` there rather than war
 that existed.
 
 **The pack corpus gained a rule *source*, and it is written.**
-[`packs/rule-sources/money-grade.md`](../tools/spec-kit-bundle-nc/packs/rule-sources/money-grade.md) holds 29 money
-directives (`M-1` … `M-29`) stated platform-neutrally
+[`packs/rule-sources/money-grade.md`](../tools/spec-kit-bundle-nc/packs/rule-sources/money-grade.md) holds **43** money
+directives (`M-1` … `M-43`, the last fourteen added by the 2026-07-29 persistence pass — B-16, and
+read that pass's markers as capped at primary-source verified) stated platform-neutrally
 ([`DECISIONS.md`](../tools/spec-kit-bundle-nc/DECISIONS.md) B-8, amended 2026-07-28): no seed
 file, never adopted, and **every stack pack instantiates it** — each rule written into that pack's
 own seed text with that stack's named check, or named as a gap with its reason, or recorded as a
@@ -194,7 +195,125 @@ choose between options here. Research it, decide it, record it, and say what wou
 
 ---
 
-### Last session: 2026-07-29 — the event-broker source's five unexamined shapes are closed, and a gate had a hole in the ids it was guarding
+### Last session: 2026-07-29 — the money source had no rules for the database, and the gap was a whole layer
+
+**It started as a user question with a half-wrong premise, and that is the point.** The owner asked
+"DB related rules seem to be missing in money-grade — for example which type of column do we store
+them in?" The column-type question *was* answered: `M-10` has been there since the founding pass —
+exact decimal, explicit precision and scale, scale 4, no float column, no vendor `money` type. The
+Storage section was not missing. **What was missing sat one layer down**, and nothing in the file
+pointed at it. The owner then said "run one scoped to persistence".
+
+**The finding, and it is the reusable one** ([`DECISIONS.md`](../tools/spec-kit-bundle-nc/DECISIONS.md)
+**B-16**): **a rule set is scoped to the layer its checks read, and the rules never say so.** All
+twenty-nine directives in `money-grade` are enforced by checks that read **application source** —
+an architecture rule, a compiler or linter check, a parse test, a property test. A stored amount
+also travels through the store's query language, and **nothing reached it**: the ban on
+exact-decimal arithmetic outside the money module reports green over `SUM(amount)`, over an
+`amount * rate` in a view, and over a query-builder expression whose static type is the builder's
+own; the construction check that rejects excess precision is bypassed by a write that lets the
+column round instead. And the "no repo-wide default rounding mode" rule is defeated outright,
+because **the database is one**, applied at every write.
+
+**The check to run from here, and run it on old sources rather than only new ones:** for each
+directive, name the language its check reads, then name every other language the same value passes
+through — query text, migration text, view definitions, a serialized document, a script a support
+engineer runs. This failure sat in the **oldest** source, which had been read, lifted and
+re-reconciled three times without anyone noticing. It is a different failure from B-13's (predicate
+framed around the wrong technology) and B-15's (composite shapes never enumerated), and it is now
+the fourth entry in that family.
+
+**What landed.** `money-grade` goes from **29 directives to 43** — a `Persistence` group,
+`M-30` … `M-43`, plus the composite-shape table B-15 now requires of every source. The store must
+reject an over-scale amount rather than round it; money columns are constrained decimals carrying
+committed constraints against non-finite values and against a null half of an amount/currency pair;
+**arithmetic on money in the query language is banned**, with one conditioned aggregate exception; a
+row becomes a money value only by construction at one named read boundary; the record of a money
+effect is appended rather than updated; a mutable balance carries a version precondition; a
+value-computing migration carries money math's evidence; and the precision digits are stated
+against a named maximum. `packs/seed/java-backend.md` instantiates all fourteen with named checks
+(containerised PostgreSQL integration tests, the existing Flyway schema lint, an ArchUnit predicate
+for the jOOQ arithmetic ban, one named row mapper, squawk `changing-column-type`).
+
+**Two shapes are banned, and each names the org fact it rests on.** Money computed by a trigger,
+rule or generated column — the effect fires from no written call and its arithmetic is invisible to
+every check. A money amount inside a document or JSON column — one number type, a float by corpus
+default, and every constraint in the group defeated at once. Both carry re-open conditions.
+
+**The trade-off, recorded because it is a real cost.** Banning arithmetic in the query language
+also bans `UPDATE … SET amount = amount + ?` — the idiom every corpus recommends **for
+concurrency**, and correct about concurrency. The append-only shape is how both rules hold at once;
+it was derived from that collision, not from a preference for ledgers.
+
+**Read the markers before building on this.** The pass had **no panel, no hostile audit and no
+refutation votes** — one researcher against vendor documentation. Nothing in the group is
+**confirmed**; the ceiling is **primary-source verified**, and two of the outputs are bans whose
+rejected case nobody independently argued. That is the third time in three days this corpus has
+recorded a short-of-protocol pass, and it is the first re-open trigger in the source's section 6.
+**`review-by` was deliberately left at 2027-01-21** rather than moved to 2027-01-29 — moving it
+would have re-leased twenty-nine rules nobody re-checked.
+
+**Two things changed that were not new rules.** `M-10`'s ban on vendor money column types went from
+**convention** to primary-sourced without a word of it moving: PostgreSQL's `money` takes its scale
+from the `lc_monetary` **server setting**, and SQL Server's own documentation warns against its
+money type for values "used in calculations" and says to use decimal "with at least four decimal
+places" — a second vendor reaching scale 4 by a different route than the ISO 4217 argument. And
+`M-10`'s "explicit precision and scale" clause finally has its reason: an unconstrained decimal is
+the only column type in which PostgreSQL can store an infinity.
+
+**Do not reintroduce two figures.** The "result scale of a numeric multiplication is the sum of the
+operand scales" rule is widely repeated and is **not** in PostgreSQL's documentation; nothing here
+depends on it. And "parallel query makes a float sum non-deterministic" is a `pgsql-hackers` claim,
+not documentation — `parallel-safety.html` was read for exactly that and says nothing about it. The
+documented ground for the float ban is `xaggr.html`'s worked example, where a `float8` sum returns
+`0` where the answer is `1`.
+
+**The first concrete predicted divergence, and it arrived without a second stack pack.** A repo
+whose store is SQLite can host neither `M-10` nor most of the new group: SQLite has five storage
+classes, none of them decimal, and its documentation states that numeric arguments in parentheses
+after a type name "are ignored". That is the first evidence in this corpus about which money
+directives are genuinely platform-neutral.
+
+**One structural first: the trail direction reversed.** Every earlier money note lives in
+`java-backend.md` section 4, and the source says a marker there is only ever a copy of one in the
+pack. This pass's evidence spans PostgreSQL, MySQL, SQL Server and SQLite, so it sits in the
+**source**, and the Java pack carries only its own findings — the jOOQ typing hole
+(`Field.add/sub/mul/div` return `Field<T>`, `DSL.sum`/`DSL.avg` return
+`AggregateFunction<BigDecimal>`, so a check keyed on `BigDecimal` sees none of it), the
+generated-package exclusion that forces the read-boundary rule to be written caller-side, and
+squawk hosting the column-alteration rule off the shelf. Both files state the split, because
+`ci/check_packs.py` cannot check filing accuracy and says so on every run.
+
+**A pre-existing inconsistency, now stated rather than fixed.** `M-10` excludes storing an amount
+as an integer number of minor units by requiring an exact decimal column, while its own evidence
+note records that no evidence survived choosing between that and `numeric(19,4)` or `numeric(20,4)`
+— a rule whose wording decides what its trail calls undecided. It now says so, marked convention,
+with the case for the rejected form written out (an integer column cannot be over-scale, which
+removes the whole rounding failure mode) and a re-open condition. Two stacks the index already
+predicts will strain this source are where it will come up.
+
+**Checks run:** `python ci/check_packs.py` (OK — 2 packs, 2 seed files) and
+`python ci/check_specs.py --self` (OK — 1 feature folder). Nothing else in the repository needed a
+count updated beyond the roster, the date mirror and the changelog.
+
+**Next session, if it picks this up:** the panel is the one thing outstanding on this pass, and it
+would promote markers rather than add rules.
+
+**The rest was turned into a standing backlog instead of a note, because this is the third defect of
+its family and there will be a fourth.** The three checks that catch them — B-13 (predicate framing),
+B-15 (composite shapes), B-16 (layer scoping) — are now named pre-ship checks in
+[`packs/research-protocol.md`](../tools/spec-kit-bundle-nc/packs/research-protocol.md) §5 rather than
+prose scattered across three files, and which file has had which check is a table in
+[`packs/index.md`](../tools/spec-kit-bundle-nc/packs/index.md) → *"Audits owed"*. **Four cells are
+owed**, the largest being B-16 across `cache-discipline` (values cross into a serializer and onto the
+cache's wire format) and `event-broker-discipline` (into a payload contract and an outbox row).
+**None of the three is machine-checkable**, all three were found after the file had shipped, and one
+was found in the oldest source after three re-readings — so an empty cell is a check nobody ran, not
+a clean file. Each is a bounded session; none blocks anything.
+
+---
+
+### Session before: 2026-07-29 — the event-broker source's five unexamined shapes are closed, and a gate had a hole in the ids it was guarding
 
 **Third change to that source in one day** (B-13 wrote it, B-14 reversed its recommendation, **B-15**
 extends it). It started as a question — the owner asked what patterns an event broker supports
@@ -2359,4 +2478,18 @@ Phase-2 content needs research sessions, not assembly — the research-before-co
 Questions belong in the numbered list above only once they are stated precisely
 enough to point a session at. Rough ideas can sit here first.
 
-*(empty)*
+*(empty — no ASDLC design question is open.)*
+
+**The bundle's backlog is not here, and one item on it is worth knowing about from
+this file.** `OQ-N` numbers ASDLC design questions; the bundle carries its own
+registry in its own subtree ([`CLAUDE.md`](../CLAUDE.md), two decision
+registries). The item: **three defect classes the pack corpus found in itself,
+none of them machine-checkable, tracked as a table of which file has had which
+check** —
+[`packs/index.md`](../tools/spec-kit-bundle-nc/packs/index.md) → *"Audits owed"*,
+with the checks themselves defined in
+[`packs/research-protocol.md`](../tools/spec-kit-bundle-nc/packs/research-protocol.md)
+§5. All three were found **after** the file in question had shipped and been read
+repeatedly, and one was found in the oldest source in the corpus after three
+re-readings, so an unaudited row is a check nobody ran rather than a clean file.
+Each row is a bounded session and none of them blocks anything.

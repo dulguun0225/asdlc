@@ -134,7 +134,45 @@ amended 2026-07-28):
   file lands in a constitution that holds no copy of this corpus, so a cited
   id is a dangling pointer — a failure this corpus has already made once.
 
-**Two of these three are machine-checked**, by `ci/check_packs.py` in
+Three more, and these are for a **source** before it ships. Each exists because
+a shipped source failed it, each is named by the decision that recorded the
+failure, and **none of the three is machine-checkable** — a source can satisfy
+every check above, pass `ci/check_packs.py`, read as thorough, and still fail all
+three. Cite them as "the B-13 check", "the B-15 check", "the B-16 check"; never
+by position in this list.
+
+- **The predicate check (B-13).** Frame the `holds-when` predicate on **what the
+  rules must reach**, never on the technology in the source's name and never on
+  what the source currently recommends. Two sources in a row scoped their seam to
+  the obvious client library and left the cheapest correct option — which imports
+  no client — outside every check. One of them had its recommendation reversed
+  hours after shipping while the widened predicate survived untouched, which is
+  the argument for the rule in one sentence.
+- **The composite-shape check (B-15).** List the shapes a repo will assemble *out
+  of* the primitives the directives govern, and mark each **permitted**,
+  **permitted with conditions**, **banned**, or **out of scope**. Naming the
+  undecidable properties *inside* each directive does not surface a shape nobody
+  wrote a rule about — one source did the former diligently and passed over five
+  whole shapes in silence. Silence about a shape reads as nothing at all, which
+  is worse than reading as coverage. Every ban names the organisation fact it
+  rests on and the trigger that reopens it.
+- **The layer check (B-16).** For **each directive**, name the language its check
+  reads — then name every other language the same value passes through. Query
+  text, migration text, view and function definitions, a template, a serialized
+  document, a script someone runs by hand. A value that crosses into any of them
+  has left the reach of the rule that governs it, and the rule still reads as
+  complete. The source this was found in had twenty-nine directives all enforced
+  over application source, a section that correctly answered "which column
+  type?", and nothing at all about the store's query language. **The gap was not
+  a missing rule; it was a missing layer.**
+
+**Run all three on sources that already shipped, not only on the next one.** The
+layer check was failed by the *oldest* source in the corpus, which had been read,
+lifted and re-reconciled three times without anyone noticing. Which source has
+had which check is tracked in [index.md](index.md), "Audits owed" — that table is
+the backlog, and an unaudited row is not evidence of a clean source.
+
+**Two of the first three are machine-checked**, by `ci/check_packs.py` in
 bundle-checks.yml: the evidence-grouping rule above (every evidence subheading
 names a seed section, and their order matches the seed's) and the
 no-ids-in-seed-text rule (`P-n`, `M-n`, `C-n`, a principle by number, or any

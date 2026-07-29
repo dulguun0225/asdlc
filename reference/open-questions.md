@@ -194,7 +194,14 @@ choose between options here. Research it, decide it, record it, and say what wou
 
 ---
 
-### Last session: 2026-07-29 — the event-broker source is written, and it had to stop short of the protocol
+### Last session: 2026-07-29 — the event-broker source is written, then its central recommendation is reversed
+
+**Read this heading as two sessions' work merged into one entry, because the second one only
+changed the first's conclusion.** The source was written and shipped recommending a polled database
+table over a broker; a later session the same day reversed that on the owner's direction (B-14) and
+edited this entry in place rather than appending a near-duplicate. Everything below reflects the
+state **after** the reversal. The withdrawn thresholds are named where they matter, because an
+agent will otherwise reconstruct them from its training corpus.
 
 The owner asked for event-broker files under `packs/` "like we did with cache", named Kafka as the
 likely pick, and asked for deep research on both the pick and the discipline.
@@ -212,35 +219,74 @@ and default-configuration* facts sit at single-researcher primary-source verific
 **confirmed**. Running those votes is the first re-open trigger in the source and in the pack. **Do
 not quietly upgrade the markers instead.**
 
-**The pick, and it is not what the owner expected — that is the useful part.** Kafka is not the
-answer for most repos here; **no broker is.** A queue table in the service's own PostgreSQL, claimed
-with `FOR UPDATE SKIP LOCKED` plus a transactional outbox, is the recommendation, because the state
-change and the enqueue are then one transaction and the dual write becomes structurally impossible
-rather than disciplined — which is worth more under "no human reads the code" than any broker
-feature. Kafka in KRaft mode is the **conditional escalation**: Apache-2.0, nothing held back, share
-groups covering the queue case since 4.2.0 — conditional on a named owner for the cluster and its
-metadata version (a downgrade out of 4.3 is unsupported), with Strimzi on Kubernetes and NATS
-JetStream at three replicas as the substitute off it. **That condition is [OQ-10](#oq-10--who-fills-the-platform-owner-role),
-still open**, which is worth noticing: an open staffing question is now load-bearing for a technology
-verdict, not just for the rollout. Redpanda and AutoMQ are banned by name; RabbitMQ is permitted only
-for strict message priority. On cloud the pick is the platform's own queue or publish-subscribe
-service, never managed Kafka — the deciding number is the **per-cluster billing floor** (roughly $550
-a month for one idle serverless Kafka cluster, ×18 teams) against a $0 floor for the queue-shaped
-services.
+**The pick, as it stands after the same-day reversal below.** **One asynchronous mechanism: an
+outbox row plus a broker.** Application code writes a row in the state change's transaction; a relay
+claims it and publishes to the broker; consumers subscribe, including consumers inside the producing
+deployable. Self-hosted the broker is **Kafka in KRaft mode** — Apache-2.0, nothing held back, share
+groups covering the queue case since 4.2.0 — with Strimzi on Kubernetes and NATS JetStream at three
+replicas as the substitute off it. A **named owner for the cluster and its metadata version** (a
+downgrade out of 4.3 is unsupported) is now a **prerequisite, not a condition**: that is
+[OQ-10](#oq-10--who-fills-the-platform-owner-role), **still open, and it now blocks every
+self-hosted repo that hands work off asynchronously** rather than only those that would have crossed
+a threshold. An open staffing question is load-bearing for a technology verdict, not just for the
+rollout. Redpanda and AutoMQ are banned by name; RabbitMQ is permitted only for strict message
+priority. On cloud the pick is the platform's own queue or publish-subscribe service, never managed
+Kafka — the deciding number is the **per-cluster billing floor** (roughly $550 a month for one idle
+serverless Kafka cluster, ×18 teams) against a $0 floor for the queue-shaped services.
 
-**Three findings that outlive this source.**
+**The outbox is not the transport, and it did not go away.** It is the durable record of intent, and
+it is what makes the dual write impossible rather than disciplined — a commit and a publish are not
+one transaction, so publish-after-commit *is* the dual write whatever the transport is. A repo that
+adopts the broker and drops the outbox has the failure the source was written for.
+
+**The source shipped recommending the opposite and was reversed within hours
+([`DECISIONS.md`](../tools/spec-kit-bundle-nc/DECISIONS.md) B-14).** Its first version made a polled
+table in the service's own PostgreSQL the recommendation, with a broker as a conditional escalation
+above three named thresholds (T1 a consumer cannot read the producer's database, T2 two consumers
+need independent retention or replay, T3 the queue table's measured cost exceeds a committed budget).
+The owner reversed it on reading the source — *"that's complicated as hell conceptually"* — and the
+reversal is recorded, not hidden, because **the reason is a design cost and not a new fact**: each
+threshold traced to a primary source and every directive was decidable by a check, but the *choice
+between rule sets* had to be made at a plan gate staffed by a team leader, an AI solution engineer
+and a domain owner, with no distributed-systems reader and no colleague to check the answer. Three
+shapes to learn, and nothing at the gate saying which shape a repo was in. **The thresholds are
+withdrawn and in do-not-reintroduce**; an agent reading a broker-versus-table argument out of its
+training corpus will reconstruct something close to T1.
+
+**What the reversal cost, stated so it is not rediscovered.** OQ-10 becomes blocking (above); the
+four-configuration evidence gate is now unconditionally the most expensive gate in either source,
+because three of its arms were cheap only while the transport was a table; and an event consumed only
+inside its producing deployable still crosses the broker, costing a database round trip plus a
+publish. The trigger that reopens it: the named owner not materialising, the three-node minimum being
+refused, or the managed bill for eighteen teams exceeding what the org will pay. **If it reopens, a
+non-broker shape returns as a second named shape with its own complete check set — never as a
+threshold argument at the plan gate.**
+
+**Four findings that outlive this source.**
 
 1. **A source's predicate is not the technology in its name**, and this is the second time the same
    defect was caught pre-ship. The rostered `message-broker` row scoped the rules to "repos that
-   consume a queue" — which would have left the option the source *recommends* outside all
-   twenty-eight checks, exactly as `cache-discipline`'s first seam draft left every in-process cache
-   unguarded. Twice is a pattern; it is now stated in `packs/index.md` and the bundle's `CLAUDE.md`
-   as something to check when the next source is framed.
-2. **A committed claim was wrong and is corrected**: a lost post-commit cache delete does *not*
+   consume a queue" — which would have left the cheapest correct option outside all twenty-eight
+   checks, exactly as `cache-discipline`'s first seam draft left every in-process cache unguarded.
+   Twice is a pattern; it is now stated in `packs/index.md` and the bundle's `CLAUDE.md` as something
+   to check when the next source is framed. **The reversal strengthened this finding rather than
+   dating it:** the widened predicate was written to cover the shapes the source *recommended*, and
+   when the recommendation flipped those shapes became forbidden ones that the seam still had to
+   reach. A predicate framed around the recommendation would have needed rewriting; one framed
+   around what the rules must reach did not.
+2. **A branch a source offers must name who decides it and what they would have to know**, and this
+   is the reversal's own lesson (B-14). `event-broker-discipline` shipped with three thresholds
+   routing between a table and a broker; each traced to a primary source, and every directive was
+   decidable by a named check. What nothing tested was whether the *choice between rule sets* was
+   decidable by the people at the gate — a team leader, an AI solution engineer and a domain owner.
+   It was not, and the source was reversed within hours. **The corpus had been asking "is this rule
+   checkable" and skipping "is this choice makeable here".** If a branch's decider is the plan gate
+   and the knowledge is not in this org, the branch is not a feature. Recorded in `packs/index.md`.
+3. **A committed claim was wrong and is corrected**: a lost post-commit cache delete does *not*
    "degrade to a miss" — it serves the stale value until expiry, and C-7's committed staleness
    ceiling is what bounds it. The inversion still holds (a lost publish is unbounded and permanent),
    but on the honest ground.
-3. **A cross-source interlock that would have voided the new central directive.** If a repo satisfies
+4. **A cross-source interlock that would have voided the new central directive.** If a repo satisfies
    `cache-discipline` C-9 with a general `afterCommit(Runnable)`, the broker source's
    publish-confinement rule is defeated entirely — nothing at a call site distinguishes a cache
    delete from a publish. Recorded in both files as a dated addition; no directive changed.
@@ -258,9 +304,22 @@ all three negative probes still red for the right reasons, the advisory freshnes
 new file (the B-10 blind spot did not recur), no CRLF. Not run: `specify bundle validate`, which no
 `packs/` change can affect.
 
-**What the next session should pick up.** Either run the missing refutation votes on the broker
-source's tool claims — the cheapest way to finish what this one started — or take the standing first
-action in START HERE. Nothing in the design is blocked by this work.
+**What the next session should pick up.** Three candidates, in the order they matter:
+
+1. **Ask the owner about OQ-10 with the new stakes on the table.** B-14 turned it from a gate-config
+   staffing question into a hard prerequisite for every self-hosted repo that publishes anything.
+   Two sub-questions the owner holds and nobody else can: is cluster ownership the *same* role as
+   gate ownership, and if nobody can own a Kafka cluster, does the org prefer the cloud variant here
+   or does B-14 reopen? **Do not research this one — it is a staffing fact.**
+2. **Run the missing refutation votes on the broker source's tool claims** — the cheapest way to
+   finish what the pass before this one started, and it promotes the section-4 framework and
+   toolchain facts from single-researcher verification to confirmed.
+3. Otherwise take the standing first action in START HERE.
+
+**Nothing in the design is blocked by the reversal itself**, and the seed rule count is unchanged at
+141 in 18 sections — `E-4` and `E-28` were reworded, not added or removed. What *is* newly blocked is
+narrower and real: a self-hosted repo cannot ship an asynchronous handoff until OQ-10 is answered,
+and until then the compliant answer is to keep the work synchronous.
 
 ---
 
@@ -1801,6 +1860,24 @@ Phase-2 content needs research sessions, not assembly — the research-before-co
   role may write. With 18 three-person product teams and no platform, security, or
   infrastructure role named ([context.md](context.md)), that artifact is currently unowned
   and unreviewable.
+
+  **Widened 2026-07-29 — it now also blocks any self-hosted repo that hands work off
+  asynchronously.** `tools/spec-kit-bundle-nc/DECISIONS.md` B-14 makes a message broker the
+  only permitted asynchronous mechanism, and the self-hosted pick (Apache Kafka in KRaft
+  mode) carries a named owner for the cluster, its upgrade calendar and its **metadata
+  version** as a *prerequisite* rather than a condition — a metadata downgrade out of 4.3 is
+  unsupported, so finalising an upgrade is a one-way door. B-13 had made that a condition on
+  an escalation most repos would never take; B-14 removed the escalation, so it binds
+  everywhere. **Until the role is filled, a self-hosted repo's compliant answer is to keep
+  the work synchronous.** The cloud variant does not have this block: a managed queue has
+  close to no operational surface.
+- **Cluster ownership is a different scope from gate ownership, and the same person may not
+  fit both.** The scope below is review authority over gate configuration. A Kafka cluster
+  needs JVM heap, garbage-collection and page-cache tuning plus an upgrade calendar — a
+  skill no role in [context.md](context.md) holds. Whether this is one role or two is part of
+  what closing this question decides. If the answer is that nobody can own a cluster, the
+  cost trigger in `packs/rule-sources/event-broker-discipline.md` section 6 reopens B-14
+  rather than leaving repos blocked.
 - **What would close it:** two named people — one platform owner and one backup, because a
   single holder is a bus factor of one on the gate configuration. Neither may be an AI
   solution engineer on a delivery team, or the producer signs their own T1 changes.

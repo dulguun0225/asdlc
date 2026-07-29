@@ -10,6 +10,12 @@ status: decided, not yet validated (researched 2026-07-29 — design steelman,
   three-vote refutation the research protocol requires was not run on the
   load-bearing claims; one hostile audit stands in its place. Read that before
   picking the stack pack that instantiates them.
+  **Amended 2026-07-29 (same day), by the owner:** the broker is now the only
+  permitted asynchronous mechanism. The first version recommended a polled table
+  in the service's own database and made the broker a conditional escalation
+  above three thresholds; the thresholds are withdrawn as unusable at the plan
+  gate. The outbox is unchanged and still mandatory. No directive was deleted;
+  E-4 and E-28 are reworded and section 1 is rewritten. See DECISIONS.md B-14.
 holds-when: code is written by LLM agents and no human reads it line by line;
   the repo hands work off **asynchronously** — the caller's control flow does
   not contain the work's execution. That covers a broker or a managed queue,
@@ -64,8 +70,7 @@ cache *client library*, which left every in-process cache outside all sixteen
 checks. The equivalent hole here is worse. All of these hand work off
 asynchronously and import no broker client:
 
-- a table in the service's own database, polled by a scheduled job — **the
-  option this source recommends most repos take**;
+- a table in the service's own database, polled by a scheduled job;
 - an in-process event bus, or a framework's application-event publisher;
 - a fire-and-forget submit to a thread pool, an async annotation, or a bare
   virtual-thread start;
@@ -73,99 +78,143 @@ asynchronously and import no broker client:
 - a scheduled scan that finds rows in a state and acts on them.
 
 Every one produces at-least-once or at-most-once delivery, duplicate execution,
-poison items, ordering assumptions and a failure destination nobody reads. If
-the rules bind only a broker client then **the cheapest correct option is the
-one option with no rules watching it**, and that is the option the source
-recommends. So the seam is a *messaging adapter*, and E-1 is written as an
+poison items, ordering assumptions and a failure destination nobody reads. **The
+single-mechanism rule makes this widening more load-bearing rather than less.**
+Under the first version of this source these shapes were governed alternatives,
+so a seam that missed one left it merely unguarded. They are now *forbidden*
+alternatives, and a seam scoped to a broker client would leave every one of them
+unguarded **and** available — the cheapest way to satisfy the rules would be to
+step outside them. So the seam is a *messaging adapter*, and E-1 is written as an
 allow-list rather than a ban list — a hostile audit found the ban-list version
 green over `supplyAsync`, a bare virtual-thread start, an async annotation, a
 scheduling annotation, a reactive subscribe and a cron entry in a deployment
 manifest, while the rule's own prose said "any asynchronous shape".
 
-### Do not introduce a broker. Introduce a table
+### One mechanism: an outbox row and a broker. There is no second option
 
-**The sibling source's first instruction is *do not cache*, and that argument
-does not transfer.** Three asymmetries, recorded because the symmetry is the
-easiest error to make here:
+**Every asynchronous handoff goes through the outbox and the broker.** There is
+no threshold to evaluate and no cheaper shape to pick. Application code writes a
+row in the state change's transaction; the relay claims the row and publishes it
+to the broker; consumers subscribe. That is the whole topology, and it is the
+same topology whether the consumer is another team's service or a class in the
+same deployable.
 
-1. **A broker is sometimes the only correct structure.** Work that must survive
-   the request, a rate-limited external call, a scheduled retry, a fact another
-   team's service needs — none has a correct synchronous form. A cache always
-   has one: compute the value.
-2. **The derived-store premise fails.** A cache entry is recomputable from the
-   authoritative store, which is why a cache failure degrades to a miss. A
-   message between publish and successful processing exists **only** in the
-   broker unless a producer-side row is retained. Losing it is not a miss; it
-   is a fact that never happened downstream and that nothing anywhere records
-   should have.
-3. **So the operational stakes are higher, not equal.** An unavailable cache is
-   degraded service. An unavailable broker is either lost work or a stopped
-   producer, and a broker is a stateful clustered service somebody patches,
-   sizes, monitors and fails over. Eighteen three-person teams, one engineer
-   each, no platform or operations role: there is no somebody.
+**This reverses the first version of this source, which recommended a polled
+table in the service's own database and made the broker a conditional escalation
+above three named thresholds. The owner reversed it on 2026-07-29, and the reason
+is a design cost rather than a new fact.** The thresholds were T1 (a consumer
+cannot read the producer's database), T2 (two consumers need independent
+retention or replay of the same fact) and T3 (the queue table's measured cost
+exceeds a committed budget). Each was defensible on its own evidence, and
+together they were unusable:
 
-The cheapest correct asynchronous primitive for a three-person greenfield team
-is a durable table in the database the service already runs. PostgreSQL's own
-documentation names the use: skipping locked rows "provides an inconsistent
-view of the data, so this is not suitable for general purpose work, but can be
-used to avoid lock contention with multiple consumers accessing a queue-like
-table" (`SELECT` documentation, read 2026-07-29). Two clauses of that sentence
-are load-bearing in both directions and E-8 carries them: the claim must be
-transaction-scoped rather than a status column, or a dead worker strands rows
-with no error; and skipping locked rows gives **no ordering**, which is why a
-relay that claims rows concurrently destroys the order E-15 then preserves at
-the broker.
+1. **The routing decision was undecidable and landed on the wrong reader.** E-28
+   made "which threshold is crossed" a spec-and-review item, so the argument had
+   to be made and judged at the plan gate. The people at that gate are a team
+   leader, an AI solution engineer and a domain owner — no distributed-systems
+   engineer, no operations role, and no colleague to check the answer. A
+   threshold nobody present can evaluate is P-6's corpus-dominant wrong pick with
+   extra steps: the team takes whichever branch the agent proposed first.
+2. **The branches had different rule surfaces, so the wrong branch was also the
+   less-guarded one.** A table-as-transport repo, a same-deployable relay target
+   and a broker repo satisfied the twenty-eight directives through different
+   mechanisms — three shapes to learn, three sets of checks to instantiate, and
+   nothing at the gate that says which shape a given repo is. **Conceptual load
+   on the adopting team is a cost this corpus has to pay, and the first pass did
+   not count it.**
+3. **T1 was predicted to fire anyway.** The first version of this section said
+   T1 "is the discriminating threshold and the one that actually fires in an
+   eighteen-team org". A default the source itself expects to be displaced in the
+   common case is not a default; it is a branch with a misleading name.
 
-What the table gives that a broker does not: the enqueue is in the same
-transaction as the state change, so the dual write is **structurally absent**
-rather than disciplined; the dedup record is in the same store and the same
-transaction as the effect; the queue's schema is in the committed migrations;
-and three of E-24's four evidence arms become cheap, because duplicating and
-reordering are harness-level and "unavailable" is a transaction failure. That
-last point is a stronger argument for the table than any of the three
-asymmetries above, and it is the one an adopting repo will feel.
+**One asymmetry against the sibling source survives, and it is now the ground for
+the outbox rather than for the table.** A cache entry is recomputable from the
+authoritative store, which is why a cache failure degrades to a bounded stale
+read. A message between publish and successful processing exists **only** in the
+broker unless a producer-side row is retained. Losing it is not a miss; it is a
+fact that never happened downstream and that nothing anywhere records should
+have. That is why a mandatory broker does not make the outbox optional — the next
+heading states it as a rule.
 
-**The thresholds. A broker is warranted when one of these is crossed, and not
-otherwise:**
+**Two asymmetries are withdrawn as load-bearing arguments**, and they are
+recorded rather than deleted so a later pass does not re-derive them as reasons
+to reopen the table. "A broker is sometimes the only correct structure" is now
+trivially true, because it is the only structure. And "the operational stakes are
+higher, so a threshold must be crossed" is the argument the reversal overrides:
+the stakes are unchanged, and the answer to them is a named cluster owner rather
+than an avoided cluster.
 
-- **T1 — a consumer cannot read the producer's database.** A different trust
-  boundary, a different network, a third party, or an organisational rule
-  against sharing a schema. **This is the discriminating threshold and the one
-  that actually fires in an eighteen-team org.**
-- **T2 — two consumers need independent retention or replay of the same fact.**
-  Not merely two consumers: a table with a cursor per consumer serves two
-  consumers. What it does not serve is a consumer that must read facts produced
-  before that consumer existed, or two consumers whose retention needs differ.
-  **T2 is what warrants a log-shaped broker specifically**; T1 alone warrants
-  only a queue.
-- **T3 — the queue table's measured cost exceeds a committed budget.** The p99
-  latency the enqueue adds to the state-change transaction, plus the dead-tuple
-  and autovacuum load attributable to the table. **No throughput number is
-  asserted here.** None was verified in this pass and none may be carried
-  forward from memory; the repo measures and commits its own.
+### The broker is mandatory and so is the outbox. They stop different failures
 
-**Do not restate T1 as "more than one deployable consumes the same fact".** A
-draft did, and the audit refuted it: a table with per-consumer cursors handles
-exactly that case, so the threshold would trigger a broker for the case the
-recommendation already covers.
+**The broker is the transport. The outbox is the durable record of intent, and
+making the broker mandatory does not remove the failure the outbox exists to
+stop.** A database commit and a publish are not one transaction, and the process
+can die between them in either order. Publishing after the commit *is* the dual
+write: the commit succeeded, the process died, the event never went, and nothing
+records that it should have. E-5 states this; E-6, E-7, E-8 and E-9 enforce it. A
+repo that adopts the broker and drops the outbox has exactly the failure this
+source was written for, and it is the most likely misreading of the reversal.
 
-**Crossing a threshold warrants a broker; it does not warrant a log.**
-Queue-shaped is the default. Log-shaped is warranted by T2, and it costs the
-per-message acknowledgement that makes E-16 and E-17 cheap.
+So the outbox table survives the reversal unchanged, **and it is not a
+transport**: nothing subscribes to it and nothing outside the relay module reads
+it. PostgreSQL's own documentation names the claim shape: skipping locked rows
+"provides an inconsistent view of the data, so this is not suitable for general
+purpose work, but can be used to avoid lock contention with multiple consumers
+accessing a queue-like table" (`SELECT` documentation, read 2026-07-29). Two
+clauses of that sentence are load-bearing in both directions and E-8 carries
+them: the claim must be transaction-scoped rather than a status column, or a dead
+worker strands rows with no error; and skipping locked rows gives **no
+ordering**, which is why a relay that claims rows concurrently destroys the order
+E-15 then preserves at the broker.
 
-**Variant answers, and they converge on the rule while diverging on the
-reason.** Self-hosted: a broker is a clustered stateful service with nobody to
-operate it, so a threshold must be crossed and the licence question is live
-(section 7). Cloud: a managed queue has close to no operational surface, so the
-operations argument nearly vanishes — but **all twenty-eight directives still
-bind**, because the correctness surface is identical. On cloud the reason to
-prefer the table is that it deletes twenty-eight rules' worth of exposure, not
-that it deletes a server.
+**What the reversal simplifies is the relay, and that is the design gain worth
+stating.** In the first version the relay had three possible target types — a
+broker, a queue table another deployable polls, and an in-process dispatch — and
+E-8's rules had to hold across all three. It now has one. "Where does this event
+go" has a single answer in every repo, and E-1's allow-list is what makes the
+alternatives unwritable rather than merely discouraged.
 
-**This section is spec-and-review.** "Should this repo have a broker" is not a
-machine-decidable predicate. The decidable residue is the citation obligation
-in E-28 and, once a catalog exists, the count of distinct consuming deployables
-in it.
+**What it costs, stated rather than hidden.** Three of E-24's four evidence arms
+were cheap under the table-as-transport option, because duplicating and
+reordering were harness-level and "transport unavailable" was a transaction
+failure. Against a real broker in a container they are not, so E-24 is now
+unconditionally the most expensive gate in either source; section 6 carries the
+trigger for when its measured cost is reported. And work that was a bare executor
+submit now costs a database round trip plus a publish where it previously cost
+neither.
+
+**The three thresholds are withdrawn and must not return.** They are named above
+so a later pass can see what was decided and why it was undone; they are not live
+rules, and section 5 carries them in do-not-reintroduce. A plan arguing that a
+threshold is not crossed is arguing against this section.
+
+**Queue-shaped versus log-shaped is still a real distinction, and it is now a
+transport-pick question rather than a per-subscription threshold.** E-16, E-17,
+E-24 and E-26 read a broker-shape declaration from the catalog, because retry
+shape and acknowledgement granularity genuinely differ between the two. What
+changed is who decides: the shape follows the one transport the repo runs, named
+in a dated line of the stack pack's seed text, rather than an argument made per
+subscription at the plan gate. Log-shaped costs the per-message acknowledgement
+that makes E-16 and E-17 cheap, and that cost is now paid once per repo where it
+used to be re-argued per fact.
+
+**Variant answers, and they diverge on cost rather than on the rule.**
+Self-hosted: the broker is a clustered stateful service, and **a named owner for
+it is now a prerequisite rather than a condition on an escalation** — the
+self-hosted variant cannot be built without one, which makes an open staffing
+question load-bearing for every repo instead of for some. The licence question is
+live (section 7). Cloud: a managed queue has close to no operational surface, so
+that prerequisite nearly vanishes, and the pick is the platform's own
+queue-shaped or publish-subscribe service. **All twenty-eight directives bind on
+both**, because the correctness surface is identical.
+
+**This section is now almost entirely decidable, which is the point of the
+reversal.** "Should this repo have a broker" was not a machine-decidable
+predicate and is no longer asked. What replaces it is E-1's allow-list — a handoff
+through anything other than the outbox and the adapter fails a lint — plus E-28's
+citation obligation. The residue is smaller than the one it replaced: E-28 no
+longer carries a threshold argument, only the destination, its catalog row and
+the consuming teams.
 
 **Ids never appear in seed text.** `E-7` belongs in a pack file. A seed file
 lands in a constitution that holds no copy of this corpus, so a cited id is a
@@ -179,11 +228,13 @@ check, so the pick and its discipline still reach a constitution through one
 file in one pull request. The three grounds are B-11's and they hold unchanged
 for a broker: a pick's gates (a banned-dependency rule, a pinned image digest,
 a licence scan) are the same gate on every stack rather than authored per
-stack; its answer varies *within* a stack, because one Java repo self-hosts,
-another runs managed, and a third should run no broker at all; and it fails the
-premise-specificity test, since a wrong broker surfaces as a licence exposure
-or an operations problem rather than as a wrong-but-plausible answer on an
-unread path.
+stack; its answer varies *within* a stack, because one Java repo self-hosts and
+another runs the platform's managed queue; and it fails the premise-specificity
+test, since a wrong broker surfaces as a licence exposure or an operations
+problem rather than as a wrong-but-plausible answer on an unread path.
+**Section 1's reversal removed the third case — "no broker at all" is no longer
+one of the answers a seed line may carry** — which makes the pick line shorter
+and mandatory rather than conditional.
 
 **The evidence for that seed line does live here**, in section 7 — a
 candidate survey with licences, release cadence, minimum production shape and
@@ -284,19 +335,28 @@ has a job — it supplies the generator the subscription id, or the decoded
 message type. Cost accepted and real: every handler is a class. *Type design +
 static rule. Convention.*
 
-**E-4 — There is no in-process asynchronous handoff. The outbox plus its relay
-is the only mechanism, and the relay may dispatch to targets inside the same
-deployable. An in-process event bus is a banned dependency, not a governed
-shape.**
+**E-4 — There is no in-process asynchronous handoff and no non-broker transport.
+The outbox plus its relay publishing to the broker is the only mechanism. An
+in-process event bus is a banned dependency, not a governed shape; a table that
+anything other than the relay polls is a banned shape; and a same-deployable
+consumer subscribes to the broker like any other consumer.**
 
-Stated as its own directive because a draft left it implied and the audit
-called it the rule a three-person team breaks first, silently. E-5 says
-application code contains no publish and the only enqueue is a row in the
-state-change transaction; an in-process handoff has no publish to confine and
-often no transaction to join, so under E-1 and E-5 together the only compliant
-in-process asynchrony is already outbox-plus-relay. **Saying it costs a
-database round trip and buys the rule an operand.** *Static rule (banned
-dependency plus the E-1 allow-list). Convention.*
+Stated as its own directive because a draft left it implied and the audit called
+it the rule a three-person team breaks first, silently. E-5 says application code
+contains no publish and the only enqueue is a row in the state-change
+transaction; an in-process handoff has no publish to confine and often no
+transaction to join, so under E-1 and E-5 together the only compliant in-process
+asynchrony is already outbox-plus-relay. **Saying it costs a database round trip
+plus a publish, and buys the rule an operand.**
+
+**The reversal in section 1 widened this directive and made it the rule that
+carries the simplification.** The first version permitted the relay to dispatch
+to targets inside the same deployable, which meant a repo could satisfy every
+other directive with no broker at all, and the adopting team had to know which of
+three shapes it was in. Now it is one shape. The cost is real and accepted: an
+event consumed only by the deployable that produced it still crosses the broker.
+*Static rule (banned dependency plus the E-1 allow-list, and a confinement rule
+on who may read the outbox table). Convention.*
 
 ### Group B — the write path
 
@@ -425,8 +485,9 @@ every gate green. A status column instead of a transaction-scoped claim strands
 rows when a worker dies, with no error anywhere. And mark-then-publish
 reintroduces silent loss inside the fix for silent loss.
 
-The retained-sent-row clause exists because of section 1's second asymmetry:
-once the row is deleted the broker holds the only copy. *Static rule
+The retained-sent-row clause exists because of the asymmetry section 1 keeps:
+once the row is deleted the broker holds the only copy, and a message is not
+recomputable from anywhere. *Static rule
 (confinement of the claim and publish operations) + schema lint (retention
 window, concurrency) + integration test (kill the relay between publish and
 mark-sent; assert one observable effect). Convention.*
@@ -1006,14 +1067,19 @@ cannot see it. *Schema lint over the committed topology + spec-and-review at the
 review gate. Convention.*
 
 **E-28 — The plan that introduces the first asynchronous handoff cites these
-rules in its Decision Trace and states which of section 1's thresholds it claims
-is crossed.**
+rules in its Decision Trace and names, for each new destination: the destination,
+its catalog row, the ordering declaration, and every team expected to consume it.
+It does not argue whether a broker is warranted.**
 
-Same shape as C-16 and M-29, and it carries section 1's undecidable residue:
-the threshold argument is where a broker gets justified or refused, and it can
-only happen at the one gate a human reads. A stack pack that ships the rules
-without the citation obligation ships a tripwire nothing trips. *Spec-and-review
-at the plan approval gate. Convention.*
+Same shape as C-16 and M-29. **The obligation changed with section 1's reversal
+and is now smaller and fully answerable.** It used to require a threshold
+argument — the one undecidable judgement in this source, made by a gate with no
+distributed-systems reader. What is left is four facts a plan author can state
+and a reviewer can check against the catalog diff in the same pull request. The
+consuming-teams field is the one that cannot be generated, and it is the only
+place the cross-repository gap in E-26 gets a human's attention. A stack pack that
+ships the rules without the citation obligation ships a tripwire nothing trips.
+*Spec-and-review at the plan approval gate. Convention.*
 
 ### Terms and interlocks a stack pack must not break
 
@@ -1061,7 +1127,7 @@ Then add the pack's column to the table in the same pull request.
 
 | Rules | java-backend |
 | ----- | ------------ |
-| E-1 … E-4 (the seam) | instantiated — an ArchUnit rule over a committed async-capable type list (clients, `@Async`, `@Scheduled`, executor submits, `Thread.startVirtualThread`, reactive subscribe) plus a dependency-manifest check; a nominal two-member handler port so no lambda compiles; an in-process event bus banned by dependency. **Divergence: the annotation rule must cover the meta-annotated and type-level forms**, because the framework's listener annotation targets annotation types and classes as well as methods, so a methods-only direct-annotation rule reports green while the banned thing passes |
+| E-1 … E-4 (the seam) | instantiated — an ArchUnit rule over a committed async-capable type list (clients, `@Async`, `@Scheduled`, executor submits, `Thread.startVirtualThread`, reactive subscribe) plus a dependency-manifest check; a nominal two-member handler port so no lambda compiles; an in-process event bus banned by dependency; and, since the 2026-07-29 reversal, an ArchUnit rule confining reads of the outbox table to the relay package, which is what makes "the table is not a transport" checkable rather than stated. **Divergence: the annotation rule must cover the meta-annotated and type-level forms**, because the framework's listener annotation targets annotation types and classes as well as methods, so a methods-only direct-annotation rule reports green while the banned thing passes |
 | E-5 … E-7 (the write path) | instantiated — publish confined to the relay package by ArchUnit; the outbox port takes a nominal transaction-handle wrapper the repo owns; identity is a private-constructor type with one factory per strategy and a re-derivation test over the committed corpus. **Divergence: the transaction handle cannot be the persistence library's own.** jOOQ's transaction-scoped `Configuration` and the ambient one share a static type, and its own checker covers dialects and plain SQL only, so the repo must own a wrapper type — and the mandatory rollback test is what actually decides the property |
 | E-8, E-9 (the relay) | instantiated — the relay claims with `FOR UPDATE SKIP LOCKED` inside a transaction at key granularity, publishes before marking sent, and carries depth and oldest-unpublished-age alerts with `promtool` fire-tests. **Gap:** no Java check sees broker-side durability configuration |
 | E-10 … E-14 (the consume path) | instantiated — a void handler port with adapter-private acknowledgement; the framework's ack mode pinned as a committed config value **and** the share-consumer implicit mode banned by name; a sealed terminal/retryable hierarchy; the budget lint over the committed catalog; effect-free and deduplicated as distinct port types checked on transitive dependencies. **Gap:** a swallowing catch that returns a default is invisible — the same shape and the same reason as M-5 and C-12 |
@@ -1305,9 +1371,10 @@ lists a current release. Use `maven-metadata.xml` for existence claims.
   event router is a Kafka Connect single-message transformation, so it needs a
   Connect cluster or the vendor's standalone server, logical replication and a
   replication slot, and a connector configuration that is a deployment artifact
-  **outside the Maven build** — nothing in the build can gate it. For a team
-  with no operations role that is a second stateful system, which is the cost
-  section 1 exists to weigh.
+  **outside the Maven build** — nothing in the build can gate it. For a team with
+  no operations role that is a second always-on system on top of the broker,
+  which is why the hand-written relay is the default and the connector is the
+  alternative rather than the reverse (section 7, the outbox seam obligation).
 - **A PostgreSQL queue extension is not a Java option and not portable.** Its
   control file does not require superuser, but installing it needs host
   filesystem access — its own documentation marks extension install as needing
@@ -1419,6 +1486,21 @@ annotations, so nothing enumerates it and eleven directives lose their operand.
 
 ### Do not reintroduce
 
+- **The three thresholds (T1, T2, T3) as a routing rule**, in any wording:
+  "a consumer cannot read the producer's database", "two consumers need
+  independent retention or replay", "the queue table's measured cost exceeds a
+  committed budget". They were this source's own first answer and were withdrawn
+  on 2026-07-29 for being undecidable at the gate that had to decide them. An
+  agent reading a broker-versus-table argument out of its training corpus will
+  reconstruct something close to T1. See section 1.
+- **A queue table as a transport** — anything other than the relay reading the
+  outbox, a second deployable polling a table, or per-consumer cursors over a
+  shared table. Banned by E-4. The table remains, as the outbox only.
+- **"An event consumed inside the producing deployable need not cross the
+  broker."** It must. E-4, and it is the accepted cost of the single mechanism.
+- **"The outbox is optional once there is a broker."** The outbox exists for the
+  dual write, which a broker does not solve and slightly worsens by adding a
+  second system to the failure window. See E-5 and section 1.
 - **"Publish after the transaction commits" as the primary rule.** It *is* the
   dual write. See E-5.
 - **"A lost post-commit cache delete degrades to a miss."** It leaves a stale
@@ -1482,8 +1564,18 @@ annotations, so nothing enumerates it and eleven directives lose their operand.
   promotes E-10's residue to a build gate.
 - **A client library exposes per-message acknowledgement and delivery counting
   on a log-shaped broker.** Then E-16's delivery counter and E-17's non-blocking
-  retry stop being bespoke on that shape, and the queue-versus-log threshold in
-  section 1 needs re-deciding.
+  retry stop being bespoke on that shape, and the queue-versus-log **pick** in
+  each stack pack's seed line needs re-deciding — it is a pick, not a threshold,
+  since section 1's reversal.
+- **The mandatory broker's operational or billing cost is measured and is not
+  affordable.** This is the trigger that reopens section 1's reversal, and it is
+  the one to watch, because the reversal traded an operational cost for a
+  conceptual one deliberately. Self-hosted: the named cluster owner does not
+  materialise, or the three-node minimum is refused. Cloud: the per-repo bill for
+  eighteen teams exceeds what the org will pay. Either one reopens the question of
+  whether a governed non-broker shape earns its rule surface back — and if it
+  does, it returns as a **second named shape with its own complete check set**,
+  never as a threshold argument at the plan gate.
 - **The string-concatenation bytecode question is settled against a primary
   source.** If a bytecode rule does have an operand, `cache-discipline`'s C-6
   and its Java instantiation should be reworded to drop the impossibility claim
@@ -1521,6 +1613,17 @@ Nine candidates, each evaluated on its best form per
 2026-07-29** from the project's own release API, licence file or documentation.
 Re-running the table is the cheap part of a re-verification pass.
 
+**Section 1's reversal changed this survey's conclusion but not one of its
+facts, and the two are kept separate on purpose.** The ninth candidate — no
+separate broker, a table in the database the service already runs — was ranked
+first when the survey was written. It is now **out of scope as a transport**,
+because the design permits exactly one. Its row and its entry are kept in full:
+the evidence is unchanged, the entry now records why it is excluded rather than
+why it wins, and a re-open trigger in section 6 names the measurement that would
+put it back. **Every per-candidate fact below was verified before the reversal
+and none was re-checked after it** — a conclusion changing does not re-date
+evidence.
+
 | Candidate | Latest release | Licence | Governance |
 | --------- | -------------- | ------- | ---------- |
 | Apache Kafka | 4.3.1, 2026-06-25 | Apache-2.0 | ASF |
@@ -1531,7 +1634,7 @@ Re-running the table is the cheap part of a re-verification pass.
 | Redpanda | 26.2.1, 2026-07-28 | **BSL 1.1** (1804 files) + Redpanda Community License (1164 files); only `src/transform-sdk/` (103 files) is Apache-2.0 | Redpanda Data, Inc. |
 | AutoMQ | 1.7.2, 2026-07-21 | Apache-2.0 | AutoMQ HK Limited — no foundation |
 | Managed cloud queue or stream | continuous | vendor terms | the provider |
-| No separate broker (a database table) | — | — | — |
+| No separate broker (a database table) — **excluded as a transport since the 2026-07-29 reversal; retained as the outbox** | — | — | — |
 
 **The minimum documented production deployment is the finding, not the licence.**
 Every self-hosted broker here documents three or more nodes, or declines to
@@ -1639,7 +1742,11 @@ here.
   held back — every security mechanism free where two rivals gate RBAC behind a
   licence; ZooKeeper gone since 4.0; share groups production-ready since 4.2.0;
   and a bugfix window near twelve months, roughly three times RabbitMQ's.
-  *Grounds, for a three-person team below the thresholds:* (1) three or more
+  **Since section 1's reversal this is the self-hosted pick, so the list below is
+  the set of costs the org has accepted rather than grounds for rejection** — and
+  ground (2) is why a named cluster owner is now a prerequisite instead of a
+  condition. *Accepted costs, for a three-person team with no operations role:*
+  (1) three or more
   controllers documented, and the only route to three total nodes is combined
   mode, which the docs say is "not recommended in critical deployment
   environments"; (2) **metadata downgrade out of 4.3 is not supported**, so the
@@ -1676,32 +1783,38 @@ here.
   every number for it comes from its retail-prices API; (6) the provider itself
   is not yet chosen, and each pick commits one.
 - **No separate broker — a table in the database the service already runs.**
-  *Steelman:* zero new operational surface — no binary, no quorum, no runtime
-  pin, no end-of-life calendar, no licence to read — and the mechanism is
-  documented for exactly this use. **And it has a property no broker has: the
-  state change and the event insert are one transaction, so the dual write
-  cannot occur.** Under this premise that is decisive, because the correctness
-  rule stops being a discipline the code must maintain and becomes a property of
-  the system. *Ground for ranking it **first** rather than rejecting it:* it is
-  the recommendation for most repos, and section 1 states the thresholds that
-  displace it. *Its real limits, each of which is a threshold rather than a
-  refutation:* no primary source states a throughput ceiling, so that number
-  must be measured and never quoted; dead-tuple bloat on a high-churn table is
-  documented while the mitigation is convention; the low-latency wake-up path
-  has a payload limit, is not durable across a disconnect, and is unavailable
-  through a transaction-pooling connection pooler; fan-out to independent
-  consumers turns the relay into a broker you wrote without its tests; and there
-  is no retention and no replay.
+  *Steelman, and it was strong enough to win the first version of this survey:*
+  zero new operational surface — no binary, no quorum, no runtime pin, no
+  end-of-life calendar, no licence to read — and the mechanism is documented for
+  exactly this use. **And it has a property no broker has: the state change and
+  the event insert are one transaction, so the dual write cannot occur.**
+  *Excluded rather than rejected, and the ground is not on this list:* the
+  evidence below never refuted it. What removed it is section 1's reversal —
+  offering it as a second shape cost more in routing ambiguity and duplicated
+  check surface than it saved in operations, and that is a design judgement about
+  the adopting team, not a fact about PostgreSQL. **Its dual-write property is
+  not lost**, because the outbox keeps it; what is lost is using the table as the
+  transport. *Its real limits, recorded because they are what a re-open pass must
+  weigh:* no primary source states a throughput ceiling, so that number must be
+  measured and never quoted; dead-tuple bloat on a high-churn table is documented
+  while the mitigation is convention; the low-latency wake-up path has a payload
+  limit, is not durable across a disconnect, and is unavailable through a
+  transaction-pooling connection pooler; fan-out to independent consumers turns
+  the relay into a broker you wrote without its tests; and there is no retention
+  and no replay.
 
-**The reversal seam, and it is what makes this bet cheap to unwind.** The outbox
-table is the migration path: a change-data-capture connector ships an outbox
-event router that reads an outbox table and routes rows to broker topics, so
-adopting a broker later is a connector plus a topic map rather than a rewrite of
-every service — **provided the outbox schema matches that router's expected
-columns from the first migration.** Match them from the start; it costs nothing
-now and is the difference between a configuration change and a rewrite. Use a
+**The outbox schema still has a seam obligation, and the reversal changed what it
+buys.** A change-data-capture connector ships an outbox event router that reads an
+outbox table and routes rows to broker topics. It was recorded here as the
+migration path from table to broker; with the broker mandatory from the first
+migration there is nothing to migrate, so it is now an **alternative relay
+implementation** — the same rows reaching the same topics through an always-on
+Connect process instead of application code. Keep the schema matched to that
+router's expected columns anyway: it costs nothing now, and it means swapping a
+hand-written relay for a connector (or back, if the Connect cluster proves to be
+the unowned component this org has no role for) is a configuration change. Use a
 standard event envelope for the same reason: the payload shape then does not
-change when the transport does.
+change when the relay does.
 
 **Not verified this pass, and a pack must not assert these from memory:** any
 managed-service delivery-semantics claim the vendor does not state (one major

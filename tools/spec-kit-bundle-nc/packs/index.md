@@ -103,10 +103,21 @@ name changed and the scope grew, both on purpose. The row predicted "delivery
 semantics rules are portable; the enforcement is not", which held — but it scoped
 the source to "repos that consume a queue", and the pass found that scoping
 fatal for the same reason the cache pass found its own client-scoped seam fatal:
-a queue-client-scoped rule set leaves the option the source *recommends* — a
-polled table in the service's own database — outside every check. The predicate
-is now the first **asynchronous handoff** of any shape. The file is named for the
+a queue-client-scoped rule set leaves the cheapest correct option — a polled
+table in the service's own database — outside every check. The predicate is now
+the first **asynchronous handoff** of any shape. The file is named for the
 technology a reader will search for; section 1 carries the predicate, and says so.
+
+**The widened predicate outlived the recommendation it was written for**, which
+is worth recording here because it is the roster's own lesson holding up under a
+reversal. When B-14 made the broker the only permitted mechanism the same day
+([DECISIONS.md](../DECISIONS.md) B-14), the polled table stopped being the
+recommendation — and the widening became *more* load-bearing, not less: those
+shapes went from governed alternatives to forbidden ones, so a client-scoped seam
+would now leave every one of them both unguarded and available. **A source's
+predicate is set by what the rules must reach, not by what the source currently
+recommends.** Framing it around the recommendation would have required rewriting
+the seam when the recommendation changed.
 
 **The split this roster exists to settle, before anyone researches anything.**
 A concern belongs in a source when its directive is portable **and** the check
@@ -132,11 +143,19 @@ must be *authored differently on every stack*. Two things it is not:
 
 `money-grade` was the first source and is not a money-only special case;
 `cache-discipline` is the second and confirms the shape;
-`event-broker-discipline` is the third and adds one lesson the first two did not
-have — **a source's predicate is not the technology in its name.** Both later
+`event-broker-discipline` is the third and adds two lessons the first two did not
+have. **A source's predicate is not the technology in its name** — both later
 sources found that scoping the seam to the obvious client library left the
 cheapest correct option unguarded, which is the same defect twice and is now
-something to check for deliberately when the next source is framed.
+something to check for deliberately when the next source is framed. And **a
+branch a source offers must name who decides it and what they would have to
+know** (B-14): `event-broker-discipline` shipped with three thresholds routing
+between a table and a broker, each traceable to a primary source, and was
+reversed within hours because the choice landed at a plan gate with no
+distributed-systems reader. Every directive was decidable by a check; the *choice
+between rule sets* was not decidable by the people at the gate, and the corpus
+had no test for that. If a branch's decider is the plan gate and the knowledge is
+not in this org, the branch is not a feature.
 
 ## Harvest map — researched, unwritten
 

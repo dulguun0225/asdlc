@@ -9,7 +9,8 @@ Versions 0.1.0 and 0.2.0 were development increments in this repository;
 
 ## [Unreleased]
 
-Design: DECISIONS.md B-13. No component version changed — `packs/` is
+Design: DECISIONS.md B-13 and **B-14, which supersedes B-13's routing
+recommendation the same day**. No component version changed — `packs/` is
 informative and no tooling installs it.
 
 ### Added
@@ -23,22 +24,21 @@ informative and no tooling installs it.
   **Its predicate is wider than its name:** the rules bind from the first
   *asynchronous handoff* of any shape — a broker, a managed queue, an in-process
   bus, a bare executor submit, an outbound webhook, or a polled table. Scoped to
-  a queue client, the option the source recommends would have had no rules
-  watching it, which is the same defect `cache-discipline` caught in its own seam
-  draft. **Its first instruction is not to introduce a broker** — a table in the
-  database the service already runs, with three named thresholds that displace it
-  — and the argument is deliberately *not* the cache argument, because a message
-  in flight is not recomputable the way a cached value is. Every directive is
-  **convention**; section 7 is an appendix surveying nine transports with dated
-  licences, governance, documented minimum production shape and numbered
-  rejection grounds.
+  a queue client, the cheapest correct option would have had no rules watching
+  it, which is the same defect `cache-discipline` caught in its own seam draft.
+  **One mechanism, no routing** (as amended by B-14, below): every asynchronous
+  handoff writes an outbox row in the state change's transaction, and a relay
+  publishes it to the broker. The outbox is mandatory because a broker does not
+  solve the dual write. Every directive is **convention**; section 7 is an
+  appendix surveying nine transports with dated licences, governance, documented
+  minimum production shape and numbered rejection grounds.
 - `packs/seed/java-backend.md` — an **Event broker discipline** section
   instantiating all twenty-eight with named Java checks, plus the transport seed
-  line (no broker below the thresholds; Apache Kafka in KRaft mode above them,
-  conditional on a named cluster owner; Redpanda and AutoMQ banned by name;
-  RabbitMQ only for strict message priority; on a managed platform the
-  platform's own queue, never managed Kafka). The seed text goes from 110 rules
-  in 17 sections to **141 rules in 18 sections**.
+  line (self-hosted: Apache Kafka in KRaft mode, with a named cluster owner as a
+  prerequisite, Strimzi on Kubernetes and NATS JetStream at three replicas off it;
+  Redpanda and AutoMQ banned by name; RabbitMQ only for strict message priority;
+  on a managed platform the platform's own queue, never managed Kafka). The seed
+  text goes from 110 rules in 17 sections to **141 rules in 18 sections**.
 - `packs/java-backend.md` — the 2026-07-29 event-broker evidence pass: six
   primary-source-verified framework facts that each forced a rule to be worded
   differently (the listener acknowledgement default is per poll batch, not per
@@ -54,6 +54,33 @@ informative and no tooling installs it.
 
 ### Changed
 
+- **`packs/rule-sources/event-broker-discipline.md` — one asynchronous mechanism,
+  and B-13's three thresholds are withdrawn (B-14, same day).** The source shipped
+  recommending a polled table in the service's own database, with a broker as a
+  conditional escalation above three named thresholds. The owner reversed it: the
+  broker is now the only permitted mechanism, and a consumer inside the producing
+  deployable subscribes to it like any other. **The outbox is unchanged and still
+  mandatory** — the broker is the transport, the outbox is the durable record of
+  intent, and publish-after-commit is the dual write either way. The reason is
+  conceptual load rather than a new fact: the threshold argument had to be made
+  and judged at a plan gate staffed by a team leader, an AI solution engineer and
+  a domain owner, with no distributed-systems reader. No directive was deleted and
+  the rule count is unchanged at 141 in 18 sections. Section 1 is rewritten; `E-4`
+  widens to ban every non-broker transport and gains an outbox-read confinement
+  check; `E-28` drops the threshold argument for four checkable facts (destination,
+  catalog row, ordering declaration, consuming teams); section 5 gains four
+  do-not-reintroduce entries naming the thresholds; section 6 gains the cost
+  trigger that would reopen B-14. **Section 7 keeps every verified fact and none
+  was re-dated** — the database-table candidate is marked *excluded as a
+  transport* rather than refuted, and Kafka's rejection grounds are relabelled
+  accepted costs. Consequences recorded rather than discovered later: `OQ-10` (a
+  named platform owner) becomes **blocking** for the self-hosted variant instead
+  of a condition on an escalation; `E-24` is unconditionally the most expensive
+  gate in either source; and an event consumed only inside its producing
+  deployable now costs a database round trip plus a publish.
+- `packs/java-backend.md`, `packs/seed/java-backend.md` — the section-2 intro, the
+  seed text's opening rules and transport line, the Kafka rejected-alternative
+  entry and the trigger list all follow B-14.
 - `packs/rule-sources/cache-discipline.md` — two dated additions, no directive
   changed. An interlock: C-9's post-commit callback must not be instantiated as a
   general-purpose `afterCommit(Runnable)`, because that hole defeats the broker

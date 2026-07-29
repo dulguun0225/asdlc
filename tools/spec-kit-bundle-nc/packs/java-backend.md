@@ -60,15 +60,26 @@ three-person teams and no operations role, a cache server is a stateful
 service with nobody to run it, and the section says so before it states a
 rule.
 
-The event-broker-discipline section works the same way, and its condition is
-wider than its name: it binds from the first **asynchronous handoff** of any
-shape, which includes the queue table it tells most repos to use instead of a
-broker. Keep it in a repo that publishes nothing — a bare executor submit is the
-tripwire, and it is one line of code away in every service. Like the cache
-section, **its first instruction is not to introduce the technology it is named
-after**, and for a different reason: not because a broker is optional in
-principle, but because every self-hosted candidate documents three or more nodes
-as its production minimum and no role here owns them.
+The event-broker-discipline section binds from the first **asynchronous handoff**
+of any shape, which is wider than its name: a queue table polled by a scheduled
+job, an in-process bus, a bare executor submit and an outbound webhook are all
+covered. Keep it in a repo that publishes nothing — a bare executor submit is the
+tripwire, and it is one line of code away in every service. **Unlike the cache
+section it does not begin by telling you to avoid the technology it is named
+after.** It began that way, and the owner reversed it on 2026-07-29
+([DECISIONS.md](../DECISIONS.md) B-14): the broker is now the only permitted
+asynchronous mechanism, the outbox is still mandatory because a broker does not
+solve the dual write, and the three thresholds that used to route between a
+table and a broker are withdrawn. The reason for the reversal is conceptual load
+on a three-person team, not a new fact about any broker — the routing argument
+had to be made at a plan gate with no distributed-systems reader.
+
+**The cost that reversal moved rather than removed:** every self-hosted candidate
+documents three or more nodes as its production minimum, and no role here owns
+them. That is now a staffing prerequisite
+([OQ-10](../../../reference/open-questions.md)) instead of an argument for
+avoiding a broker, and until it is filled a repo on this pack has no compliant
+asynchronous path.
 
 Tripwires out of coverage: the first LLM call, hard real-time deadline,
 or shipped SDK means the repo has left this pack's assumptions entirely
@@ -297,12 +308,15 @@ best 2026 form, decided 2026-06-11..14).
   poll batch rather than per record, and the default error handler retries ten
   times with a **zero-millisecond** backoff.
 - **Kafka as the default broker, and Redpanda or AutoMQ as the "modern" one.**
-  Kafka is **not rejected** — it is the conditional escalation pick, and the
-  condition is a named owner for the cluster plus a crossed threshold, because
-  its documented minimum is three or more controllers and a metadata downgrade
-  out of 4.3 is unsupported. What is rejected is reaching for it *first*: below
-  the thresholds the answer is a table in PostgreSQL, where the dual write is
-  structurally impossible rather than disciplined. Redpanda and AutoMQ are
+  Kafka is **not rejected — since B-14 it is the self-hosted pick outright**, and
+  the one condition on it is a named owner for the cluster, its upgrade calendar
+  and its metadata version, because its documented minimum is three or more
+  controllers and a metadata downgrade out of 4.3 is unsupported. That owner is
+  now a prerequisite rather than a threshold condition. **What was rejected in the
+  first version of this entry — reaching for Kafka before a threshold was crossed
+  — is no longer a rejection**, because the thresholds are withdrawn; the dual
+  write is still structurally impossible, and the outbox is what makes it so, not
+  the absence of a broker. Redpanda and AutoMQ are
   rejected by name with grounds in
   [`rule-sources/event-broker-discipline.md`](rule-sources/event-broker-discipline.md)
   section 7 — the survey is platform-neutral and lives there. Two grounds are
@@ -1512,7 +1526,13 @@ that already tracks one.
   unnecessary and the same-transaction property promotes from a test to the
   compiler. If a client library exposes Kafka share groups, the delivery counter
   and the non-blocking retry stop being bespoke on the log-shaped path and the
-  queue-versus-log threshold needs re-deciding. And if a build-failing AsyncAPI
+  queue-versus-log **pick** needs re-deciding — a pick in this pack's seed text,
+  not a threshold, since B-14. **And the trigger that would reopen B-14 itself:**
+  if the named cluster owner does not materialise, or the three-node minimum is
+  refused, or the managed bill for eighteen teams exceeds what the org will pay,
+  then a governed non-broker shape has to earn its rule surface back — and it
+  returns as a second named shape with its own complete check set, never as a
+  threshold argument at the plan gate. And if a build-failing AsyncAPI
   comparator appears for Maven, the exec-plugin workaround retires — until then
   the existing Java plugin must stay banned by name, because it goes green over
   incompatibilities.

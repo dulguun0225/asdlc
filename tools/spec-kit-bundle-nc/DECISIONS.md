@@ -572,6 +572,16 @@ way B-10 made the freshness step's wrong.
 
 ## B-13 — `event-broker-discipline` is the third source; a source's predicate is not the technology in its name (2026-07-29)
 
+> **Partly superseded by B-14 on 2026-07-29, the same day.** The paragraph below
+> beginning *"The first instruction is not to introduce a broker"*, and the
+> transport-pick paragraph's "**no broker** below the thresholds", are **no longer
+> the rule**: the broker is now the only permitted asynchronous mechanism and the
+> three thresholds are withdrawn. The outbox is unchanged and still mandatory.
+> **Everything else in this entry stands** — the widened predicate, the two
+> inversions against `cache-discipline`, the post-commit interlock, the caught
+> canary, and the short-of-protocol note. Read B-14 before acting on any routing
+> statement here.
+
 `packs/rule-sources/event-broker-discipline.md` is written: twenty-eight
 directives (`E-1` … `E-28`), instantiated into `java-backend`'s seed text in the
 same change, which takes that seed from 110 rules in 17 sections to **141 in
@@ -712,3 +722,106 @@ a producer renaming a subject cannot see the other seventeen services, and closi
 it needs org-level infrastructure that does not exist. Until it does, those two
 directives are local hygiene wearing the clothes of a contract, and the source
 says so.
+
+## B-14 — One asynchronous mechanism: the outbox and a broker. B-13's thresholds are withdrawn (2026-07-29)
+
+**Supersedes the recommendation half of B-13, the same day B-13 was written.**
+B-13's other findings stand
+unchanged — the widened predicate, the two inversions against `cache-discipline`,
+the post-commit interlock, the caught canary, and the short-of-protocol note. What
+is withdrawn is one paragraph of it: *"the first instruction is not to introduce a
+broker"* and the three thresholds that routed between a table and a broker.
+
+**The rule now.** Every asynchronous handoff goes through the outbox and the
+broker, and there is no second shape. Application code writes a row in the state
+change's transaction; the relay claims it and publishes to the broker; consumers
+subscribe. A consumer inside the producing deployable subscribes to the broker like
+any other. A table that anything except the relay polls is banned, and so is an
+in-process bus.
+
+**The outbox is unchanged and still mandatory, which is the most likely
+misreading of this entry.** The broker is the transport; the outbox is the durable
+record of intent. A commit and a publish are not one transaction, so
+publish-after-commit *is* the dual write — the commit succeeds, the process dies,
+the event never goes, and nothing records that it should have. A broker does not
+solve that and slightly worsens it by adding a second system to the failure window.
+`E-5` … `E-9` are untouched.
+
+**Why it was reversed, and the reason is a design cost rather than a new fact.**
+Directed by the owner on 2026-07-29 after reading the source, in the words *"that's
+complicated as hell conceptually — people are gonna have a hard time understanding
+when to do what"*. Three grounds, and the first is the one that generalises:
+
+1. **The routing decision was undecidable and landed on the wrong reader.** `E-28`
+   made "which threshold is crossed" a spec-and-review item, so the argument had
+   to be made and judged at the plan gate — a team leader, an AI solution engineer
+   and a domain owner, with no distributed-systems engineer and no colleague to
+   check the answer ([`reference/context.md`](../../reference/context.md)). A
+   threshold nobody present can evaluate is `P-6`'s corpus-dominant wrong pick with
+   extra steps: the team takes whichever branch the agent proposed first. **The
+   corpus had been treating "is this rule decidable by a check" as the test and
+   skipping "is this choice decidable by the people at the gate".**
+2. **The branches had different rule surfaces, so the wrong branch was also the
+   less-guarded one.** Three shapes — table-as-transport, same-deployable relay
+   dispatch, broker — satisfied the twenty-eight directives through different
+   mechanisms, with nothing at the gate saying which shape a repo was in.
+   **Conceptual load on the adopting team is a cost this corpus must price, and
+   B-13 did not price it.**
+3. **The displaced default was predicted to be displaced.** B-13's own text called
+   T1 "the discriminating threshold and the one that actually fires in an
+   eighteen-team org". A default the source expects to lose in the common case is a
+   branch with a misleading name.
+
+**What this costs, recorded so it is not discovered later.**
+
+- **[OQ-10](../../reference/open-questions.md) becomes blocking for the
+  self-hosted variant.** A named owner for the cluster, its upgrade calendar and
+  its metadata version was a condition on an escalation most repos never took. It
+  is now a prerequisite for every repo, because there is no compliant asynchronous
+  path without a broker. An open staffing question now blocks a rule rather than
+  qualifying one.
+- **`E-24` is unconditionally the most expensive gate in either source.** Three of
+  its four arms were cheap when the transport was a table — duplicating and
+  reordering were harness-level, "unavailable" was a transaction failure. Against
+  a real broker in a container they are not.
+- **A round trip and a publish for work that needed neither.** An event consumed
+  only inside the producing deployable still crosses the broker. Accepted in
+  exchange for one topology instead of three.
+- **`E-1`'s named gap gets more pressure.** Work that was a bare executor submit
+  now has to cross the broker, which is where a hand-rolled request-reply out of
+  two subscriptions and a correlation id gets built. The adapter's
+  no-reply-to/no-correlation/no-await clause moves from defensive to load-bearing,
+  and it is still spec-and-review.
+
+**What was edited, and no directive was deleted.** Section 1 of the source is
+rewritten; `E-4` widens to ban every non-broker transport and gains an
+outbox-read confinement check; `E-28` drops the threshold argument and instead
+requires the destination, its catalog row, the ordering declaration and the
+consuming teams; section 5 gains four do-not-reintroduce entries including the
+three thresholds by name; section 6 gains the trigger that would reopen this
+entry; section 7 keeps every verified fact and records that the *conclusion*
+changed while the evidence did not — the database-table candidate is marked
+excluded rather than refuted, and Kafka's grounds are relabelled accepted costs.
+`java-backend`'s pack and seed text are updated in the same change. The seed's
+rule count is unchanged at 141 in 18 sections: `E-4` and `E-28` were reworded, not
+added.
+
+**The evidence was not re-dated.** Every per-candidate fact in section 7 was
+verified 2026-07-29 before the reversal and none was re-checked after it. A
+conclusion changing does not re-date evidence, and the `review-by` clock is
+unchanged at 2027-01-29.
+
+**Two reversals in one day on the same file is itself a finding.** B-13 was
+written and superseded within hours, and the defect was not in its research — the
+thresholds each traced to a primary source. It was in shipping a design whose
+central choice the adopting team could not make. **The check to add when the next
+source is framed: for every branch a source offers, name who decides and what they
+would have to know.** If the answer is the plan gate and the knowledge is not in
+this org, the branch is not a feature.
+
+Reopened by: the cost trigger in `packs/rule-sources/event-broker-discipline.md`
+section 6 — the named owner not materialising, the three-node minimum being
+refused, or the managed bill for eighteen teams exceeding what the org will pay.
+Any of those puts a governed non-broker shape back on the table, and it returns as
+a **second named shape with its own complete check set**, never as a threshold
+argument at the plan gate.

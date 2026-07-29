@@ -803,29 +803,41 @@ event bus, a bare executor submit or virtual-thread start, and an outbound
 webhook are all asynchronous handoffs, and every one of them produces duplicate
 delivery, poison items, ordering assumptions and a failure destination nobody
 reads. Until the first one exists these rules are dormant, not deleted, and the
-plan that introduces it must cite this section in its Decision Trace.
+plan that introduces it must cite this section in its Decision Trace and name,
+per new destination: the destination, its catalog row, the ordering declaration,
+and every team expected to consume it. It does not argue whether a broker is
+warranted — that question is closed below.
 
-**Start with no broker.** A broker is a stateful clustered service somebody
-patches, sizes, monitors and fails over, and every self-hosted candidate
-documents three or more nodes as its production minimum. The cheapest correct
-asynchronous primitive here is a durable table in this service's own PostgreSQL,
-claimed with `SELECT … FOR UPDATE SKIP LOCKED`, plus an outbox row written in
-the business transaction. PostgreSQL documents that claim shape for a
-"queue-like table" and warns in the same sentence that it gives an inconsistent
+**There is one asynchronous mechanism and no choice to make.** Application code
+writes a row to the outbox table in the same transaction as the state change; a
+relay claims that row and publishes it to the broker; consumers subscribe. That
+is the whole topology, and it is the same topology whether the consumer is
+another team's service or a class inside this deployable. **Do not build a second
+shape.** A table that anything other than the relay polls is banned, an
+in-process event bus is a banned dependency, and an event consumed only inside
+this deployable still crosses the broker. That last one costs a database round
+trip plus a publish, and it buys one topology to learn instead of three.
+
+**The outbox is not the transport, and a broker does not make it optional.** A
+database commit and a publish are not one transaction, and the process can die
+between them in either order. Publishing after the commit *is* the dual write:
+the commit succeeded, the process died, the event never went, and nothing
+anywhere records that it should have. No gate can compare against a message that
+was never produced, so this failure is permanent and silent. The outbox row is
+what makes it impossible rather than merely unlikely. Nothing subscribes to the
+outbox table and nothing outside the relay module reads it; the relay claims rows
+with `SELECT … FOR UPDATE SKIP LOCKED`. PostgreSQL documents that claim shape for
+a "queue-like table" and warns in the same sentence that it gives an inconsistent
 view of the data — both halves matter, and the second is why the relay rules
-below exist. Introduce a broker only when one of three thresholds is crossed and
-the plan says which: a consumer cannot read this service's database; two
-consumers need independent retention or replay of the same fact, which is the
-threshold that warrants a retained log rather than a queue; or the queue table's
-measured cost exceeds a committed budget. **No throughput number is stated here
-because none was verified — measure this service's own and commit it.** Two
-consumers alone do not cross the threshold: a table with a cursor per consumer
-serves two consumers.
+below exist.
 
-- **Where a threshold is crossed, the self-hosted broker is Apache Kafka in
-  KRaft mode, pinned by image digest, and only when a named person owns the
-  cluster, its upgrade calendar and its metadata version.** Kafka is Apache-2.0
-  under foundation governance and is the only candidate that is both a
+- **The self-hosted broker is Apache Kafka in KRaft mode, pinned by image digest,
+  and a named person owns the cluster, its upgrade calendar and its metadata
+  version. That owner is a prerequisite, not a condition** — until the role is
+  filled this service has no compliant asynchronous path, and the correct
+  response is to keep the work synchronous rather than to improvise a transport.
+  Kafka is Apache-2.0 under foundation governance and is the only candidate that
+  is both a
   replayable log and a work queue with per-message acknowledgement while holding
   no feature back — every security mechanism ships free, where two rivals put
   role-based access control behind a licence key. Its documented minimum is
@@ -833,8 +845,11 @@ serves two consumers.
   mode, which its own documentation calls not recommended for critical
   deployments; a metadata downgrade out of 4.3 is unsupported, so finalising an
   upgrade is a one-way door. On Kubernetes, Strimzi carries that load. Off
-  Kubernetes and with no named owner, the substitute is NATS JetStream at three
-  replicas — Apache-2.0, one static binary, no external dependency — configured
+  Kubernetes the substitute is NATS JetStream at three replicas — Apache-2.0, one
+  static binary, no external dependency, and the smallest operational surface of
+  any candidate here, which is why it is the substitute where the named owner has
+  the least time to give. It does not remove the ownership requirement. Configure
+  it
   against two documented traps: its file-sync interval defaults to two minutes
   and its own documentation says an operating-system failure in a non-replicated
   setup may lose data, and its storage directory defaults to a path under
@@ -903,13 +918,16 @@ serves two consumers.
   grep — off-the-shelf hosts; the list and the predicates are authored per repo.
   A hand-rolled request-reply pair built from two subscriptions is not decidable
   and stays spec-and-review.)
-- **There is no in-process asynchronous handoff. The outbox plus its relay is
-  the only mechanism, and the relay may dispatch to targets inside this
-  deployable.** An in-process event bus is a banned dependency, not a governed
-  shape. This costs a database round trip and it buys the rule an operand: an
+- **There is no in-process asynchronous handoff and no non-broker transport. The
+  outbox plus its relay publishing to the broker is the only mechanism.** An
+  in-process event bus is a banned dependency, not a governed shape; a table that
+  anything other than the relay polls is a banned shape; and a consumer inside
+  this deployable subscribes to the broker like any other consumer. This costs a
+  database round trip plus a publish, and it buys the rule an operand: an
   in-process handoff has no publish to confine and often no transaction to join,
   so without this it sits outside every rule here. (Banned-dependency rule plus
-  the allow-list above — off-the-shelf host.)
+  the allow-list above, plus an ArchUnit rule confining reads of the outbox table
+  to the relay package — off-the-shelf hosts.)
 - **No consumer is bound by an annotation. A handler carries no listener
   annotation and implements no broker-library listener interface; every
   subscription is constructed at one enumerated registration site inside the

@@ -87,7 +87,11 @@ Every pack carries, in order:
    each one's scope recorded in a table at the top of the section rather
    than as the organising principle. A pack that accretes over several
    passes will otherwise end up ordered by research date, which is a
-   history of the pack and not a map of it.
+   history of the pack and not a map of it. **`ci/check_packs.py` fails the
+   build** when an evidence subheading names something that is not a section of
+   the pack's seed file, or when the subheadings run out of the seed's order.
+   It cannot decide whether a note is filed under the *right* heading, and it
+   says so on every run.
 6. **Re-open triggers** — the named conditions that reopen each decision.
    Absent its trigger, a decision is not re-litigated.
 

@@ -30,6 +30,7 @@ Bundle id: `nc-sdd` · requires Spec Kit `>=0.14.2,<1.0.0` · integration-agnost
 | `extensions/nc/` | Extension: `speckit.nc.gate` (hooked `before_implement`) and `speckit.nc.review` (hooked `after_implement`) |
 | `workflows/nc-sdd/` | Workflow: the orchestrated cycle for `specify workflow run` — the stock `speckit` pipeline plus an approval gate between tasks and implement |
 | `ci/check_specs.py` | Merge gate for product repos: structure, FR uniqueness, two-way task↔FR coverage, plan traceability/decision-trace/approval sections, contract links |
+| `ci/check_packs.py` | Maintainer gate for `packs/` in *this* repository — never copied into a product repo: a pack's evidence section is grouped by seed-text section, in the seed's order, and no seed file cites this corpus (a rule id, a principle number, a link). Prints what it does not decide |
 | `catalogs/` | Preset/extension/workflow/bundle catalog JSONs for org-hosted distribution |
 | `packs/` | Researched decision packs — dated, adversarially verified seed text for a product constitution's Repo principles; informative, never installed |
 | `examples/password-reset/` | Worked example spec and plan: all five EARS patterns, unwanted-behavior coverage, the three plan sections, approval records; kept well-formed by `ci/check_specs.py --self` |

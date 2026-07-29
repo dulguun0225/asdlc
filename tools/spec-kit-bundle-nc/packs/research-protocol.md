@@ -134,6 +134,15 @@ amended 2026-07-28):
   file lands in a constitution that holds no copy of this corpus, so a cited
   id is a dangling pointer — a failure this corpus has already made once.
 
+**Two of these three are machine-checked**, by `ci/check_packs.py` in
+bundle-checks.yml: the evidence-grouping rule above (every evidence subheading
+names a seed section, and their order matches the seed's) and the
+no-ids-in-seed-text rule (`P-n`, `M-n`, `C-n`, a principle by number, or any
+link). **The instantiation walk is not**, and neither is whether a note is
+filed under the right heading or whether the pass table is honest — the check
+prints what it does not decide on every run, so its silence is never read as
+coverage. It fails the build; it is not advisory.
+
 ## 6. Re-verification pass (adoption or lapse)
 
 Smaller than the original pass: re-check the dated version facts and any

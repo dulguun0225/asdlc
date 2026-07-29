@@ -18,6 +18,22 @@ workflow `nc-sdd` 0.2.0. Design: DECISIONS.md B-8, B-9, B-10, B-11, B-12.
 
 ### Added
 
+- `ci/check_packs.py` and a **failing** `Pack structure` step in
+  bundle-checks.yml — the first machine gate over `packs/` itself (B-12,
+  amended). It decides two rules that were prose-only: a pack's evidence
+  subheadings must each name a section of that pack's seed file and run in the
+  seed's order, and no seed file may carry a `P-n`, an `M-n` or `C-n`, a
+  principle cited by number, or any markdown link. It **fails** rather than
+  warning, unlike the freshness step beside it: a lapsed `review-by` is time
+  passing, an evidence section ordered by research pass is a mistake in the PR
+  making it. It prints what it does not decide on every run — filing accuracy,
+  pass-table honesty, and anything about a cross-stack source, which has no
+  seed file to mirror. Three negative probes ship with it (a pass-named
+  heading, subheadings out of order, a contaminated seed file), each verified
+  red for the stated reason. Stdlib-only, `--packs DIR` so the probes can
+  drive a broken copy, and **never copied into a product repo** — only this
+  repository has a `packs/`. Its non-recursive glob is deliberate and is the
+  inverse of B-10's fix; the reason is in a comment beside it.
 - `packs/rule-sources/cache-discipline.md` — the corpus's **second cross-stack
   source**, sixteen directives `C-1` … `C-16` covering the cache seam, what a
   cache may hold, keys and tenancy, expiry, coherence, serialization, failure

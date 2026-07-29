@@ -31,6 +31,7 @@ component directories here are the source of truth; they reach projects via
 | `extensions/nc/` | `speckit.nc.gate` (before_implement), `speckit.nc.review` (after_implement) | `catalogs/extensions.json`, bundle-checks.yml assertions |
 | `workflows/nc-sdd/` | Orchestrated cycle for `specify workflow run` | `bundle.yml` pin, `catalogs/workflows.json` (version AND url tag), bundle-checks.yml |
 | `ci/check_specs.py` | Stdlib-only merge gate; `--repo` for product repos, `--self` for `examples/` | README checker list, bundle-checks.yml negative probes |
+| `ci/check_packs.py` | Stdlib-only maintainer gate for `packs/` structure (B-12); `--packs DIR` exists so the negative probes can drive a deliberately broken copy. **Never copied into a product repo** — only this repository has a `packs/`. It globs `packs/*.md` non-recursively **on purpose**, the inverse of B-10's fix: a source has no seed file, so it has no section list to mirror. Read the comment before "fixing" it to `rglob` | README checker list, bundle-checks.yml (the step and its three probes), `packs/research-protocol.md` §5 ship checks |
 | `catalogs/*.json` | Org distribution; keys == ids; versions/URLs must match the manifests | bundle-release.yml asserts |
 | `packs/` | Researched decision packs (informative; adopted by paste-edit-PR into a product constitution, never installed by tooling). `packs/seed/<pack-id>.md` is the paste payload — nothing but the rules, so a pack change may touch two files. A **source** (`money-grade`, `cache-discipline`) has no seed file and is never adopted: stack packs instantiate its rules with their own checks (B-8, amended 2026-07-28), and it lives in `packs/rule-sources/` — the path is what says "not a paste target" (B-10). A **technology pick** (which engine, which broker) is neither: it is a dated seed-text line in each stack pack, never a source directive (B-11). Structure is set by **B-12**: a pack's evidence section is grouped by the seed-text section each rule lives in, never by research pass, with the pass dates and scopes in a table at its top; the frontmatter is the only authority for status and dates; the eight design principles are cited as `P-1` … `P-8`, never by list position, and never from seed text | `packs/index.md`'s Shipped table (the one labelled date mirror — `packs/README.md`'s roster carries kind and predicate only, no status and no dates, B-12); bundle-checks.yml freshness step; B-8 governance. A source change also touches its instantiation table and every stack pack that instantiates it. **Adding a directory under `packs/` means checking that the freshness step still reaches it** — it `rglob`s, and a non-recursive glob is what B-10 had to fix |
 | `examples/password-reset/` | Worked example (spec + plan); kept green by `--self` | — |
@@ -135,6 +136,7 @@ repo is built around"; reasons: DECISIONS.md).
 ```sh
 specify bundle validate --path . --offline   # 0 errors; exactly 3 warnings (offline component refs)
 python ci/check_specs.py --self              # examples stay green
+python ci/check_packs.py                     # packs/ structure (B-12); needed only after a packs/ change
 ```
 
 **Neither binary is on every machine** (sessions run on more than one — root
@@ -144,6 +146,7 @@ python ci/check_specs.py --self              # examples stay green
 ```sh
 uvx --from git+https://github.com/github/spec-kit.git@v0.14.2 specify bundle validate --path . --offline
 uv run --no-project python ci/check_specs.py --self
+uv run --no-project python ci/check_packs.py
 ```
 
 Keep the `uvx` tag equal to `SPECKIT_PIN` below — an unpinned `uvx specify`

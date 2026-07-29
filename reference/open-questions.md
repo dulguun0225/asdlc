@@ -178,6 +178,17 @@ Status column. **The eight design principles are cited as `P-1` … `P-8`, never
 and never from seed text** — in a constitution `P-3` dangles and "principle 3" reads as that
 constitution's own principle III. None of this changed a rule, a marker or a date.
 
+**Two of those three rules are now machine-checked and the check fails the build**
+(`tools/spec-kit-bundle-nc/ci/check_packs.py`, a `Pack structure` step in `bundle-checks.yml`).
+It decides that every evidence subheading names a section of the pack's seed file and that they run
+in the seed's order, and that no seed file cites this corpus. **It deliberately does not decide
+whether a note is filed under the *right* heading, whether the pass table is honest, or anything
+about a source** — it prints that list on every run, so its silence is never read as coverage.
+Run `python ci/check_packs.py` after any `packs/` change; it is in the bundle's *"Verify before you
+commit"* list. Three negative probes ship with it and **none may be deleted to make CI pass**.
+Its non-recursive `packs/*.md` glob is correct and is the **inverse** of what B-10 fixed — a source
+has no seed file, so there is nothing for it to mirror. Read the comment before changing it.
+
 **One standing instruction, because it was asked twice and answered twice:** the owner does not
 choose between options here. Research it, decide it, record it, and say what would reverse it.
 
@@ -229,9 +240,20 @@ changes would ship inside `bundle-v0.2.0` while the release notes point at `CHAN
 exact defect the 2026-07-28 session fixed. `[Unreleased]` is empty again. **Nothing may sit under
 it when the tag is cut.**
 
-**What this does not fix, and it is the honest gap:** the evidence-grouping rule has no check.
-It is a convention in `research-protocol.md` §5 and in the bundle's `CLAUDE.md` map, and the next
-multi-pass pack is where it either holds or quietly re-accretes. Nothing here blocks the release.
+**The gap this session declared, then closed in the same session.** The first pass left the
+evidence-grouping rule as prose in `research-protocol.md` §5 and the bundle's `CLAUDE.md` — a rule
+with no check, which `P-1` calls a wish. `ci/check_packs.py` now gates it, plus the
+no-corpus-references-in-seed-text rule that item 4 had left as prose as well. The argument for a
+machine check rather than a review note is worth carrying: **the defect was invisible in every PR
+that caused it.** Three passes each appended a scope-caveat bullet next to the findings it covered
+— locally the tidiest available choice — and the section was ordered by date only after the third.
+A rule whose violation appears on the fourth increment is one a reviewer stops seeing.
+
+**What remains unchecked, and it is a real residue, not a formality:** whether a note is filed
+under the **right** heading (a money note parked under Platform passes the gate), whether the pass
+table is complete and every scope caveat survived being moved into it, and the instantiation walk
+that `research-protocol.md` §5 requires of a stack pack. Those need a reader. The check prints all
+three on every run rather than letting a green result imply them. Nothing here blocks the release.
 
 ---
 

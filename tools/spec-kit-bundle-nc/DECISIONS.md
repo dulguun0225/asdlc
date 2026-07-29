@@ -528,6 +528,44 @@ verified by reading. The evidence-grouping rule has no gate either — it is a
 convention in `research-protocol.md` §5, and the next multi-pass pack is where
 it gets tested.
 
+**Amended the same day: two of the three rules now have a gate.** The paragraph
+above is left as written — `ci/check_packs.py` was added after it, and this note
+supersedes it rather than editing it. The gate is a step in bundle-checks.yml
+and it **fails**, unlike the advisory freshness step beside it; the difference
+is that a lapsed `review-by` is time passing while an evidence section ordered
+by research pass is a mistake in the PR making it. What it decides:
+
+- **The evidence-grouping rule** — every `###` in a pack's evidence section
+  must name a section of that pack's seed file, and their relative order must
+  match the seed's. A subset relation, not equality, so a seed section whose
+  rules carry no dated note needs no empty heading. This is what catches a
+  heading named `2026-07-25 additions pass`.
+- **No corpus references in seed text** — a `P-n`, an `M-n` or `C-n`, a
+  principle cited by number, or any markdown link. Item 4 above had prose for
+  this and nothing else, and the corpus had already broken it once.
+
+**What it does not decide, printed by the check itself on every run so its
+silence is never read as coverage:** whether a note is filed under the *right*
+heading (a money note parked under Platform passes), whether the pass table is
+complete and every scope caveat survived the move into it, and anything at all
+about a cross-stack source, which has no seed file and therefore no section
+list to mirror. Naming the step after more than it verifies would make it the
+false-green gate `P-1` forbids in its second clause.
+
+**The argument for a machine check rather than a review note, recorded because
+it generalises.** The defect item 1 fixed was invisible in every PR that caused
+it. Three passes each appended a scope-caveat bullet next to the findings it
+covered, which is locally the tidiest available choice, and the section was
+ordered by date only after the third. A rule whose violation becomes visible
+only on the fourth increment is exactly the rule a reviewer stops seeing.
+
+Three negative probes ship with it — a pass-named heading, subheadings out of
+order, and a contaminated seed file — because a gate that cannot go red proves
+nothing. Each was run and each is red for the stated reason. **Never delete one
+to make CI pass.**
+
 Reopened by: a pack whose seed text has no topical sections, which would leave
 the evidence section nothing to mirror; or a third reader of `README.md` whose
-path is neither adopting nor authoring.
+path is neither adopting nor authoring. For the gate specifically: a fourth
+kind of file under `packs/`, which would make the non-recursive glob wrong the
+way B-10 made the freshness step's wrong.

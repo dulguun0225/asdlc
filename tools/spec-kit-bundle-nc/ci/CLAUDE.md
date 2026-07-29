@@ -1,5 +1,12 @@
 # ci — local invariants
 
+**Two checkers, and only one of them travels.** `check_specs.py` is a merge gate
+product repos copy; `check_packs.py` is a maintainer gate for this repository's
+own `packs/` corpus and is never copied anywhere, because only this repository
+has a `packs/`. Do not add it to the adoption instructions in the bundle README.
+
+## check_specs.py
+
 - `check_specs.py` stays a single stdlib-only file: product repos adopt it by
   copying this one file, so it must run on any Python 3 with no installs.
 - Two modes: `--repo <path>` checks `specs/*/` in a product repo; `--self`
@@ -32,3 +39,46 @@
   match keeps generics like `Map<String, X>` from false-firing only when
   angle brackets do not pair — a rare paired case is an accepted loud
   false positive).
+
+## check_packs.py
+
+- Stdlib-only too, but for a different reason: it runs in bundle-checks.yml on a
+  runner with nothing installed. It is **not** copied into product repos.
+- Two modes: no argument checks `packs/`; `--packs <dir>` exists **only** so the
+  negative probes can drive a deliberately broken copy. It is not a feature for
+  anyone else.
+- Scope is fixed by DECISIONS B-12 (amended the same day). It decides exactly
+  two rules and **fails** the build on either: every `###` in a pack's evidence
+  section names a section of that pack's seed file and their relative order
+  matches the seed's; and no seed file carries a `P-n`, an `M-n` or `C-n`, a
+  principle cited by number, or any markdown link.
+- **It prints what it does not decide on every successful run, and that output
+  stays.** Filing accuracy (a money note under Platform passes), pass-table
+  honesty, and the instantiation walk are all outside it. A gate described as
+  more than it verifies is the false-green case `packs/README.md` P-1 forbids in
+  its second clause.
+- `packs.glob("*.md")` is **non-recursive on purpose, the inverse of B-10's
+  fix.** B-10 made the freshness step recursive because a non-recursive glob
+  dropped `packs/rule-sources/` silently. Here skipping that directory is
+  correct: a source has no seed file, so it has no section list to mirror.
+  Switching to `rglob` does not widen the gate — it makes every source fail as
+  "adoptable pack with no seed file". The comment beside the glob says so; keep
+  it there.
+- Any behavior change needs a negative probe, red for the right reason and
+  asserted on the message text, same rule as above. Three ship with it: a
+  pass-named evidence heading, subheadings out of the seed's order, and a seed
+  file carrying all four forbidden reference kinds.
+- Known regressions to preserve:
+  - **Subset, not equality.** A seed section whose rules carry no dated evidence
+    note must not force an empty heading in the pack. Only headings that name
+    *nothing* in the seed are violations.
+  - **A single-section seed stays green with zero evidence subheadings.**
+    `agent-traps` is the case: its seed has one `###` and its evidence section
+    has none. Tightening to "must subdivide" would fail it for no defect.
+  - **A cross-stack source is skipped, not failed.** It is identified by having
+    no `seed/<id>.md`, and it lives under `packs/rule-sources/` which the glob
+    does not reach.
+  - **The word "principle" without a number must not fire.**
+    `seed/java-backend.md` says "the pool-as-limiter principle is the rule" —
+    legitimate prose about a rule, not a citation of this corpus. The pattern
+    requires a following number for exactly this reason.

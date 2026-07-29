@@ -51,6 +51,68 @@ jobs:
       - name: Check examples stay well-formed
         run: python3 ci/check_specs.py --self
 
+      # Structural gate for packs/ (DECISIONS.md B-12). FAILS, unlike the
+      # advisory freshness step below, and the difference is deliberate: a
+      # lapsed review-by is time passing, which nobody did wrong, while an
+      # evidence section ordered by research pass is a mistake in the PR making
+      # it, with a cheap fix. The defect this catches took three passes to
+      # become visible and no single PR looked wrong, which is why it is a
+      # machine check and not a review note.
+      - name: Pack structure
+        run: python3 ci/check_packs.py
+
+      # Negative probes for check_packs.py, kept here rather than with the
+      # check_specs.py probes in the smoke job because these need no spec-kit
+      # CLI. Same standing rule: a probe must go red for the RIGHT reason, and
+      # none may be deleted to make CI pass.
+      - name: Negative probe — an evidence heading named after a research pass turns the gate red
+        run: |
+          cp -r packs /tmp/probe-pass
+          python3 - <<'EOF'
+          import pathlib
+          p = pathlib.Path("/tmp/probe-pass/java-backend.md")
+          p.write_text(p.read_text(encoding="utf-8").replace(
+              "### Concurrency", "### 2026-07-24 re-verification pass", 1),
+              encoding="utf-8")
+          EOF
+          if python3 ci/check_packs.py --packs /tmp/probe-pass > /tmp/p1.txt 2>&1; then
+            echo 'gate passed an evidence heading named after a research pass'
+            cat /tmp/p1.txt; exit 1
+          fi
+          grep -q 'names no section of' /tmp/p1.txt
+
+      - name: Negative probe — evidence subheadings out of the seed's order turn the gate red
+        run: |
+          cp -r packs /tmp/probe-order
+          python3 - <<'EOF'
+          import pathlib
+          p = pathlib.Path("/tmp/probe-order/java-backend.md")
+          t = p.read_text(encoding="utf-8")
+          t = (t.replace("### Observability", "###@@SWAP@@", 1)
+                .replace("### API contract", "### Observability", 1)
+                .replace("###@@SWAP@@", "### API contract", 1))
+          p.write_text(t, encoding="utf-8")
+          EOF
+          if python3 ci/check_packs.py --packs /tmp/probe-order > /tmp/p2.txt 2>&1; then
+            echo 'gate passed evidence subheadings in the wrong order'
+            cat /tmp/p2.txt; exit 1
+          fi
+          grep -q 'out of order' /tmp/p2.txt
+
+      - name: Negative probe — seed text citing this corpus turns the gate red
+        run: |
+          cp -r packs /tmp/probe-seed
+          printf '%s\n' '(This restates P-4 and principle 4; see M-12 and [the pack](../java-backend.md).)' \
+            >> /tmp/probe-seed/seed/java-backend.md
+          if python3 ci/check_packs.py --packs /tmp/probe-seed > /tmp/p3.txt 2>&1; then
+            echo 'gate passed seed text carrying references into this repository'
+            cat /tmp/p3.txt; exit 1
+          fi
+          grep -q 'a design-principle id' /tmp/p3.txt
+          grep -q 'a cross-stack source rule id' /tmp/p3.txt
+          grep -q 'a principle cited by number' /tmp/p3.txt
+          grep -q 'a markdown link' /tmp/p3.txt
+
       # Advisory freshness tripwire for packs/ (never failing): a pack past
       # its review-by reads as convention-strength until re-verified — this
       # step makes the lapse visible in every run.

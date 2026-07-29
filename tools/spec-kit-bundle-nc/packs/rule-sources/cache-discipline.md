@@ -391,6 +391,17 @@ nothing trips. *Spec-and-review at the plan approval gate. Convention.*
 - **C-4 and C-7 must not be instantiated as incompatible APIs.** One
   read-through call carries the expiry. A separate bare write taking an expiry
   would give C-7 a host and destroy C-4.
+- **Added 2026-07-29: C-9's post-commit callback must not be instantiated as a
+  general-purpose hook.** [`event-broker-discipline.md`](event-broker-discipline.md)
+  confines a broker publish to an outbox relay, and a repo that satisfies C-9
+  with a general `afterCommit(Runnable)` registration **defeats that directive
+  entirely** — nothing at a call site distinguishes "delete a cache key after
+  commit" from "publish after commit", so the one hook C-9 needs is the hole the
+  other source's central rule falls through. A stack pack instantiating both
+  makes post-commit registration a named member of *this* adapter's port
+  (`invalidateAfterCommit(key)`), with no free-callback form, and bans any other
+  post-commit registration in the repository. This note is an addition, not a
+  change to C-9: the directive's wording and its checks are unmoved.
 
 ## 3. Instantiation — who has written these, and how to add a stack
 
@@ -599,6 +610,17 @@ defeating C-15.
   offered were false; a real one reopens the rejected fourth walk outcome.
 - **The corpus adds a differential-execution check kind.** Section 2 maps it
   onto *integration test* with a parenthetical, deliberately.
+- **Added 2026-07-29: C-6's bytecode ground is challenged and unverified.** A
+  hostile audit for [`event-broker-discipline.md`](event-broker-discipline.md)
+  argued that the impossibility claim behind C-6's wording is too strong — string
+  concatenation's recipe travels as a constant-pool bootstrap argument, so a
+  bytecode-reading rule does have an operand to match. **The auditor could not
+  reach the primary specification, which returned 403, so nothing here is
+  edited.** If that fact is verified, C-6 and its Java instantiation should drop
+  the impossibility claim and keep the rule on unwritability alone: a factory
+  that cannot take a free-text parameter makes the wrong call uncompilable,
+  which does not depend on any tool's capabilities. The sibling source's key rule
+  is already worded that way.
 - **`java-backend`'s "rebuildable-cache premise" phrase is renamed.** Until it
   is, this source uses "derived-store premise"; after it is, the collision note
   in section 2 can be deleted.

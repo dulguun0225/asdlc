@@ -2,7 +2,9 @@
 id: java-backend
 status: decided, not yet validated (researched; verified pass 2026-07-21.
   The cache-discipline section was added 2026-07-29 from its own pass and
-  carries that date in section 4; no earlier rule was re-verified then, so
+  carries that date in section 4; the event-broker-discipline section was added
+  the same day from a pass that **stopped short of the three refutation votes**,
+  also dated in section 4. No earlier rule was re-verified on either day, so
   `verified` below is unmoved)
 holds-when: code is written by LLM agents and no human reads it line by
   line; the platform decision (Java, Spring Boot MVC, jOOQ, PostgreSQL)
@@ -11,7 +13,10 @@ holds-when: code is written by LLM agents and no human reads it line by
   rules additionally require a feature that carries an amount of money
   the system computes with; until one exists they are dormant. The
   cache-discipline rules additionally require a cached value — in memory or
-  in a cache server — and are dormant until the first one.
+  in a cache server — and are dormant until the first one. The
+  event-broker-discipline rules additionally require an asynchronous handoff —
+  a broker, a managed queue, a polled table, an in-process bus, an executor
+  submit, an outbound webhook — and are dormant until the first one.
 verified: 2026-07-21
 review-by: 2027-01-21
 maintained-by: Dulguun Otgon
@@ -55,6 +60,16 @@ three-person teams and no operations role, a cache server is a stateful
 service with nobody to run it, and the section says so before it states a
 rule.
 
+The event-broker-discipline section works the same way, and its condition is
+wider than its name: it binds from the first **asynchronous handoff** of any
+shape, which includes the queue table it tells most repos to use instead of a
+broker. Keep it in a repo that publishes nothing — a bare executor submit is the
+tripwire, and it is one line of code away in every service. Like the cache
+section, **its first instruction is not to introduce the technology it is named
+after**, and for a different reason: not because a broker is optional in
+principle, but because every self-hosted candidate documents three or more nodes
+as its production minimum and no role here owns them.
+
 Tripwires out of coverage: the first LLM call, hard real-time deadline,
 or shipped SDK means the repo has left this pack's assumptions entirely
 ([index.md](index.md), candidates).
@@ -62,7 +77,7 @@ or shipped SDK means the repo has left this pack's assumptions entirely
 ## 2. The decisions
 
 The seed text is one file: **[`seed/java-backend.md`](seed/java-backend.md)**
-— 110 rules in 17 sections. It holds nothing but the text that gets pasted:
+— 141 rules in 18 sections. It holds nothing but the text that gets pasted:
 no title, no evidence, no commentary. So adoption is "copy the whole file",
 with no boundary to judge.
 
@@ -77,12 +92,17 @@ enforcing check in parentheses. Skim the bold text for what the repo must
 do; read on where you want to know why.
 
 Paste it under *Repo principles*, then edit: delete what your situation does
-not need (keep the Money-grade and Cache discipline headings and their
-conditions even in a repo with neither), tighten what it does — the cache
-section leaves the **staleness ceiling** unset and it is a value this repo
-must state — and keep the enforcement markers honest — a ban
-is real only when a named check fails the build on it (a check not yet wired
-is marked deferred with a reason, never described as enforced).
+not need (keep the Money-grade, Cache discipline and Event broker discipline
+headings and their conditions even in a repo with none of the three), tighten
+what it does — the cache section leaves the **staleness ceiling** unset, and the
+event broker section leaves more unset than any other section in the file: the
+queue-table cost budget, the maximum halt duration, the sent-row and
+deduplication retention windows, the outbox-depth and oldest-unpublished-age
+alert thresholds, and the per-subject payload size ceiling. Every one is a value
+this repo must state, and a lint with no committed operand passes over every
+case — and keep the enforcement markers honest — a ban is real only when a named
+check fails the build on it (a check not yet wired is marked deferred with a
+reason, never described as enforced).
 
 ## 3. Rejected alternatives — the corpus favorites, by name
 
@@ -262,6 +282,33 @@ best 2026 form, decided 2026-06-11..14).
   a benefit. The generalisable one is Ignite's and it is in the appendix: an
   engine designed to be authoritative cannot host a rule saying the cache never
   is.
+- **`@KafkaListener` on a handler, and a `kafkaTemplate.send` beside a
+  repository save in an `@Transactional` method** — the corpus-dominant Spring
+  messaging shape, and what an unbriefed agent writes when told "publish an
+  event". Both halves are banned. The listener annotation is rejected because it
+  is the only record of which destinations the service consumes, so nothing
+  enumerates them and eleven rules in the section lose their operand — and
+  Spring documents an explicit container-plus-listener path, so the ban has a
+  supported replacement. The transactional publish is rejected because the
+  rollback does not un-publish and, more often, the commit succeeds and the
+  process dies before the send: **there is no error and no record that the event
+  should have existed.** Two Spring defaults make the shape worse than it looks
+  and are recorded in section 4: the listener acknowledgement mode commits per
+  poll batch rather than per record, and the default error handler retries ten
+  times with a **zero-millisecond** backoff.
+- **Kafka as the default broker, and Redpanda or AutoMQ as the "modern" one.**
+  Kafka is **not rejected** — it is the conditional escalation pick, and the
+  condition is a named owner for the cluster plus a crossed threshold, because
+  its documented minimum is three or more controllers and a metadata downgrade
+  out of 4.3 is unsupported. What is rejected is reaching for it *first*: below
+  the thresholds the answer is a table in PostgreSQL, where the dual write is
+  structurally impossible rather than disciplined. Redpanda and AutoMQ are
+  rejected by name with grounds in
+  [`rule-sources/event-broker-discipline.md`](rule-sources/event-broker-discipline.md)
+  section 7 — the survey is platform-neutral and lives there. Two grounds are
+  this pack's: AutoMQ gates its **metrics export** behind an enterprise licence,
+  which collides directly with the Observability rules above, and Redpanda gates
+  **role-based access control**, so a free deployment has none.
 
 ## 4. Evidence notes
 
@@ -297,6 +344,7 @@ its own scope, so the limits are recorded here rather than beside the rules.
 | 2026-07-25 | Only the API-contract rules added that day, harvested from net-saas ADR-0023 and its topic research — **prior art, not independent confirmation** | single researcher against primary sources | API contract |
 | 2026-07-27 | Only the observability rules added that day, harvested from net-saas ADR-0019 — **prior art, not independent confirmation**. **Short of the panel**: exactly one claim, the fan-out context rule, went through the adversarial panel and three-vote refutation that [research-protocol.md](research-protocol.md) requires, and it alone carries **confirmed** | one panelled claim; every other claim single-researcher | Observability, plus one correction under Concurrency |
 | 2026-07-29 | Cache discipline — the Java instantiation of the cross-stack source | evidence pass, design steelman, hostile audit with a planted defect, three refutation votes on the load-bearing claims | Cache discipline |
+| 2026-07-29 | Event broker discipline — the Java instantiation of the cross-stack source, plus the transport pick | design steelman, two tool-evidence passes against primary sources, hostile audit with a planted canary (caught), candidate comparison. **Short of the panel: the three refutation votes were not run** — the session's agent budget was exhausted and four seats died with it | Event broker discipline |
 
 **No scoped pass moved the frontmatter clock.** Each verified only the rules
 it added, so `verified` and `review-by` stand at the 2026-07-21 pass. Bumping
@@ -1224,6 +1272,224 @@ platform-neutral, so it lives once in
 pick remains a seed-text line (B-11). The licence table above is this pack's
 own dated record for the two engines its seed line names.
 
+### Event broker discipline
+
+The 2026-07-29 pass, and **the one pass in this file that did not finish the
+protocol.** The three refutation votes
+([research-protocol.md](research-protocol.md) §3) were not run: the session's
+agent budget was exhausted mid-pass. A hostile audit carrying a planted canary
+stands in their place, and the canary was caught, so the audit's findings count.
+Read every tool claim below as **primary-source verified by one researcher, not
+confirmed** — running the votes is what promotes them, and that is a named
+trigger in section 5.
+
+This section's rules are the Java instantiation of
+[`rule-sources/event-broker-discipline.md`](rule-sources/event-broker-discipline.md);
+that file holds the directives, the platform-neutral evidence, the instantiation
+table and the candidate survey. What belongs here is what is true of **this**
+stack.
+
+**Every broker directive is convention**, for the same reason the cache
+directives are: each is a design argument rather than an execution result.
+
+**The version pairing this section's checks assume, read from the Spring Boot
+dependency manifest 2026-07-29:** Boot 4.1.0 manages spring-kafka 4.1.0,
+kafka-clients 4.2.1, jOOQ 3.21.5 and Testcontainers 2.0.5. ArchUnit is 1.4.2
+(2026-04-18). Pin the gates to these and re-check at adoption.
+
+**Six framework facts are primary-source verified and each one forced a rule to
+be worded differently.** They are recorded because the unsound version reads
+better:
+
+- **The listener acknowledgement mode defaults to `BATCH`, not `RECORD`.** It
+  commits the offsets of all records from the previous poll once all have been
+  processed, so a crash after record three of fifty redelivers all fifty. A rule
+  reasoning "the default is at-least-once per record" is wrong about the *unit*.
+- **A share-consumer acknowledgement mode was added in 4.1 whose implicit value
+  has the broker acknowledge every record regardless of processing outcome**,
+  with no listener involvement. A rule inspecting only the listener mode reports
+  green over it, which is why the seed text pins two settings.
+- **`DefaultErrorHandler` is bounded and tight-looping:** ten total attempts
+  with `FixedBackOff(0, 9)` — a **zero-millisecond** interval. So "retries are
+  bounded" and "a backoff is configured" both pass on a zero-delay ten-times
+  hammer.
+- **`DeadLetterPublishingRecoverer` does not create its destination and does not
+  fail loudly when it is missing.** Default destination is the source topic
+  suffixed `-dlt` on the same partition number; its partition check logs an
+  unknown topic at **DEBUG** and a missing partition at **WARN** before letting
+  the producer choose one. A test asserting the record reached the dead-letter
+  topic must assert the partition too.
+- **`@RetryableTopic` documents its own ordering cost**: "By using this strategy
+  you lose Kafka's ordering guarantees for that topic." Also documented as
+  unsupported with batch listeners and unable to combine with container
+  transactions. This is the primary source behind confining it to `unordered`
+  subscriptions.
+- **An explicit non-annotation registration path exists and is documented** —
+  the reference states messages can be received "by configuring a
+  `MessageListenerContainer` and providing a message listener or by using the
+  `@KafkaListener` annotation", with container, container-properties, factory
+  and endpoint-registry types all present. The annotation ban depends on this
+  fact, and without it the rule would be a demand to hand-roll a poll loop.
+
+**Three toolchain limits, each of which shaped a check:**
+
+- **ArchUnit can read annotations** — the listener annotation has runtime
+  retention and "no annotated method outside package P" is directly expressible
+  — **but its `@Target` includes annotation types and classes**, so a
+  repo-defined meta-annotation and the class-level form both escape a
+  methods-only, direct-annotation rule. That is the divergence recorded in the
+  source's instantiation table.
+- **ArchUnit rules do not pass vacuously by default** (an empty should-clause is
+  rejected since 0.23.0) **but the guard is one line from being disabled** — a
+  property, or a per-rule override — and it does not cover an importer pointed
+  at the wrong path. Hence the rule that every architecture rule ships a
+  violating fixture. **This finding is not broker-specific and applies to every
+  ArchUnit gate in this pack.**
+- **The Toxiproxy module confirms nothing about itself.** Its client exposes only
+  name, stream, toxicity and remove — no counter, no bytes-affected, no fired
+  flag — **and toxicity is a probability**, so a registered toxic can
+  legitimately not affect the call under test. A chaos test asserting only "the
+  toxic was added and the call succeeded" cannot distinguish tolerance from a
+  fault that never arrived. This sharpens the same finding the cache pass
+  recorded and is why the fault arm asserts the fault was *observed*.
+
+**Static analysis: one usable rule, and a documented absence.** A sweep of Error
+Prone, SpotBugs, all 714 sonar-java rules, PMD, fb-contrib, find-sec-bugs and
+error-prone-support, 2026-07-29:
+
+- **Error Prone's `FutureReturnValueIgnored` fires on a bare
+  `kafkaTemplate.send(...)`** — the template returns
+  `CompletableFuture<SendResult<K,V>>` and carries **no**
+  `@CanIgnoreReturnValue` (checked in its source). It is `WARNING` by default and
+  must be raised to `ERROR` to gate the build. **Two limits:** the idiomatic fix,
+  chaining `whenComplete`, returns another future and fires again, because those
+  methods are absent from the check's exemption list; and a variable named with
+  the tool's `unused` prefix silences it, which an agent will find.
+- **Nothing exists for the three rules that matter most.** No rule in any of
+  those indexes detects a publish inside a transactional method, a consumer
+  acknowledging before handling, or an unbounded retry; `acknowledg*` returns
+  zero hits across every index. The nearest transaction rules concern
+  self-invocation, non-public proxied methods and rollback-for declarations, and
+  none reasons about what a transactional method calls out to. **So those rules
+  are bespoke here, and their evidence is a test rather than a lint.**
+- **Not searched, and absence is not claimed for them:** Semgrep, CodeQL, and
+  commercial analysers. A "publish inside `@Transactional`" pattern is plausible
+  in either and would be the cheapest upgrade available — recorded as a trigger.
+
+**The divergence this stack forced, recorded in the source's table.** The
+same-transaction property **cannot be type-designed on jOOQ's own types.**
+`transaction()` hands back a *derived* `Configuration` and the manual warns that
+using the outer scope inside the block will "silently run outside the
+transaction" — but both are the same static type, so no compiler, processor or
+bytecode reader distinguishes them, and `jooq-checker` (3.21.6) ships only a
+dialect checker and a plain-SQL checker. Spring offers strictly less: the
+transaction is thread-bound and ambient, and self-invocation bypasses the proxy
+entirely. So the repo owns a wrapper handle type, and **the rollback test is the
+thing that actually decides the property.**
+
+**The framework's own transaction documentation is the argument for the
+outbox, and its silence is the load-bearing part.** The recommended shape
+synchronises the Kafka transaction with the database one; the documentation states
+"The DB transaction is committed first; if the Kafka transaction fails to commit,
+the record will be redelivered so the DB update should be idempotent", and that a
+failed synchronized commit now throws to the caller where it was previously
+logged at debug, so applications "should take remedial action … to compensate for
+the committed primary transaction". **It never analyses a crash between the two
+commits and never quantifies the window.** That absence is the basis for choosing
+an outbox — not a documented probability, and this pack must not present it as
+one. `ChainedKafkaTransactionManager` is **deprecated since 2.7 and still
+shipping** in 4.1.0; it is not removed.
+
+**Outbox implementations — a poller is not bespoke on this stack; the gates
+are.** Verified from Maven Central metadata and each repository, 2026-07-29:
+gruelbox transaction-outbox **7.0.707** (Apache-2.0, has a jOOQ module, writes
+the row in the caller's transaction; its README states the polling loop "is up to
+you", so the relay's lifecycle is the bespoke residue), namastack-outbox
+**1.8.0** (Apache-2.0, automatic schema creation), and Spring Modulith's event
+publication registry **2.1.0** (Apache-2.0, writes the log entry "as part of the
+original business transaction", republication on restart opt-in — its
+broker-externalization module was **not verified**). `raedbh/spring-outbox` has
+no releases and is not recommended. The change-data-capture route is Debezium
+3.6.0.Final (Apache-2.0), whose outbox router is a **Kafka Connect
+transformation**, so it needs a Connect cluster or the standalone server,
+logical replication, a replication slot, and a connector configuration outside
+this build that no Maven gate can read.
+
+**Two facts that change what a gate costs, and neither was previously recorded
+in this pack:**
+
+- **The LocalStack image has required an authentication token since
+  2026-03-23**, with a CI-specific token injected from a secret store. Any
+  managed-queue gate built on it now needs an account and a CI secret.
+- **`EmbeddedKafkaBroker` is not deprecated, and the documentation records no
+  divergence from a real broker** — `testing.adoc` contains zero occurrences of
+  "testcontainer". Since 4.0 only the KRaft implementation exists. **So
+  "prefer Testcontainers because the embedded broker diverges" is a bet, not a
+  citation**, and must not be written as one. The documented caveats are
+  operational: no shutdown mechanism when tests finish, do not mix a global
+  embedded broker with per-class ones, and use a distinct topic per test.
+
+**A PostgreSQL queue extension is not a Java option, and the usual objection to
+it is wrong.** Its control file sets `superuser = false`, so the superuser claim
+is false; the real barriers are host filesystem access to place the extension
+files — its own documentation marks managed-cloud support as limited — and
+provider allowlisting, and it is **absent from the AWS RDS supported-extensions
+list** for every version checked. Its raw-SQL install works on a managed service
+but is unversioned with no upgrade path. It has no first-party Java client: of
+three third-party JVM clients, one is not on Maven Central and the others were
+last touched in 2024.
+
+**A research-method note worth keeping, because it invalidates a habit.** The
+Maven Central *search* API under-reports: it returned no 7.x for an artifact
+whose `maven-metadata.xml` lists 7.0.707, and zero results for a group whose
+metadata lists a current release. **Use
+`repo1.maven.org/maven2/<path>/maven-metadata.xml` for existence claims**, not
+the search endpoint. Any earlier note in this corpus resting on search counts
+should be re-checked.
+
+**Named gaps — where this stack can host no check.** Silence would read as
+coverage:
+
+1. **A swallowing catch is invisible**, unchanged from the money and cache
+   sections. The void handler port reduces it — there is no default to return —
+   but the general case is spec-and-review.
+2. **Broker-side and infrastructure configuration is invisible to every check in
+   this build** — durability, replica counts, minimum in-sync replicas,
+   retention, delivery limits as actually deployed. The catalog's declarations
+   are the lint's operands and they can be a lie.
+3. **The same-transaction property is decided by a test, not a type**, per the
+   divergence above.
+4. **A hand-rolled request-reply pair** built from two subscriptions and a
+   correlation id is not decidable.
+5. **The cross-repository union check has no host.** The catalog and the schema
+   gate are repo-local, so a producer renaming a subject cannot see the other
+   services. This is the most consequential gap in the section for this
+   organisation and it needs infrastructure that does not exist.
+6. **The AsyncAPI path has no build-failing Java host**, and the one that looks
+   like it is a false-green gate — see section 3's note and the source's
+   evidence.
+
+**Not measured, and it is a real number for a three-person team:** the cache
+section already triples integration CI time; this section runs the suite in
+**four** configurations against a real broker in a container, which makes it the
+most expensive gate in the pack. Nobody has run it. If it is cut, five rules
+degrade to declarations while the catalog still reports green — which is exactly
+what the per-subscription positive controls exist to make visible.
+
+**The candidate survey is not repeated here.** Nine candidates with licences,
+release cadence, documented minimum production shape and numbered rejection
+grounds live once in
+[`rule-sources/event-broker-discipline.md`](rule-sources/event-broker-discipline.md)
+section 7, because that survey is platform-neutral. Three grounds are
+Java-shaped and belong here instead: **Kafka's** JVM heap, GC and page-cache
+tuning is a skill no role in this organisation holds, and its 4.0 upgrade
+mechanism removed `inter.broker.protocol.version` in favour of `metadata.version`
+via `kafka-features.sh`, so **an agent writing operational tooling from corpus
+memory produces a config key the broker rejects**; **AutoMQ's**
+enterprise-gated metrics export cannot participate in this pack's observability
+rules; and **RabbitMQ's** Erlang pin is a second runtime to track in a JVM shop
+that already tracks one.
+
 ## 5. Re-open triggers
 
 - Cache discipline: the triggers live with the directives in
@@ -1234,6 +1500,22 @@ own dated record for the two engines its seed line names.
   successor can decide that a catch swallows rather than propagates, the
   cache-error rule's general half promotes from spec-and-review to a build
   gate.
+- Event broker discipline: the triggers live with the directives in
+  [`rule-sources/event-broker-discipline.md`](rule-sources/event-broker-discipline.md)
+  section 6. **The first one is this pack's own**: the three refutation votes
+  were never run on that pass, so running them is what promotes this section's
+  framework and toolchain claims from primary-source-verified to confirmed.
+  Four more are Java-shaped. If a Semgrep or CodeQL rule can soundly flag a
+  publish reachable from an ambient transaction, the confinement rule gains a
+  direct check — neither registry was swept. If jOOQ or Spring ever hands back a
+  transaction scope of a *distinct static type*, the wrapper handle becomes
+  unnecessary and the same-transaction property promotes from a test to the
+  compiler. If a client library exposes Kafka share groups, the delivery counter
+  and the non-blocking retry stop being bespoke on the log-shaped path and the
+  queue-versus-log threshold needs re-deciding. And if a build-failing AsyncAPI
+  comparator appears for Maven, the exec-plugin workaround retires — until then
+  the existing Java plugin must stay banned by name, because it goes green over
+  incompatibilities.
 - Persistence (jOOQ): if a jOOQ stewardship change or its vendor risk
   fires, the named exit is Spring Data JDBC — explicit persistence with
   no dirty checking or lazy loading, so the property that chose jOOQ

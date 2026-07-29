@@ -793,3 +793,578 @@ one.
   check it against behaviour — that field is the catalog's documentation half.
   (An annotation processor or a test generating the catalog, regenerate-and-diff
   in CI — bespoke.)
+
+### Event broker discipline
+
+The rules below bind from the first **asynchronous handoff** — any point where
+the caller's control flow does not contain the work's execution. That is wider
+than a broker on purpose: a queue table polled by a scheduled job, an in-process
+event bus, a bare executor submit or virtual-thread start, and an outbound
+webhook are all asynchronous handoffs, and every one of them produces duplicate
+delivery, poison items, ordering assumptions and a failure destination nobody
+reads. Until the first one exists these rules are dormant, not deleted, and the
+plan that introduces it must cite this section in its Decision Trace.
+
+**Start with no broker.** A broker is a stateful clustered service somebody
+patches, sizes, monitors and fails over, and every self-hosted candidate
+documents three or more nodes as its production minimum. The cheapest correct
+asynchronous primitive here is a durable table in this service's own PostgreSQL,
+claimed with `SELECT … FOR UPDATE SKIP LOCKED`, plus an outbox row written in
+the business transaction. PostgreSQL documents that claim shape for a
+"queue-like table" and warns in the same sentence that it gives an inconsistent
+view of the data — both halves matter, and the second is why the relay rules
+below exist. Introduce a broker only when one of three thresholds is crossed and
+the plan says which: a consumer cannot read this service's database; two
+consumers need independent retention or replay of the same fact, which is the
+threshold that warrants a retained log rather than a queue; or the queue table's
+measured cost exceeds a committed budget. **No throughput number is stated here
+because none was verified — measure this service's own and commit it.** Two
+consumers alone do not cross the threshold: a table with a cursor per consumer
+serves two consumers.
+
+- **Where a threshold is crossed, the self-hosted broker is Apache Kafka in
+  KRaft mode, pinned by image digest, and only when a named person owns the
+  cluster, its upgrade calendar and its metadata version.** Kafka is Apache-2.0
+  under foundation governance and is the only candidate that is both a
+  replayable log and a work queue with per-message acknowledgement while holding
+  no feature back — every security mechanism ships free, where two rivals put
+  role-based access control behind a licence key. Its documented minimum is
+  three or more controllers, and the only route to three total nodes is combined
+  mode, which its own documentation calls not recommended for critical
+  deployments; a metadata downgrade out of 4.3 is unsupported, so finalising an
+  upgrade is a one-way door. On Kubernetes, Strimzi carries that load. Off
+  Kubernetes and with no named owner, the substitute is NATS JetStream at three
+  replicas — Apache-2.0, one static binary, no external dependency — configured
+  against two documented traps: its file-sync interval defaults to two minutes
+  and its own documentation says an operating-system failure in a non-replicated
+  setup may lose data, and its storage directory defaults to a path under
+  `/tmp`. A single-replica JetStream stream has no recovery path but a backup.
+  **Redpanda is banned by name:** it is source-available under a business source
+  licence rather than OSI open source, its additional-use grant excludes
+  offering a queuing service, and role-based access control and
+  identity-provider authentication are licence-gated. **AutoMQ is banned by
+  name:** it is Apache-2.0, but it makes an object store you also operate
+  mandatory, and its low-latency write-ahead log and its metrics export are
+  enterprise features — a broker whose Prometheus export is paid cannot
+  participate in the observability rules above. **RabbitMQ is permitted only
+  where strict message priority is a stated requirement** — it is the only free
+  candidate that has it — and then the plan records that community support runs
+  roughly four months per minor series, that upgrades are strictly one series at
+  a time, and that Erlang is pinned to a single major version. Versions,
+  licences and support windows checked 2026-07-29; re-check them at adoption.
+  (Banned-dependency rules on the client packages plus an image-digest pin —
+  off-the-shelf hosts; the licence scan over the dependency graph is authored
+  per repo.)
+- **On a managed platform the transport is that platform's own queue or
+  publish-subscribe service, never managed Kafka, unless a retained log is a
+  stated requirement.** The deciding number is the billing floor, not the
+  message rate: the queue-shaped and publish-subscribe services carry no minimum
+  fee and a standing monthly free allowance, while every cluster-shaped managed
+  service is priced per cluster-hour, so an idle cluster costs hundreds of
+  dollars a month and the floor dominates a low-volume bill. One shared cluster
+  across teams is not the escape — it creates a component no role in this
+  organisation owns. Prices move: re-check them at adoption, and expect at least
+  one vendor's pricing page to render client-side and yield no figure at all.
+  (Convention — a plan decision, reviewed at the plan gate.)
+- **The outbox and its relay are not hand-rolled unless the plan says why.**
+  Three Apache-2.0 libraries on this stack write the outbox row in the caller's
+  transaction and need nothing beyond PostgreSQL: gruelbox transaction-outbox
+  7.0.707, which has a jOOQ module and whose README states the polling loop is
+  the application's to supply; namastack-outbox 1.8.0; and Spring Modulith's
+  event publication registry 2.1.0. The change-data-capture route is a different
+  trade and is rejected by default: its outbox router is a Kafka Connect
+  transformation, so it needs a Connect cluster or a standalone server, logical
+  replication, a replication slot, and a connector configuration that lives
+  outside this build where no gate can read it. **Match that router's expected
+  outbox columns in the first migration anyway** — an aggregate id, an aggregate
+  type, a payload, a timestamp and an event type — because it makes adopting a
+  broker later a connector plus a topic map instead of a rewrite. A PostgreSQL
+  queue extension is not a Java option: it has no first-party Java client and is
+  absent from the managed-database extension allowlists. Versions checked
+  2026-07-29. (Convention — a plan decision; the banned-dependency rule for the
+  change-data-capture path is off-the-shelf.)
+- **Use a standard event envelope for every message payload.** The transport is
+  the thing most likely to change; the payload shape should not have to. (Schema
+  lint over the committed schema files — bespoke.)
+- **Every publish, every subscription registration and every acknowledgement
+  goes through one messaging-adapter package, and the asynchronous constructs
+  application code may reference are an allow-list, not a ban list.** A
+  committed list names every async-capable type and annotation — broker and
+  queue clients, in-process event buses, `ExecutorService` submits,
+  `CompletableFuture.supplyAsync`, `Thread.startVirtualThread`, `@Async`,
+  `@Scheduled`, reactive subscribe operators — and no class outside the adapter
+  may reference one. **A ban list is the wrong shape:** it reports green over
+  every construct nobody thought of, while the rule's own wording claims to
+  cover any asynchronous shape. The list file is reviewed like code, so a new
+  mechanism is a missing entry rather than a silent pass, and a new dependency
+  matching the committed transport pattern fails the build until a catalog entry
+  exists. The adapter exposes no reply-to, correlation or await-response
+  primitive. (ArchUnit over the committed type list plus a dependency-manifest
+  grep — off-the-shelf hosts; the list and the predicates are authored per repo.
+  A hand-rolled request-reply pair built from two subscriptions is not decidable
+  and stays spec-and-review.)
+- **There is no in-process asynchronous handoff. The outbox plus its relay is
+  the only mechanism, and the relay may dispatch to targets inside this
+  deployable.** An in-process event bus is a banned dependency, not a governed
+  shape. This costs a database round trip and it buys the rule an operand: an
+  in-process handoff has no publish to confine and often no transaction to join,
+  so without this it sits outside every rule here. (Banned-dependency rule plus
+  the allow-list above — off-the-shelf host.)
+- **No consumer is bound by an annotation. A handler carries no listener
+  annotation and implements no broker-library listener interface; every
+  subscription is constructed at one enumerated registration site inside the
+  adapter; and the subscription list is generated from those sites and diffed in
+  CI.** Spring documents both paths — a `MessageListenerContainer` with
+  `ContainerProperties` and a `MessageListener` is supported alongside the
+  annotation — so the ban has a supported replacement and is not a demand to
+  hand-roll the poll loop. With an annotation, "which destinations does this
+  service consume" is a fact only the annotations know and nothing enumerates,
+  and eleven rules below read that inventory. **The check must cover the
+  meta-annotated and class-level forms, not just a directly annotated method:**
+  the listener annotation targets annotation types and classes as well as
+  methods, so a repo can wrap it in its own annotation and a methods-only rule
+  reports green while the banned thing passes. (ArchUnit on methods **and**
+  classes, using both the annotated and meta-annotated predicates —
+  off-the-shelf host, predicates per repo; plus an annotation processor or test
+  generating the subscription list, regenerate-and-diff — bespoke.)
+- **The message handler is a nominal port type with two abstract members, and
+  its implementations live only in the package permitted to depend on the domain
+  services.** A single-method interface makes every lambda a legal handler, and
+  ArchUnit reads bytecode and cannot follow a lambda body — so two abstract
+  members make the lambda a compile error and every handler a named class the
+  architecture test can place. The second member has a job beyond that: a lambda
+  handler is unnameable in the generated subscription list, so the diff would
+  produce rows nobody can act on. (Javac plus ArchUnit — off-the-shelf hosts;
+  the port type is this repo's.)
+- **Application code contains no publish. The publish call is reachable only
+  from the relay package, and application code's only enqueue path is a row in
+  the outbox table.** The failure this prevents is the dual write, and it is why
+  this section exists: a database commit and a publish are not one transaction,
+  and the process can die between them in either order. **Publishing after the
+  transaction commits is not the fix — it is the dual write**: the commit
+  succeeded, the process died, the event never went, and nothing anywhere records
+  that it should have. Note the contrast with the cache rules above, and do not
+  carry either one over to the other: deleting a cache key after commit is
+  correct because a lost delete leaves a stale read bounded by the staleness
+  ceiling and self-heals, while a lost publish is an unbounded permanent absence
+  with no self-healing path and nothing anywhere that can compare against a
+  message which was never produced. "Never publish inside a transaction" is the
+  wrong rule — moving the call one frame down the stack satisfies it — and what
+  must be inside the transaction is the outbox row. (ArchUnit for the
+  confinement — off-the-shelf host, predicate per repo; a config assertion on
+  the producer's acknowledgement setting — bespoke. Broker-side durability,
+  replica counts and minimum in-sync replicas are invisible to every check in
+  this build: named gap.)
+- **The transaction is not ambient: the outbox-append method takes a
+  transaction-handle type this repo owns, constructible only by the transaction
+  seam, with no no-argument overload. A rollback test is mandatory, not
+  redundant.** **Do not try to check this with ArchUnit.** Whether a transaction
+  is active at a call site depends on which callers reach it, on whether the
+  call arrived through the Spring proxy at all — self-invocation bypasses it,
+  identical bytecode, opposite runtime answer — on the propagation of every
+  intermediate frame, and on which data source is in play, since the requirement
+  is *the same* transaction and two transaction managers both satisfy "a
+  transaction is active". A rule written there reports green over exactly the
+  case it exists to catch. **And the handle cannot be jOOQ's own:** its
+  transaction block hands back a derived `Configuration` and its manual warns
+  that using the outer scope inside the block silently runs outside the
+  transaction — but both are the same static type, so no compiler, processor or
+  bytecode reader distinguishes them, and jOOQ's own checker covers dialects and
+  plain SQL only. So the repo owns a wrapper type and the compiler discharges the
+  obligation at the call site. (Javac plus ArchUnit on the port signature and its
+  referencing packages — off-the-shelf hosts, the type is this repo's; plus two
+  Testcontainers tests — roll the business transaction back after the append and
+  assert no outbox row and no published message, and kill the process after
+  commit and before the relay, restart, and assert the message is published and
+  observably once — bespoke. One data source and one transaction manager is a
+  committed config fact, not a type fact: assert it.)
+- **Every outbox row carries a message identity that is a deterministic function
+  of committed inputs — the aggregate identity plus a per-aggregate sequence by
+  default — with a private-constructor identity type, one factory per strategy,
+  no clock or random source reachable from the factory package, a NOT NULL
+  UNIQUE column, and a test that re-derives every identity in the committed
+  corpus from its payload.** At-least-once means the relay republishes a row it
+  already published, because it died between publishing and marking it sent. If
+  the identity is minted per attempt the two copies are indistinguishable to
+  every consumer and deduplication becomes impossible. **"Every message has a
+  unique id" is the wrong rule** — a fresh random identifier satisfies it and
+  destroys the property it appears to provide — **and the unique constraint alone
+  is the wrong check**, because a random value assigned at row-write time
+  satisfies not-null, unique, and "not generated at publish time". The
+  re-derivation test is what checks the half that matters. Hash-of-business-key
+  is permitted only where the catalog declares that destination
+  idempotent-by-key: a genuinely recurring business event collides, and since the
+  row is written in the business transaction the collision aborts the business
+  write, not just the message. (Javac and ArchUnit for the type and the package
+  ban — off-the-shelf hosts; a migration constraint plus a property test and a
+  golden re-derivation test — bespoke.)
+- **The relay claims outbox rows one in-flight claim per partition key, inside a
+  transaction, with `FOR UPDATE SKIP LOCKED` — never a status column. It
+  publishes before marking a row sent, treats a possibly-successful publish as a
+  re-publish, never deletes an unsent row, and retains a sent row for a committed
+  window with a committed upper bound. Relay concurrency is a committed value.**
+  Concurrent relay workers that claim rows without regard to key publish out of
+  aggregate order, so the partition key below faithfully preserves at the broker
+  an order the relay already destroyed — and every gate stays green. A status
+  column instead of a transaction-scoped claim strands rows when a worker dies,
+  with no error anywhere. Marking sent before publishing reintroduces silent loss
+  inside the fix for silent loss. (ArchUnit for the confinement — off-the-shelf
+  host; the claim query and its key granularity are this repo's, with a
+  Testcontainers test that kills the relay between publish and mark-sent and
+  asserts one observable effect — bespoke.)
+- **The relay carries two alerts with fire-tests: outbox depth above a committed
+  threshold, and the age of the oldest unpublished row. A transport outage must
+  not stop a business transaction from committing.** The age of the oldest
+  unpublished row is the most important signal in this design, and every
+  consumer-side alert is blind to it: a relay that stopped is indistinguishable
+  from a quiet system. (Prometheus rules with `promtool` fire-tests —
+  off-the-shelf host, fixtures per repo; plus a Testcontainers test that holds
+  the transport down past the threshold and asserts the alert fired and no
+  business transaction was blocked — bespoke.)
+- **Automatic acknowledgement is off and the setting is a committed value a test
+  reads. The acknowledgement primitive is not reachable from handler code: the
+  handler port returns `void`, the adapter acknowledges only after the handler
+  returns normally, and a handler signals failure only by throwing.** The
+  platform default is unsafe in a different way on each shape, and a rule must
+  not claim one story for all three: on Kafka `enable.auto.commit` defaults to
+  `true` with a five-second interval, so records count as consumed when the poll
+  returns them and a crash loses in-flight work silently; RabbitMQ's own
+  documentation calls automatic acknowledgement unsafe and loses the message when
+  the channel closes; a managed queue has no automatic acknowledgement at all
+  and instead fails toward duplication. **Two settings must be pinned, not one.**
+  Spring's listener acknowledgement mode defaults to `BATCH`, which commits the
+  whole poll batch once every record in it has been processed — so a crash after
+  record three of fifty redelivers all fifty, and reasoning about "at-least-once
+  per record" is wrong about the unit; and the share-consumer acknowledgement
+  mode has an implicit value under which the broker acknowledges every record
+  regardless of outcome with no listener involvement, so a rule that inspects
+  only the listener mode is green over it. The corpus favourite here is catch,
+  log, acknowledge, which is a silent drop written deliberately — and unlike a
+  cache miss there is no authoritative store to fall back on. (A config-default
+  assertion on both settings — bespoke, in the shape of the virtual-threads
+  property assertion; Javac for the void port; ArchUnit to keep the
+  acknowledgement type out of handler packages — off-the-shelf host. A catch that
+  swallows by returning a default stays invisible to this toolchain, the same gap
+  and the same reason the money rules and the cache rules record: named gap.)
+- **Failure is classified at the throw site by two sealed exception types,
+  terminal and retryable, and a `catch` in a handler package must rethrow one of
+  them. A terminal failure routes on the first attempt without consuming the
+  attempt budget.** Without this the void-and-throw port above has no way to say
+  "this will never succeed", so a permanently undecodable message burns the whole
+  attempt budget and the whole backoff schedule, fires the retry alert, and on an
+  ordered subscription blocks the key forever. (A sealed hierarchy —
+  off-the-shelf via Javac; an Error Prone or ArchUnit rule on the catch —
+  bespoke.)
+- **Every subscription declares a processing budget, and a test asserts the
+  budget is at or below its lease and that batch size times per-item budget is at
+  or below the budget. Handler packages reference no sleep, no unbounded wait and
+  no un-timed outbound call.** A handler slower than the lease becomes a loop:
+  the lease expires, the message is redelivered, the handler runs again, the
+  group rebalances — and it presents as lag, which reads as "busy" rather than
+  "executing the same work forever". The arithmetic is not hypothetical:
+  `max.poll.records` defaults to 500 against a `max.poll.interval.ms` of 300000,
+  so per-record work above roughly 600 ms guarantees the loop. (A JUnit test over
+  the committed catalog and config plus ArchUnit on the handler packages —
+  off-the-shelf hosts, predicates per repo. A handler that ignores interruption
+  still overruns: named gap.)
+- **Effect-free and deduplicated are two port types, not two words in a
+  catalog.** An effect-free handler implements a port whose package may not
+  depend, transitively, on any repository, the outbox, the publish port, an
+  outbound client or a file-write API — so it has no way to have an effect. A
+  deduplicated handler cannot perform its effect except through an operation that
+  takes the message identity and writes the deduplication row in the same
+  transaction as the effect, and that row lives in this service's PostgreSQL —
+  never in the cache, never in a map field, never in the broker. **"Consumers
+  must be idempotent" is the wrong rule:** true, load-bearing and completely
+  undecidable, so a gate worded around it reports green over exactly the case it
+  exists to stop. **And a catalog field is the wrong mechanism for effect-free:**
+  it is a one-word bypass for this entire discipline that every evidence run
+  reports green over. The idempotency record the money rules require in the same
+  transaction as the money effect is this same record, and the cache rules above
+  already ban it from the cache. **Two exactly-once claims must be refused by
+  name:** Kafka's transaction is broker-scoped, so a database write inside a
+  handler is outside it, and a managed FIFO queue's exactly-once is a five-minute
+  deduplication interval on send, not exactly-once processing. (ArchUnit on the
+  transitive dependencies of the effect-free port's package — off-the-shelf host,
+  predicate per repo; a Testcontainers test delivering one message twice and
+  asserting one effect, plus a property test that the deduplication key is a
+  function of the identity alone — bespoke. Whether two *distinct* messages
+  denote one effect is semantic: named gap.)
+- **The deduplication row's retention is a committed value bounded on both
+  sides:** at or above the maximum redelivery window — the lease times the
+  attempt limit, plus the terminal destination's redrive window — and at or below
+  a committed upper bound. "Have a dedup table" is satisfied by a table pruned
+  after sixty seconds, which makes deduplication a coin flip that comes up wrong
+  precisely under the slow-retry conditions that produce duplicates; and an
+  unbounded one nobody vacuums is a future outage on the team least able to
+  absorb it. (A JUnit test over the committed catalog — bespoke. Its operands are
+  this repo's declarations of broker-side retention, which can be a lie: named
+  gap.)
+- **Every publish supplies a partition key of a private-constructor key type
+  built from the aggregate identity, with no keyless publish overload and no
+  free-text parameter on any key factory. Every subscription declares
+  `ordered-within-key` or `unordered`. An ordered subscription gets key-affine
+  execution, its terminal destination is `halt` — the key stops, the message is
+  not skipped — with a committed maximum halt duration and an escalation alert,
+  and it declares gap handling that the adapter checks inside the deduplication
+  operation rather than leaving to handler code.** Without a key, two events about
+  one aggregate are processed concurrently in arbitrary order, the state is wrong
+  only under concurrency, and the test that gets written publishes one message.
+  And the retry destination added for safety destroys the ordering the handler
+  assumes: Spring's own documentation says of its non-blocking retry mechanism
+  that you lose Kafka's ordering guarantees for that topic, and a managed FIFO
+  queue's documentation says not to attach a dead-letter queue for the same
+  reason. **The ordered case carries a different total field set, not a missing
+  one** — reading it as "ordered implies the terminal destination is absent"
+  contradicts the catalog rules below. Note the ground for the no-free-text
+  clause: a factory that cannot take a `String` makes the wrong call unwritable,
+  which is stronger than any bytecode rule and does not turn on how the compiler
+  emits string concatenation. (Javac and ArchUnit on the factory and port
+  signatures — off-the-shelf hosts, predicates per repo; a cross-field JUnit test
+  over the catalog, plus a Testcontainers test per ordered subscription that
+  delivers a key's messages out of sequence and asserts detection and rejection
+  rather than a different silent state — bespoke. That a handler assumes order
+  *across* keys is not decidable: named gap.)
+- **Every subscription's failure policy is a committed row with five
+  machine-readable fields: a finite attempt count, a backoff schedule with a
+  non-zero minimum interval, a terminal destination, a named owning team, and two
+  alert names — one on arrivals at the terminal destination, one on staleness,
+  meaning lag or oldest-unprocessed age above a committed threshold, with a
+  heartbeat so "no traffic" is distinguishable from "not running". No subscription
+  declares unlimited attempts, and none declares a drop.** Three failures, all
+  invisible or unbounded. Unbounded retry of a message that can never succeed
+  holds the partition, so one malformed message stops every key that shares it —
+  and the symptom is lag, so the diagnosis points at capacity. **A silent drop is
+  the platform default on both shapes:** RabbitMQ drops the message past its
+  delivery limit unless a dead-letter exchange is configured, and Kafka's share
+  groups move a record to an archived state after the delivery-attempt limit,
+  where it is not eligible for further delivery and is routed nowhere. And a
+  backlog nobody sees is where the absent reader is doubled: a synchronous failure
+  surfaces at the caller, while an asynchronous one surfaces nowhere — the
+  publisher succeeded and the message sits, so the *absence* of a signal is the
+  failure mode. **"Every consumer has a dead-letter queue" is the wrong rule:**
+  worthless alone, because a destination with no owner and no alert is where
+  messages go to be forgotten, and sometimes harmful, because attaching one to an
+  ordered subscription breaks its ordering. Note also that Spring's default error
+  handler is bounded at ten attempts with a fixed backoff of **zero
+  milliseconds**, so "retries are bounded" and "a backoff is configured" both
+  pass on a zero-delay ten-times hammer. There is no operations role here, so
+  either the terminal destination gets an automated drain-and-replay path or these
+  five fields produce unactioned pages, which trains the team to ignore the
+  channel. (A JUnit test over the committed catalog plus `promtool` fire-tests for
+  both alerts — off-the-shelf hosts, fixtures per repo; a Testcontainers test
+  exhausting the attempt count — bespoke.)
+- **Retry shape follows the transport shape. On a retained log, retry is
+  non-blocking — the adapter re-publishes to a committed delay destination
+  carrying the original key and identity — and handler packages reference no sleep
+  or park primitive. On a queue, in-place redelivery with the committed backoff is
+  permitted. The terminal destination's retention is strictly longer than its
+  source's. Redrive is a committed operation that re-enters through the same
+  subscription and therefore through the deduplication path.** The retention
+  comparison prevents a documented trap: a managed queue expires a message on its
+  *original* enqueue timestamp, so moving it to a dead-letter queue does not reset
+  the clock and a dead-letter queue configured with the same retention silently
+  deletes the evidence sooner than anyone expects. Spring's non-blocking retry is
+  permitted only on `unordered` subscriptions, and note two documented limits on
+  it: it does not work with batch listeners and it cannot combine with container
+  transactions. Assert the dead-letter topic's partition count as well as its
+  name — Spring's dead-letter publisher does not create the topic, logs an unknown
+  topic at DEBUG, and on a missing partition logs a WARN and then lets the
+  producer choose one. (ArchUnit plus a JUnit test over the catalog —
+  off-the-shelf hosts; Testcontainers assertions on the destination and partition
+  — bespoke. That a redrive was run from a console rather than the committed
+  operation is not visible to this build: spec-and-review.)
+- **Every message type has a committed schema file, the payload classes are
+  generated from it, the generated code is committed and regenerated-and-diffed
+  in CI, and the publish port accepts only generated types.** The payload is a
+  contract with no compile-time link to its consumers, so a renamed field
+  compiles, publishes, and every consumer silently reads the absent field as its
+  type default — while the producer's tests pass. (A generator bound to the build
+  with a `check` goal that diffs the committed output — bespoke; ArchUnit on the
+  port's parameter type — off-the-shelf host.)
+- **Schema evolution is gated against the full committed version history of the
+  subject — an append-only directory, one file per version, plus a committed
+  compatibility level — and the gate fails if an existing version file is
+  modified or deleted. Where the destination is retained or replayable the
+  committed level is a transitive one. A subject has one owning repository.**
+  **Checking only against the previous committed version *is* the non-transitive
+  check**, so requiring a transitive level and then comparing against the last
+  version reports green over exactly the case transitive exists to reject: two
+  individually compatible steps can be jointly incompatible with a consumer two
+  versions behind, and a retained log keeps the older bytes readable — Kafka's
+  default retention is seven days. **The AsyncAPI route has no build-failing Java
+  host, and one apparent host must be refused by name:** the only Java Maven
+  AsyncAPI comparator detects incompatibilities and then passes the build,
+  writing a report and exiting green, which is a gate that cannot go red. Use the
+  AsyncAPI command-line diff against the committed file through an exec plugin,
+  or a Protobuf breaking-change check against a committed baseline. **And the
+  corpus-favourite schema registry is not usable in the self-hosted variant:**
+  its own licence file puts the project under a source-available community
+  licence except for some client modules, so it is not OSI open source; Apicurio
+  Registry and Karapace are Apache-2.0. Facts checked 2026-07-29. (A
+  build-failing compatibility check over the committed history — bespoke host,
+  off-the-shelf checker. A checker decides shape and never meaning: redefining an
+  amount from gross to net passes every level, so that residue is spec-and-review
+  at the plan gate — named gap.)
+- **Decoding is strict about what is missing and tolerant about what is extra,
+  and this is deliberately the opposite of the cache rule above.** A missing
+  required field, an unparseable value or a type mismatch is a terminal failure —
+  never a default, never null, never zero — judged against the schema version
+  this consumer was generated from, because required-ness moves between versions.
+  An unknown extra field is tolerated, retained, counted per subject and field
+  name, and alerted under a committed threshold with a named owner. For a cache
+  value the writer and the reader are the same deployable, so rejecting an unknown
+  field costs nothing; for a message the producer is a different deployable on a
+  different release cadence, and adding an optional field is the entire mechanism
+  backward compatibility exists to permit — so rejecting unknown fields turns
+  every additive producer change into an outage in every consumer. Configure it in
+  the adapter only, as committed values: fail on missing creator properties, do
+  not fail on unknown properties, and bind through constructors so a missing field
+  cannot be defaulted after construction. Note that "counted and alerted" with no
+  threshold and no owner is structurally the catch-log-continue banned above. (A
+  Jackson configuration assertion — off-the-shelf; a parse test over a committed
+  corpus of malformed, truncated, missing-field and extra-field payloads —
+  bespoke; the unknown-field meter and its alert rule — off-the-shelf hosts.)
+- **Payload content bans, enforced as a lint over the committed schema files:**
+  no binary floating-point field anywhere in a message schema, with any exception
+  listed explicitly rather than scoped to "money fields"; a decimal is a string
+  and carries an explicit currency where it is an amount; no timestamp without an
+  explicit offset or zone; no open-ended enumeration without a declared
+  unspecified member and a consumer branch for it; no field whose only content is
+  an identifier the consumer must dereference to learn what the message means; no
+  personal data on a destination whose committed retention exceeds this repo's
+  personal-data retention ceiling; and a committed maximum payload size per
+  subject. The float ban is unqualified for the same reason the money rules give:
+  no lint can tell which field holds an amount, so a ban scoped to amounts is not
+  decidable by the check that enforces it. **This is the float ban's fifth
+  layer** — after field, column, wire and cached value. The unspecified-member
+  rule is the most common real event-schema defect: the producer adds a member,
+  the consumer's generated enumeration maps the unrecognised value to its zero
+  member, and a refund is silently processed as pending. The dereference ban is
+  enforced as a package rule — a handler package may not depend on an outbound
+  client for the service it consumes from — and its hazard is not coupling but
+  that the consumer reads *current* state, so the same message replayed later
+  yields a different answer. **And do not log the message payload to make a
+  consumer debuggable:** it copies the payload, personal data included, into a log
+  store with its own longer retention and its own access control, and that copy is
+  what survives after the destination's retention expires. (A schema lint plus a
+  parse test for the unrecognised enumeration value — bespoke; ArchUnit for the
+  dereference ban — off-the-shelf host. Personal data is not decidable without a
+  type-level classification regime: named gap, the same one the cache rules
+  record.)
+- **The authorization scope travels in the message as a required field of a
+  nominal type and is the only source of scope inside a handler: handler packages
+  may not reference the request-context accessor or any ambient scope holder, and
+  the adapter provides no default scope. Any operation whose authority depends on
+  the caller takes an authorized-actor parameter whose constructor is unreachable
+  from a handler package, so a privileged call does not compile there. Every
+  subscription carries a two-tenant test.** The corpus favourite is a thread-local
+  tenant context populated by a web request filter. There is no request on a
+  consumer thread, so it returns empty — or, on a pooled thread, the value left
+  behind by whatever ran there last, which is a silent cross-tenant write with no
+  error at any layer, and no single-tenant test can see it. **Two types rather
+  than one rule in prose:** "trust the scope for data placement but not as
+  authorization" is correct and unenforceable, because "privileged action" has no
+  operand and one value carrying two meanings resolved by context is the ambient
+  modifier these rules exist to remove. A consumer that must act with authority
+  calls one named operation that re-derives it from the database using the
+  aggregate identity. (Javac and ArchUnit — off-the-shelf hosts, predicates per
+  repo; a two-tenant Testcontainers test per subscription, seeding two tenants and
+  asserting each effect lands in its own scope — bespoke. That test is the outside
+  oracle: its ground truth is the database, not an assertion written by the model
+  that wrote the handler.)
+- **Every subscription declares `replay-safe` or `replay-unsafe`. A replay-safe
+  handler's package may not read a clock as data, a random source, or
+  producer-current state through an outbound client — the event time it needs
+  arrives in the message — and a `replay-unsafe` subscription may not be attached
+  to a retained destination.** A retained log can be replayed, and replay is the
+  tool reached for during an incident; a handler that reads the clock or fetches
+  current state produces different results than the original run, and the replay
+  looks like it worked. State the exemption or this contradicts three rules above:
+  what is banned is reading a clock as a value that reaches an effect or a
+  payload — expiry windows and telemetry timestamps are computed inside the
+  deduplication and telemetry adapters, which a handler calls without reading time
+  itself. (ArchUnit on the handler packages — off-the-shelf host, predicate per
+  repo; a replay test that processes a committed message corpus twice and asserts
+  the second pass produces no additional observable effect — bespoke. "The handler
+  is a total function of the message" is not decidable; these are proxies: named
+  gap.)
+- **The integration suite runs against a real transport in a container in four
+  configurations, and the arms are split by the ordering declaration rather than
+  applied uniformly.** Normal; duplicate-everything, where every message is
+  delivered twice; reorder-and-fail-once, which for `unordered` subscriptions
+  reorders within a key and requires identical observable results, and for
+  `ordered-within-key` subscriptions reorders across keys requiring identical
+  results *and* within a key requiring detection and rejection; and
+  transport-unavailable, where every publish path either persists an outbox row
+  and returns success or returns a coded error, and no path silently drops or
+  reports success without a row. **A uniform identical-results assertion is
+  unsatisfiable:** for an ordered subscription, reordering within a key either
+  never happens, so the arm is green over ordering bugs, or it does happen and
+  correct code must produce a different result, so the assertion fails on correct
+  code and teams declare everything `unordered` to make CI pass. State what it
+  cannot decide: broker-side configuration, because the container runs this repo's
+  committed configuration and not production's; rebalance behaviour at production
+  partition counts; multi-instance interleaving unless the suite really runs two
+  consumer instances; lease expiry mid-handler unless the timeouts are compressed,
+  which changes the thing under test; and any subscription no test drives. (Four
+  maven-failsafe executions against Testcontainers, a test-scoped duplicating and
+  reordering harness, and a fault-injecting proxy — bespoke.)
+- **Every configuration proves it took effect, per subscription; every alert
+  proves it fires; and every architecture rule proves it can fail.** The duplicate
+  arm asserts, for each subscription the catalog declares deduplicated, that the
+  effect operation was invoked twice with one identity, that exactly one
+  deduplication row exists and that the effect count is one — and for each
+  declared effect-free, that effect counts are equal across passes. The reorder
+  arm asserts an out-of-order delivery was observed; the fail-once arm asserts a
+  redelivery; the unavailable arm asserts the injected fault was observed; the
+  normal arm fails if any subscription **in the committed catalog** processed zero
+  messages; and the replay test asserts a non-zero first-pass effect count before
+  asserting a zero second-pass delta. Each architecture rule ships a committed
+  violating fixture that must fail the build. Nothing in a differential gate
+  verifies its own wiring: a duplicating harness that silently is not duplicating
+  makes three arms the same run, the results are trivially identical, and the gate
+  reports green over every failure it exists to catch. **Three tool facts make
+  each clause necessary rather than defensive.** The fault-injecting proxy exposes
+  no API that confirms a toxic affected a given operation, and its toxicity is a
+  *probability*, so a registered toxic can legitimately not fire on the call under
+  test. ArchUnit rejects an empty should-clause by default, but a one-line
+  property and a per-rule override both restore silent vacuity and neither is
+  visible in a passing build log — hence the fixture. And a no-op cache manager is
+  byte-identical to its binding never having been applied, which is the same shape
+  recorded for the cache rules above. (Counters on the adapter asserted per
+  configuration, `promtool` fire-tests, and one violating fixture per rule —
+  bespoke.)
+- **A committed subscription-and-destination catalog, generated from the adapter's
+  registration sites and diffed in CI, where registration takes one record type
+  with every field required — no builder defaults, no optional parameters — and
+  the catalog is also published as a build artifact.** It names, per publication
+  and subscription: the destination; the transport shape; the schema subject and
+  its committed compatibility level; the partition-key source; the ordering
+  declaration and gap handling; the attempt limit and backoff; the terminal
+  destination and its retention; the processing budget and batch size; the
+  effect-free-or-deduplicated declaration and identity strategy; the deduplication
+  retention; the replay-safety declaration; the maximum payload size; the owning
+  team; and the alert names. That is around twenty fields per subscription and the
+  count is stated rather than hidden. Eleven rules above read it, and a new
+  asynchronous path cannot appear without a git-visible row at the one gate a
+  human reads. **The single required record is what keeps it honest:** several of
+  those fields do not exist at a registration site unless the API demands them, so
+  without it the catalog is generated in part and hand-maintained in part, and the
+  diff cannot tell which half drifted — a green report over the artifact
+  everything else is checked against. (A record type with no defaults —
+  off-the-shelf via Javac; an annotation processor or test generating the catalog,
+  regenerate-and-diff — bespoke. The owning-team field is prose no diff can check
+  against behaviour: that is the catalog's documentation half. **And the catalog is
+  repo-local:** a producer renaming a subject or removing a destination cannot see
+  the other services, and the union check that would catch it needs infrastructure
+  this organisation does not have — named gap, stated so nobody reads the diff as
+  a contract.)
+- **Destination topology is a committed declarative file applied at deploy —
+  partition count, retention, compaction policy, delivery limit, dead-letter
+  wiring — and a partition-count change is behind a review gate.** Otherwise the
+  topology is created by hand and everything above is checked against an artifact
+  nothing pins. The specific hazard: changing the partition count re-maps existing
+  keys, so ordering for already-published aggregates breaks silently and the key
+  type cannot see it. (A schema lint over the committed topology file — bespoke;
+  the review gate is spec-and-review.)

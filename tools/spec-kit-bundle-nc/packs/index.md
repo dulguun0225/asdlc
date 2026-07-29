@@ -27,6 +27,7 @@ copied into three files goes stale in two of them.
 | [java-backend](java-backend.md) | 2026-07-21 |
 | [money-grade](rule-sources/money-grade.md) — source, never adopted | 2026-07-21, inherited from java-backend's pass; lifting the rules on 2026-07-28 was not a new one |
 | [cache-discipline](rule-sources/cache-discipline.md) — source, never adopted | 2026-07-29 |
+| [event-broker-discipline](rule-sources/event-broker-discipline.md) — source, never adopted | 2026-07-29 (pass **short of the three refutation votes** — its frontmatter says so) |
 
 ## Rule sources, and what creating a new stack pack must do
 
@@ -37,7 +38,7 @@ of file, and every candidate below is read against the split:
 | ---- | -------- | ------------- |
 | **Stack pack** | yes — its seed file is pasted | every rule that binds this platform, each with the named check that fails *this* build |
 | **Cross-stack pack** | yes — its seed file is pasted | rules whose checks hold anywhere. `agent-traps` |
-| **Cross-stack source** | **no — it has no seed file** | directives under stable ids, the evidence, and which stack packs have instantiated each. Lives in `rule-sources/`. [`money-grade`](rule-sources/money-grade.md), [`cache-discipline`](rule-sources/cache-discipline.md) |
+| **Cross-stack source** | **no — it has no seed file** | directives under stable ids, the evidence, and which stack packs have instantiated each. Lives in `rule-sources/`. [`money-grade`](rule-sources/money-grade.md), [`cache-discipline`](rule-sources/cache-discipline.md), [`event-broker-discipline`](rule-sources/event-broker-discipline.md) |
 
 **The directory is the split** (DECISIONS.md B-10): sources live in
 [`rule-sources/`](rule-sources/), packs live in `packs/` itself. So "which of
@@ -83,17 +84,29 @@ which changed its path and nothing else.
 
 A row here is a topic, not a verdict: nothing below has had a research pass,
 and per B-8's governance a source is normally written in the PR of the first
-repo that adopts it. `cache-discipline` was written ahead of adoption by an
-explicit owner decision on 2026-07-29 (DECISIONS.md B-11); that is a departure
-recorded once, not a new default.
+repo that adopts it. `cache-discipline` and `event-broker-discipline` were both
+written ahead of adoption by explicit owner decisions on 2026-07-29 (DECISIONS.md
+B-11, B-13); **two departures in one day are still departures, not a new
+default** — the next source waits for its adopting repo unless the owner decides
+otherwise again.
 
 | Candidate source | Why a source and not a pack | Where its rules would land |
 | ---------------- | --------------------------- | -------------------------- |
-| **message-broker** | Delivery-semantics rules are portable; the enforcement is not. A boundary rule on the broker client, an at-least-once idempotency obligation, a poison-message rule — each needs a different host per stack. | every stack pack whose repos consume a queue |
-| **object-storage** | Same shape: a rule against unbounded retention or unversioned overwrite is portable; the check that fails a build is per stack. | every stack pack whose repos write blobs |
+| **object-storage** | A rule against unbounded retention or unversioned overwrite is portable; the check that fails a build is per stack. | every stack pack whose repos write blobs |
 
 Search index and feature flags are expected to have the same shape and are not
 yet worth a row.
+
+**The rostered `message-broker` candidate is written and is
+[`event-broker-discipline`](rule-sources/event-broker-discipline.md).** The
+name changed and the scope grew, both on purpose. The row predicted "delivery
+semantics rules are portable; the enforcement is not", which held — but it scoped
+the source to "repos that consume a queue", and the pass found that scoping
+fatal for the same reason the cache pass found its own client-scoped seam fatal:
+a queue-client-scoped rule set leaves the option the source *recommends* — a
+polled table in the service's own database — outside every check. The predicate
+is now the first **asynchronous handoff** of any shape. The file is named for the
+technology a reader will search for; section 1 carries the predicate, and says so.
 
 **The split this roster exists to settle, before anyone researches anything.**
 A concern belongs in a source when its directive is portable **and** the check
@@ -118,7 +131,12 @@ must be *authored differently on every stack*. Two things it is not:
   section 1.
 
 `money-grade` was the first source and is not a money-only special case;
-`cache-discipline` is the second and confirms the shape.
+`cache-discipline` is the second and confirms the shape;
+`event-broker-discipline` is the third and adds one lesson the first two did not
+have — **a source's predicate is not the technology in its name.** Both later
+sources found that scoping the seam to the obvious client library left the
+cheapest correct option unguarded, which is the same defect twice and is now
+something to check for deliberately when the next source is framed.
 
 ## Harvest map — researched, unwritten
 
@@ -150,17 +168,25 @@ before drafting):
   precede drafting.
 - typescript-node-backend, python-backend, go-backend, rust-backend,
   typescript-frontend, data-pipeline, iac, supply-chain — per this roster.
-  Each instantiates **both sources**: every `M-n` and every `C-n` written into
-  its seed text with that stack's check, or named as a gap with the reason.
-  Two will strain `money-grade` — **typescript-node-backend**, where the
-  corpus default is the IEEE-754 `number` and the check has to make an exact
-  decimal type the only writable one, and **go-backend**, whose standard
+  Each instantiates **all three sources**: every `M-n`, every `C-n` and every
+  `E-n` written into its seed text with that stack's check, or named as a gap
+  with the reason. Two will strain `money-grade` — **typescript-node-backend**,
+  where the corpus default is the IEEE-754 `number` and the check has to make an
+  exact decimal type the only writable one, and **go-backend**, whose standard
   library has no fixed-point decimal type at all. `cache-discipline` predicts
   its own strain differently: six of its directives lean on type design, so
   **typescript-node-backend** is the one expected to convert several into
   runtime guards, while **go-backend** should host them more strongly than
   Java does — a compiler-enforced package boundary, and an unexported method
   on the loader port that makes outside implementation impossible.
+  `event-broker-discipline` is the largest of the three and predicts the same
+  split on a wider surface: **eleven** of its directives lean on type design,
+  and its Java instantiation already records that the same-transaction property
+  could not be type-designed at all and fell back to a test. Expect that cell to
+  be worse on a dynamically typed stack and better on one whose transaction
+  scope is a distinct type. Its allow-list seam is also the one rule whose cost
+  scales with the language's async surface: a stack with `async`/`await`
+  everywhere has far more constructs to enumerate than Java does.
 - The shelved exactness domains (physical quantities, legal time,
   security-critical values) — enforcement is bespoke or partial, which is
   why they were not shipped.
@@ -181,8 +207,10 @@ visibly dated notes, never keep serving silently authoritative rules.
 
 **The clock does not reach a source, because nobody adopts one** (DECISIONS.md
 B-8, amended 2026-07-28). A cross-stack source is retired when no stack pack
-instantiates it — today `java-backend` instantiates both
-[`money-grade`](rule-sources/money-grade.md) and
-[`cache-discipline`](rule-sources/cache-discipline.md), so both are live, and
-each would still be live on a twelve-month sweep that found no adopting repo.
-The `review-by` freshness rule and the lapse rule apply to a source unchanged.
+instantiates it — today `java-backend` instantiates all three of
+[`money-grade`](rule-sources/money-grade.md),
+[`cache-discipline`](rule-sources/cache-discipline.md) and
+[`event-broker-discipline`](rule-sources/event-broker-discipline.md), so all
+three are live, and each would still be live on a twelve-month sweep that found
+no adopting repo. The `review-by` freshness rule and the lapse rule apply to a
+source unchanged.

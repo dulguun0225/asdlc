@@ -194,7 +194,77 @@ choose between options here. Research it, decide it, record it, and say what wou
 
 ---
 
-### Last session: 2026-07-29 — `packs/` restructured by logical relation; five defects, no rule changed
+### Last session: 2026-07-29 — the event-broker source is written, and it had to stop short of the protocol
+
+The owner asked for event-broker files under `packs/` "like we did with cache", named Kafka as the
+likely pick, and asked for deep research on both the pick and the discipline.
+[`DECISIONS.md` B-13](../tools/spec-kit-bundle-nc/DECISIONS.md) is the record;
+[`packs/rule-sources/event-broker-discipline.md`](../tools/spec-kit-bundle-nc/packs/rule-sources/event-broker-discipline.md)
+is the source, twenty-eight directives, instantiated into `java-backend`'s seed text in the same
+change (110 rules in 17 sections → **141 in 18**).
+
+**Read this first if you are the next session: the pass is incomplete in a specific, recorded way.**
+The three refutation votes `packs/research-protocol.md` §3 requires were **never run** — the
+session's agent budget was exhausted mid-pass and four panellist seats died with it. A hostile audit
+carrying a planted canary stands in their place, and the canary was caught, so the audit's findings
+count. Every directive would be **convention** either way (each is a design argument), but the *tool
+and default-configuration* facts sit at single-researcher primary-source verification rather than
+**confirmed**. Running those votes is the first re-open trigger in the source and in the pack. **Do
+not quietly upgrade the markers instead.**
+
+**The pick, and it is not what the owner expected — that is the useful part.** Kafka is not the
+answer for most repos here; **no broker is.** A queue table in the service's own PostgreSQL, claimed
+with `FOR UPDATE SKIP LOCKED` plus a transactional outbox, is the recommendation, because the state
+change and the enqueue are then one transaction and the dual write becomes structurally impossible
+rather than disciplined — which is worth more under "no human reads the code" than any broker
+feature. Kafka in KRaft mode is the **conditional escalation**: Apache-2.0, nothing held back, share
+groups covering the queue case since 4.2.0 — conditional on a named owner for the cluster and its
+metadata version (a downgrade out of 4.3 is unsupported), with Strimzi on Kubernetes and NATS
+JetStream at three replicas as the substitute off it. **That condition is [OQ-10](#oq-10--who-fills-the-platform-owner-role),
+still open**, which is worth noticing: an open staffing question is now load-bearing for a technology
+verdict, not just for the rollout. Redpanda and AutoMQ are banned by name; RabbitMQ is permitted only
+for strict message priority. On cloud the pick is the platform's own queue or publish-subscribe
+service, never managed Kafka — the deciding number is the **per-cluster billing floor** (roughly $550
+a month for one idle serverless Kafka cluster, ×18 teams) against a $0 floor for the queue-shaped
+services.
+
+**Three findings that outlive this source.**
+
+1. **A source's predicate is not the technology in its name**, and this is the second time the same
+   defect was caught pre-ship. The rostered `message-broker` row scoped the rules to "repos that
+   consume a queue" — which would have left the option the source *recommends* outside all
+   twenty-eight checks, exactly as `cache-discipline`'s first seam draft left every in-process cache
+   unguarded. Twice is a pattern; it is now stated in `packs/index.md` and the bundle's `CLAUDE.md`
+   as something to check when the next source is framed.
+2. **A committed claim was wrong and is corrected**: a lost post-commit cache delete does *not*
+   "degrade to a miss" — it serves the stale value until expiry, and C-7's committed staleness
+   ceiling is what bounds it. The inversion still holds (a lost publish is unbounded and permanent),
+   but on the honest ground.
+3. **A cross-source interlock that would have voided the new central directive.** If a repo satisfies
+   `cache-discipline` C-9 with a general `afterCommit(Runnable)`, the broker source's
+   publish-confinement rule is defeated entirely — nothing at a call site distinguishes a cache
+   delete from a publish. Recorded in both files as a dated addition; no directive changed.
+
+**One deliberate non-action, left for whoever verifies it.** The audit challenged the `invokedynamic`
+ground that `cache-discipline` C-6 and its Java instantiation use to justify banning a free-text
+cache-key parameter — the concat recipe travels as a constant-pool bootstrap argument, so a bytecode
+rule does have an operand. **The auditor could not reach JEP 280 (403), so nothing was edited.** The
+new source's equivalent rule is grounded on unwritability instead, which does not depend on the
+answer, and a trigger sits in `cache-discipline` section 6. Settling it is a ten-minute job for a
+session that can fetch the JEP.
+
+**Verified before finishing, not assumed:** `check_packs.py` green, `check_specs.py --self` green,
+all three negative probes still red for the right reasons, the advisory freshness step reaches the
+new file (the B-10 blind spot did not recur), no CRLF. Not run: `specify bundle validate`, which no
+`packs/` change can affect.
+
+**What the next session should pick up.** Either run the missing refutation votes on the broker
+source's tool claims — the cheapest way to finish what this one started — or take the standing first
+action in START HERE. Nothing in the design is blocked by this work.
+
+---
+
+### Session before: 2026-07-29 — `packs/` restructured by logical relation; five defects, no rule changed
 
 The owner said the content under `packs/` felt like it could be better structured by the logical
 relation of its contents, and asked to be corrected if wrong. **Partly wrong, and the wrong part is

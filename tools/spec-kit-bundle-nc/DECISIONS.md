@@ -569,3 +569,146 @@ the evidence section nothing to mirror; or a third reader of `README.md` whose
 path is neither adopting nor authoring. For the gate specifically: a fourth
 kind of file under `packs/`, which would make the non-recursive glob wrong the
 way B-10 made the freshness step's wrong.
+
+## B-13 — `event-broker-discipline` is the third source; a source's predicate is not the technology in its name (2026-07-29)
+
+`packs/rule-sources/event-broker-discipline.md` is written: twenty-eight
+directives (`E-1` … `E-28`), instantiated into `java-backend`'s seed text in the
+same change, which takes that seed from 110 rules in 17 sections to **141 in
+18**. It closes the `message-broker` candidate row `packs/index.md` has carried
+since B-10.
+
+**Written ahead of an adopting repo, which departs from B-8's governance for the
+second time in one day.** The owner directed the research and the write on
+2026-07-29 with the cost stated, the same shape as B-11. The cost is the same and
+is accepted: a `review-by` clock nobody is using, and licence, pricing and
+support-window facts that decay faster than anything else in the corpus. **Two
+departures on one day are still departures** — recorded twice, not promoted to a
+default. The next source waits for its adopting repo unless the owner decides
+otherwise again.
+
+**The reusable finding, and it is a correction to how a source gets framed. A
+source's predicate is not the technology in its name.** The rostered candidate was
+scoped to "repos that consume a queue". That scoping is fatal, because the option
+the source ends up *recommending* — a polled table in the service's own
+PostgreSQL — imports no queue client and would sit outside all twenty-eight
+checks, so the cheapest correct option would have been the one option with no
+rules watching it. This is the **second** time the same defect has been caught
+pre-ship: `cache-discipline`'s first seam draft was scoped to a cache client
+library and left every in-process cache unguarded. Twice is a pattern, so it is
+now something to check deliberately when the next source is framed, and
+`packs/index.md` says so. The file keeps a technology name because that is what a
+reader searches for; section 1 carries the predicate and states the gap between
+the two.
+
+**The name** is `event-broker-discipline`, the owner's term, and it reads as the
+shape the pick lands on. The scope is wider than either name: the first
+asynchronous handoff of *any* shape, including an in-process bus, a bare executor
+submit, an outbound webhook and a scheduled table scan.
+
+**The first instruction is not to introduce a broker, and the argument is not the
+cache argument.** `cache-discipline` says do not cache because a cache is always
+optional — the authoritative store can recompute the value. That does not
+transfer, and assuming it did would have been the easiest error available. Three
+asymmetries are recorded instead: a broker is sometimes the only correct
+structure, since work that must survive the request has no correct synchronous
+form; a message in flight is **not** recomputable, so losing it is not a miss but
+a fact that never happened downstream with nothing anywhere recording that it
+should have; and the operational stakes are therefore higher, not equal. The
+recommendation is a table in the database the service already runs. **One
+threshold was refuted during the pass and must not return:** "more than one
+deployable consumes the same fact" does not discriminate, because a table with a
+cursor per consumer serves two consumers. What discriminates is a consumer that
+cannot read the producer's database, or two consumers needing independent
+retention or replay.
+
+**Two inversions against `cache-discipline`, which are the most valuable findings
+and the reason this is a separate source rather than a copy.**
+
+1. **Publish-after-commit is wrong where delete-after-commit is right.** A lost
+   publish is an unbounded permanent absence with no self-healing path and
+   nothing anywhere that can compare against a message which was never produced.
+   **The first draft of this argument was itself wrong and the audit caught it:**
+   it said a lost cache delete "degrades to a miss". It does not — it serves the
+   stale value until expiry, and what makes that tolerable is C-7's committed
+   staleness ceiling bounding it. If a lost delete really degraded to a miss, that
+   ceiling would have no job.
+2. **Strict-on-unknown-field is wrong for a broker payload where it is right for a
+   cached value.** A cache's writer and reader are the same deployable; a
+   message's producer is a different deployable on a different release cadence,
+   and adding an optional field is the entire mechanism backward compatibility
+   exists to permit, so a consumer that rejects unknown fields converts that
+   guarantee into its opposite. Missing-and-unparseable stays hard; unknown
+   becomes counted-and-alerted.
+
+**A cross-source interlock that would have voided the central directive, and it is
+new.** C-9 requires cache invalidation to run from the transaction seam's
+post-commit callback. If a repo satisfies that with a general-purpose
+`afterCommit(Runnable)`, **E-5 is defeated entirely** — nothing at a call site
+distinguishes "delete a cache key after commit" from "publish after commit". A
+stack pack instantiating both sources must make post-commit registration a named
+member of the cache adapter's own port with no free-callback form. Recorded in
+both files.
+
+**The hostile audit carried a planted canary and caught it**, so its findings
+count. The plant was that a bytecode-reading architecture tool can decide the
+same-transaction property by resolving ambient transaction scope through interface
+and proxy boundaries, and that the rollback test is therefore redundant. It is
+false at the tool level and unsound at the design level — a corpus that bans
+ambient meaning cannot stake its most load-bearing directive on statically
+reconstructing it — and what it offered was a *deleted* gate, which is where a
+plant pays best. Six further findings each changed a rule: the seam was a ban list
+behind universal prose (now an allow-list, with the list itself under review); the
+relay was ungoverned, which is the fatal one (now two directives — concurrent
+relay workers claiming rows without regard to key destroy the order the partition
+key then faithfully preserves at the broker, with every gate green, and
+oldest-unpublished-row age appeared in no rule at all); `effect-free` was an
+undecidable predicate re-imported as a catalog word, a one-word bypass for the
+whole discipline (now a port type); an ordered subscription both required and
+forbade a terminal destination (now a `halt` value); the compatibility gate named
+a mechanism that structurally cannot produce the answer it required (now the full
+committed version history); and the differential arm's identical-results assertion
+was unsatisfiable for ordered subscriptions, whose lived outcome is teams
+declaring everything unordered to make CI pass.
+
+**Short of the protocol, stated rather than papered over.** The three refutation
+votes (`packs/research-protocol.md` §3) were **not run**: the session's agent
+budget was exhausted mid-pass and four panellist seats died with it. One hostile
+audit stands in their place. Every directive is **convention** either way, since
+each is a design argument; what is missing is the promotion of the *tool and
+default-configuration* claims from single-researcher primary-source verification
+to **confirmed**. Running those votes is the first re-open trigger in the source
+and in `java-backend.md`'s trigger list. Same honesty as the 2026-07-27
+observability pass, and it must not be quietly upgraded later.
+
+**One finding lands outside this change and was deliberately not acted on.** The
+audit challenged the bytecode argument C-6 and its Java instantiation use to
+justify banning a free-text cache-key parameter: string concatenation's recipe
+travels as a constant-pool bootstrap argument, so a bytecode rule does have an
+operand and the impossibility claim is too strong. The auditor could not reach the
+primary specification (403). So E-15 grounds the equivalent rule on
+unwritability, which does not depend on the answer, and a trigger is recorded to
+settle C-6's wording once the fact is verified. **No edit was made to
+`cache-discipline` on an unverified basis.**
+
+**The transport pick, which is seed text and not a directive** (B-11's routing,
+unchanged). Self-hosted: **no broker** below the thresholds; above them **Apache
+Kafka in KRaft mode**, conditional on a named owner for the cluster and its
+metadata version, with Strimzi on Kubernetes and NATS JetStream at three replicas
+as the substitute off it. Redpanda banned by name (source-available, not OSI, and
+role-based access control is licence-gated); AutoMQ banned by name (mandatory
+object store, and its metrics export is an enterprise feature, which collides with
+ADR-0015's observability answer); RabbitMQ permitted only where strict message
+priority is a stated requirement, and then with its roughly four-month
+community-support window written into the plan. Cloud: the platform's own queue or
+publish-subscribe service, **never managed Kafka** unless a retained log is
+required — the deciding number is the per-cluster billing floor, which dominates a
+low-volume bill and multiplies by eighteen teams, not the message rate.
+
+Reopened by: the triggers in `packs/rule-sources/event-broker-discipline.md`
+section 6. The one that bears on this entry rather than on the rules is the
+cross-repository union check — the catalog and the schema gate are repo-local, so
+a producer renaming a subject cannot see the other seventeen services, and closing
+it needs org-level infrastructure that does not exist. Until it does, those two
+directives are local hygiene wearing the clothes of a contract, and the source
+says so.

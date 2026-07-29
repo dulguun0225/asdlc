@@ -132,9 +132,10 @@ Status tier, per pack (and per rule where they differ):
 | Pack | Kind | For repos where… |
 | ---- | ---- | ---------------- |
 | [agent-traps](agent-traps.md) | cross-stack | any code is written by LLM agents — corpus traps, banned by name |
-| [java-backend](java-backend.md) | stack | the backend is Java (Spring Boot MVC, jOOQ, PostgreSQL) — money-grade rules included, binding from the first money field; cache-discipline rules included, binding from the first cached value; API-contract rules when it exposes an HTTP API; observability rules when nobody watches the running system |
+| [java-backend](java-backend.md) | stack | the backend is Java (Spring Boot MVC, jOOQ, PostgreSQL) — money-grade rules included, binding from the first money field; cache-discipline rules included, binding from the first cached value; event-broker-discipline rules included, binding from the first asynchronous handoff; API-contract rules when it exposes an HTTP API; observability rules when nobody watches the running system |
 | [money-grade](rule-sources/money-grade.md) | cross-stack **source** — no seed file, never adopted | not picked; its 29 rules reach a repo inside the stack pack that instantiates them, today `java-backend` |
 | [cache-discipline](rule-sources/cache-discipline.md) | cross-stack **source** — no seed file, never adopted | not picked; its 16 rules reach a repo inside the stack pack that instantiates them, today `java-backend`. Its first instruction is not to cache |
+| [event-broker-discipline](rule-sources/event-broker-discipline.md) | cross-stack **source** — no seed file, never adopted | not picked; its 28 rules reach a repo inside the stack pack that instantiates them, today `java-backend`. Named for a broker, it binds from the first **asynchronous handoff** of any shape — including the polled table it tells most repos to use instead |
 
 **This table does not carry status or dates.** Those live in each pack's
 frontmatter, and [index.md](index.md) mirrors the `verified` dates in one

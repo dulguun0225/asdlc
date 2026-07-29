@@ -9,7 +9,61 @@ Versions 0.1.0 and 0.2.0 were development increments in this repository;
 
 ## [Unreleased]
 
-*Nothing yet.*
+Design: DECISIONS.md B-13. No component version changed — `packs/` is
+informative and no tooling installs it.
+
+### Added
+
+- `packs/rule-sources/event-broker-discipline.md` — the corpus's **third
+  cross-stack source**, twenty-eight directives `E-1` … `E-28` covering the
+  messaging seam, the write path and its outbox relay, the consume path,
+  ordering, poison messages, the payload contract, tenancy, replay, the evidence
+  gates, and the subscription catalog. No seed file; nobody adopts it. It closes
+  the `message-broker` candidate row.
+  **Its predicate is wider than its name:** the rules bind from the first
+  *asynchronous handoff* of any shape — a broker, a managed queue, an in-process
+  bus, a bare executor submit, an outbound webhook, or a polled table. Scoped to
+  a queue client, the option the source recommends would have had no rules
+  watching it, which is the same defect `cache-discipline` caught in its own seam
+  draft. **Its first instruction is not to introduce a broker** — a table in the
+  database the service already runs, with three named thresholds that displace it
+  — and the argument is deliberately *not* the cache argument, because a message
+  in flight is not recomputable the way a cached value is. Every directive is
+  **convention**; section 7 is an appendix surveying nine transports with dated
+  licences, governance, documented minimum production shape and numbered
+  rejection grounds.
+- `packs/seed/java-backend.md` — an **Event broker discipline** section
+  instantiating all twenty-eight with named Java checks, plus the transport seed
+  line (no broker below the thresholds; Apache Kafka in KRaft mode above them,
+  conditional on a named cluster owner; Redpanda and AutoMQ banned by name;
+  RabbitMQ only for strict message priority; on a managed platform the
+  platform's own queue, never managed Kafka). The seed text goes from 110 rules
+  in 17 sections to **141 rules in 18 sections**.
+- `packs/java-backend.md` — the 2026-07-29 event-broker evidence pass: six
+  primary-source-verified framework facts that each forced a rule to be worded
+  differently (the listener acknowledgement default is per poll batch, not per
+  record; a share-consumer mode acknowledges regardless of outcome; the default
+  error handler retries ten times with a **zero-millisecond** backoff; the
+  dead-letter publisher neither creates its topic nor fails loudly when it is
+  missing; the non-blocking retry mechanism documents its own ordering loss; and
+  an explicit non-annotation registration path exists, which is what makes the
+  annotation ban writable), three toolchain limits, a static-analysis sweep
+  finding exactly one usable off-the-shelf rule and a documented absence for the
+  three that matter most, one divergence (the same-transaction property cannot be
+  type-designed on jOOQ's own types), and six named gaps.
+
+### Changed
+
+- `packs/rule-sources/cache-discipline.md` — two dated additions, no directive
+  changed. An interlock: C-9's post-commit callback must not be instantiated as a
+  general-purpose `afterCommit(Runnable)`, because that hole defeats the broker
+  source's publish confinement entirely. And a trigger recording that C-6's
+  bytecode justification was challenged and could not be verified against the
+  primary specification, so the wording stands until it is.
+- `packs/README.md`, `packs/index.md` — roster and index rows for the third
+  source; the `message-broker` candidate row is replaced by a note on why the
+  name and scope changed; "both sources" becomes "all three" where a future stack
+  pack's obligations are stated.
 
 ## [0.2.0] — 2026-07-29
 

@@ -194,7 +194,88 @@ choose between options here. Research it, decide it, record it, and say what wou
 
 ---
 
-### Last session: 2026-07-29 — the event-broker source is written, then its central recommendation is reversed
+### Last session: 2026-07-29 — the event-broker source's five unexamined shapes are closed, and a gate had a hole in the ids it was guarding
+
+**Third change to that source in one day** (B-13 wrote it, B-14 reversed its recommendation, **B-15**
+extends it). It started as a question — the owner asked what patterns an event broker supports
+beyond notification, job queue and request-reply — and the answer surfaced five shapes the source
+said **nothing** about. The owner then said "close all the gaps".
+
+**What landed.** [`DECISIONS.md` B-15](../tools/spec-kit-bundle-nc/DECISIONS.md) is the record.
+Twenty-eight directives → **thirty-six** (`E-29` … `E-36`, groups J … M);
+`java-backend`'s seed text 141 rules in 18 sections → **149 in 18** (same section count — every new
+rule lands in the existing event-broker section). Permitted with rules: a **flow committing across
+more than one transaction** (committed step list, at most one irreversible step and it last, flow
+state as an explicit enum column, a compensating destination per reversible step, every wait bounded
+by a timer); **webhooks in both directions** (egress signed/allowlisted/redirect-free, ingress
+verify-enqueue-return with no effect in the request); a **claim check** for an oversized payload.
+Banned outright: **state as a fold over the message history** (`E-32`) and a **windowed aggregate
+computed by an engine or a handler** (`E-33`).
+
+**The reusable finding, and it is the one to carry into the next source: a named gap is not an
+absence, and only one of the two is visible.** That source named the undecidable properties *inside*
+its directives, directive by directive, and read as thorough because of it — while saying nothing at
+all about five whole shapes. All five are **composite** — assembled *out of* publishes and subscriptions — which is
+why a rule set written per publish and per subscription missed them and why diligent gap-naming did
+not help. The check now recorded in the bundle's `CLAUDE.md` and `packs/index.md`: **enumerate the
+shapes a repo assembles out of the primitives, and mark each permitted, banned, or out of scope.**
+Silence there reads as nothing at all, which is worse than reading as coverage.
+
+**This pass is the weakest in the corpus and must not be quietly upgraded.** Pass 1 skipped the three
+refutation votes and said so; this one had **no panel, no steelman duel and no hostile audit** — one
+researcher against primary sources. **Two of its outputs are bans**, and the steelman for each banned
+option was written by whoever rejected it, which is exactly what the protocol's panel rule exists to
+prevent. That is now a re-open trigger ranking *with* the votes, not below them. Both bans also rest
+on **this organisation** (no operations role, one engineer per team, the self-hosted licence clause)
+rather than on the technology, so each names what would reopen it.
+
+**Five verified facts changed a rule's wording; two correct something an agent will assert
+confidently.** The managed queue's max message size is **1 MiB**, raised from 256 KiB on 2025-08-04 —
+the remembered figure sends a repo reaching for a claim check it does not need. **Standard Webhooks
+requires a timestamp tolerance and names no value**, so an uncommitted tolerance is an unbounded
+replay window. The windowing API's javadoc says late records past the grace period "will be dropped",
+and the vendor deprecated its own 24-hour default grace for being a default. The JDK's
+`Inet4Address` predicates name **no address ranges in their contract**, so the egress deny list is
+committed CIDRs. Licences: EventStoreDB is ESLv2 since 24.10 (enterprise features behind a key);
+Axon **Framework** is Apache-2.0 while Axon **Server** forbids derivative works; Camunda 8
+self-managed needs a purchased Enterprise Edition in production since 8.6; **Temporal's server is
+MIT**, so it is rejected on operations, not licence. All checked 2026-07-29 and all in the source's
+do-not-reintroduce list.
+
+**A gate defect found on the way, and it is the kind that repeats.**
+`ci/check_packs.py`'s `SEED_FORBIDDEN` covered `P-n` and `M-n`/`C-n` and **not `E-n`** — written
+before `event-broker-discipline` existed, so for as long as `E-n` ids have existed the gate guarding
+seed text against dangling corpus references could not see them, while guarding the very file this
+session grew by eight rules. Pattern widened, and **the negative probe now asserts `'M-12'` and
+`'E-30'` by id**, because the shared `a cross-stack source rule id` assertion stays green on the
+`M-12` alone and could not have caught a dropped letter. Rule in `ci/CLAUDE.md`: **a new source
+letter goes into the pattern and gets its own probe assertion in the same change.** Also fixed:
+`packs/README.md`'s roster still said the source binds on "the polled table it tells most repos to
+use instead" — B-14 reversed that hours earlier and the roster row was not in its edit list.
+
+**What this did NOT do, stated because the entry reads like completion otherwise.** It closed **no**
+named gap inside `E-1` … `E-28` — each is undecidable by any check this repository can host — and the
+new directives add **seven named gaps of their own**. The count of open residues went **up**, and
+`java-backend.md` now lists thirteen.
+
+**One thing a later session must not conflate.** `E-34`'s trigger names an *organisation-level egress
+proxy* for **application** webhook traffic. That is **not** [OQ-16](#oq-16--which-tls-terminating-egress-proxy-and-does-credential-masking-work-without-one),
+which is closed and is about the **agent's** egress ([ADR-0016](decisions/0016-tls-terminating-proxy-and-credential-masking.md))
+— and that ADR records explicitly that TLS termination *"does not add content filtering"*, so it
+would not satisfy `E-34` even if it were pointed at application traffic. Two different controls.
+
+**Next session picks up one of three, in this order.** (1) **Run the panel this pass skipped** — a
+steelman duel plus a hostile audit over `E-32` and `E-33` specifically; it is the highest-value
+research left in the bundle, because two bans currently rest on one researcher's argument. (2) The
+three refutation votes still owed from pass 1, which promote the tool claims to **confirmed**. (3)
+The `bundle-v0.2.0` tag, still uncut and still the owner's call — note that **`CHANGELOG.md`'s
+`[Unreleased]` section now holds B-13, B-14 and B-15**, and by that file's own rule nothing may sit
+there when the tag is cut, so tagging means deciding whether this work ships inside 0.2.0 or the
+section is split first.
+
+---
+
+### Session before: 2026-07-29 — the event-broker source is written, then its central recommendation is reversed
 
 **Read this heading as two sessions' work merged into one entry, because the second one only
 changed the first's conclusion.** The source was written and shipped recommending a polled database

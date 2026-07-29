@@ -81,6 +81,18 @@ them. That is now a staffing prerequisite
 avoiding a broker, and until it is filled a repo on this pack has no compliant
 asynchronous path.
 
+**That section also bans two architectures outright, which is the part to read
+before adopting rather than after.** Event sourcing — state as a fold over the
+message history — and stream processing — a windowed aggregate computed by an
+engine or by a handler — are banned, not conditioned. A repo whose requirements
+genuinely need either has hit a decision above this pack's pay grade and should
+raise it rather than quietly satisfy the letter of the rules; the grounds are
+retention and schema drift for the first, silent late-record drops for the second,
+and for both an always-on stateful system no role here owns. The source records
+what would reopen each. Everything else the 2026-07-29 extension added — flows
+that span transactions, webhooks in both directions, and a claim check for an
+oversized payload — is permitted with rules.
+
 Tripwires out of coverage: the first LLM call, hard real-time deadline,
 or shipped SDK means the repo has left this pack's assumptions entirely
 ([index.md](index.md), candidates).
@@ -88,7 +100,7 @@ or shipped SDK means the repo has left this pack's assumptions entirely
 ## 2. The decisions
 
 The seed text is one file: **[`seed/java-backend.md`](seed/java-backend.md)**
-— 141 rules in 18 sections. It holds nothing but the text that gets pasted:
+— 149 rules in 18 sections. It holds nothing but the text that gets pasted:
 no title, no evidence, no commentary. So adoption is "copy the whole file",
 with no boundary to judge.
 
@@ -1288,14 +1300,24 @@ own dated record for the two engines its seed line names.
 
 ### Event broker discipline
 
-The 2026-07-29 pass, and **the one pass in this file that did not finish the
-protocol.** The three refutation votes
-([research-protocol.md](research-protocol.md) §3) were not run: the session's
-agent budget was exhausted mid-pass. A hostile audit carrying a planted canary
-stands in their place, and the canary was caught, so the audit's findings count.
+**Two passes, both 2026-07-29, and between them the two weakest passes in this
+file.** Pass 1 wrote the original twenty-eight rules and did not finish the
+protocol: the three refutation votes
+([research-protocol.md](research-protocol.md) §3) were not run, because the
+session's agent budget was exhausted mid-pass. A hostile audit carrying a planted
+canary stands in their place, and the canary was caught, so the audit's findings
+count. Pass 2 closed the five composite shapes the first had passed over in
+silence — flows across transactions, event sourcing, stream processing, webhooks,
+claim checks — with **one researcher, no panel and no audit at all**, which is
+weaker in shape than pass 1 even where its facts are firmer. Two of its outputs
+are outright bans.
+
 Read every tool claim below as **primary-source verified by one researcher, not
 confirmed** — running the votes is what promotes them, and that is a named
-trigger in section 5.
+trigger in section 5. The source carries the pass table and the
+platform-neutral evidence
+([`rule-sources/event-broker-discipline.md`](rule-sources/event-broker-discipline.md)
+section 4); what follows here is Java-shaped.
 
 This section's rules are the Java instantiation of
 [`rule-sources/event-broker-discipline.md`](rule-sources/event-broker-discipline.md);
@@ -1461,6 +1483,43 @@ metadata lists a current release. **Use
 the search endpoint. Any earlier note in this corpus resting on search counts
 should be re-checked.
 
+**What pass 2 found that is specific to this stack.** Three of the eight new
+rules are worded the way they are because of a Java or Spring fact:
+
+- **There is no delay primitive for a business timer on this stack, so the timer
+  is always a schedule.** Kafka has no per-message delayed delivery, and
+  `@RetryableTopic` — the framework's own delay mechanism — is already confined to
+  `unordered` subscriptions because its documentation states it loses ordering.
+  The cloud variant's queue has a message timer and it caps at **15 minutes**, so
+  it does not cover a business timeout either. That leaves a committed re-publish
+  schedule owned by the relay as the only compliant shape here, which is why the
+  seed text makes the schedule a committed value rather than leaving it to a cron
+  expression.
+- **The JDK's own address predicates cannot host the egress deny list.** The
+  `Inet4Address` API documentation defines `isSiteLocalAddress`,
+  `isLinkLocalAddress` and `isLoopbackAddress` as "utility routine to check if the
+  InetAddress is a …" and **names no address ranges anywhere in the contract**
+  (read 2026-07-29). So a deny list resting on them is one whose contents are
+  stated in no document a reviewer can read, and it cannot be reviewed against an
+  intended list at all. The repo commits explicit ranges and resolves before
+  connecting. *Not verified, and deliberately not asserted:* which ranges those
+  methods actually cover. It does not matter for the rule — the point is that the
+  contract does not say.
+- **Both banned architectures have a first-class Java presence, which is exactly
+  why the ban has to be a dependency rule.** Axon is a JVM-native
+  event-sourcing framework whose *Framework* is Apache-2.0 while its **Server** is
+  not — an agent reading "Axon is open source" is reading something true about the
+  wrong artifact — and Kafka Streams ships in the same ecosystem as the client the
+  repo legitimately needs, so it is one dependency line away at all times. Neither
+  ban is enforceable as a code-shape rule; both are banned-dependency rules over a
+  committed group-id list, plus the field rules that catch the hand-rolled version.
+
+**Two costs pass 2 added to the gate, both stated rather than absorbed.** The
+two-instance aggregate arm means a second consumer container in the suite, which
+the four-configuration gate did not previously need; and the claim-check arms need
+a MinIO container, with LocalStack on the managed-queue path where the
+authentication token recorded above now applies.
+
 **Named gaps — where this stack can host no check.** Silence would read as
 coverage:
 
@@ -1482,6 +1541,31 @@ coverage:
 6. **The AsyncAPI path has no build-failing Java host**, and the one that looks
    like it is a false-green gate — see section 3's note and the source's
    evidence.
+
+Pass 2 added seven more, so the count of open residues in this section went **up**,
+not down:
+
+7. **Whether a flow step is really reversible is a judgement**, not a property.
+   The lint enforces the consequence of the declaration — at most one irreversible
+   step, and it is last — and never the declaration itself. This is the residue
+   that belongs at the plan gate.
+8. **A committed timeout that is absurd** — thirty days on a checkout — passes
+   every check. The committed maximum bounds it; whether the number is sane is
+   spec-and-review.
+9. **"This projection is being treated as the authority" is semantic.** The
+   decidable half is the dependency direction: a query package that cannot reach
+   the messaging adapter cannot fold the log.
+10. **A wrong window committed as a parameter** passes every check in the
+    aggregate rule. Making it a committed parameter is what puts it in a diff a
+    human reads.
+11. **Whether a webhook receiver verifies the signature is outside this
+    repository.** Signing proves that we signed, never that anyone checked.
+12. **The sender's retry policy is the sender's.** Ingress can be made
+    idempotent; it cannot be made guaranteed, and a sender that gives up after one
+    attempt is a fact no check here can see.
+13. **The object store's real lifecycle rule is infrastructure**, the same class
+    as gap 2 — the retention-comparison lint reads the repository's declaration of
+    it, and the declaration can be a lie.
 
 **Not measured, and it is a real number for a three-person team:** the cache
 section already triples integration CI time; this section runs the suite in
@@ -1536,6 +1620,22 @@ that already tracks one.
   comparator appears for Maven, the exec-plugin workaround retires — until then
   the existing Java plugin must stay banned by name, because it goes green over
   incompatibilities.
+- Event broker discipline, the 2026-07-29 extension: the source carries the
+  triggers, and **the one that ranks with the refutation votes is that pass 2 had
+  no panel and no hostile audit** — two of its rules are outright bans, and the
+  case for the banned option was written by whoever rejected it. Four more are
+  Java-shaped. If Kafka or the framework gains a per-message delay primitive, the
+  relay's committed re-publish schedule stops being the only way to express a
+  business timer on this stack. If a managed workflow service is adopted on the
+  cloud variant — or a named owner appears for a self-hosted one, whose licence is
+  already MIT — the hand-built flow machinery is competing with a product whose
+  primary features are step ordering, compensation and timers, and the comparison
+  should be run. If ArchUnit gains analysis that can decide cross-message
+  accumulation beyond a field or a static collection, the aggregate ban's
+  hand-rolled half gains a real check instead of a proxy. And if the JDK ever
+  documents the ranges behind its site-local and link-local predicates, the egress
+  deny list could rest on them instead of on committed CIDRs — until then it
+  cannot, because the contract says nothing.
 - Persistence (jOOQ): if a jOOQ stewardship change or its vendor risk
   fires, the named exit is Spring Data JDBC — explicit persistence with
   no dirty checking or lazy loading, so the property that chose jOOQ

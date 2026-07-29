@@ -825,3 +825,107 @@ refused, or the managed bill for eighteen teams exceeding what the org will pay.
 Any of those puts a governed non-broker shape back on the table, and it returns as
 a **second named shape with its own complete check set**, never as a threshold
 argument at the plan gate.
+
+## B-15 — The five shapes `event-broker-discipline` passed over are decided: `E-29` … `E-36`. A named gap is not an absence (2026-07-29)
+
+**Third change to that source in one day, and the second extension of its scope.**
+B-13 wrote it, B-14 reversed its recommendation, and this closes what neither
+covered. No earlier directive changed meaning; `E-1` … `E-28` are untouched. The
+source goes from twenty-eight directives to **thirty-six** in four new groups
+(J … M), and `java-backend`'s seed text from **141 rules in 18 sections to 149 in
+18** — the section count is unchanged because every new rule lands in the existing
+`Event broker discipline` section.
+
+**The reusable finding, and it is the one to carry into the next source: a named
+gap is not an absence, and only one of the two is visible.** That source named the
+gaps *inside* its directives, directive by directive — properties no check can
+decide, each stated so silence would not read as coverage — and it read as
+thorough for exactly that reason. It had also said nothing at all about five whole shapes a repo will build.
+Every one of the five is **composite**: assembled out of publishes and
+subscriptions rather than being one of either, which is why a rule set written per
+publish and per subscription missed all five, and why the discipline of naming
+gaps did not help. **The check to run before a source ships:** enumerate the
+shapes a repo will assemble *out of* the primitives the rules govern, and state
+for each whether it is permitted, banned, or out of scope. `packs/index.md`
+carries it.
+
+**What was decided.** Three shapes are permitted with rules and two are banned:
+
+1. **A flow that commits in more than one transaction** — `E-29` … `E-31`. A
+   committed flow definition with an ordered step list; at most one `irreversible`
+   step and it is last; flow state as an explicit enum column, never inferred from
+   business data; a compensating destination per reversible step, published like
+   any other message and correct when the forward effect never happened; and every
+   wait bounded by a timer on a destination distinct from the retry delay
+   destination.
+2. **Webhooks, in both directions** — `E-34`, `E-35`. Egress is a consumer whose
+   handler performs a signed, allowlisted, redirect-free call with a committed
+   timeout, and the receiver's body is never authority. Ingress verifies, enqueues
+   and returns, doing no business effect in the request.
+3. **A payload too large for the transport** — `E-36`. A claim check is permitted
+   under committed conditions: a nominal pointer type, an immutable object
+   committed *before* the outbox row, and a lint comparing the object's retention
+   against the destination's plus the redrive window.
+4. **State as a fold over the message history — banned** (`E-32`). Retention
+   deletes the authority on a broker default, and a schema change the compatibility
+   gate legitimately permits changes the meaning of a fold over old bytes with no
+   code change and no failing gate.
+5. **A windowed aggregate computed by an engine or a handler — banned** (`E-33`).
+   The engine's own documentation drops late records past the grace period into a
+   counter, so the failure is a silently wrong number in an org with no operations
+   role.
+
+**Both bans rest on this organisation, not on the technology, and that obliges a
+trigger.** Neither event sourcing nor stream processing is bad engineering; both
+are unaffordable here — no operations role, one engineer per team, and a
+self-hosted licence clause that the dedicated event stores and the workflow
+engines fail. `E-32`'s licence ground is self-hosted-only and its retention and
+schema-drift grounds are not, which is recorded so a licence change corrects the
+*wording* rather than reopening the ban.
+
+**Short of the protocol again, and worse than B-13 was.** Pass 1 skipped the three
+refutation votes and said so. This pass had **no panel, no steelman duel and no
+hostile audit** — one researcher against primary sources. Two of its outputs are
+bans that remove an option from every future repo, and the steelman for each
+banned option was written by whoever rejected it, which is the precise failure the
+protocol's panel rule exists to prevent. That is now a re-open trigger ranking
+with the votes rather than below them. **It must not be quietly upgraded later.**
+
+**Five verified facts changed a rule's wording, and two of them correct something
+an agent will assert with confidence.** The managed queue's maximum message size
+is **1 MiB**, raised from 256 KiB on 2025-08-04, so the remembered figure sends a
+repo reaching for a claim check it does not need. **Standard Webhooks requires the
+receiver to check the timestamp and names no tolerance value**, so an uncommitted
+tolerance is an unbounded replay window. The windowing API's javadoc states late
+records "will be dropped" and the vendor deprecated its own 24-hour default grace
+period for being a default. The JDK's `Inet4Address` predicates are documented as
+"utility routine to check if the InetAddress is a …" and **name no address ranges
+in the contract**, so the egress deny list is committed CIDRs. And on licences:
+EventStoreDB is under ESLv2 since 24.10 with enterprise features behind a key;
+Axon *Framework* is Apache-2.0 while Axon **Server** forbids derivative works;
+Camunda 8 self-managed needs a purchased Enterprise Edition in production since
+8.6; Temporal's server is **MIT**, so it is rejected on operations rather than
+licence. All checked 2026-07-29.
+
+**What this pass did not do.** It closed no named gap inside `E-1` … `E-28` —
+those are undecidable by any check this repository can host — and the new
+directives add **seven named gaps of their own**, so the count of open residues
+went up. Anyone reading this entry as "the source is now complete" has misread it.
+
+**Two defects found in adjacent files and fixed in the same change.**
+`packs/README.md`'s roster still described the source as binding on "the polled
+table it tells most repos to use instead", which B-14 had reversed hours earlier —
+the roster row was not in B-14's edit list. And **`ci/check_packs.py` reported
+green over an `E-n` in seed text**: its `SEED_FORBIDDEN` patterns cover `P-n` and
+`M-n`/`C-n` and were written before `E-n` existed, so the gate guarding the very
+seed text this change grew by eight rules had a hole in exactly the ids being
+added. The pattern now covers `E-n`, with the negative probe extended to match.
+**A gate written against a closed set of ids needs revisiting every time the set
+grows**, and nothing here reminded anyone of that.
+
+Reopened by: the triggers in `packs/rule-sources/event-broker-discipline.md`
+section 6. First among them is this pass's missing panel; then a managed workflow
+service or a named owner for a self-hosted one, which would put the flow machinery
+in `E-29` … `E-31` up against a product built for it; then a measured need for a
+windowed aggregate a read-time query cannot serve, which reopens `E-33` with a
+number attached.

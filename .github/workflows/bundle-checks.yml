@@ -104,12 +104,20 @@ jobs:
           cp -r packs /tmp/probe-seed
           printf '%s\n' '(This restates P-4 and principle 4; see M-12 and [the pack](../java-backend.md).)' \
             >> /tmp/probe-seed/seed/java-backend.md
+          # E-n on its own line, and asserted by id below. Every source letter
+          # needs its own assertion: a shared 'a cross-stack source rule id'
+          # grep stays green on M-12 alone, so it would not notice a regression
+          # that dropped E from the pattern — which is the hole B-15 found.
+          printf '%s\n' '(And this one cites E-30, an event-broker rule id.)' \
+            >> /tmp/probe-seed/seed/java-backend.md
           if python3 ci/check_packs.py --packs /tmp/probe-seed > /tmp/p3.txt 2>&1; then
             echo 'gate passed seed text carrying references into this repository'
             cat /tmp/p3.txt; exit 1
           fi
           grep -q 'a design-principle id' /tmp/p3.txt
           grep -q 'a cross-stack source rule id' /tmp/p3.txt
+          grep -q "'M-12'" /tmp/p3.txt
+          grep -q "'E-30'" /tmp/p3.txt
           grep -q 'a principle cited by number' /tmp/p3.txt
           grep -q 'a markdown link' /tmp/p3.txt
 

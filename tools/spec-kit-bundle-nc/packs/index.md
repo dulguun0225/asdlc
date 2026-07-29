@@ -27,7 +27,7 @@ copied into three files goes stale in two of them.
 | [java-backend](java-backend.md) | 2026-07-21 |
 | [money-grade](rule-sources/money-grade.md) — source, never adopted | 2026-07-21, inherited from java-backend's pass; lifting the rules on 2026-07-28 was not a new one |
 | [cache-discipline](rule-sources/cache-discipline.md) — source, never adopted | 2026-07-29 |
-| [event-broker-discipline](rule-sources/event-broker-discipline.md) — source, never adopted | 2026-07-29 (pass **short of the three refutation votes** — its frontmatter says so) |
+| [event-broker-discipline](rule-sources/event-broker-discipline.md) — source, never adopted | 2026-07-29, **two passes that day** — the second closed five unexamined shapes as `E-29` … `E-36`. Pass 1 was **short of the three refutation votes**; pass 2 had **no panel and no hostile audit** either, and two of its rules are bans. Its frontmatter says so |
 
 ## Rule sources, and what creating a new stack pack must do
 
@@ -157,6 +157,22 @@ between rule sets* was not decidable by the people at the gate, and the corpus
 had no test for that. If a branch's decider is the plan gate and the knowledge is
 not in this org, the branch is not a feature.
 
+**Its third lesson came from a second pass the same day, and it is a check to run
+on every source before it ships: a named gap is not the same as an absence, and
+only one of the two is visible.** That source named the gaps inside its
+directives, directive by directive — properties no check can decide — and read as
+thorough because of it.
+It had also passed over five whole shapes in silence: a flow committing across
+transactions, state rebuilt from history, an aggregate across messages, a webhook
+in either direction, and a payload too large for the transport. Every one is
+**composite** — assembled out of publishes and subscriptions — which is why a rule
+set written one publish and one subscription at a time missed all five, and why
+naming gaps diligently did nothing to surface them. **The check to add when the
+next source is framed:** list the shapes a repo will assemble *out of* the
+primitives the rules govern, and say for each whether it is permitted, banned, or
+out of scope. Silence there reads as nothing at all, which is worse than reading
+as coverage.
+
 ## Harvest map — researched, unwritten
 
 Each row is a candidate topic with sources already identified. Harvesting
@@ -199,7 +215,7 @@ before drafting):
   Java does — a compiler-enforced package boundary, and an unexported method
   on the loader port that makes outside implementation impossible.
   `event-broker-discipline` is the largest of the three and predicts the same
-  split on a wider surface: **eleven** of its directives lean on type design,
+  split on a wider surface: **thirteen** of its directives lean on type design,
   and its Java instantiation already records that the same-transaction property
   could not be type-designed at all and fell back to a test. Expect that cell to
   be worse on a dynamically typed stack and better on one whose transaction

@@ -24,13 +24,22 @@ import pathlib
 import re
 import sys
 
-# A rule id from a cross-stack source (M-n, C-n), or a design-principle id
+# A rule id from a cross-stack source (M-n, C-n, E-n), or a design-principle id
 # (P-n). None may appear in seed text: the adopting constitution holds no copy
 # of this corpus, so the id is a dangling pointer there. "principle 3" is worse
 # than dangling — it reads as that constitution's own principle III.
+#
+# E was added 2026-07-29 (DECISIONS.md B-15). The set was M and C only, written
+# before event-broker-discipline existed, so this gate reported green over an
+# E-n in seed text for as long as E-n ids existed — and it did so while
+# guarding the file that same day grew by eight event-broker rules. Any letter
+# added to the source registry must be added here in the same change; a gate
+# written against a closed set of ids goes stale silently the moment the set
+# grows.
 SEED_FORBIDDEN = [
     (re.compile(r"\bP-\d+\b"), "a design-principle id (P-n)"),
-    (re.compile(r"\b[MC]-\d+\b"), "a cross-stack source rule id (M-n / C-n)"),
+    (re.compile(r"\b[MCE]-\d+\b"),
+     "a cross-stack source rule id (M-n / C-n / E-n)"),
     (re.compile(r"\bprinciples?\s+\d+\b", re.I), "a principle cited by number"),
     (re.compile(r"\]\([^)]+\)"), "a markdown link"),
 ]

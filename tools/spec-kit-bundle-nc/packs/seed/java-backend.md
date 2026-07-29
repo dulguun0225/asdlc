@@ -1386,3 +1386,232 @@ below exist.
   keys, so ordering for already-published aggregates breaks silently and the key
   type cannot see it. (A schema lint over the committed topology file — bespoke;
   the review gate is spec-and-review.)
+
+The eight rules below govern the shapes that are built *out of* publishes and
+subscriptions rather than out of one of each: a flow that commits in more than one
+transaction, state rebuilt from history, an aggregate across messages, HTTP across
+the organisation's boundary, and a payload the transport will not carry. Two of
+them are outright bans and are never dormant.
+
+- **A flow that commits in more than one transaction has a committed flow
+  definition: an ordered list of named steps, each declaring the destination it
+  publishes, the destination it waits for if any, and whether its effect is
+  reversible or irreversible. At most one irreversible step per flow, and it is the
+  last step. The flow's own state is a row in this service's database carrying the
+  flow identity and the current step as an enum value; no code decides which step
+  a flow is on by looking at business data.** An irreversible step in the middle —
+  money captured, a counterparty told, a third-party booking confirmed — means a
+  later failure has nothing that can undo it, so the flow ends part-done with every
+  service internally consistent and the business fact wrong. Nothing throws,
+  because every step succeeded, and no gate in this repository compares across
+  services. Putting the irreversible step last is the only structural fix, and it
+  becomes checkable the moment reversibility is a declared field. Deciding the
+  current step from business data is worse than it looks: "if the payment row
+  exists we are past step two" depends on writes made by other steps, other flows
+  and repair scripts, so the same code reaches different answers over time and a
+  retry re-runs a step that already ran. (A bespoke schema lint over the committed
+  flow file for the ordering rule and for every named destination existing in the
+  catalog; the step enum and the flow-state row are type design; an ArchUnit rule
+  confines the step decision to the flow-state repository. Whether a step really is
+  reversible is a judgement no tool makes — that one is spec-and-review at the plan
+  gate.)
+- **Every reversible step declares a compensating destination, and compensation is
+  a published message like any other — an outbox row, the relay, the broker —
+  consumed by the service that owns the effect, through the deduplicated port. A
+  compensation handler may not require that the forward effect succeeded: it is
+  correct when the effect never happened and correct when it has already been
+  compensated. No compensation is a synchronous call, and none writes another
+  service's data.** The framework's own transaction documentation tells the
+  application to "take remedial action … to compensate for the committed primary
+  transaction" and supplies no mechanism for doing it, so what gets written instead
+  is a try/catch around the orchestration that logs — and the committed effects of
+  every earlier step stay committed with nothing recording that they should not
+  have. The tolerate-absence half is not idempotence and is the half that gets
+  dropped: the compensation may arrive for a forward effect that never committed,
+  because the step's own state change succeeded and its confirmation never came
+  back, or because the timer fired first. So compensation is "cancel if present",
+  never "undo the row I know is there" — one that throws on a missing row burns its
+  attempt budget and lands on the terminal destination, where a message that
+  correctly had nothing to do now looks like a failure. (The schema lint above
+  checks that every reversible step names a compensating destination in the
+  catalog; an ArchUnit rule keeps outbound HTTP and service clients out of the flow
+  package and requires the deduplicated port — off-the-shelf hosts. Two Failsafe
+  arms per reversible step, compensating with no forward effect and compensating
+  twice, are bespoke.)
+- **Every step that waits declares a timeout, and there is no unbounded wait. The
+  timeout is a message on a committed timer destination that is not the retry delay
+  destination; its due time is computed inside the timer adapter from event time
+  carried in the message, never from a clock read in flow or handler code; and its
+  maximum is a committed value. A timeout that fires after the awaited message
+  arrived is a no-op decided by the flow-state row.** This is the absent-signal
+  failure in its worst form. A subscription that stops produces lag and the
+  staleness alert catches it; a flow waiting for a reply that will never come
+  produces nothing at all — no lag, because the message it waits for was never
+  published, and no terminal-destination arrival, because nothing failed. The only
+  trace is a row sitting in one step, and rows are what nobody reads. **On this
+  stack there is no delay primitive to lean on:** Kafka has no per-message delayed
+  delivery, and the framework's non-blocking retry mechanism is confined to
+  unordered subscriptions already, so the timer is always a committed re-publish
+  schedule owned by the relay — which means the schedule itself is a committed
+  value, not a cron expression somebody chose. Keep the timer destination separate
+  from the retry delay destination: merged, a normal business wait is
+  indistinguishable from a retry backlog, the terminal-arrival alert fires on
+  healthy traffic, and it gets muted. (A bespoke lint over the committed flow file
+  and the relay schedule; an ArchUnit ban on clock and random sources in the flow
+  package — off-the-shelf; two Failsafe arms — let the timeout fire and assert a
+  terminal flow state, then deliver the awaited message late and assert exactly one
+  outcome — bespoke.)
+- **The broker is not a store of record, and current state is not a fold over the
+  message history. State is a row in this service's database and that row is the
+  authority. No query path, no read model and no recovery path rebuilds state by
+  reading the broker or the outbox table, event-store clients and event-sourcing
+  frameworks are banned dependencies, and a committed message corpus may be
+  replayed only to rebuild a derived projection whose authority is the producer's
+  state — never to establish a fact no table holds.** Three failures, none of which
+  throws. Retention deletes the authority on a schedule nobody wrote down: a topic
+  retains for seven days on the shipped default and a compacted topic keeps only
+  the latest value per key, and the relay deletes a sent outbox row after its
+  committed window, so neither copy is a history. A schema change that the
+  compatibility gate legitimately permits is applied to bytes written years earlier,
+  so the fold's output changes meaning while no code changes and every gate stays
+  green. And the symptom of both is a wrong current value rather than an error.
+  Beyond that, nobody in this organisation operates an event store, and neither
+  dedicated candidate in this ecosystem is free to self-host: EventStoreDB moved to
+  the Event Store License v2 with its 24.10 release, where enterprise features need
+  a licence key, and Axon Server's standard licence forbids derivative works while
+  Axon Server Enterprise is closed source — Axon Framework itself is Apache-2.0,
+  which is the distinction an agent will get wrong. Licences checked 2026-07-29;
+  re-check at adoption. **What to do instead:** keep the state table and publish
+  events for notification and projection, which is what every rule above already
+  describes. (ArchUnit banned dependencies by group id from the committed list, plus
+  an ArchUnit rule that no query or read-model package depends on the messaging
+  adapter or the outbox tables — off-the-shelf hosts. Whether a projection is being
+  treated as the authority is semantic and unreachable — named gap.)
+- **No stream-processing engine, and no time-window aggregate computed inside a
+  handler. A consumer's effect is a write to its own store; a join is two
+  subscriptions writing into one table that is then read transactionally. A handler
+  holds no cross-message state — no mutable field, no static collection, no
+  accumulating buffer — and computes no aggregate over a time window. Where a
+  windowed number is required it is a query over the projection table with the
+  window as a committed parameter, evaluated at read time.** The failure is a
+  silently wrong number, and the engine's own semantics produce it: the windowing
+  API's javadoc states that out-of-order records arriving more than the grace
+  period after the window end "will be dropped", and the drop surfaces only in a
+  task-level dropped-records counter that replaced three older ones. A wrong
+  aggregate, no exception, and one counter nobody is watching, because there is no
+  operations role here. The vendor deprecated its own 24-hour default grace period
+  for making that trade on the user's behalf, so a repo inherits whichever default
+  its version ships. In-handler state is the same failure without the framework and
+  is what gets written once the dependency is banned: the value depends on which
+  messages that instance happened to see, so it differs per consumer and resets on
+  every restart and rebalance — and the suite that would catch it is the
+  two-instance suite most repos never write. An engine is also a second always-on
+  stateful system with state stores, changelog topics and restore-on-rebalance, and
+  no role here owns it — the same ground the change-data-capture route was rejected
+  on. Documentation checked 2026-07-29. (ArchUnit banned dependencies on the
+  stream-processing libraries and the framework's Kafka Streams binder, plus
+  ArchUnit field rules — no non-final field and no static collection in handler or
+  flow packages — off-the-shelf; a two-instance Testcontainers arm asserting the
+  same aggregate query answers identically however the messages were split —
+  bespoke. A wrong window committed as a parameter passes every check: named gap,
+  and the committed parameter is what puts it in a diff.)
+- **An outbound webhook is a consumer, never a call from application code: a
+  subscription whose handler performs the HTTP call, so every consume-path rule
+  above already binds it. The call is signed with a committed algorithm over a
+  committed component set including a timestamp and the message identity; the
+  destination host comes from a committed allowlist and never from a message field
+  or any user-supplied value; the client follows no redirects, and resolves the host
+  and checks the resolved addresses against a committed list of denied ranges —
+  private, loopback, link-local, and the cloud metadata address — before
+  connecting; every call has a committed timeout; and the receiver's response body
+  is never parsed as authority for anything, only its status code decides
+  success.** An unsigned delivery is indistinguishable at the receiver from anyone
+  else's POST, so whatever the receiver does on trust is unfounded and nothing in
+  either system reports the missing signature. A destination taken from data is
+  server-side request forgery, and the enumerated clauses are the defences OWASP
+  names for exactly this case — allowlist the host, disable redirect following in
+  the client, resolve then verify to defeat rebinding, and block private, loopback
+  and link-local ranges and the metadata endpoint, where the prize is cloud
+  credentials. Following a redirect defeats the allowlist by construction, which is
+  why it is its own clause. And parsing the receiver's body makes an outside
+  party's output an input to this system's state with no schema gate anywhere.
+  **Two standards exist and this repo commits one:** RFC 9421 signs HTTP message
+  components and survives transformation by intermediaries; Standard Webhooks
+  specifies an id, timestamp and signature header, signs
+  identity-dot-timestamp-dot-payload with HMAC-SHA256 or ed25519, and carries
+  several signatures at once so a secret rotates with no downtime. **The tolerance
+  is a committed number**, because that specification requires the receiver to
+  check the timestamp and names no window — an uncommitted tolerance is an
+  unbounded replay window. **The JDK's own address predicates cannot host the deny
+  list:** their API documentation defines them as utility routines to check whether
+  an address is site-local, link-local or loopback and names no ranges at all, so a
+  list resting on them is one whose contents appear in no contract a reviewer can
+  read. Commit explicit ranges. Standards and guidance checked 2026-07-29. (An
+  ArchUnit rule confining every HTTP client type to the egress adapter, plus
+  `followRedirects(NEVER)` and the timeout as committed configuration a lint reads —
+  off-the-shelf hosts; the allowlist, the denied ranges, the algorithm and the
+  tolerance as committed values, with Failsafe arms for a redirect toward a private
+  address, a stale timestamp and a broken signature — bespoke. Whether the receiver
+  verifies anything is outside this repository: signing proves that we signed, never
+  that anyone checked — named gap.)
+- **An inbound webhook is a message, not a request that does work. The endpoint
+  verifies the signature and the timestamp against a committed tolerance, rejects
+  on failure with no side effect, writes the payload inside one transaction to the
+  outbox or to a committed ingress table only the relay reads, and returns. It
+  performs no business effect in the request. The sender's own message identity is
+  the deduplication key, retained for the window the deduplication rules above
+  require. The payload is decoded against a committed schema for that sender under
+  the same asymmetry as any other payload — strict on missing and unparseable,
+  tolerant of unknown — and an unverifiable sender is a terminal failure, never a
+  default.** An inbound webhook is an at-least-once delivery from a system nobody
+  here controls or can ask. Senders retry, so duplicates are certain rather than
+  possible; nothing guarantees order; and a signed payload captured earlier is
+  accepted forever unless the timestamp is checked, which makes the tolerance a
+  correctness rule and not hardening. Doing the work inside the request couples an
+  external caller's timeout to this system's transaction: the sender gives up,
+  retries, and the effect runs a second time while the first is still committing —
+  and each run is a well-formed write, so the only trace is in the data. (An
+  ArchUnit rule allowing the ingress package the outbox port and no effect port —
+  off-the-shelf; the tolerance, the per-sender schema and the identity field as
+  committed values; Failsafe arms for the same signed delivery twice, a tampered
+  signature and a stale timestamp — bespoke. The sender's retry policy is the
+  sender's: ingress can be made idempotent, never guaranteed — named gap.)
+- **Where a payload cannot meet its subject's committed maximum size, the message
+  carries a claim check under committed conditions, or the design changes. The
+  pointer is a record type and never free text; it names an immutable object
+  written and committed before the outbox row commits; it resolves through one
+  storage adapter that follows no redirects. The object's committed retention is
+  strictly longer than the destination's retention plus the terminal destination's
+  redrive window, and a lint compares the committed values. The message still
+  carries the semantic fields the consumer branches on — only bulk content moves.
+  The consuming handler's package may depend on the storage adapter and still may
+  not depend on any client for the producing service.** The pattern manufactures
+  this section's signature failure unless it is constrained: the message decodes
+  perfectly and the payload is gone. Two retentions decide that, configured
+  independently — the transport's, and an object-lifecycle rule usually written in
+  another repository by someone else — with nothing comparing them, which is why
+  the comparison is a lint rather than advice. Writing the object after the outbox
+  row commits is the dual write one layer down, with the same shape: the row
+  commits, the process dies, the object is never written, and the message is
+  undeliverable forever with no record of what it should have carried. **This is
+  not the banned dereference**, and the distinction is the whole reason it is
+  permitted: that ban exists because a consumer reading the producer's *current*
+  state gets a different answer on replay, while an immutable object written before
+  the fact was published is state at event time, so a replay reads the same bytes.
+  The clause carrying that is the dependency rule in the last sentence — object
+  storage yes, the producer's API no. **And do not use a presigned URL as the
+  pointer:** it expires while the message is still valid, retained and redrivable,
+  which is the exact failure this rule prevents arriving through the convenient
+  option, and it is free text, so it is an egress destination taken from a message
+  field. Transport limits checked 2026-07-29: the managed queue's maximum message
+  size is 1 MiB — **raised from 256 KiB in 2025, so the figure supplied from
+  memory is wrong** — and above it the vendor's own answer is this pattern, an
+  extended client keeping a reference to an object in storage, capped at 2 GB and
+  documented as working only for synchronous clients. A self-hosted NATS server's
+  default maximum payload is 1 MB with values over 8 MB not recommended. (A record
+  pointer type with a private constructor and one factory — off-the-shelf via
+  Javac; a bespoke lint comparing the committed retentions and the adapter's
+  redirect setting; a MinIO container for the present-object and absent-object arms,
+  where an absent object is a terminal failure and not a silent skip — bespoke. The
+  bucket's real lifecycle rule is infrastructure no check in this build can see —
+  named gap, the same class as broker-side durability.)

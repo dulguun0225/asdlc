@@ -9,9 +9,11 @@ Versions 0.1.0 and 0.2.0 were development increments in this repository;
 
 ## [Unreleased]
 
-Design: DECISIONS.md B-13 and **B-14, which supersedes B-13's routing
-recommendation the same day**. No component version changed — `packs/` is
-informative and no tooling installs it.
+Design: DECISIONS.md B-13, **B-14, which supersedes B-13's routing
+recommendation the same day**, and **B-15, which extends the same source a third
+time that day**. One component change: `ci/check_packs.py` widens a pattern that
+was reporting green over `E-n` in seed text. `packs/` itself is informative and no
+tooling installs it.
 
 ### Added
 
@@ -91,6 +93,59 @@ informative and no tooling installs it.
   source; the `message-broker` candidate row is replaced by a note on why the
   name and scope changed; "both sources" becomes "all three" where a future stack
   pack's obligations are stated.
+- **`packs/rule-sources/event-broker-discipline.md` — the five shapes the source
+  passed over in silence are decided as `E-29` … `E-36` (B-15, third change the
+  same day).** Twenty-eight directives become **thirty-six** in four new groups.
+  Permitted with rules: a flow committing across more than one transaction, with a
+  committed step list, at most one irreversible step and it last, flow state as an
+  explicit enum column, a compensating destination per reversible step that is
+  correct when the forward effect never happened, and every wait bounded by a timer
+  on a destination distinct from the retry delay destination (`E-29` … `E-31`);
+  webhooks in both directions, egress signed, allowlisted, redirect-free and
+  timeout-bounded with the receiver's body never authority, ingress verified,
+  enqueued and returned with no effect in the request (`E-34`, `E-35`); and a claim
+  check for an oversized payload, with a nominal pointer type, the object committed
+  *before* the outbox row, and a lint comparing retentions (`E-36`). **Banned
+  outright:** state as a fold over the message history (`E-32`) and a windowed
+  aggregate computed by an engine or a handler (`E-33`). Both bans rest on this
+  organisation rather than on the technology, so both name their re-open trigger.
+  **The pass had no panel and no hostile audit** — weaker in shape than the first,
+  which had at least the audit — and that is now a trigger ranking with the
+  refutation votes, because a ban removes an option from every future repo. It
+  closed **no** named gap inside `E-1` … `E-28` and added seven of its own, so the
+  count of open residues went up.
+- `packs/seed/java-backend.md`, `packs/java-backend.md` — the eight new rules
+  instantiated with named Java checks; the seed text goes from **141 rules in 18
+  sections to 149 in 18** (same section count — every new rule lands in the
+  existing event-broker section). Three findings are Java-shaped: there is **no
+  delay primitive** for a business timer on this stack (Kafka has no per-message
+  delayed delivery and the framework's retry mechanism is confined to unordered
+  subscriptions), so the timer is always a committed re-publish schedule owned by
+  the relay; the **JDK's own address predicates cannot host the egress deny list**,
+  because their API documentation names no address ranges at all, so the repo
+  commits explicit CIDRs; and both banned architectures are JVM-native and one
+  dependency line away, which is why each ban is a banned-dependency rule plus
+  field rules rather than a code-shape rule. Adoption cost recorded: a second
+  consumer container for the two-instance aggregate arm, and MinIO for the
+  claim-check arms.
+
+### Fixed
+
+- **`ci/check_packs.py` reported green over an `E-n` in seed text.** Its
+  `SEED_FORBIDDEN` patterns covered `P-n` and `M-n`/`C-n` and were written before
+  `event-broker-discipline` existed, so for as long as `E-n` ids have existed the
+  gate guarding seed text against dangling corpus references could not see them —
+  and it had that hole while guarding the file B-15 grew by eight event-broker
+  rules. The pattern now covers `E-n`. **The negative probe now asserts `'M-12'`
+  and `'E-30'` by id**, because the shared `a cross-stack source rule id`
+  assertion stays green on the `M-12` alone and so could not have caught a letter
+  being dropped. Rule recorded in `ci/CLAUDE.md`: a new source letter is added to
+  the pattern and given its own probe assertion in the same change.
+- `packs/README.md` — the roster still described the event-broker source as
+  binding on "the polled table it tells most repos to use instead", which B-14 had
+  reversed hours earlier. The roster row was not in B-14's edit list; it now states
+  the predicate and names the two banned architectures, and the rule count is
+  corrected to 36.
 
 ## [0.2.0] — 2026-07-29
 

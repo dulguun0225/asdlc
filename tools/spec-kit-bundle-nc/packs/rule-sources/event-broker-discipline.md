@@ -4,7 +4,7 @@ kind: cross-stack source — no seed file, never adopted
 status: decided, not yet validated (researched 2026-07-29 — design steelman,
   two tool-evidence passes against primary sources, a hostile audit with a
   planted canary that was caught, and a candidate comparison; no production use
-  anywhere). Every one of the twenty-eight directives is **convention** — none
+  anywhere). Every one of the thirty-six directives is **convention** — none
   survived refutation against a primary source, because each is a design
   argument rather than an execution result. **Short of the panel:** the
   three-vote refutation the research protocol requires was not run on the
@@ -16,13 +16,30 @@ status: decided, not yet validated (researched 2026-07-29 — design steelman,
   above three thresholds; the thresholds are withdrawn as unusable at the plan
   gate. The outbox is unchanged and still mandatory. No directive was deleted;
   E-4 and E-28 are reworded and section 1 is rewritten. See DECISIONS.md B-14.
+  **Extended 2026-07-29 (third change, same day), by the owner:** the five
+  composite shapes this source had left unexamined are decided — E-29 … E-36,
+  in groups J … M. Three are permitted with rules (a multi-transaction flow and
+  its compensation and timers; egress and ingress webhooks; a claim check for an
+  oversized payload) and two are banned outright (the broker or the log as a
+  store of record; a stream-processing engine, and any time-window aggregate
+  computed inside a handler). No earlier directive changed meaning. The
+  distinction that matters when reading this file: those five were **absences**,
+  and every *named gap* inside a directive is still open by design — each is
+  undecidable by any check this repository can host, and each carries its own
+  re-open trigger in section 6. See DECISIONS.md B-15.
 holds-when: code is written by LLM agents and no human reads it line by line;
   the repo hands work off **asynchronously** — the caller's control flow does
   not contain the work's execution. That covers a broker or a managed queue,
   and it also covers a database table polled by a scheduled job, an in-process
   event bus, a bare thread-pool submit and an outbound webhook. The
   cross-repository directives (E-19, E-26) additionally require a second
-  independently deployable consumer.
+  independently deployable consumer. Three groups carry a further condition and
+  are dormant until it holds: E-29 … E-31 require a flow whose steps commit in
+  more than one transaction; E-34 and E-35 require an HTTP handoff across the
+  organisation's boundary; E-36 requires a payload that cannot meet its
+  subject's committed size limit. **E-32 and E-33 are bans and are never
+  dormant** — a ban with a precondition is a ban an agent can argue its way
+  past.
 verified: 2026-07-29
 review-by: 2027-01-29
 maintained-by: Dulguun Otgon
@@ -205,8 +222,11 @@ self-hosted variant cannot be built without one, which makes an open staffing
 question load-bearing for every repo instead of for some. The licence question is
 live (section 7). Cloud: a managed queue has close to no operational surface, so
 that prerequisite nearly vanishes, and the pick is the platform's own
-queue-shaped or publish-subscribe service. **All twenty-eight directives bind on
-both**, because the correctness surface is identical.
+queue-shaped or publish-subscribe service. **All thirty-six directives bind on
+both**, because the correctness surface is identical. Two of the later ones
+diverge in their *grounds* without diverging in the rule: E-32's licence argument
+is self-hosted-only, and E-31's re-publish schedule is forced by the cloud
+queue's 15-minute timer ceiling. Both bind either way.
 
 **This section is now almost entirely decidable, which is the point of the
 reversal.** "Should this repo have a broker" was not a machine-decidable
@@ -219,6 +239,50 @@ the consuming teams.
 **Ids never appear in seed text.** `E-7` belongs in a pack file. A seed file
 lands in a constitution that holds no copy of this corpus, so a cited id is a
 dangling pointer — a failure this corpus has already made once.
+
+### The five shapes this source used to pass over in silence
+
+**A source that names its gaps still has to distinguish two kinds of gap, and
+the first version of this file did not.** A *named gap* inside a directive is a
+property no check can decide — semantic duplication, a swallowing catch, the
+cross-repository union check — and naming it is the whole requirement, because
+silence there would read as coverage. An **absence** is different: a shape a repo
+will build, that no directive mentions at all, so nothing reads as anything. The
+first version had five, all of them composite — patterns assembled *out of*
+publishes and subscriptions, which is why a rule set written per publish and per
+subscription missed them:
+
+1. **A flow whose steps commit in more than one transaction** — a saga or process
+   manager. Expressible under the original twenty-eight (a consumer that
+   publishes writes an outbox row in its own transaction, and that is all a
+   process manager is), so nothing forbade it, and nothing governed compensation
+   or the wait. Now E-29, E-30, E-31.
+2. **State reconstructed from the message history** — event sourcing. Now banned
+   by E-32.
+3. **An aggregate computed across messages** — a stream processor, a join, a time
+   window. Now banned by E-33.
+4. **HTTP across the organisation's boundary** — a webhook, in both directions.
+   The `holds-when` list named an outbound webhook as an asynchronous handoff
+   from the start, so the general rules always bound it; what was missing was
+   every rule specific to it. Now E-34 and E-35.
+5. **A payload too large for the transport** — a claim check. E-21 required a
+   committed maximum size and said nothing about what to do when a payload
+   cannot meet it, which is a rule that fails closed on the page and opens
+   silently in a repo. Now E-36.
+
+**Two of the five are bans, and a ban here is a real decision rather than a
+deferral.** Neither event sourcing nor stream processing is bad engineering; both
+are unaffordable *here*, and the grounds are this org's — no operations role, one
+engineer per team, and a licence clause on the self-hosted variant that both
+dedicated event stores and the workflow engines fail (section 4). A ban that
+rests on the organisation rather than on the technology is a ban that has to name
+its re-open trigger, and section 6 does.
+
+**What the pass did not do, stated because it is the same honesty the file
+already carries:** it did not close a single named gap inside E-1 … E-28. Those
+are undecidable by any check this repository can host, which is why they are
+named rather than solved, and the new directives add named gaps of their own —
+seven of them. The count of open residues went **up**.
 
 ### What this source deliberately does not carry: the broker pick
 
@@ -1081,6 +1145,317 @@ place the cross-repository gap in E-26 gets a human's attention. A stack pack th
 ships the rules without the citation obligation ships a tripwire nothing trips.
 *Spec-and-review at the plan approval gate. Convention.*
 
+### Group J — a flow whose steps commit in more than one transaction
+
+**E-29 — A flow that commits in more than one transaction has a committed flow
+definition: an ordered list of named steps, each declaring the destination it
+publishes, the destination it waits for if any, and whether its effect is
+`reversible` or `irreversible`. A lint asserts at most one `irreversible` step
+per flow and that it is the last step. The flow's own state is a row in the
+initiating service's transactional store carrying the flow identity and the
+current step as a value of an enumerated type; no code decides which step a flow
+is on by looking at business data.**
+
+Two failures, and the first is structural rather than operational. **An
+irreversible step in the middle of a flow means a later failure has nothing that
+can undo it** — money captured, a message sent to a counterparty, a third-party
+booking confirmed — so the flow ends part-done, every service internally
+consistent, and the business fact wrong. Nothing throws: each step succeeded.
+Nothing compares across services, because no gate in this design can. Ordering
+the irreversible step last is the only structural fix available, and it is
+*decidable* the moment reversibility is a declared field, which is the whole
+reason the declaration exists.
+
+**And deciding the current step from business data is P-3's ambient modifier at
+the flow level.** "If the payment row exists we must be past step 2" is a rule
+whose answer depends on writes made by other steps, other flows and repair
+scripts, so the same code reaches different conclusions over time and a retry
+re-runs a step that already ran. The explicit column is what makes the flow's
+position a fact rather than an inference. *Schema lint over the committed flow
+definition (the at-most-one-irreversible-and-last rule; every named destination
+exists in the E-26 catalog) + type design (the step enumeration, the flow-state
+row) + static rule (the flow module decides its step from the state column only).
+Convention.*
+
+*Named gap:* whether a step's effect is **actually** reversible is a semantic
+claim, and no tool decides it. Declaring a refund-capable capture `reversible` is
+a judgement; the lint enforces only the consequence of the declaration. This is
+the residue that belongs in front of a human at the plan gate, and E-28's
+citation obligation is where it lands.
+
+**E-30 — Every `reversible` step declares a compensating destination in the flow
+definition. Compensation is a published message like any other — an outbox row,
+the relay, the broker — consumed by the service that owns the effect, through the
+deduplicated port. A compensation handler may not require that the forward effect
+succeeded: it is correct when the effect never happened and correct when it has
+already been compensated. No compensation is a synchronous call, and none is a
+write to another service's data.**
+
+**The framework's own documentation names compensation as the application's job
+and supplies no mechanism for it** — the already-verified sentence in section 4
+tells the reader to "take remedial action … to compensate for the committed
+primary transaction" and stops there. Without a directive, what gets written is a
+`catch` around the orchestration that logs, and the committed effects of every
+earlier step stay committed forever with nothing recording that they should not
+have.
+
+**The tolerate-absence clause is the half that gets missed, and it is not
+idempotence.** E-13 already makes the handler run-once-per-identity. This is a
+different property: the compensation may arrive for a forward effect that *never
+committed*, because the step's own state change succeeded and its confirmation
+never came back, or because the timer in E-31 fired first. So compensation is
+"cancel if present", never "undo the row I know is there" — a compensation that
+throws on a missing row burns its attempt budget and lands on the terminal
+destination, where a message that correctly had nothing to do now looks like a
+failure. *Schema lint (every `reversible` step names a compensating destination
+that exists in the catalog) + static rule (the compensation handler registers
+through the deduplicated port; no outbound synchronous client is reachable from
+the flow module) + integration test per reversible step: compensate with no
+forward effect, and compensate twice — one observable outcome in both.
+Convention.*
+
+**E-31 — Every step that waits declares a timeout in the flow definition, and
+there is no unbounded wait. The timeout is a message on a committed **timer
+destination that is not the retry delay destination**; its due time is computed
+inside the timer adapter from event time carried in the message, never from a
+clock read in flow or handler code; and its maximum is a committed value. Where
+the transport's own delay primitive is shorter than a declared timeout, the timer
+is a committed re-publish schedule owned by the relay and the schedule is a
+committed value a lint reads. A timeout that fires after the awaited message
+arrived is a no-op decided by the flow-state row.**
+
+**This is E-16's absent-signal failure in its worst form.** A subscription that
+stops produces lag, and E-16's staleness alert catches it. A flow waiting for a
+reply that will never come produces **nothing**: no lag, because the message it
+waits for was never published; no terminal-destination arrival, because nothing
+failed; no error anywhere. The only trace is a row sitting in one step, and rows
+are what nobody reads. Every other alert in this source watches a message that
+exists.
+
+**The transport forces the second clause rather than design taste.** The cloud
+variant's queue-shaped service caps a message timer at **15 minutes** (verified,
+section 4), so a business timeout of hours or days cannot be expressed as a delay
+primitive at all and has to be a schedule — which is a thing that can be
+forgotten, hence the committed value. **And the separate-destination clause is
+not tidiness:** sharing E-17's retry delay destination makes a normal business
+wait indistinguishable from a retry backlog, so E-16's terminal-arrival alert
+fires on healthy traffic and gets muted, which is how both signals die. *Schema
+lint (every awaiting step has a timeout at or below the committed maximum; the
+timer destination differs from every retry delay destination) + static rule (no
+clock read in the flow module) + integration test (let the timeout fire and
+assert a terminal flow state; then deliver the awaited message after the timeout
+and assert exactly one outcome). Convention.*
+
+*Named gap:* a flow whose timeout is committed but absurd — thirty days on a
+checkout — is not decidable. The committed maximum bounds it; whether the number
+is right is spec-and-review.
+
+### Group K — two shapes banned outright
+
+**E-32 — The broker is not a store of record, and current state is not a fold
+over the message history. State is a row in a service's own transactional store
+and that row is the authority. No query path, no read model and no recovery path
+reconstructs state by reading the broker or the outbox table. Event-store
+products are banned dependencies. A committed message corpus may be replayed to
+rebuild a **derived** projection whose authority is the producer's state, never to
+establish a fact that no table holds.**
+
+Three failures, each of which the absent reader makes permanent, and none of
+which throws. **Retention deletes the authority on a schedule nobody wrote
+down:** a log-shaped topic's shipped default retention is seven days (verified in
+section 4) and a compacted topic keeps only the latest value per key, so a design
+whose state *is* the log has a data-loss policy set by a broker default. E-8
+compounds it from the other side — the relay deletes a sent outbox row after a
+committed window, so the producer-side copy is not a history either, by this
+source's own rules. **A schema change that E-19 legitimately permits is applied
+to bytes written years earlier**, so the fold's output changes meaning while no
+code changes and every gate stays green; E-19's own named gap says a
+compatibility checker decides shape and never meaning, and a fold over old bytes
+is that gap compounding with age. And the symptom of all of it is a **wrong
+current value**, not an exception.
+
+**The organisational grounds are separate and also sufficient.** No role here
+operates an event store, and both dedicated candidates in this stack's ecosystem
+fail the self-hosted variant's open-source clause — section 4 carries the licence
+evidence and the dates. On the cloud variant the licence argument does not apply
+and the retention and schema-drift grounds still do.
+
+**Stated so the ban is actionable rather than merely prohibitive:** keep the state
+table and publish events for notification and projection. That is the design the
+other thirty-five directives already describe, and it is why this ban costs a repo
+nothing it had. *Static rule (banned dependency on event-store clients; E-4's
+outbox-read confinement extended so no query module reads the outbox; no query
+module depends on the messaging adapter) + spec-and-review on the tripwire.
+Convention.*
+
+*Named gap:* "this projection is being treated as the authority" is semantic. The
+decidable half is the dependency direction — a query module that cannot reach the
+adapter cannot fold the log.
+
+**E-33 — No stream-processing engine, and no time-window aggregate computed
+inside a handler. Stream-processing frameworks are banned dependencies. A
+consumer's effect is a write to its own store; a join is two subscriptions
+writing into one table that is then read transactionally. A handler holds no
+cross-message state — no mutable field, no static collection, no accumulating
+buffer — and computes no aggregate over a time window. Where a windowed number is
+required it is a query over the projection table with the window as a committed
+parameter, evaluated at read time.**
+
+**The failure is a silently wrong number, which is the worst shape in this
+corpus, and the engine's own semantics produce it by design.** Records arriving
+more than the grace period after a window ends "are considered late and will be
+dropped" — the framework's own reference documentation, quoted in section 4 — and
+the drop surfaces only in a task-level metric that consolidated three older
+ones. So a windowed aggregate under-counts, nothing raises, and the only trace is
+a counter nobody in this organisation is watching, because there is no operations
+role. The vendor deprecated its own 24-hour default grace period precisely
+because a default was making that trade on the user's behalf; a repo here would
+inherit whichever default the version ships.
+
+**In-handler state is the same failure without the framework**, and it is what an
+agent writes when the dependency is banned: the value depends on which messages
+*that instance* happened to see, so it differs per consumer and resets on every
+restart and rebalance. E-24 records that most suites never run two consumer
+instances, so the test that would catch it is the test nobody writes.
+
+**And an engine is a second always-on stateful system** — state stores, changelog
+topics, standby replicas, restore time on rebalance — with no owner here. That is
+the ground the change-data-capture route was already rejected on, applied
+consistently. *Static rule (banned dependency; no mutable state field or static
+collection in a handler or flow module; no clock-derived window bound in handler
+code) + integration test (the two-instance arm: the same aggregate query returns
+the same answer however the messages were split between instances) + schema lint
+(the window is a committed parameter). Convention.*
+
+*Named gap:* an aggregate accumulated in the database against a wrong window is
+not caught by any of these. Making the window a committed parameter is what puts
+it in a diff a human reads.
+
+### Group L — HTTP across the organisation's boundary
+
+**E-34 — An outbound webhook is a consumer, never a call from application code.
+It is a subscription whose handler performs the HTTP call, so every consume-path
+rule already binds it. The call is signed with a committed algorithm over a
+committed component set including a timestamp and the message identity; the
+destination host comes from a committed allowlist, never from a message field or
+any user-supplied value; the client follows no redirects, and resolves the host
+and checks the resolved address against a committed deny list — private,
+loopback, link-local and the cloud metadata address — before connecting; every
+call has a committed timeout; and the receiver's response body is never parsed as
+authority for anything, only its status code decides success.**
+
+Four failures, two of them security failures. **An unsigned delivery is
+indistinguishable at the receiver from anyone else's POST**, so whatever the
+receiver does on trust is unfounded, and nothing in either system reports the
+absence of a signature. **A destination taken from data is server-side request
+forgery**, and the enumerated defences are the ones OWASP names for exactly this
+case (section 4): allowlist the host, disable redirect following, resolve then
+verify to defeat DNS rebinding, and block private, loopback and link-local ranges
+and the metadata endpoint — where the prize is cloud credentials. **Following a
+redirect defeats the allowlist by construction**, which is why it is a separate
+clause and not an implementation detail. And **parsing the receiver's body makes
+an outside party's output an input to our state** with no schema gate anywhere:
+E-18 and E-19 govern broker payloads, not an HTTP response.
+
+**Two named standards exist and the pick is seed text, not a directive** (B-11's
+routing): RFC 9421 signs HTTP message components and survives transformation by
+intermediaries; Standard Webhooks specifies three headers, signs
+identity-dot-timestamp-dot-payload with HMAC-SHA256 or ed25519, and carries
+several signatures at once so a secret rotates with no downtime. What is a
+directive is that one of them is committed, that the tolerance is a committed
+number — **the specification requires the receiver to check the timestamp and
+names no window, so an uncommitted tolerance is an unbounded replay window** —
+and that the secret is rotatable without downtime. *Static rule (no HTTP client
+reachable from application or flow modules; the handler registers through the
+deduplicated port; no redirect-following configuration) + schema lint (the
+allowlist, the deny list, the timeout, the algorithm, the tolerance) +
+integration test (a redirect toward a private address is refused; a delivery with
+a stale timestamp or a broken signature is rejected by the repo's own verifier
+fixture; a host absent from the allowlist is refused). Convention.*
+
+*Named gap:* whether the receiver verifies anything is outside this repository.
+Signing proves that we signed, never that anyone checked.
+
+**E-35 — An inbound webhook is a message, not a request that does work. The
+endpoint verifies the signature and the timestamp against a committed tolerance,
+rejects on failure with no side effect, writes the payload inside one transaction
+to the outbox — or to a committed ingress table that only the relay reads — and
+returns. It performs no business effect in the request. The sender's own message
+identity is the deduplication key, retained for the window E-14 requires. The
+payload is decoded against a committed schema for that sender under E-20's
+asymmetry, and an unverifiable sender is a terminal failure, never a default.**
+
+**An inbound webhook is an at-least-once delivery from a system nobody here
+controls or can ask.** Senders retry, so duplicates are certain rather than
+possible; nothing guarantees order; and a signed payload captured earlier is
+accepted forever unless the timestamp is checked, which is what makes the
+tolerance a correctness rule and not hardening. **Doing the work inside the
+request couples an external caller's timeout to our transaction**: the sender
+gives up, retries, and the effect runs a second time while the first is still
+committing — and each run is a well-formed write, so the trace is in the data and
+nowhere else.
+
+*Static rule (the ingress module may depend on the outbox port and on no effect
+port) + integration test (the same signed delivery twice → one effect; a tampered
+signature → rejected with no row written; a stale timestamp → rejected) + schema
+lint (the tolerance, the per-sender schema, the identity field). Convention.*
+
+*Named gap:* the sender's retry policy is the sender's. Ingress can be made
+idempotent; it cannot be made guaranteed, and a sender that gives up after one
+attempt is a fact no check here can see.
+
+### Group M — a payload the transport will not carry
+
+**E-36 — Where a payload cannot meet its subject's committed maximum size, the
+message carries a claim check under committed conditions, or the design changes.
+The pointer is a nominal type and never free text; it names an immutable object
+written and committed **before** the outbox row commits; it resolves through one
+storage adapter that follows no redirects. The object's committed retention is
+strictly longer than the destination's retention plus the terminal destination's
+redrive window, and a lint compares the committed values. The message still
+carries the semantic fields the consumer branches on — only bulk content moves.
+The consuming handler's module may depend on the storage adapter and still may
+not depend on any client for the producing service.**
+
+**The pattern manufactures this source's signature failure unless it is
+constrained: the message decodes perfectly and the payload is gone.** Two
+retentions decide that, configured independently — the transport's, and an
+object-lifecycle rule typically written in another repository by someone else —
+with nothing comparing them, which is why the comparison is a lint rather than
+advice. The cloud queue retains a message up to 14 days (verified); an object
+lifecycle rule of 7 days silently wins, and the symptom is a terminal failure
+weeks later on a redrive. **Writing the object after the outbox row commits is
+the dual write one layer down**, with the same shape E-5 exists for: the row
+commits, the process dies, the object is never written, and the message is
+undeliverable forever with no record of what it should have carried.
+
+**Why this does not violate E-21's dereference ban, stated because it looks like
+it does.** That ban exists because a consumer that reads the producer's *current*
+state gets a different answer on replay. An immutable object written before the
+fact was published is state **at event time**, so a replay reads the same bytes
+and E-23's property survives. The clause carrying that distinction is the
+dependency ban in the last sentence: object storage yes, the producer's API no.
+
+**The transport facts make the rule necessary rather than defensive**, and the
+first of them is a correction: the cloud queue's maximum message size is
+**1 MiB**, raised from 256 KiB in 2025, so the figure any agent supplies from
+memory is wrong and a repo pinning the old one under-uses the transport and
+reaches for a claim check it does not need. Above that limit the vendor's own
+answer *is* this pattern — an extended client that stores the payload in object
+storage and puts a reference in the message, capped at 2 GB and documented as
+working only for synchronous clients, which is a real constraint. A self-hosted
+broker's default maximum payload is 1 MB, with values above 8 MB not recommended
+by its own documentation. *Type design (the pointer type; no free-text URL) +
+schema lint (the per-subject maximum, the retention comparison, the storage
+adapter's redirect and allowlist settings) + static rule (the dependency ban) +
+integration test (the object is present when the message is processed; a claim
+check whose object is absent is a terminal failure and not a silent skip).
+Convention.*
+
+*Named gap:* the object store's actual lifecycle configuration is infrastructure,
+the same class as E-5's durability gap and E-14's retention gap — the lint reads
+the repository's declaration of it, and the declaration can be a lie.
+
 ### Terms and interlocks a stack pack must not break
 
 - **The post-commit hook is a shared resource, and this is a genuine collision
@@ -1108,6 +1483,40 @@ ships the rules without the citation obligation ships a tripwire nothing trips.
   interface on a broad exception type.** If any exception can be re-tagged
   terminal at a catch site outside the handler, E-16's attempt budget stops
   being a bound.
+- **E-30's compensation must not be instantiated as one generic undo handler
+  taking any message type.** Compensation is per step and per destination, or
+  E-29's flow definition has nothing to lint and E-26's catalog has nothing to
+  enumerate. A single `CompensationHandler` satisfies the prose and destroys both
+  checks.
+- **E-31's timer destination is not E-17's retry delay destination, and a stack
+  pack must not economise by sharing one.** They carry different alerts: arrivals
+  at a retry destination mean something failed, arrivals at a timer destination
+  mean time passed. Merged, the only alert that survives is one nobody can act
+  on.
+- **E-34's webhook handler is not an exception to E-5.** If it needs to record
+  the delivery outcome as a fact other services consume, it writes an outbox row
+  in its own transaction like any other consumer. "It already made an HTTP call,
+  so a publish here is the same kind of thing" is the reasoning to refuse.
+- **E-36's pointer type is not a licence to reintroduce a dereference.** The
+  permitted dependency is the storage adapter and nothing else; a handler that
+  gains an API client for the producing service has re-created E-21's hazard with
+  a pointer as the excuse.
+- **E-32 does not contradict E-23.** Replay rebuilds a *derived* projection whose
+  authority is the producer's state table. What E-32 bans is replay as the way a
+  fact is *established*. Never write a directive of the form "the log is the
+  history, so a table is a cache of it" — that is the inversion, and it is the
+  most natural sentence an agent will produce here.
+- **E-33's ban on in-handler window state does not ban a scheduled query over a
+  projection table.** The relay is the only component this source permits to be
+  scheduled at all (E-1's allow-list, E-4), so a scheduled read model refresh is
+  an adapter-module concern with a committed schedule, never an `@Scheduled` in a
+  service class.
+- **A money step inside a flow keeps every money-grade obligation.** M-17's
+  idempotency record still shares the money effect's transaction, and M-20's
+  catalog event is **telemetry** — a metric-and-log catalog entry, not a broker
+  message — so emitting it does not satisfy E-30's compensating destination and
+  E-30 does not satisfy M-20. An irreversible money capture is the exact case
+  E-29's last-step rule exists for.
 
 ## 3. Instantiation — who has written these, and how to add a stack
 
@@ -1137,8 +1546,14 @@ Then add the pack's column to the table in the same pull request.
 | E-22, E-23 (tenancy and replay) | instantiated — a nominal data-scope type with no public constructor, an authorized-actor type unreachable from handler packages, ArchUnit bans on the request-context accessor and on clock and random sources in replay-safe packages, a two-tenant Testcontainers test per subscription, and a double-pass replay test |
 | E-24 … E-27 (evidence, catalog, topology) | instantiated — four maven-failsafe executions against a Testcontainers broker; hit, duplicate, reorder and fault counters carrying E-25's positive controls; **every ArchUnit rule ships a violating fixture**, because `failOnEmptyShould` is defeated by a one-line property; one required specification record per registration so the catalog is wholly generated; topology as a committed declarative file. **Gap:** the cross-repository union check has no host |
 | E-28 | instantiated — the Decision Trace citation line the seed section carries |
+| E-29 … E-31 (flows) | instantiated — the flow definition is a committed YAML file with a bespoke schema lint for the at-most-one-irreversible-and-last rule and the timeout bounds; the step is a Java `enum` persisted as a jOOQ column, and an ArchUnit rule confines the step decision to the flow-state repository. **Divergence: there is no delay primitive to lean on.** Kafka has no per-message delayed delivery, and the framework's own non-blocking retry mechanism is confined to `unordered` subscriptions already, so the timer is always the committed re-publish schedule owned by the relay — the clause written for the transport whose primitive is too short is the *only* path on this stack |
+| E-32 (no store of record) | instantiated — ArchUnit banned dependencies on the event-store and event-sourcing-framework clients by group id, plus an ArchUnit rule that no query or read-model package depends on the messaging adapter or on the outbox tables. **Gap:** "this projection is treated as authoritative" is semantic and unreachable |
+| E-33 (no stream processing) | instantiated — banned dependencies on the stream-processing libraries and the framework's Kafka Streams binder; ArchUnit field rules (no non-final field and no static collection in handler or flow packages); the two-instance aggregate arm as a second Testcontainers consumer. **Gap:** a wrong window committed as a parameter passes every check |
+| E-34, E-35 (webhooks) | instantiated — ArchUnit confines every HTTP client type to the egress adapter; `followRedirects(NEVER)` and the timeout are committed configuration a lint reads; the signature and tolerance are committed values with a verifier fixture on both sides. **Divergence: the JDK's own address predicates cannot host the deny list.** Their API documentation defines them only as "utility routine to check if the InetAddress is a site local / link local / loopback address" and names no ranges, so a deny list resting on them is one whose contents are not stated in any contract a reviewer can read — the repo commits an explicit CIDR list and resolves before connecting |
+| E-36 (claim check) | instantiated — a record pointer type with a private constructor and one factory; the retention comparison as a bespoke lint over the committed storage and destination configuration; a MinIO container for the present-object and absent-object arms. **Gap:** the bucket's real lifecycle rule is infrastructure. **And a cost:** the managed-queue arm needs LocalStack, which has required an authentication token since 2026-03-23 |
 
-**Two divergences and three gaps are recorded.** The transaction-handle
+**Two divergences and three gaps are recorded for E-1 … E-28, and groups J … M
+add two divergences and four gaps of their own.** The transaction-handle
 divergence is the useful one: it is a property of a persistence API that hands
 back a scoped object of the same static type as the ambient one, so a stack
 whose transaction is a distinct type will not have it, and a dynamically typed
@@ -1157,12 +1572,25 @@ those cells become runtime guards plus tests, which is weaker. Same prediction
 
 ## 4. Evidence notes
 
-**Dated 2026-07-29.** Panel shape: a design steelman producing the directive
-draft; two tool-evidence passes against primary sources (broker and client
-configuration defaults, framework reference documentation, static-analysis rule
-indexes, licence files, release APIs); a hostile audit carrying a planted defect
-of its own class; and a candidate comparison. Decision owner: delegated, per the
-project's standing rule that there is no in-house expertise to defer to.
+**Two passes, both 2026-07-29.** The table is the record; the notes below are
+grouped by the rules they support, never by pass.
+
+| Pass | Scope | Shape |
+| ---- | ----- | ----- |
+| 1 — the original twenty-eight | delivery semantics, the write and consume paths, ordering, poison handling, the payload contract, tenancy, replay, the evidence gates, the catalog, and the transport survey | a design steelman producing the directive draft; two tool-evidence passes against primary sources (broker and client configuration defaults, framework reference documentation, static-analysis rule indexes, licence files, release APIs); a hostile audit carrying a planted defect of its own class; a candidate comparison. **Short of the three refutation votes** |
+| 2 — the five absences (E-29 … E-36) | multi-transaction flows and their compensation and timers; the store-of-record ban; the stream-processing ban; webhooks in both directions; the claim check | one researcher against primary sources — vendor licence announcements and licence files, framework reference documentation and javadoc, an Apache design-proposal pair, a queue-quota page, a server-configuration reference, and the OWASP prevention guidance. **No panel, no steelman duel and no hostile audit**, so this pass is weaker in shape than pass 1 even where its facts are firmer |
+
+Decision owner for both: delegated, per the project's standing rule that there is
+no in-house expertise to defer to.
+
+**Pass 2's shape is its own worst finding and is recorded rather than smoothed
+over.** Pass 1 fell short of the three refutation votes and said so; pass 2 fell
+short of the votes *and* the panel *and* the audit. Two of its outputs are bans
+that remove options from every future repo, and a ban is exactly the kind of
+verdict an adversarial panel exists to attack — the steelman for an event store
+or a stream processor was written by the same researcher who rejected it. Read
+E-32 and E-33 as the strongest available *argument*, not as a survived one, and
+see section 6 for the trigger.
 
 **Short of the panel, and it is recorded rather than papered over.** The
 [research-protocol.md](../research-protocol.md) §3 three-vote refutation was
@@ -1388,6 +1816,137 @@ lists a current release. Use `maven-metadata.xml` for existence claims.
   2026-03-23, with a CI-specific token to be injected from a secret store. A
   managed-queue gate built on it now needs an account and a CI secret.
 
+### Flows, compensation and timers — what forced each clause
+
+Read 2026-07-29 unless stated.
+
+- **The framework tells the application to compensate and supplies nothing to
+  compensate with.** The transaction documentation quoted earlier in this section
+  states that the database transaction commits first, that a failed broker commit
+  means "the record will be redelivered so the DB update should be idempotent",
+  and that applications "should take remedial action … to compensate for the
+  committed primary transaction". **That is the whole of the vendor's guidance on
+  compensation**, and E-30 exists because a sentence telling the reader to
+  compensate is not a mechanism. This is a pass-1 fact reused rather than
+  re-verified; its date is unchanged.
+- **A managed queue's message timer caps at 15 minutes.** Its own quota page
+  gives the message timer as "The default (minimum) delay for a message is 0
+  seconds. The maximum is 15 minutes", visibility timeout as 30 seconds by
+  default and 12 hours maximum, and retention as 4 days by default within a
+  60-second to 14-day range. **So a business timeout measured in hours or days
+  has no transport primitive on the cloud variant**, which is the fact E-31's
+  re-publish-schedule clause is written for. Source: the service's message-quotas
+  documentation.
+- **The workflow engines were evaluated on their best form and rejected on two
+  different grounds.** Temporal's server is **MIT**-licensed (its `LICENSE` file,
+  copyright 2025 Temporal Technologies), so the licence objection that sinks the
+  event stores does not apply — it is rejected on operations: a self-hosted
+  service needs a persistence store (Cassandra, MySQL or PostgreSQL) *and* a
+  visibility store, with Elasticsearch or OpenSearch recommended above a few
+  workflow executions and Cassandra unusable for visibility, and the vendor's own
+  production checklist says self-hosting requires "significant engineering and
+  ongoing effort". That is a second and third always-on stateful system for a
+  team of three with no operations role. **Camunda 8 fails earlier:** Zeebe and
+  its components are under the Camunda License v1, a source-available licence,
+  and running self-managed in production requires a purchased Enterprise Edition
+  as of 8.6 (2024-10-08) — so it fails the self-hosted variant's no-licence-cost
+  clause outright, the same finding shape as Redpanda and the schema registry.
+- **The named escape hatch, because the operational ground is not permanent:**
+  on the cloud variant a *managed* workflow service removes the operations
+  objection entirely, and Temporal's licence removes the other one. Section 6
+  carries the trigger. What must not come back is a self-hosted engine with no
+  named owner.
+
+### The two bans — licence facts, and a silent drop with a metric for a witness
+
+- **Neither dedicated event store in this ecosystem satisfies the self-hosted
+  variant's open-source clause.** EventStoreDB moved to the **Event Store License
+  v2 (ESLv2)** with the 24.10 LTS release — the vendor's announcement is dated
+  2024-09-30 and states that "a single binary will be available for all users,
+  with enterprise features unlocked via a license key" and that the core "remains
+  free and source-available". Source-available with a licence-key tier is the
+  Redpanda finding again. **Axon splits:** Axon Framework is Apache-2.0, but Axon
+  Server's standard edition is under an AxonIQ licence which that project's own
+  reference guide says "doesn't allow you as a licensee to create a derivative
+  work", with Axon Server Enterprise closed-source under a commercial agreement.
+  A no-derivative-works clause is not open source as this project's self-hosted
+  variant uses the term.
+  *Not verified:* the ESLv2 licence **text** was not read this pass — only the
+  vendor's announcement and blog summary — so "not an OSI-approved licence" is
+  the vendor's framing plus an inference, not a reading. It does not change the
+  verdict, because source-available-with-a-key already fails the clause, but do
+  not upgrade the claim without reading the licence.
+- **A stream processor drops late records by design, and the only witness is a
+  metric.** The windowing API's own javadoc (4.0) states that "any out-of-order
+  records arriving after the window ends are considered late and will be
+  dropped", and more precisely that "only out-of-order records arriving more than
+  the grace period after the window end will be dropped". The project's own
+  design proposals carry the rest: the grace period defaulted to **24 hours** and
+  was deprecated for causing "continuous problems and confusion", replaced by
+  `ofSizeAndGrace` and `ofSizeWithNoGrace` so the choice must be made explicitly;
+  and the drop counters were consolidated into one task-level `dropped-records`
+  metric, replacing `late-records-drop`, `skipped-records` and
+  `expired-window-record-drop`. **A wrong aggregate, no exception, and one
+  INFO-level counter in an organisation with no operations role** is the exact
+  failure shape E-33 exists to prevent. Sources: the framework javadoc, and the
+  two numbered design proposals for the grace-period deprecation and the metric
+  consolidation.
+  *Not verified:* which release shipped the deprecation. The proposal records
+  acceptance in 2021 and names no version, and the rule does not depend on it.
+
+### Webhooks — two signing standards, and the defences the pattern needs
+
+- **RFC 9421, HTTP Message Signatures**, 2024, **Proposed Standard**: a mechanism
+  "for creating, encoding, and verifying digital signatures or message
+  authentication codes over components of an HTTP message", explicitly built for
+  the case where the signer does not know the whole message and intermediaries
+  transform it before verification. This is the standards-track option.
+- **Standard Webhooks** specifies three headers — `webhook-id`,
+  `webhook-timestamp` (an integer Unix timestamp) and `webhook-signature` —
+  signing `msg_id.timestamp.payload` with either HMAC-SHA256 ("fast and often
+  hardware accelerated") or ed25519 ("only the producer needs access to the
+  private key"). It instructs the receiver to "verify the `webhook-timestamp`
+  header has a timestamp that is within some allowable tolerance of the current
+  timestamp to prevent replay attacks", recommends using `webhook-id` "as an
+  idempotency key", and supports several signatures at once for "zero downtime
+  secret rotation".
+  **It names no tolerance value.** That absence is why E-34 makes the tolerance a
+  committed number: a specification that requires a window and defines none, read
+  by an agent, produces no window at all.
+- **The egress defences are OWASP's, for this exact case.** Its prevention
+  guidance for a user-supplied destination: validate the domain against trusted
+  domains by strict comparison, "disable HTTP redirect support in your web
+  client", resolve the name and verify the resolved addresses are not in
+  private or reserved ranges before connecting (against DNS rebinding), block
+  private ranges, loopback and link-local, and block metadata service endpoints
+  "like 169.254.169.254 and metadata.amazonaws.com to prevent credential theft".
+  E-34 enumerates these rather than saying "prevent SSRF", because the general
+  wording is a wish and each of these is a committed value or a client setting.
+
+### Payload sizes — including one figure that is now wrong everywhere
+
+- **The managed queue's maximum message size is 1 MiB, not 256 KiB.** Its quota
+  page gives "The minimum message size is 1 byte (1 character). The maximum is
+  1,048,576 bytes (1 MiB)", and the vendor's announcement of the increase from
+  256 KiB is dated **2025-08-04**. **Every agent and every pre-2025 document will
+  say 256 KB**, which is why this is in do-not-reintroduce rather than only here.
+- **Above that limit the vendor's own answer is the claim check.** The quota page
+  routes larger payloads to an extended client library that "contains a reference
+  to a message payload in Amazon S3", with a maximum payload of **2 GB**, and
+  states the library "works only for synchronous clients" — a real constraint for
+  a reactive consumer, and the reason E-36 governs the pattern instead of banning
+  it.
+- **A self-hosted broker's payload ceiling is smaller than people assume.** The
+  server configuration reference gives `max_payload` as `"1MB"` by default, says
+  "It is not recommended to use values over 8MB" while permitting up to 64MB, and
+  requires it to be at or below `max_pending` (64MB by default).
+- *Not verified, and no figure is asserted:* the log-shaped broker's own
+  `message.max.bytes`, `max.request.size` and topic `max.message.bytes`
+  defaults. The configuration pages render client-side and returned only
+  navigation to three separate fetches, so the numbers were not read from a
+  primary source this pass. **Do not fill them in from memory** — a stack pack
+  needing them re-reads the generated configuration table at adoption.
+
 ### The audit, and what it changed
 
 **The hostile audit's canary was caught**, so its other findings count. The
@@ -1484,6 +2043,67 @@ annotations, so nothing enumerates it and eleven directives lose their operand.
   forgetting to bump it is exactly the failure it exists to prevent, and it is a
   checklist item for a reader who does not exist.
 
+The seven below are pass 2's, and each is the shape an agent produces when asked
+for one of the five composite patterns.
+
+- **The orchestrator with a try/catch around the steps.** *Steelman:* it reads
+  exactly like the requirement, the happy path is obvious, and the catch is where
+  a reviewer's eye goes — it looks like the most careful version available.
+  *Rejected:* the catch runs in a process that may already be gone, so the
+  compensation it performs is conditional on surviving; it compensates effects in
+  other services by calling them synchronously, so a failure mid-compensation
+  leaves a partly-compensated flow with no record; and there is no committed list
+  of steps, so E-29's ordering rule and E-26's catalog have nothing to read. E-30
+  makes compensation a message precisely so it inherits retries, dedup and a
+  terminal destination.
+- **Event sourcing as what "event-driven" means.** *Steelman:* a complete audit
+  trail for free, every past state queryable, no information ever discarded, and
+  a genuinely better fit for domains where *why* the state changed is the
+  requirement — this is a real architecture with real successes, not a cargo cult.
+  *Rejected:* the authority becomes a log whose retention is a broker default
+  (seven days on the shipped configuration), a compaction policy that keeps only
+  the latest value per key, or an outbox row this source's own E-8 deletes; a
+  schema evolution E-19 permits changes the meaning of a fold over old bytes with
+  no code change and no failing gate; the two dedicated stores fail the
+  self-hosted licence clause; and nobody here operates one. E-32.
+- **A stream processor for "the count in the last five minutes".** *Steelman:*
+  the purpose-built tool, well documented, with state stores, restore semantics
+  and windowing already solved — hand-rolling a windowed aggregate is worse than
+  using it, which is exactly the argument E-2 accepts for framework-owned poll
+  loops. *Rejected here on a different axis:* it is a second always-on stateful
+  system nobody owns, and its correct behaviour includes silently dropping late
+  records into a metric. The permitted answer costs one table and a query with a
+  committed window, and it fails loud instead. E-33.
+- **A `@Scheduled` scan for flow rows that have gone stale**, as the timeout
+  mechanism. *Steelman:* no timer destination, no scheduling infrastructure, one
+  method, and it cannot lose a timer because it re-derives from state every time.
+  *Rejected:* the scan interval silently becomes the timeout's real resolution
+  and no committed value records it; a scheduled scan that finds rows in a state
+  and acts on them is an asynchronous handoff by this source's own predicate, so
+  it sits outside E-1's allow-list; and it is the shape that makes every flow's
+  timing a property of one cron expression nobody reviews.
+- **A shared secret in the webhook URL instead of a signature.** *Steelman:* the
+  receiver needs no verification code at all, it works with any HTTP endpoint,
+  and the URL is only known to the two parties. *Rejected:* the secret travels in
+  a request target, which is the one part of an HTTP request that is logged by
+  default at every hop; there is no replay protection, because a captured URL
+  works forever; and rotation means re-registering the endpoint. Every one of
+  those is invisible to the sender.
+- **Doing the work inside the inbound webhook request.** *Steelman:* the sender
+  gets a truthful status code — a 500 means it really failed — and there is no
+  extra hop or table.
+  *Rejected:* it couples an external caller's timeout to our transaction, so the
+  sender's retry arrives while the first attempt is still committing and the
+  effect happens twice; and "the sender gets a truthful status" is worth less than
+  it looks, because at-least-once senders retry on a timeout they *caused*.
+- **A presigned URL as the claim check.** *Steelman:* the consumer needs no
+  storage credentials and no adapter, which is genuinely less machinery.
+  *Rejected:* a presigned URL has a bounded lifetime, so the pointer expires while
+  the message is still valid, still retained and still redrivable — the message
+  decodes and the payload is unreachable, which is the exact failure E-36 exists
+  to prevent, arriving through the convenient option; and it is free text, so it
+  is an egress destination taken from a message field, which E-34 bans.
+
 ### Do not reintroduce
 
 - **The three thresholds (T1, T2, T3) as a routing rule**, in any wording:
@@ -1543,6 +2163,49 @@ annotations, so nothing enumerates it and eleven directives lose their operand.
 - **"The Maven Central search API can establish that an artifact is not
   published."** It under-reports; use `maven-metadata.xml`.
 
+Pass 2 adds the following. The first two are the dangerous ones, because both are
+what a well-trained agent will supply with confidence.
+
+- **"The managed queue caps a message at 256 KB."** It is **1 MiB**
+  (1,048,576 bytes) and has been since 2025-08-04. Every pre-2025 document and
+  every model trained on them says 256 KB. A repo that pins the old figure
+  reaches for E-36's claim check for payloads the transport would have carried.
+- **"Standard Webhooks specifies a five-minute timestamp tolerance."** It requires
+  the receiver to check the timestamp against "some allowable tolerance" and
+  **names no value**. The five minutes that appears in that document is a
+  suggested retention for the receiver's idempotency keys, which is a different
+  thing entirely. E-34 makes the tolerance a committed number for this reason.
+- **"The stream processor's default grace period is 24 hours"** as a live
+  default. It was deprecated for being a default at all, and the current API makes
+  the choice explicit. More to the point, no rule here may rest on *any* grace
+  default: E-33 bans the mechanism.
+- **"EventStoreDB is open source."** ESLv2 since the 24.10 LTS release, with
+  enterprise features behind a licence key.
+- **"Axon Server is Apache-2.0."** Axon *Framework* is. Axon Server's standard
+  licence forbids derivative works, and Enterprise is closed source under a
+  commercial agreement.
+- **"Temporal is rejected on licence grounds."** Its server is MIT. It is
+  rejected on operations — a persistence store plus a visibility store plus the
+  vendor's own "significant engineering and ongoing effort" — and that ground
+  disappears on a managed offering, which is a trigger in section 6.
+- **"The log is the history, so the state table is a cache of it."** The exact
+  inversion E-32 bans, and the most natural sentence an agent writes about a
+  broker. State is the authority; the log is transport.
+- **"Consumers must be idempotent, so compensation is safe."** Idempotence makes
+  compensation run once. It does not make it correct when the forward effect
+  never committed, which is E-30's separate clause and the half that gets
+  dropped.
+- **"The retry or dead-letter destination can serve as the timer destination."**
+  It cannot, and merging them is what silences E-16's terminal-arrival alert. E-31.
+- **"The JDK's site-local and link-local predicates implement the egress deny
+  list."** Their API documentation defines them as utility routines and names no
+  address ranges, so what they cover is not stated in any contract a reviewer
+  reads. Commit an explicit CIDR list.
+- **A figure for the log-shaped broker's `message.max.bytes`,
+  `max.request.size` or topic `max.message.bytes`.** Not read from a primary
+  source in either pass. Re-read the generated configuration table; do not supply
+  it from memory.
+
 ## 6. Re-open triggers
 
 - **The three refutation votes are run.** This pass stopped short of them. That
@@ -1595,6 +2258,46 @@ annotations, so nothing enumerates it and eleven directives lose their operand.
 - **A managed platform offers a transaction spanning its queue and a relational
   database.** Then E-5's outbox has a competitor worth evaluating. Nothing
   verified in this pass offers one.
+- **Pass 2 gets the panel it did not have.** E-29 … E-36 were decided by one
+  researcher against primary sources with no steelman duel and no hostile audit.
+  This matters most for the two **bans**: the case for an event store and for a
+  stream processor was written by the same researcher who rejected both, which is
+  the failure mode the protocol's panel rule exists to prevent. Running a
+  steelman duel plus a hostile audit over E-32 and E-33 is the named condition
+  that promotes them from an argument to a survived verdict — and it ranks with
+  the three-vote trigger above rather than below it, because a ban removes an
+  option from every future repo.
+- **A managed workflow service exists on the cloud variant's platform, or a
+  named owner appears for a self-hosted engine.** Then the flow machinery in
+  E-29 … E-31 — a committed step list, a compensating destination per step, a
+  re-publish schedule standing in for a timer — is competing against a product
+  whose primary features are exactly those three, and Temporal's licence is
+  already MIT. Make the comparison rather than assuming this answer. It returns as
+  a **second named shape with its own complete check set**, never as a branch
+  argued at the plan gate (B-14).
+- **A repo needs a windowed aggregate that a read-time query measurably cannot
+  serve.** That reopens E-33, with a number attached. The next answer is more
+  likely a materialised view maintained by the database than a stream processor,
+  and that option needs no new always-on system — evaluate it first.
+- **An event store appears under an OSI licence with a documented small
+  production shape, or the ESLv2 text turns out on reading to satisfy the
+  self-hosted clause.** Either weakens E-32's licence ground. **The ban survives
+  either way**, because retention-as-the-authority and schema-drift-over-a-fold
+  are independent and sufficient — what must change is the wording, so the file
+  stops resting on a licence fact that has moved.
+- **The transport's maximum message size changes again, or the log-shaped
+  broker's own default is finally read from its configuration table.** Both feed
+  E-36's per-subject maximum, and one of the two figures has already moved once
+  inside this corpus's memory.
+- **Standard Webhooks names a tolerance value, or RFC 9421 gains a maintained
+  implementation on the stack.** Then E-34's committed tolerance can cite a
+  standard instead of requiring each repo to invent a number, and the signing pick
+  in the seed text gets an easier answer.
+- **An organisation-level egress proxy appears.** Then E-34's allowlist, deny
+  list, redirect ban and resolve-then-connect rule stop being per-repo committed
+  values and become one enforced choke point, which is a strictly better gate.
+  This is the same class of missing infrastructure as E-26's cross-repository
+  union check, and closing either would close part of the other.
 - **No stack pack instantiates this source.** A source nobody instantiates is
   retired, the way an unadopted pack is demoted ([README.md](../README.md),
   Governance). Today `java-backend` instantiates it.

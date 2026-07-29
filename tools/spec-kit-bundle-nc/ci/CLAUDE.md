@@ -50,8 +50,16 @@ has a `packs/`. Do not add it to the adoption instructions in the bundle README.
 - Scope is fixed by DECISIONS B-12 (amended the same day). It decides exactly
   two rules and **fails** the build on either: every `###` in a pack's evidence
   section names a section of that pack's seed file and their relative order
-  matches the seed's; and no seed file carries a `P-n`, an `M-n` or `C-n`, a
-  principle cited by number, or any markdown link.
+  matches the seed's; and no seed file carries a `P-n`, an `M-n`, `C-n` or
+  `E-n`, a principle cited by number, or any markdown link.
+- **`E-n` was missing from that set until 2026-07-29 (B-15), and the gate
+  reported green over it the whole time `E-n` ids existed.** The pattern was
+  written when the only sources were `money-grade` and `cache-discipline`. **When
+  a source is added to the corpus, add its letter here in the same change** —
+  and give it **its own assertion** in the negative probe: the shared
+  `a cross-stack source rule id` grep stays green on the `M-12` in the probe
+  line, so it cannot notice a letter being dropped from the pattern. The probe
+  now asserts `'M-12'` and `'E-30'` by id for exactly that reason.
 - **It prints what it does not decide on every successful run, and that output
   stays.** Filing accuracy (a money note under Platform passes), pass-table
   honesty, and the instantiation walk are all outside it. A gate described as

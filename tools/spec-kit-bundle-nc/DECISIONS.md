@@ -266,6 +266,12 @@ instantiates it — today `java-backend` does.
 Where sources live is set by **B-10** (2026-07-28): `packs/rule-sources/`, not
 `packs/`. Nothing else in this entry changes.
 
+**Amended by B-17 (2026-07-30): the content half is withdrawn.** `packs/`
+is deleted. Every mechanism bullet above still binds and still ships in the
+components. The informative content channel, and the governance written for it
+— the sunset rule, the adoption walk, the seed-text discipline — have no
+subject left.
+
 ## B-9 — Pin forward to Spec Kit v0.14.2; the floor tracks the pin (2026-07-27)
 
 CI pins `SPECKIT_PIN: v0.14.2` and every manifest and catalog entry requires
@@ -374,6 +380,10 @@ the first repo that adopts it, not ahead of it.
 Reopened by: a third kind of pack file appearing, which would make a
 two-directory split the wrong shape; or tooling that needs `packs/` flat.
 
+**Withdrawn by B-17 (2026-07-30).** `packs/` is deleted, so there are no rule
+sources and no directory to hold them apart from paste targets. Kept as
+history.
+
 ## B-11 — `cache-discipline` is the second source; a technology pick is not a source rule (2026-07-29)
 
 `packs/rule-sources/cache-discipline.md` is written: sixteen directives
@@ -453,6 +463,10 @@ Reopened by: the triggers in `packs/rule-sources/cache-discipline.md` section
 instantiating the source — six directives lean on type design, and a
 structurally or dynamically typed stack will convert several into runtime
 guards, which is weaker and is the source's first predicted gap.
+
+**Withdrawn by B-17 (2026-07-30).** `cache-discipline` is deleted with the rest
+of `packs/`. The distinction it drew — a technology pick is a dated seed-text
+line, never a source directive — survives only here. Kept as history.
 
 ## B-12 — `packs/` is structured by what a reader is looking for, not by how it accreted (2026-07-29)
 
@@ -569,6 +583,10 @@ the evidence section nothing to mirror; or a third reader of `README.md` whose
 path is neither adopting nor authoring. For the gate specifically: a fourth
 kind of file under `packs/`, which would make the non-recursive glob wrong the
 way B-10 made the freshness step's wrong.
+
+**Withdrawn by B-17 (2026-07-30).** `packs/` is deleted and `ci/check_packs.py`
+with it, so both the structure this fixed and the gate that enforced it are
+gone. Kept as history.
 
 ## B-13 — `event-broker-discipline` is the third source; a source's predicate is not the technology in its name (2026-07-29)
 
@@ -723,6 +741,12 @@ it needs org-level infrastructure that does not exist. Until it does, those two
 directives are local hygiene wearing the clothes of a contract, and the source
 says so.
 
+**Withdrawn by B-17 (2026-07-30).** `event-broker-discipline` is deleted with
+the rest of `packs/`. **The lesson is not withdrawn** — a rule set's predicate
+framed on the technology in its name misses the cheapest correct option, which
+imports no client library at all. B-17 carries it forward for anyone writing
+rules elsewhere.
+
 ## B-14 — One asynchronous mechanism: the outbox and a broker. B-13's thresholds are withdrawn (2026-07-29)
 
 **Supersedes the recommendation half of B-13, the same day B-13 was written.**
@@ -825,6 +849,11 @@ refused, or the managed bill for eighteen teams exceeding what the org will pay.
 Any of those puts a governed non-broker shape back on the table, and it returns as
 a **second named shape with its own complete check set**, never as a threshold
 argument at the plan gate.
+
+**Withdrawn by B-17 (2026-07-30).** The outbox-and-broker rule set is deleted
+with the rest of `packs/`; it bound no repository. **The lesson is not
+withdrawn** — a branch a rule set offers must name who decides it and what they
+would have to know, or it lands at a gate with no reader qualified to take it.
 
 ## B-15 — The five shapes `event-broker-discipline` passed over are decided: `E-29` … `E-36`. A named gap is not an absence (2026-07-29)
 
@@ -929,6 +958,11 @@ service or a named owner for a self-hosted one, which would put the flow machine
 in `E-29` … `E-31` up against a product built for it; then a measured need for a
 windowed aggregate a read-time query cannot serve, which reopens `E-33` with a
 number attached.
+
+**Withdrawn by B-17 (2026-07-30).** `E-29` … `E-36` are deleted with the rest
+of `packs/`. **The lesson is not withdrawn** — naming gaps directive by
+directive reads as thorough while saying nothing about the composite shapes a
+repo assembles out of the primitives. B-17 carries it forward.
 
 ## B-16 — `money-grade` gains a Persistence group, `M-30` … `M-43`. A rule set is scoped to the layer its checks read (2026-07-29)
 
@@ -1090,3 +1124,81 @@ or one that enforces a committed schema over a document, each reopening one ban;
 then runtime-assembled query text becoming analysable, which is `M-35`'s whole
 residue; then a stack whose store has no exact decimal type, where the question is
 not how to check the rules but whether that repo may hold money at all.
+
+**Withdrawn by B-17 (2026-07-30).** `M-30` … `M-43` are deleted with the rest
+of `packs/`. **The lesson is not withdrawn** — a rule set is scoped to the
+language its checks read, which the rules never say, so name that language per
+directive and then name every other language the same value passes through.
+B-17 carries it forward.
+
+## B-17 — `packs/` is deleted; the bundle ships mechanism, not content (2026-07-30)
+
+The bundle had grown two unlike halves. One half installs: the preset, the
+extension, the workflow, `bundle.yml`, `catalogs/`, and `ci/check_specs.py`,
+which product repos copy. The other was `packs/` — ten files of dated,
+adversarially verified research prose that no tooling installs, that no
+consumer receives, and that no repository had adopted. It was also why the
+bundle carried a maintainer-only checker (`ci/check_packs.py`) and five of the
+nine steps in `bundle-checks.yml`, and it was the entire subject of B-10 … B-16
+and of half of B-8.
+
+The owner removed it to keep this directory to what a bundle is. Asked on
+2026-07-30 whether the corpus should move elsewhere in the `asdlc` monorepo,
+move to its own repository, or be discarded, the owner chose discarded.
+
+Deleted, in one change:
+
+- `packs/` — ten files: `README.md`, `index.md`, `research-protocol.md`, the
+  two adoptable packs (`agent-traps.md`, `java-backend.md`), their two seed
+  files under `seed/`, and the three rule sources under `rule-sources/`
+  (`money-grade.md`, `cache-discipline.md`, `event-broker-discipline.md`).
+- `ci/check_packs.py`, the gate B-12 created for it.
+- Five `bundle-checks.yml` steps: `Pack structure`, its three negative probes,
+  and the advisory `Pack freshness`. **This is not the "never delete a probe to
+  make CI pass" rule being broken** — that rule protects a probe whose checker
+  still exists. Deleting the checker is what removed the probes' subject.
+- The `packs/` pointer in `presets/nc-ears/templates/constitution-template.md`.
+  That comment is the one piece of this corpus a consumer would ever have seen:
+  the file ships into every project the preset installs. **The bundle has never
+  been tagged** — 0 tags on 2026-07-30, `bundle-v0.2.0` still uncut — so nobody
+  outside holds a pointer to a directory that no longer exists. Cut the tag
+  first and every install would have carried one.
+
+**B-8's mechanism half is unchanged and still binds.** Constitution principle
+VI, the plan command's Decision discipline, the appended `## Decision Trace`,
+and the review command's decision-conformance step all ship as before. What
+went is what B-8 called its content channel. A project's decision records still
+have to exist; they are now written rather than pasted.
+
+**B-10 … B-16 are withdrawn** — every one governs a corpus that no longer
+exists. They stay in this file unedited, as history: this registry is
+append-only and nothing is renumbered. Each carries a dated withdrawal line.
+
+Lost with the corpus, and better stated here than discovered later:
+
+- The content — 43 money directives, 36 event-broker directives, the
+  cache-discipline set, the java-backend seed text, the cross-stack agent
+  traps, and the eight design principles `P-1` … `P-8`. Recoverable from git
+  history at `f772020`; not readable in the tree.
+- **The three pre-ship checks B-13, B-15 and B-16 named, and the table that
+  tracked which file had had which.** The prose survives in those three
+  records. What made them operable — `packs/research-protocol.md` §5 and the
+  *Audits owed* table in `packs/index.md` — does not. Anyone writing a rule set
+  anywhere, including a product repo's `Repo principles`, should read those
+  three records first: a predicate framed on the technology in its name misses
+  the cheapest correct option; naming gaps directive by directive does not
+  surface a composite shape nobody wrote a rule about; and a rule set is scoped
+  to the language its checks read, which the rules themselves never say.
+
+The bet: a repo's `Repo principles` are better written by the team that lives
+with them than pasted from a corpus, and the corpus's maintenance cost — six
+decisions and one CI gate inside seven days — exceeded a use that was zero
+adoptions. The signal that this is wrong: the first repo to install the bundle
+shipping a `Repo principles` section that is empty or has no checks in it, or
+two repos writing the same rule with different checks and neither noticing.
+Neither is measurable yet, because no repo has installed the bundle.
+
+Reopened by: a pilot repo that needs seed text with nobody able to write it,
+which is the case the corpus was built for; or this bundle acquiring a second
+artifact that ships to nobody, which is the same shape returning under another
+name.

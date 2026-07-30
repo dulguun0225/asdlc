@@ -9,199 +9,60 @@ Versions 0.1.0 and 0.2.0 were development increments in this repository;
 
 ## [Unreleased]
 
-Design: DECISIONS.md B-13, **B-14, which supersedes B-13's routing
-recommendation the same day**, **B-15, which extends the same source a third
-time that day**, and **B-16, which extends the oldest source instead**. One
-component change: `ci/check_packs.py` widens a pattern that
-was reporting green over `E-n` in seed text. `packs/` itself is informative and no
-tooling installs it.
+Design: DECISIONS.md **B-17**, which deletes `packs/`. **This section replaced
+one holding the B-13 … B-16 additions to `packs/` and a `check_packs.py` fix.**
+Those entries described ten files that no longer exist and that never shipped —
+no tag has been cut, and nothing installed `packs/` even when it did exist.
+Keeping them would have advertised a corpus a reader cannot find. What they
+recorded is in DECISIONS.md B-13 … B-16, which stay in full, and in git history
+at `f772020`.
 
-### Added
+**Merge this section into `[0.2.0]` before `bundle-v0.2.0` is tagged.** Nothing
+may sit under `[Unreleased]` when the tag is cut, and `[0.2.0]` still advertises
+`packs/` in its Added list.
 
-- `packs/rule-sources/money-grade.md` — a **Persistence** group, `M-30` … `M-43`,
-  taking the source from twenty-nine directives to forty-three, plus the
-  composite-shape table B-15 now requires of every source. It governs what
-  crosses the store boundary: the store must reject an over-scale amount rather
-  than round it, money columns are constrained decimals with committed
-  constraints against non-finite values and against a null half of an
-  amount/currency pair, **arithmetic on money in the store's query language is
-  banned** with one conditioned aggregate exception, a row becomes a money value
-  only by construction at one named read boundary, the record of a money effect
-  is appended rather than updated, a mutable balance carries a version
-  precondition, a value-computing migration carries money math's evidence, and
-  the precision digits are stated against a named maximum. Two shapes are
-  **banned**: money computed by a trigger or generated column, and a money amount
-  in a document or JSON column.
-  **The finding behind it (B-16): a rule set is scoped to the layer its checks
-  read, and the rules never say so.** All twenty-nine earlier directives are
-  enforced by checks that read application source, so a `SUM`, a view that
-  multiplies by a rate, and a write that lets the column round were all outside
-  every one of them. The Storage section answered "which column type?" correctly
-  and read as complete.
-  **The pass had no panel, no hostile audit and no refutation votes** — nothing
-  in the group is confirmed, two of its outputs are bans, and `review-by` was
-  deliberately left at 2027-01-21 rather than re-leasing rules nobody re-checked.
-  Its cross-engine evidence sits in the source rather than in the Java pack,
-  reversing the trail direction for the first time, because it spans PostgreSQL,
-  MySQL, SQL Server and SQLite.
-- `packs/seed/java-backend.md` — a **Persistence** subsection under
-  `Money-grade rules` instantiating all fourteen with named checks: integration
-  tests against real PostgreSQL in a throwaway container for the rejection cases,
-  the existing schema lint extended over the committed Flyway migrations, an
-  ArchUnit predicate for the jOOQ arithmetic ban, one named row mapper as the only
-  store-to-money conversion, and squawk `changing-column-type` hosting the
-  column-alteration rule off the shelf. **Named blind spot, written into the seed
-  text rather than left implied:** query text assembled at runtime is reachable by
-  neither the lint nor the architecture rule.
-- `packs/research-protocol.md` — **three named pre-ship checks for a source**, in
-  §5 beside the three that already existed for a stack pack: the **B-13** check
-  (frame the predicate on what the rules must reach, not on the technology in the
-  name or the current recommendation), the **B-15** check (enumerate the shapes a
-  repo assembles out of the primitives and mark each permitted / banned / out of
-  scope), and the **B-16** check (name the language each directive's check reads,
-  then every other language the value passes through). All three were prose
-  scattered across `packs/index.md` and `CLAUDE.md`; they are now checks with
-  stable citations, and §5 says to run them on sources that already shipped.
-- `packs/index.md` — an **Audits owed** table: which pack or source has had which
-  of those three checks, with four cells outstanding. **None of the three is
-  machine-checkable**, which is why it is a table and not a CI step — a file can
-  pass `ci/check_packs.py` and fail all three — and an empty cell is a check
-  nobody ran rather than a clean file.
+### Removed
 
-- `packs/rule-sources/event-broker-discipline.md` — the corpus's **third
-  cross-stack source**, twenty-eight directives `E-1` … `E-28` covering the
-  messaging seam, the write path and its outbox relay, the consume path,
-  ordering, poison messages, the payload contract, tenancy, replay, the evidence
-  gates, and the subscription catalog. No seed file; nobody adopts it. It closes
-  the `message-broker` candidate row.
-  **Its predicate is wider than its name:** the rules bind from the first
-  *asynchronous handoff* of any shape — a broker, a managed queue, an in-process
-  bus, a bare executor submit, an outbound webhook, or a polled table. Scoped to
-  a queue client, the cheapest correct option would have had no rules watching
-  it, which is the same defect `cache-discipline` caught in its own seam draft.
-  **One mechanism, no routing** (as amended by B-14, below): every asynchronous
-  handoff writes an outbox row in the state change's transaction, and a relay
-  publishes it to the broker. The outbox is mandatory because a broker does not
-  solve the dual write. Every directive is **convention**; section 7 is an
-  appendix surveying nine transports with dated licences, governance, documented
-  minimum production shape and numbered rejection grounds.
-- `packs/seed/java-backend.md` — an **Event broker discipline** section
-  instantiating all twenty-eight with named Java checks, plus the transport seed
-  line (self-hosted: Apache Kafka in KRaft mode, with a named cluster owner as a
-  prerequisite, Strimzi on Kubernetes and NATS JetStream at three replicas off it;
-  Redpanda and AutoMQ banned by name; RabbitMQ only for strict message priority;
-  on a managed platform the platform's own queue, never managed Kafka). The seed
-  text goes from 110 rules in 17 sections to **141 rules in 18 sections**.
-- `packs/java-backend.md` — the 2026-07-29 event-broker evidence pass: six
-  primary-source-verified framework facts that each forced a rule to be worded
-  differently (the listener acknowledgement default is per poll batch, not per
-  record; a share-consumer mode acknowledges regardless of outcome; the default
-  error handler retries ten times with a **zero-millisecond** backoff; the
-  dead-letter publisher neither creates its topic nor fails loudly when it is
-  missing; the non-blocking retry mechanism documents its own ordering loss; and
-  an explicit non-annotation registration path exists, which is what makes the
-  annotation ban writable), three toolchain limits, a static-analysis sweep
-  finding exactly one usable off-the-shelf rule and a documented absence for the
-  three that matter most, one divergence (the same-transaction property cannot be
-  type-designed on jOOQ's own types), and six named gaps.
+- **`packs/` — all ten files (B-17).** The two adoptable packs
+  (`agent-traps`, `java-backend`) with their seed files, the three rule sources
+  (`money-grade`, `cache-discipline`, `event-broker-discipline`), and
+  `README.md`, `index.md`, `research-protocol.md`. The bundle keeps the
+  mechanism that makes a project's decision records binding — constitution
+  principle VI, the plan command's Decision discipline, the `## Decision Trace`,
+  the review command's conformance step, all of B-8's mechanism half, unchanged
+  — and ships no content for them. Nothing installed `packs/`, so no consumer
+  loses anything.
+- **`ci/check_packs.py`**, the maintainer gate B-12 created for that corpus, and
+  the five `bundle-checks.yml` steps that drove it: `Pack structure`, its three
+  negative probes, and the advisory `Pack freshness`. The standing rule that no
+  negative probe may be deleted to make CI pass is intact — it protects a probe
+  whose checker still exists, and this checker is gone.
 
 ### Changed
 
-- **`packs/rule-sources/event-broker-discipline.md` — one asynchronous mechanism,
-  and B-13's three thresholds are withdrawn (B-14, same day).** The source shipped
-  recommending a polled table in the service's own database, with a broker as a
-  conditional escalation above three named thresholds. The owner reversed it: the
-  broker is now the only permitted mechanism, and a consumer inside the producing
-  deployable subscribes to it like any other. **The outbox is unchanged and still
-  mandatory** — the broker is the transport, the outbox is the durable record of
-  intent, and publish-after-commit is the dual write either way. The reason is
-  conceptual load rather than a new fact: the threshold argument had to be made
-  and judged at a plan gate staffed by a team leader, an AI solution engineer and
-  a domain owner, with no distributed-systems reader. No directive was deleted and
-  the rule count is unchanged at 141 in 18 sections. Section 1 is rewritten; `E-4`
-  widens to ban every non-broker transport and gains an outbox-read confinement
-  check; `E-28` drops the threshold argument for four checkable facts (destination,
-  catalog row, ordering declaration, consuming teams); section 5 gains four
-  do-not-reintroduce entries naming the thresholds; section 6 gains the cost
-  trigger that would reopen B-14. **Section 7 keeps every verified fact and none
-  was re-dated** — the database-table candidate is marked *excluded as a
-  transport* rather than refuted, and Kafka's rejection grounds are relabelled
-  accepted costs. Consequences recorded rather than discovered later: `OQ-10` (a
-  named platform owner) becomes **blocking** for the self-hosted variant instead
-  of a condition on an escalation; `E-24` is unconditionally the most expensive
-  gate in either source; and an event consumed only inside its producing
-  deployable now costs a database round trip plus a publish.
-- `packs/java-backend.md`, `packs/seed/java-backend.md` — the section-2 intro, the
-  seed text's opening rules and transport line, the Kafka rejected-alternative
-  entry and the trigger list all follow B-14.
-- `packs/rule-sources/cache-discipline.md` — two dated additions, no directive
-  changed. An interlock: C-9's post-commit callback must not be instantiated as a
-  general-purpose `afterCommit(Runnable)`, because that hole defeats the broker
-  source's publish confinement entirely. And a trigger recording that C-6's
-  bytecode justification was challenged and could not be verified against the
-  primary specification, so the wording stands until it is.
-- `packs/README.md`, `packs/index.md` — roster and index rows for the third
-  source; the `message-broker` candidate row is replaced by a note on why the
-  name and scope changed; "both sources" becomes "all three" where a future stack
-  pack's obligations are stated.
-- **`packs/rule-sources/event-broker-discipline.md` — the five shapes the source
-  passed over in silence are decided as `E-29` … `E-36` (B-15, third change the
-  same day).** Twenty-eight directives become **thirty-six** in four new groups.
-  Permitted with rules: a flow committing across more than one transaction, with a
-  committed step list, at most one irreversible step and it last, flow state as an
-  explicit enum column, a compensating destination per reversible step that is
-  correct when the forward effect never happened, and every wait bounded by a timer
-  on a destination distinct from the retry delay destination (`E-29` … `E-31`);
-  webhooks in both directions, egress signed, allowlisted, redirect-free and
-  timeout-bounded with the receiver's body never authority, ingress verified,
-  enqueued and returned with no effect in the request (`E-34`, `E-35`); and a claim
-  check for an oversized payload, with a nominal pointer type, the object committed
-  *before* the outbox row, and a lint comparing retentions (`E-36`). **Banned
-  outright:** state as a fold over the message history (`E-32`) and a windowed
-  aggregate computed by an engine or a handler (`E-33`). Both bans rest on this
-  organisation rather than on the technology, so both name their re-open trigger.
-  **The pass had no panel and no hostile audit** — weaker in shape than the first,
-  which had at least the audit — and that is now a trigger ranking with the
-  refutation votes, because a ban removes an option from every future repo. It
-  closed **no** named gap inside `E-1` … `E-28` and added seven of its own, so the
-  count of open residues went up.
-- `packs/seed/java-backend.md`, `packs/java-backend.md` — the eight new rules
-  instantiated with named Java checks; the seed text goes from **141 rules in 18
-  sections to 149 in 18** (same section count — every new rule lands in the
-  existing event-broker section). Three findings are Java-shaped: there is **no
-  delay primitive** for a business timer on this stack (Kafka has no per-message
-  delayed delivery and the framework's retry mechanism is confined to unordered
-  subscriptions), so the timer is always a committed re-publish schedule owned by
-  the relay; the **JDK's own address predicates cannot host the egress deny list**,
-  because their API documentation names no address ranges at all, so the repo
-  commits explicit CIDRs; and both banned architectures are JVM-native and one
-  dependency line away, which is why each ban is a banned-dependency rule plus
-  field rules rather than a code-shape rule. Adoption cost recorded: a second
-  consumer container for the two-instance aggregate arm, and MinIO for the
-  claim-check arms.
-
-### Fixed
-
-- **`ci/check_packs.py` reported green over an `E-n` in seed text.** Its
-  `SEED_FORBIDDEN` patterns covered `P-n` and `M-n`/`C-n` and were written before
-  `event-broker-discipline` existed, so for as long as `E-n` ids have existed the
-  gate guarding seed text against dangling corpus references could not see them —
-  and it had that hole while guarding the file B-15 grew by eight event-broker
-  rules. The pattern now covers `E-n`. **The negative probe now asserts `'M-12'`
-  and `'E-30'` by id**, because the shared `a cross-stack source rule id`
-  assertion stays green on the `M-12` alone and so could not have caught a letter
-  being dropped. Rule recorded in `ci/CLAUDE.md`: a new source letter is added to
-  the pattern and given its own probe assertion in the same change.
-- `packs/README.md` — the roster still described the event-broker source as
-  binding on "the polled table it tells most repos to use instead", which B-14 had
-  reversed hours earlier. The roster row was not in B-14's edit list; it now states
-  the predicate and names the two banned architectures, and the rule count is
-  corrected to 36.
+- `presets/nc-ears/templates/constitution-template.md` — the `Repo principles`
+  comment no longer points at `packs/`. It now states the authoring bar
+  directly: directive first, every ban tied to a named check somebody can run,
+  and a date on any rule resting on a vendor's current behaviour. **This is a
+  content change to a released-versioned component and the preset is still at
+  `0.2.0`** — bump it (and the `bundle.yml` pin and `catalogs/presets.json`)
+  when the release is cut, per CLAUDE.md *Releasing* step 1.
+- `README.md`, `CLAUDE.md`, `ci/CLAUDE.md` — the packs rows, the checker row,
+  the `Decision records and packs` section, and the two `check_packs.py` lines
+  in *Verify before you commit* are gone. Each place that described the corpus
+  now says in one line that it existed and was deleted, so a reader of an old
+  commit is not left guessing.
 
 ## [0.2.0] — 2026-07-29
 
 Bundle `nc-sdd` 0.2.0 · preset `nc-ears` 0.2.0 · extension `nc` 0.2.0 ·
 workflow `nc-sdd` 0.2.0. Design: DECISIONS.md B-8, B-9, B-10, B-11, B-12.
+
+**Read this section knowing that every `packs/` and `check_packs.py` entry in
+it describes something deleted on 2026-07-30, before this release was tagged
+(DECISIONS.md B-17).** They are left in place because a changelog records what
+happened, not what survives. Nothing under `packs/` was ever installed by any
+component, so no consumer of this release is affected by its absence.
 
 ### Added
 
@@ -273,7 +134,10 @@ workflow `nc-sdd` 0.2.0. Design: DECISIONS.md B-8, B-9, B-10, B-11, B-12.
   `packs/README.md` (authority, markers, freshness
   incl. the lapse rule), `packs/index.md` (candidates + harvest map),
   `packs/research-protocol.md` (adversarial-panel research method).
+  **All of it was deleted on 2026-07-30, before this release was tagged
+  (B-17). This entry is history; do not go looking for the directory.**
 - checks.yml: advisory pack-freshness step (warns past `review-by`).
+  **Deleted with `packs/` on 2026-07-30 (B-17).**
 - `examples/password-reset/plan.md` — worked plan showing the three
   appended sections and all four Decision Trace row kinds.
 - `packs/java-backend.md` — an **Observability** section in the seed text,

@@ -85,11 +85,11 @@ front of the reviewer while it is still cheap to change.
 <!--
   Repo-specific rules live here: the technology stack, its guardrails, and
   the enforcement wiring — added and amended by PR, like code.
-  Pre-researched seed text for common cases exists in the spec-kit-bundle-nc
-  repository's packs/ directory. Copy a pack's seed text here, then edit:
-  delete what this repo does not need, tighten what it does, and keep every
-  ban tied to a named check. Re-verify the pack's dated claims at adoption.
-  An unedited pack is a sign nobody read it.
+  Write each rule directive-first: what to do or not do, then why. Tie every
+  ban to a named check somebody can run — a rule with no check is a
+  preference, and the plan's Constitution Check cannot read it. Date any rule
+  that rests on a vendor's current behaviour, so a later reader knows what to
+  re-verify.
 -->
 
 No repo principles adopted yet. Technology and engineering rules adopted by

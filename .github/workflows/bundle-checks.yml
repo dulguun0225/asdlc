@@ -51,107 +51,15 @@ jobs:
       - name: Check examples stay well-formed
         run: python3 ci/check_specs.py --self
 
-      # Structural gate for packs/ (DECISIONS.md B-12). FAILS, unlike the
-      # advisory freshness step below, and the difference is deliberate: a
-      # lapsed review-by is time passing, which nobody did wrong, while an
-      # evidence section ordered by research pass is a mistake in the PR making
-      # it, with a cheap fix. The defect this catches took three passes to
-      # become visible and no single PR looked wrong, which is why it is a
-      # machine check and not a review note.
-      - name: Pack structure
-        run: python3 ci/check_packs.py
-
-      # Negative probes for check_packs.py, kept here rather than with the
-      # check_specs.py probes in the smoke job because these need no spec-kit
-      # CLI. Same standing rule: a probe must go red for the RIGHT reason, and
-      # none may be deleted to make CI pass.
-      - name: Negative probe — an evidence heading named after a research pass turns the gate red
-        run: |
-          cp -r packs /tmp/probe-pass
-          python3 - <<'EOF'
-          import pathlib
-          p = pathlib.Path("/tmp/probe-pass/java-backend.md")
-          p.write_text(p.read_text(encoding="utf-8").replace(
-              "### Concurrency", "### 2026-07-24 re-verification pass", 1),
-              encoding="utf-8")
-          EOF
-          if python3 ci/check_packs.py --packs /tmp/probe-pass > /tmp/p1.txt 2>&1; then
-            echo 'gate passed an evidence heading named after a research pass'
-            cat /tmp/p1.txt; exit 1
-          fi
-          grep -q 'names no section of' /tmp/p1.txt
-
-      - name: Negative probe — evidence subheadings out of the seed's order turn the gate red
-        run: |
-          cp -r packs /tmp/probe-order
-          python3 - <<'EOF'
-          import pathlib
-          p = pathlib.Path("/tmp/probe-order/java-backend.md")
-          t = p.read_text(encoding="utf-8")
-          t = (t.replace("### Observability", "###@@SWAP@@", 1)
-                .replace("### API contract", "### Observability", 1)
-                .replace("###@@SWAP@@", "### API contract", 1))
-          p.write_text(t, encoding="utf-8")
-          EOF
-          if python3 ci/check_packs.py --packs /tmp/probe-order > /tmp/p2.txt 2>&1; then
-            echo 'gate passed evidence subheadings in the wrong order'
-            cat /tmp/p2.txt; exit 1
-          fi
-          grep -q 'out of order' /tmp/p2.txt
-
-      - name: Negative probe — seed text citing this corpus turns the gate red
-        run: |
-          cp -r packs /tmp/probe-seed
-          printf '%s\n' '(This restates P-4 and principle 4; see M-12 and [the pack](../java-backend.md).)' \
-            >> /tmp/probe-seed/seed/java-backend.md
-          # E-n on its own line, and asserted by id below. Every source letter
-          # needs its own assertion: a shared 'a cross-stack source rule id'
-          # grep stays green on M-12 alone, so it would not notice a regression
-          # that dropped E from the pattern — which is the hole B-15 found.
-          printf '%s\n' '(And this one cites E-30, an event-broker rule id.)' \
-            >> /tmp/probe-seed/seed/java-backend.md
-          if python3 ci/check_packs.py --packs /tmp/probe-seed > /tmp/p3.txt 2>&1; then
-            echo 'gate passed seed text carrying references into this repository'
-            cat /tmp/p3.txt; exit 1
-          fi
-          grep -q 'a design-principle id' /tmp/p3.txt
-          grep -q 'a cross-stack source rule id' /tmp/p3.txt
-          grep -q "'M-12'" /tmp/p3.txt
-          grep -q "'E-30'" /tmp/p3.txt
-          grep -q 'a principle cited by number' /tmp/p3.txt
-          grep -q 'a markdown link' /tmp/p3.txt
-
-      # Advisory freshness tripwire for packs/ (never failing): a pack past
-      # its review-by reads as convention-strength until re-verified — this
-      # step makes the lapse visible in every run.
-      #
-      # rglob, not glob: rule sources live in packs/rule-sources/ (B-10) and a
-      # non-recursive glob would drop them from this check while the step kept
-      # reporting green. Files with no review-by frontmatter (README.md,
-      # index.md, research-protocol.md, seed/*.md) are skipped below.
-      - name: Pack freshness (advisory)
-        run: |
-          python3 - <<'EOF'
-          import datetime, pathlib, re
-          today = datetime.date.today()
-          for pack in sorted(pathlib.Path("packs").rglob("*.md")):
-              match = re.search(r"^review-by:\s*(\d{4}-\d{2}-\d{2})",
-                                pack.read_text(encoding="utf-8"), re.M)
-              if not match:
-                  continue
-              try:
-                  due = datetime.date.fromisoformat(match.group(1))
-              except ValueError:
-                  print(f"::warning file={pack.as_posix()}::review-by "
-                        f"{match.group(1)} is not a valid date - fix the "
-                        "frontmatter")
-                  continue
-              if today > due:
-                  print(f"::warning file={pack.as_posix()}::review-by {due} "
-                        "has passed - the pack's confirmed markers read as "
-                        "convention until a re-verification pass re-dates "
-                        "them (packs/README.md, Freshness)")
-          EOF
+      # This job held five more steps until 2026-07-30 — a failing `Pack
+      # structure` gate over `packs/`, its three negative probes, and an
+      # advisory freshness tripwire. `packs/` was deleted that day
+      # (DECISIONS.md B-17) and `ci/check_packs.py` with it, so all five went
+      # too. They are NOT an example of the "never delete a probe to make CI
+      # pass" rule being broken: that rule protects a probe whose checker still
+      # exists. There is no checker and nothing to check. The probes for
+      # `check_specs.py`, whose checker does still exist, are in the smoke job
+      # below and the rule holds there in full.
 
   smoke:
     runs-on: ubuntu-latest

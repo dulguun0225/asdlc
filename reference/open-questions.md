@@ -98,7 +98,22 @@ git tag bundle-v0.2.0 && git push origin bundle-v0.2.0
 ```
 
 `master` already holds the final catalog JSONs, which is the ordering requirement — consumers read
-catalogs from `master` and assets from the tag. Nothing else is pending.
+catalogs from `master` and assets from the tag.
+
+**Two things now stand between that command and a correct release, both created on 2026-07-30 by
+the `packs/` removal (B-17), and neither is done:**
+
+1. **The preset carries an unreleased content change and is still at `0.2.0`.**
+   `presets/nc-ears/templates/constitution-template.md` lost its pointer to `packs/`. That file
+   ships into every project the preset installs, so tagging as-is publishes a component whose
+   content moved without its version. Bump `preset.yml`, the `bundle.yml` pin and
+   `catalogs/presets.json` (version **and** release-asset URL) together — CLAUDE.md *Releasing*
+   step 1. It was not bumped in this session because a bumped `catalogs/*.json` points at a release
+   asset that does not exist until the tag is cut; bumping and tagging are one action.
+2. **`CHANGELOG.md` has content under `[Unreleased]` again**, and the standing rule from
+   2026-07-28 is that nothing may sit there when the tag is cut. Merge it into `[0.2.0]`, whose
+   Added list still advertises `packs/` — that entry now carries a note saying the directory was
+   deleted before the tag, and the section carries one at its top.
 
 **The design is public by decision now, not by default** — [ADR-0027](decisions/0027-design-is-public.md),
 2026-07-28. The owner was asked directly, with the private alternative priced (one
@@ -133,27 +148,29 @@ and each says **THIS IS THE ONLY COPY** in its header. **Nothing needs keeping i
 The bundle's `CLAUDE.md` now forbids creating a `.github/` there rather than warning about the one
 that existed.
 
-**The pack corpus gained a rule *source*, and it is written.**
-[`packs/rule-sources/money-grade.md`](../tools/spec-kit-bundle-nc/packs/rule-sources/money-grade.md) holds **43** money
-directives (`M-1` … `M-43`, the last fourteen added by the 2026-07-29 persistence pass — B-16, and
-read that pass's markers as capped at primary-source verified) stated platform-neutrally
-([`DECISIONS.md`](../tools/spec-kit-bundle-nc/DECISIONS.md) B-8, amended 2026-07-28): no seed
-file, never adopted, and **every stack pack instantiates it** — each rule written into that pack's
-own seed text with that stack's named check, or named as a gap with its reason, or recorded as a
-divergence the platform forces. `java-backend` is
-the only instantiation so far and its text was not touched. **The next stack pack is where this
-gets tested**, since one instantiation cannot show which directives are genuinely
-platform-neutral. It blocks nothing, including the release.
+**The pack corpus is deleted, and nothing replaced it.** The owner removed
+`tools/spec-kit-bundle-nc/packs/` on 2026-07-30 to keep the bundle to installable components, and
+chose discarding it over relocating it here or into its own repository
+([`DECISIONS.md`](../tools/spec-kit-bundle-nc/DECISIONS.md) **B-17**). Ten files went: the two
+adoptable packs and their seed text, the three rule sources (`money-grade` with its 43 money
+directives, `cache-discipline`, `event-broker-discipline` with 36), the research protocol, the
+index and the README. **The last four commits on `master` are all work on files that no longer
+exist** — `f772020` is the last tree that holds them, and git history is the only copy.
 
-**Sources live in `packs/rule-sources/`, and the mechanism is not money-only** (B-10, 2026-07-28).
-The path is what says "not a paste target" — adopt step 1 is a path rule now, not a Kind column to
-read. Every shared infrastructure concern has the source shape (portable directive, a different
-enforcing tool per language). **`cache-discipline` is the second source and it is written**
-(B-11, 2026-07-29) — the last-session note below has it, including the one committed statement it
-had to correct. **Adding any directory under `packs/` means re-reading the freshness step's
-glob** — it is recursive now because B-10's move would otherwise have dropped the source from it
-silently. Re-run the step's own code after any move; this session did, and the new source is
-reached (4 files carry `review-by`, up from 3, no false warnings).
+**What survives it, and it is the part that binds:** B-8's *mechanism* half is untouched and still
+ships — constitution principle VI, the plan command's Decision discipline, the appended
+`## Decision Trace`, the review command's conformance step. A product repo's decision records still
+have to exist; they are now **written by the team that will live with them, never pasted from a
+corpus.** B-10 … B-16 are withdrawn, each with a dated line, and stay in `DECISIONS.md` as history.
+
+**Three lessons outlived the corpus and are the reason those records were kept.** Read B-13, B-15
+and B-16 before writing any rule set anywhere, including a product repo's `Repo principles`: a
+predicate framed on the technology in its name misses the cheapest correct option; naming gaps
+directive by directive reads as thorough while saying nothing about the composite shapes a repo
+assembles out of the primitives; and a rule set is scoped to the language its checks read, which
+the rules themselves never say. **The checklist that made them operable is gone with the corpus** —
+it was `packs/research-protocol.md` §5 and the *Audits owed* table — so the prose in those three
+records is now the whole mechanism.
 
 **One thing left to watch, and one now closed:**
 
@@ -169,33 +186,77 @@ reached (4 files carry `review-by`, up from 3, no false warnings).
    earlier version of this note said the workflow "has never run" — that was a prediction written
    before its own push and left uncorrected. **Do not re-derive the doubt from it.**
 
-**`packs/` now has structure rules, and they bind whoever writes the next pack** (B-12,
-2026-07-29). Three of them will be re-broken by default if nobody knows they exist. **A pack's
-evidence section is grouped by the seed-text section each rule lives in, never by research pass** —
-the pass dates and each pass's *scope* go in a table at the top of it. **A pack's frontmatter is
-the only authority for its status and dates**; `packs/index.md`'s Shipped table is a labelled
-mirror and `packs/README.md`'s roster carries no dates at all, so do not "helpfully" restore a
-Status column. **The eight design principles are cited as `P-1` … `P-8`, never by list position,
-and never from seed text** — in a constitution `P-3` dangles and "principle 3" reads as that
-constitution's own principle III. None of this changed a rule, a marker or a date.
-
-**Two of those three rules are now machine-checked and the check fails the build**
-(`tools/spec-kit-bundle-nc/ci/check_packs.py`, a `Pack structure` step in `bundle-checks.yml`).
-It decides that every evidence subheading names a section of the pack's seed file and that they run
-in the seed's order, and that no seed file cites this corpus. **It deliberately does not decide
-whether a note is filed under the *right* heading, whether the pass table is honest, or anything
-about a source** — it prints that list on every run, so its silence is never read as coverage.
-Run `python ci/check_packs.py` after any `packs/` change; it is in the bundle's *"Verify before you
-commit"* list. Three negative probes ship with it and **none may be deleted to make CI pass**.
-Its non-recursive `packs/*.md` glob is correct and is the **inverse** of what B-10 fixed — a source
-has no seed file, so there is nothing for it to mirror. Read the comment before changing it.
+**The bundle's CI is five steps shorter, and one standing rule needs reading correctly.**
+`ci/check_packs.py` and the five `bundle-checks.yml` steps it drove — `Pack structure`, its three
+negative probes, and the advisory `Pack freshness` — were deleted with the corpus. **This is not
+the "never delete a negative probe to make CI pass" rule being broken.** That rule protects a probe
+whose checker still exists; deleting the checker is what removed the probes' subject. It holds in
+full for `check_specs.py`, whose probes are all still in the smoke job. `ci/` now holds one checker
+and it travels: `python ci/check_specs.py --self` is the whole local check list besides
+`specify bundle validate`.
 
 **One standing instruction, because it was asked twice and answered twice:** the owner does not
 choose between options here. Research it, decide it, record it, and say what would reverse it.
 
 ---
 
-### Last session: 2026-07-29 — the money source had no rules for the database, and the gap was a whole layer
+### Last session: 2026-07-30 — `packs/` is deleted, and nine places existed to serve it
+
+The owner removed `tools/spec-kit-bundle-nc/packs/` from the working tree before the session
+started, to keep the bundle focused, and asked for the consequences to be carried through. Asked
+whether the corpus should move elsewhere in this monorepo, move to its own repository, or be
+discarded, the owner chose **discarded**. Recorded as
+[`DECISIONS.md`](../tools/spec-kit-bundle-nc/DECISIONS.md) **B-17**.
+
+**The ten deleted files were not the work.** `packs/` was load-bearing in nine places, and the
+session's value is that all nine were found before CI or a release found them:
+
+1. `ci/check_packs.py` — deleted. It existed only for this corpus and was never copied anywhere.
+2. **Five `bundle-checks.yml` steps** — `Pack structure`, its three negative probes, and the
+   advisory `Pack freshness`. **CI would have gone red on the next push to the bundle**: the step
+   ran `python3 ci/check_packs.py` unconditionally and the probes ran `cp -r packs /tmp/...`.
+3. **`presets/nc-ears/templates/constitution-template.md`** — the one packs reference that *ships*.
+   The preset copies that file into every consumer project, so a `bundle-v0.2.0` cut before this
+   change would have installed a pointer to a deleted directory in every repo that adopted the
+   bundle. **The bundle has never been tagged** (0 tags, verified) — the timing was luck, not care.
+4. The bundle `README.md` — two component rows, a bullet in the four-practices list, and the
+   `## Decision records and packs` section.
+5. The bundle `CLAUDE.md` — the opening description, two map rows (one of them the longest line in
+   the file, carrying the B-13 … B-16 lessons), and two lines of *Verify before you commit*.
+6. `ci/CLAUDE.md` — its whole framing was "two checkers, and only one of them travels".
+7. `DECISIONS.md` — **B-10 … B-16 are entirely about this corpus and B-8 is half about it.** All
+   eight carry dated withdrawal or amendment lines; none was edited or renumbered.
+8. `CHANGELOG.md` — the whole `[Unreleased]` section was packs work that never shipped, and
+   `[0.2.0]` advertises `packs/` throughout.
+9. This file — four paragraphs of START HERE were live statements about a corpus that no longer
+   exists.
+
+**What was deliberately kept.** B-8's mechanism half, unchanged and still shipping. B-10 … B-16
+themselves, as history. The `[0.2.0]` changelog entries, annotated rather than rewritten, because a
+changelog records what happened. And the three lessons — B-13's predicate framing, B-15's composite
+shapes, B-16's check-layer scoping — which START HERE now points at, because the checklist that
+made them operable (`packs/research-protocol.md` §5, the *Audits owed* table) went with the corpus.
+
+**What was deliberately not done, and it is on the release path.** The preset was **not** version
+bumped for its template change: a bumped `catalogs/presets.json` points at a release asset that
+exists only once the tag is cut, so bumping belongs to the release, not to this session. Both that
+and the `[Unreleased]` merge are written up in START HERE above as the two things standing between
+`git tag bundle-v0.2.0` and a correct release.
+
+**Verified rather than assumed:** `specify bundle validate --path . --offline` and
+`python ci/check_specs.py --self` both green after the changes; `git tag -l` empty, which is what
+made point 3 harmless; a repository-wide grep for `pack` finding no live reference, only the dated
+historical ones that say the corpus was deleted.
+
+**Left uncommitted at the owner's request.** The deletions were still unstaged when the session
+started and the whole change is unstaged when it ends — `git status -sb` shows it. **This work does
+not travel until it is committed and pushed** (`CLAUDE.md`, "Assume every session starts on a
+different computer"), and the four commits that built the corpus are already on `master` while its
+removal is not.
+
+---
+
+### Session before: 2026-07-29 — the money source had no rules for the database, and the gap was a whole layer
 
 **It started as a user question with a half-wrong premise, and that is the point.** The owner asked
 "DB related rules seem to be missing in money-grade — for example which type of column do we store
@@ -302,9 +363,9 @@ would promote markers rather than add rules.
 **The rest was turned into a standing backlog instead of a note, because this is the third defect of
 its family and there will be a fourth.** The three checks that catch them — B-13 (predicate framing),
 B-15 (composite shapes), B-16 (layer scoping) — are now named pre-ship checks in
-[`packs/research-protocol.md`](../tools/spec-kit-bundle-nc/packs/research-protocol.md) §5 rather than
+`packs/research-protocol.md` §5 rather than
 prose scattered across three files, and which file has had which check is a table in
-[`packs/index.md`](../tools/spec-kit-bundle-nc/packs/index.md) → *"Audits owed"*. **Four cells are
+`packs/index.md` → *"Audits owed"*. **Four cells are
 owed**, the largest being B-16 across `cache-discipline` (values cross into a serializer and onto the
 cache's wire format) and `event-broker-discipline` (into a payload contract and an outbox row).
 **None of the three is machine-checkable**, all three were found after the file had shipped, and one
@@ -406,7 +467,7 @@ agent will otherwise reconstruct them from its training corpus.
 The owner asked for event-broker files under `packs/` "like we did with cache", named Kafka as the
 likely pick, and asked for deep research on both the pick and the discipline.
 [`DECISIONS.md` B-13](../tools/spec-kit-bundle-nc/DECISIONS.md) is the record;
-[`packs/rule-sources/event-broker-discipline.md`](../tools/spec-kit-bundle-nc/packs/rule-sources/event-broker-discipline.md)
+`packs/rule-sources/event-broker-discipline.md`
 is the source, twenty-eight directives, instantiated into `java-backend`'s seed text in the same
 change (110 rules in 17 sections → **141 in 18**).
 
@@ -592,7 +653,7 @@ The owner asked for deep research on cache principles and the cache technology c
 proposed that **both** belong in `packs/rule-sources/` because both are independent of the backend
 language. The research says the discipline rules do and the engine pick does not — and it also
 says the reason the corpus already gave for excluding the pick was wrong.
-**[`packs/rule-sources/cache-discipline.md`](../tools/spec-kit-bundle-nc/packs/rule-sources/cache-discipline.md)
+**`packs/rule-sources/cache-discipline.md`
 is written, instantiated into `java-backend` in the same change, and recorded as
 [`DECISIONS.md`](../tools/spec-kit-bundle-nc/DECISIONS.md) B-11.**
 
@@ -721,7 +782,7 @@ and it fails the premise-specificity test — a seed-text line or a plan decisio
 source of truth", "no entry without a TTL", "a cache failure fails loud" each turn invisible-forever
 once no human reads the code and each needs a different check per stack — which is `money-grade`'s
 shape exactly, so they are a **source**. Recorded as the `cache-discipline` candidate in
-[`packs/index.md`](../tools/spec-kit-bundle-nc/packs/index.md) → *Candidate sources*, a section the
+`packs/index.md` → *Candidate sources*, a section the
 corpus did not have: it rostered candidate packs and had nowhere to put a second source.
 
 **The generalisation worth keeping.** `money-grade` reads as the money special case — README calls
@@ -778,7 +839,7 @@ substantial one.
 The owner asked where a language-agnostic money rule belongs, then asked that future packs
 consider it, then **corrected the mechanism**, then caught that the mechanism pointed at a file
 that did not exist. All four are settled: the corrected model is recorded and
-[`packs/rule-sources/money-grade.md`](../tools/spec-kit-bundle-nc/packs/rule-sources/money-grade.md) is written.
+`packs/rule-sources/money-grade.md` is written.
 
 **The mid-session defect, because it is the reusable lesson.** For most of this session the tree
 carried the rules *about* the money rule — in `README.md`, `index.md`, `research-protocol.md` and
@@ -2486,9 +2547,9 @@ registry in its own subtree ([`CLAUDE.md`](../CLAUDE.md), two decision
 registries). The item: **three defect classes the pack corpus found in itself,
 none of them machine-checkable, tracked as a table of which file has had which
 check** —
-[`packs/index.md`](../tools/spec-kit-bundle-nc/packs/index.md) → *"Audits owed"*,
+`packs/index.md` → *"Audits owed"*,
 with the checks themselves defined in
-[`packs/research-protocol.md`](../tools/spec-kit-bundle-nc/packs/research-protocol.md)
+`packs/research-protocol.md`
 §5. All three were found **after** the file in question had shipped and been read
 repeatedly, and one was found in the oldest source in the corpus after three
 re-readings, so an unaudited row is a check nobody ran rather than a clean file.

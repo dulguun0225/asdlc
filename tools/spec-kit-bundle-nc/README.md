@@ -16,8 +16,7 @@ four practices into one installable unit:
 4. **Decision records** — technology choices trace to the project's decision
    records instead of the agent's training-data default; a choice no record
    covers becomes a visible `NEW — proposed` row in the plan's Decision
-   Trace, ratified by the same human plan approval; `packs/` ships
-   pre-researched seed text so records start from verified verdicts.
+   Trace, ratified by the same human plan approval.
 
 Bundle id: `nc-sdd` · requires Spec Kit `>=0.14.2,<1.0.0` · integration-agnostic.
 
@@ -30,9 +29,7 @@ Bundle id: `nc-sdd` · requires Spec Kit `>=0.14.2,<1.0.0` · integration-agnost
 | `extensions/nc/` | Extension: `speckit.nc.gate` (hooked `before_implement`) and `speckit.nc.review` (hooked `after_implement`) |
 | `workflows/nc-sdd/` | Workflow: the orchestrated cycle for `specify workflow run` — the stock `speckit` pipeline plus an approval gate between tasks and implement |
 | `ci/check_specs.py` | Merge gate for product repos: structure, FR uniqueness, two-way task↔FR coverage, plan traceability/decision-trace/approval sections, contract links |
-| `ci/check_packs.py` | Maintainer gate for `packs/` in *this* repository — never copied into a product repo: a pack's evidence section is grouped by seed-text section, in the seed's order, and no seed file cites this corpus (a rule id, a principle number, a link). Prints what it does not decide |
 | `catalogs/` | Preset/extension/workflow/bundle catalog JSONs for org-hosted distribution |
-| `packs/` | Researched decision packs — dated, adversarially verified seed text for a product constitution's Repo principles; informative, never installed |
 | `examples/password-reset/` | Worked example spec and plan: all five EARS patterns, unwanted-behavior coverage, the three plan sections, approval records; kept well-formed by `ci/check_specs.py --self` |
 
 ## The workflow after install
@@ -193,7 +190,7 @@ not exist; non-kebab-case filenames; CRLF. HTML comments are stripped before
 scanning, so template guidance comments never count. Vague requirement
 wording ("quickly", "appropriate", …) is a warning, never blocking.
 
-## Decision records and packs
+## Decision records
 
 Technology and engineering choices in a product repo trace to its decision
 records: the constitution's `Repo principles` section and `docs/decisions/`
@@ -205,14 +202,12 @@ decision (`NEW — proposed`, ratified by the human plan approval), or records
 a divergence in one line. The review command flags technology in the code
 that appears in none of them.
 
-`packs/` holds pre-researched seed text for the records — dated,
-adversarially verified, premise-conditioned decisions (currently: the
-cross-stack agent traps and the Java backend, whose money-grade rules
-bind from the first money field). Packs are
-informative and never installed: a human copies the edited seed text into
-the constitution by PR. Authority, markers, freshness (including the lapse
-rule), and the research protocol: `packs/README.md`; candidates and the
-harvest map: `packs/index.md`. (DECISIONS.md B-8.)
+The bundle ships that **mechanism** and no content: what a project's records
+say is the project's own. A `packs/` directory here once carried
+pre-researched seed text for them; it was deleted on 2026-07-30 to keep the
+bundle to installable components (DECISIONS.md B-17), and nothing replaced it.
+Seed a repo's `Repo principles` by writing them, not by copying them from
+here. (DECISIONS.md B-8, whose mechanism half is unchanged.)
 
 ## What is deliberately NOT enforced by machine
 

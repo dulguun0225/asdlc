@@ -1,5 +1,20 @@
 # Agentic SDLC — design
 
+> **Archived 2026-08-05.** This repository is read-only and no further work is planned. The
+> design is complete and the decision records stand as written; what was never done is the
+> staffing, the remaining code in [`tools/`](tools/README.md), and the pilot. Two consequences
+> of archiving are worth knowing before you rely on anything here:
+>
+> - **The bundle's `v0.2.0` release was never cut.** [ADR-0026](reference/decisions/0026-bundle-distribution.md)
+>   made this repository the publish point for `spec-kit-bundle-nc` on `bundle-v*` tags. An
+>   archived repository accepts no new tags, so that release cannot happen from here. Existing
+>   tags, clones and reads still work.
+> - **The spec-kit approval convention was never reconciled with the gate record.** The bundle's
+>   typed `Status: Approved` line and [ADR-0014](reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md)'s
+>   hash-bound gate record both live in this tree, and only the older one has tooling. Anyone
+>   picking the design back up starts there — see
+>   [reference/open-questions.md](reference/open-questions.md) → "What to pick up next".
+
 A design for an **Agentic software development life cycle**: a life cycle in which agents
 execute multi-step development work — planning, editing, running tests, opening changes —
 under human review gates.

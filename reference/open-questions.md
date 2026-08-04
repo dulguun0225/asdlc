@@ -25,6 +25,24 @@ computer and the agent's local memory does not travel, so this section — not a
 the conversation — is where the state lives. Anyone finishing a session updates it
 ([`CLAUDE.md`](../CLAUDE.md) → "Assume every session starts on a different computer").
 
+### ▶ Archived 2026-08-05 — there is no next session
+
+The owner archived this repository on 2026-08-05 and renamed it `asdlc-archived`. It is
+read-only on GitHub; no further work is planned. Everything below is the state as it stood
+at that moment, kept because it is still the correct starting point if the design is ever
+resumed. Nothing in it was abandoned mid-change: the working tree was clean and in sync with
+`origin/master` when the repository was archived.
+
+Two items became permanently blocked by archiving rather than closed:
+
+- **`bundle-v0.2.0` cannot be cut from here.** [ADR-0026](decisions/0026-bundle-distribution.md)
+  made this repository the publish point, and an archived repository accepts no new tags.
+  Resuming means either unarchiving or choosing a new publish point.
+- **Re-importing `spec-kit-bundle-nc` with history is now moot from this side.** The history
+  still exists in [`dulguun0225/spec-kit-bundle-nc`](https://github.com/dulguun0225/spec-kit-bundle-nc)
+  — **do not delete that repository.** A `git subtree add` into this tree is no longer possible
+  without unarchiving.
+
 ### ▶ START HERE — the state, and the next session's first action
 
 **This is a monorepo now.** The owner lifted the documents-only restriction on 2026-07-28 and

@@ -173,9 +173,7 @@ point for a human**.
 
 ## Writing style
 
-Always: precise first, simple second — exact over approximate, but
-plain words and short sentences within that. Keep technical terms
-when the everyday word is less exact. No business-speak or figurative
+Always: concise first, precise second, simple third. Keep technical terms when the everyday word is less exact. No business-speak or figurative
 speech; say what actually happens.
 
 The wording rules apply everywhere. Coverage defaults to complete —

@@ -88,6 +88,12 @@ sandbox, the never-write list, and the egress allowlist, none of which expire. C
   covers Write and NotebookEdit), `Read(~/secrets/**)` for reads.
 - **`PowerShell` is a separate tool from `Bash`** and is on by default on Windows without Git Bash.
   A stage that denies `Bash` denies `PowerShell` too, or the denial is decorative.
+- **A denial targets mutation or exfiltration, never execution as such.** No stage forbids
+  running read-only deterministic repository tooling — a generator, a hash, a `git log` — because
+  executing one is exactly as safe as reading the files it derives from. Pre-approve the specific
+  commands a stage needs; let anything else prompt, so the engineer sees the command; reserve
+  whole-tool denials for surfaces the stage must not have at all (network, notebook writes, a
+  second shell).
 - **The agent never signs, never rates, never classifies.** Every skill repeats this, because it is
   the one rule whose violation looks like helpfulness.
 

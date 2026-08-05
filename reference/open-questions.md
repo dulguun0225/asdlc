@@ -106,6 +106,14 @@ do not retire it yet** — it stays until that record decides. Its divergences f
 remain bugs filed against it
 ([ADR-0030](decisions/0030-design-states-the-rules-tools-implement-them.md)).
 
+One piece moved the other way on 2026-08-05:
+[ADR-0034](decisions/0034-plan-decision-trace.md) wrote the wrapped plan command's decision-trace
+discipline into the design — four row kinds, the visible `NEW — proposed` format, no re-research
+of covered entries — so on those rules the command is now an implementation rather than the only
+statement. Its rule 6 (a `NEW` decision binding beyond one feature is drafted as a repo decision
+record in the same change) is unadopted; the gate-model reconciliation record inherits that
+question, and its row in open-parameters.md says so.
+
 Renamed from `spec-kit-bundle-nc/` and reset to `0.1.0` on 2026-08-05
 ([ADR-0028](decisions/0028-bundle-rename-and-reset.md)): every component id is `asdlc`, and the
 extension, `DECISIONS.md` and `CHANGELOG.md` are deleted.

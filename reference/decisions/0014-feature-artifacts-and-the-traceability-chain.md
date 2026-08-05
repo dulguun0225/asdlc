@@ -10,6 +10,8 @@
   per-service SLO values ([02-plan.md](../../asdlc/02-plan.md), [06-deploy.md](../../asdlc/06-deploy.md)).
 - **Opens:** nothing new that blocks. Requirement-level defect attribution is *enabled* by this
   record and still not *defined* — see Consequences.
+- **Extended:** the plan template's §9 decision trace, present here but unspecified, is
+  specified by [ADR-0034](0034-plan-decision-trace.md) (2026-08-05).
 - **Research:** [2026-07-27 — spec, plan and task templates](../research/2026-07-27-spec-plan-task-templates.md)
 - **Environment:** [target environment](../context.md)
 

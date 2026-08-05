@@ -32,7 +32,7 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0011](0011-progressive-rollout.md) | Progressive rollout and automated rollback: achievable off the shelf, conditional on the deployment target | accepted; part 2's justification corrected by 0015 | 2026-07-27 |
 | [0012](0012-per-variant-stack-sheets.md) | Per-variant stack sheets, and why the layout is not split by variant | accepted; part 4 amended by 0013 | 2026-07-27 |
 | [0013](0013-layout-by-subject.md) | The repository is laid out by subject, and the design is the entry point | accepted; layout extended by 0025 | 2026-07-27 |
-| [0014](0014-feature-artifacts-and-the-traceability-chain.md) | The feature artifacts, EARS, and where the traceability chain ends | accepted | 2026-07-27 |
+| [0014](0014-feature-artifacts-and-the-traceability-chain.md) | The feature artifacts, EARS, and where the traceability chain ends | accepted; plan template §9 specified by 0034 | 2026-07-27 |
 | [0015](0015-observability-backend.md) | The observability backend: one architecture, self-hosted in one variant and managed in the other | accepted | 2026-07-28 |
 | [0016](0016-tls-terminating-proxy-and-credential-masking.md) | TLS termination is a setting on the proxy we already have, not a product to select | accepted | 2026-07-28 |
 | [0017](0017-artifact-registry.md) | Every deployable is an OCI artifact, so one registry answers the question in both variants | accepted | 2026-07-28 |
@@ -52,3 +52,4 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0031](0031-heterogeneous-runners.md) | Runners are heterogeneous: the runner is a role, not a product | accepted; supersedes 0024, widens the premise of 0007, 0016 and 0020 part 2; opens OQ-19 and OQ-20 | 2026-08-05 |
 | [0032](0032-stage-delivery-via-skills-cli.md) | Stage procedures are delivered as Agent Skills by the `skills` CLI | accepted; closes OQ-19; restores ADR-0020's hyphenated command names; §1's canonical path amended by 0033 | 2026-08-05 |
 | [0033](0033-skills-move-into-the-monorepo.md) | The skills move into the monorepo: `skills/` at the root, the harness in `tools/` | accepted; extends 0025 and 0029, amends 0032 §1 by one path | 2026-08-05 |
+| [0034](0034-plan-decision-trace.md) | The plan's decision trace: four row kinds and the visible-decision format | accepted; extends 0014's plan template | 2026-08-05 |

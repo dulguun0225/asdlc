@@ -92,9 +92,18 @@ back to `test` or `none` with a reason — do not propose a threshold that has n
 
 ## §9 — Decision trace
 
-One row per technology or approach choice: what was chosen, **what was rejected**, and the record
-that settles it. Where no record does, mark the row `NEW — proposed`; the plan signature ratifies
-it.
+One row per technology or approach choice. Four row kinds, and every row is one of them:
+
+- **A record settles it.** Cite the record. Dispatch no research for what it settles, and do not
+  contradict it silently — departing from a record is a divergence row, below.
+- **The spec fixes it.** A threshold from an `NFR-nnn`, a constraint from an `FR-nnn`: cite the
+  spec item. Feature-local, no record needed.
+- **No record covers it** — mark the row `NEW — proposed` and decide it visibly: name the pick,
+  name the training-corpus default and at least one rejected alternative with the reason it lost,
+  and date the finding. The plan signature ratifies it. Never mark a proposed decision adopted or
+  ratified — that is the signer's act, and you are the producer.
+- **A record does not fit this feature** — `Diverges from <record>`: the record cited, the
+  situational reason, one line, for the signer to read.
 
 *"We chose X"* with no alternative named is a preference, not a decision. Do not write one.
 
@@ -133,7 +142,7 @@ Do not present the advisory tier as the tier. Do not choose it.
 
 Report: the path, the spec hash prefix you recorded, the advisory tier and which rule produced it,
 every new path declared in §7 and **the fact that a human must apply them to the map file**, every
-`NEW — proposed` row in §9, and the faults your critique pass found. Then say that a **ring
+`NEW — proposed` and `Diverges from` row in §9, and the faults your critique pass found. Then say that a **ring
 reviewer** signs this — or a team leader recorded as review-competent — and that at T2 this signer
 asserts the problem as well as the approach.
 

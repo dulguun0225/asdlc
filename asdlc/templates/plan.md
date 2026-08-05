@@ -106,13 +106,24 @@ paths:
 
 ## 9. Decision trace
 
-<!-- One row per technology or approach choice. Cite the decision record that already settles
-     it; where none does, mark the row `NEW — proposed` and the plan signature ratifies it.
+<!-- One row per technology or approach choice, and every row is one of four kinds (ADR-0034):
+     - A record settles it — cite the record. Dispatch no research for it, and do not
+       contradict it silently: departing from a record is a divergence row, below.
+     - The spec fixes it — a threshold from an NFR-nnn, a constraint from an FR-nnn: cite the
+       spec item. Feature-local, no record needed.
+     - No record covers it — `NEW — proposed`, decided visibly: name the pick, the
+       training-corpus default and at least one rejected alternative with the reason it lost,
+       and the date of the finding. The plan signature ratifies it.
+     - The record does not fit this feature — `Diverges from <record>`: the situational
+       reason, one line, for the signer to read.
      "We chose X" with no alternative named is a preference, not a decision. -->
 
 | Choice | Decision | Source |
 |---|---|---|
-| [component / library / pattern] | [what was chosen, and what was rejected] | [ADR / record, or `NEW — proposed`] |
+| [component / library / pattern] | [what was chosen, and what was rejected] | [ADR / record] |
+| [value the spec fixes] | [the value] | [spec NFR-nnn — feature-local] |
+| [choice no record covers] | [the pick; corpus default [X] rejected — [reason]; [YYYY-MM-DD]] | `NEW — proposed` |
+| [choice a record does not fit] | [the situational reason, one line] | Diverges from [record] |
 
 ## 10. Risks
 

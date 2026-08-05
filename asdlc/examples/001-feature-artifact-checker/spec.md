@@ -56,6 +56,25 @@ covered at all is a plan-gate review question and this program cannot see it.
 
 ## 3. Functional requirements
 
+### State model
+
+<!--
+  The WHILE states below are the checker's run modes — modes are states (ADR-0035). A run
+  enters one state at invocation and terminates in it. The flat table shows the T3 evaluation
+  as a sibling state, which under-expresses that a merge-mode run over a tests-only change is
+  also that evaluation — the known limit of the flat form, accepted there.
+-->
+
+*States:* invoked, running in `change` mode, running in `merge` mode, evaluating a tests-only
+change for T3. *Initial:* invoked. *Terminal:* running in `change` mode, running in `merge`
+mode, evaluating a tests-only change for T3.
+
+| From | Trigger | Guard | To | FR ids |
+|---|---|---|---|---|
+| invoked | mode argument is `change` | — | running in `change` mode | FR-002 |
+| invoked | mode argument is `merge` | — | running in `merge` mode | FR-002 |
+| invoked | the change is tests-only and its computed tier is 3 | — | evaluating a tests-only change for T3 | FR-002 |
+
 ### Execution and inputs
 
 - **FR-001** The checker shall complete every run using only the language's standard library,

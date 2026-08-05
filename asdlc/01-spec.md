@@ -33,8 +33,11 @@ template: [templates/spec.md](templates/spec.md), rules:
 [ADR-0014](../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md).
 
 Functional requirements are **EARS sentences under stable `FR-nnn` ids**, one testable behaviour
-each, ids never renumbered or reused. Operational properties are `NFR-nnn` field sets that name
-an enforcement point — for most of them the canary threshold that later aborts a bad deploy.
+each, ids never renumbered or reused. They open with a **state model** — a transition table
+whose states are the closed vocabulary for every `WHILE`, or an explicit stateless declaration
+the signer signs ([ADR-0035](../reference/decisions/0035-spec-state-model.md)); EARS itself has
+no cross-requirement construct, so workflow is owned here or nowhere. Operational properties are
+`NFR-nnn` field sets that name an enforcement point — for most of them the canary threshold that later aborts a bad deploy.
 Outcomes observed after shipping are `SC-nnn`; stated unknowns are `OI-nnn` with an owner.
 
 **The spec carries no approval line.** Nobody types "approved" into it — see Records below.

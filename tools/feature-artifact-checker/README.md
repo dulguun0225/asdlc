@@ -12,11 +12,16 @@ What the directory holds today is the **fork seed**: `check_specs.py`, the
 retired predecessor spec-kit convention's checker — EARS requirements under
 stable `FR-nnn` ids, traced through `plan.md` and `tasks.md`. No repository
 follows that convention; the design's checker is built by rewriting the seed
-to the spec (fork, decided 2026-08-05).
+to the spec (fork, decided 2026-08-05). Beside it sits the **state-model
+seed**, `statemodel_to_mermaid.py` —
+[ADR-0035](../../reference/decisions/0035-spec-state-model.md)'s model-local
+checks and diagram generator, written against the design rather than the
+predecessor, folded into the rewrite when it lands.
 
 | Path | What it is |
 | ---- | ---------- |
 | `check_specs.py` | The fork seed. One file, no dependencies, any Python 3. Runnable and green: `python3 check_specs.py --self` |
+| `statemodel_to_mermaid.py` | The state-model seed ([ADR-0035](../../reference/decisions/0035-spec-state-model.md)): parses a spec's State model subsection, validates the model-local rules, deterministically emits the Mermaid view. Green: `python3 statemodel_to_mermaid.py --self`. Does not travel with `check_specs.py` |
 | `examples/password-reset/` | Predecessor-convention fixtures. They keep `--self` green and feed the CI's negative probes; they are replaced, not extended, when the seed is rewritten to the spec |
 | `mise.toml` | Pins `uv`, for a machine with no Python on PATH |
 

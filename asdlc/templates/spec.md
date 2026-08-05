@@ -33,6 +33,39 @@ language covers it. A requirement is only as precise as the words it uses.]
 
 ## 3. Functional requirements
 
+### State model
+
+<!--
+  Always present (ADR-0035): either the model below, or — only where the feature genuinely has
+  no externally visible states — this subsection's content replaced by exactly:
+
+    This feature has no externally visible states.
+
+  That line is a claim the signer signs, not a default. Externally visible states only — what
+  a domain owner can observe (an order's lifecycle, a document's status); realization workflow
+  (queues, retries, service hops) belongs to the plan. The states declared here are the closed
+  vocabulary for every WHILE below; WHILE anywhere + the stateless line = check failure.
+
+  Checked (ADR-0035 part 2): states declared once, one initial; every From/To declared; every
+  state reachable and every non-terminal state has an exit; every WHILE names a declared state;
+  every transition cites an event-driven, unwanted-behaviour or complex FR; same (From, Trigger)
+  with textually identical guards fails. Checks are structural — names, citations, graph shape —
+  never that a sentence agrees with the transition citing it.
+
+  Never hand-write a state diagram. The rendered view is generated from this table (a
+  deterministic table→Mermaid generator, ADR-0035 part 2 rule 7); where a generated diagram is
+  committed, CI regenerates it and fails on any byte difference.
+-->
+
+*States:* [Draft, Submitted, Approved, Rejected]. *Initial:* [Draft]. *Terminal:* [Approved, Rejected].
+
+| From | Trigger | Guard | To | FR ids |
+|---|---|---|---|---|
+| [Draft] | [submit] | — | [Submitted] | [FR-001] |
+| [Submitted] | [approve] | [reviewer holds role X] | [Approved] | [FR-nnn] |
+
+### Requirements
+
 <!--
   EARS patterns (alistairmavin.com/ears — keywords in CAPS, the modal `shall` lowercase):
 

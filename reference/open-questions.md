@@ -35,7 +35,9 @@ number back into this repository.
    three verifications.
 3. **Code and configuration** ([open-parameters.md](../rollout/open-parameters.md)): the
    feature-artifact checker (fork seed in place at
-   [`tools/feature-artifact-checker/`](../tools/feature-artifact-checker/README.md)), the CI
+   [`tools/feature-artifact-checker/`](../tools/feature-artifact-checker/README.md); the
+   state-model checks of [ADR-0035](decisions/0035-spec-state-model.md) joined its scope
+   2026-08-05, with their own seed `statemodel_to_mermaid.py` beside the fork seed), the CI
    emitters for gate records and requirements traces, and two verifications that need hardware —
    Harbor's OCI referrers path, and the toolchain under TLS termination.
 4. **Gate-record tooling** — the top row of [open-parameters.md](../rollout/open-parameters.md);

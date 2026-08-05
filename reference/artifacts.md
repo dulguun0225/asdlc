@@ -318,7 +318,7 @@ themselves are the specification and live in [asdlc/templates/](../asdlc/templat
 
 | File | Carries |
 |---|---|
-| `spec.md` | `FR-nnn` in EARS, `NFR-nnn` field sets, `SC-nnn`, `OI-nnn`, scope and assumptions |
+| `spec.md` | a state model or explicit stateless declaration ([ADR-0035](decisions/0035-spec-state-model.md)), `FR-nnn` in EARS, `NFR-nnn` field sets, `SC-nnn`, `OI-nnn`, scope and assumptions |
 | `plan.md` | design and contracts, the requirements traceability table, **tier-map entries for every new path**, the NFR enforcement table, the decision trace |
 | `tasks.md` | `T-nnn` items citing `[FR-nnn]`, each naming its verifying test, and the **pinned `spec.md` / `plan.md` hashes** the decomposition was derived from |
 

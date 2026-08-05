@@ -72,6 +72,34 @@ Rules, all of which the checker enforces:
   an `OI-nnn` with an owner and a due date.
 - **Outside this folder the reference is qualified** — `NNN:FR-007`, never bare `FR-007`.
 
+## The state model
+
+§3 opens with a `### State model` subsection, and it is never absent:
+
+- **Stateful feature** — declare the states once (`*States:* … *Initial:* one. *Terminal:* …`),
+  then one table row per transition: `| From | Trigger | Guard | To | FR ids |`. States are the
+  **externally visible** ones — what a domain owner can observe; queues, retries and service
+  hops are plan content.
+- **Genuinely stateless feature** — the subsection contains exactly:
+  `This feature has no externally visible states.` That line is a claim the signer signs, not
+  a default.
+
+Rules, all of which the checker enforces:
+
+- **Any `WHILE` in an FR makes the stateless line a failure.** The declared states are the
+  closed vocabulary for `WHILE`: write every `WHILE` clause's state exactly as declared — the
+  match is textual.
+- **Every transition cites ≥1 event-driven, unwanted-behaviour or complex FR.** Failure
+  transitions are IF/THEN requirements and belong in the table like any other row.
+- **The graph must close**: one initial state, every state reachable from it, every
+  non-terminal state with an exit, and no two rows sharing a `(From, Trigger)` pair with
+  identical guards.
+- **Never hand-write a state diagram.** The rendered view is generated from the table by
+  repository tooling; a hand-written diagram in a spec fails the check.
+
+The checks are structural — names, citations, graph shape. Whether a sentence agrees with the
+transition that cites it is the signer's question, and yours.
+
 ## Non-functional requirements
 
 EARS has no pattern for these, so they are a field set: `ID | Property | Metric | Threshold |
@@ -111,7 +139,8 @@ You **propose** values. The platform owner sets the final ones at T1.
 
 ## When you are done
 
-Report: the feature id and path, the requirement counts (`FR`, `NFR`, `SC`), how many `FR`s are
+Report: the feature id and path, whether the spec declares a state model (state and transition
+counts) or statelessness, the requirement counts (`FR`, `NFR`, `SC`), how many `FR`s are
 unwanted-behaviour patterns, every `[form: …]` escape and its reason, and every open item with its
 owner. Then say that the **domain owner** signs this, and that at T2 the plan signer asserts it
 instead.

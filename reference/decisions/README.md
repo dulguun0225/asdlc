@@ -48,3 +48,4 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0032](0032-stage-delivery-via-skills-cli.md) | Stage procedures are delivered as Agent Skills by the `skills` CLI | accepted | 2026-08-05 |
 | [0033](0033-skills-move-into-the-monorepo.md) | The skills move into the monorepo: `skills/` at the root, the harness in `tools/` | accepted | 2026-08-05 |
 | [0034](0034-plan-decision-trace.md) | The plan's decision trace: four row kinds and the visible-decision format | accepted | 2026-08-05 |
+| [0035](0035-spec-state-model.md) | The spec owns its states: a checked state model complements EARS | accepted | 2026-08-05 |

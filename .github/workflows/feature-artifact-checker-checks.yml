@@ -1,4 +1,5 @@
-# CI for tools/feature-artifact-checker/ — today, the fork seed check_specs.py.
+# CI for tools/feature-artifact-checker/ — today, the fork seed check_specs.py
+# and the ADR-0035 state-model seed statemodel_to_mermaid.py.
 #
 # WHY THIS FILE EXISTS AT THE ROOT: GitHub runs workflows only from the
 # repository root `.github/workflows/`. A workflow under tools/ would be inert,
@@ -37,6 +38,18 @@ jobs:
 
       - name: Examples stay well-formed
         run: python3 check_specs.py --self
+
+      - name: State-model seed stays green
+        run: python3 statemodel_to_mermaid.py --self
+
+      - name: Negative probe — a dead-end state and a malformed FR id turn the state-model seed red
+        run: |
+          printf '### State model\n\n*States:* A, B, C. *Initial:* A. *Terminal:* B.\n\n| From | Trigger | Guard | To | FR ids |\n|---|---|---|---|---|\n| A | go | — | B | FR-001 |\n| A | stray | — | C | FR-1 |\n' > /tmp/bad-model.md
+          if python3 statemodel_to_mermaid.py --check-only /tmp/bad-model.md > /tmp/sm-out.txt 2>&1; then
+            echo 'seed passed a dead-end state and a malformed FR id'; cat /tmp/sm-out.txt; exit 1
+          fi
+          grep -q 'dead end' /tmp/sm-out.txt
+          grep -q 'not an FR-nnn id' /tmp/sm-out.txt
 
       # Negative probes: the checker must go red on a violation, and red for
       # the right reason. A green gate that cannot fail proves nothing.

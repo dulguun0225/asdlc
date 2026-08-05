@@ -78,7 +78,8 @@ rewrite):
 ## Verify before you commit
 
 ```sh
-python check_specs.py --self     # examples/ stays green
+python check_specs.py --self             # examples/ stays green
+python statemodel_to_mermaid.py --self   # the state-model seed stays green
 ```
 
 `uv` is pinned in this directory's own `mise.toml` — `mise trust && mise

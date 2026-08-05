@@ -53,9 +53,3 @@ design-document change runs nothing:
 - **[`.github/workflows/skills-checks.yml`](../.github/workflows/skills-checks.yml)** — the
   skills harness's discovery check and gates, filtered to `skills/` and `tools/skills-harness/`.
 
-## Provenance of the fork seed
-
-`check_specs.py` and its fixtures were copied byte-identical from the deleted
-`dulguun0225/spec-kit-bundle-nc` at `master` = `47173eb` on 2026-07-28; the surrounding bundle's
-final tree is in this repository's git history at `786fd3b`. No git history from before
-2026-07-28 exists anywhere.

@@ -4,7 +4,6 @@ description: Implement tasks from a checked task list for the ASDLC implementati
 argument-hint: "[NNN-kebab-slug] [T-nnn ...]"
 disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Edit, Bash, TodoWrite
-disallowed-tools: PowerShell
 ---
 
 # Stage 4 — Implementation

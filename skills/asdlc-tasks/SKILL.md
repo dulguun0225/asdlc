@@ -3,8 +3,8 @@ name: asdlc-tasks
 description: Decompose a signed plan into tasks for the ASDLC tasks stage — stable task ids, requirement citations both ways, the verifying test named per task, and the sha256 pins that make the decomposition checkable against the bytes that were signed. Use after the plan is signed. Produces specs/<NNN>-<slug>/tasks.md, which has no human gate and one blocking automated check.
 argument-hint: "[NNN-kebab-slug]"
 disable-model-invocation: true
-allowed-tools: Read, Grep, Glob, Edit(specs/**), Bash(git log *), Bash(git show *), Bash(sha256sum *), Bash(shasum *)
-disallowed-tools: PowerShell, NotebookEdit, WebFetch, WebSearch
+allowed-tools: Read, Grep, Glob, Edit(specs/**), Bash(git log *), Bash(git show *), Bash(sha256sum *), Bash(shasum *), PowerShell(Get-FileHash *), PowerShell(git log *), PowerShell(git show *)
+disallowed-tools: NotebookEdit, WebFetch, WebSearch
 ---
 
 # Stage 3 — Tasks

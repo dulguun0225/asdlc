@@ -3,8 +3,8 @@
 The home of the **ASDLC design's own checker** —
 [ADR-0014](../../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md)
 part 7's blocking checks plus the requirements trace, specified in full at
-[asdlc/examples/001-feature-artifact-checker/spec.md](../../asdlc/examples/001-feature-artifact-checker/spec.md)
-(44 requirements, five open items). **That program is not built.** Its open
+[asdlc/examples/001-feature-artifact-checker/spec.md](../../asdlc/examples/001-feature-artifact-checker/spec.md).
+**That program is not built.** Its open
 items OI-001…OI-003 block parts of it and are owned by the platform owner
 ([rollout/open-parameters.md](../../rollout/open-parameters.md)).
 

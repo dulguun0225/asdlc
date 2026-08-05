@@ -1,7 +1,7 @@
 # Open questions
 
-Named, numbered questions that block progress on the target ASDLC. Each research session should
-close one and land the result as a filled-in table or a numbered ADR.
+Named, numbered questions that block progress on the target ASDLC. A closed question lands as a
+filled-in table or a numbered ADR.
 
 **Status values:** `open` · `researching` · `closed → ADR-NNNN`
 

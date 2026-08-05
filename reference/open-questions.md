@@ -28,6 +28,11 @@ number back into this repository.
 
 **What is left, in order:**
 
+0. **The constraint audit's remainder** — 21 smaller findings awaiting the owner's
+   reply-with-numbers, in
+   [research/2026-08-05-constraint-audit.md](research/2026-08-05-constraint-audit.md); the five
+   big ones are closed ([ADR-0036](decisions/0036-constraint-audit-cuts.md)).
+
 1. **Staffing — [OQ-10](#oq-10--who-fills-the-platform-owner-role).** The platform owner and a
    backup: the single largest dependency and the only blocking item the owner must supply.
 2. **Delivery bring-up** — wire the `skills` CLI delivery into a product repo, write the CI

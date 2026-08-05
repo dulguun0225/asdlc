@@ -3,7 +3,12 @@
 - **Status:** accepted. **Part 2's distribution mechanism and its four command names are amended
   by [ADR-0024](0024-stage-skill-distribution.md)** — the "enterprise scope" this record relies on
   is not a skills mechanism, and the commands are now `/asdlc:spec`, `/asdlc:plan`, `/asdlc:tasks`,
-  `/asdlc:implement`. Everything else here stands.
+  `/asdlc:implement`. Everything else here stands. **ADR-0024 is itself superseded by
+  [ADR-0031](0031-heterogeneous-runners.md)** — runners are heterogeneous, so part 2's vehicle
+  and the command names are per-runner renderings pending
+  [OQ-19](../open-questions.md#oq-19--runner-neutral-stage-procedure-delivery); the four layers,
+  part 4's never-write rule and part 5's enforcement placement stand and are what ADR-0031
+  builds on.
 - **Date:** 2026-07-28
 - **Closes:** the "Not yet specified" gap in
   [04-implementation.md](../../asdlc/04-implementation.md) — how the agent is prompted at each

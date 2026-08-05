@@ -162,6 +162,13 @@ Distributed to every engineer machine; owner: platform owner; change tier: T1
 ([ADR-0007](decisions/0007-agent-runner-and-containment.md) parts 2, 4–5;
 [ADR-0016](decisions/0016-tls-terminating-proxy-and-credential-masking.md) part 7).
 
+**This schema is Claude Code's and governs that runner only**
+([ADR-0031](decisions/0031-heterogeneous-runners.md)): under heterogeneous runners it is how the
+one admitted runner meets the admission contract, not a design-wide artifact. The
+`extraKnownMarketplaces` / `enabledPlugins` / `strictKnownMarketplaces` / `disableSideloadFlags`
+keys below carry [ADR-0024](decisions/0024-stage-skill-distribution.md)'s **superseded** plugin
+mechanism and are retired with it; the sandbox and credential keys stand.
+
 Key names below are the vendor's documented ones, checked 2026-07-28. `<...>` marks a value the
 platform owner fills.
 

@@ -60,11 +60,13 @@ Identical in both, at identical cost:
   the runner and of CI checks we write
   ([ADR-0019](../reference/decisions/0019-testing-agent-written-code.md),
   [ADR-0020](../reference/decisions/0020-agent-instruction-layers.md)).
-- **The stage procedures and how they are delivered** — one plugin, four namespaced skills,
-  force-enabled from managed settings, plugin pinned by commit, everything else refused. The plugin
-  content is byte-identical; only the git host under the marketplace differs, and there the
-  self-hosted entry shape is the one unverified step
-  ([ADR-0024](../reference/decisions/0024-stage-skill-distribution.md)).
+- **The stage procedures, and the shape of their delivery** — one canonical source
+  ([asdlc/skills/](../asdlc/skills/README.md)), rendered per runner, CI-verified byte-identical.
+  The mechanism is open and blocks the pilot
+  ([OQ-19](../reference/open-questions.md#oq-19--runner-neutral-stage-procedure-delivery));
+  [ADR-0024](../reference/decisions/0024-stage-skill-distribution.md)'s plugin was superseded by
+  [ADR-0031](../reference/decisions/0031-heterogeneous-runners.md). Delivery is above the
+  code-host line, so the variants still converge here.
 - **The units of work** — session, change, deploy batch
   ([ADR-0021](../reference/decisions/0021-units-of-work.md)).
 

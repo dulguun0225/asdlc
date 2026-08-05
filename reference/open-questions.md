@@ -31,10 +31,16 @@ is stale rather than appending to it.
 
 ### Where the project is
 
-**Every design decision this project can make without a running pilot has been made, and no
-research question is open.** Every ADR in [`decisions/`](decisions/README.md) is accepted and
-landed. Both [stack sheets](../variants/README.md) are complete bills of materials, so **nothing
-technological blocks phase 0**.
+**Two research questions are open again, both opened on 2026-08-05 by
+[ADR-0031](decisions/0031-heterogeneous-runners.md):** the owner made runner heterogeneity a
+hard requirement — engineers may run different agent runners side by side — which superseded
+[ADR-0024](decisions/0024-stage-skill-distribution.md)'s Claude-only plugin and demoted every
+Claude-specific guarantee to one runner's implementation detail.
+[OQ-19](#oq-19--runner-neutral-stage-procedure-delivery) (runner-neutral stage delivery)
+**blocks the pilot**; [OQ-20](#oq-20--the-runner-admission-contract) (the admission contract)
+blocks only a second runner. Every other ADR is accepted and landed, and both
+[stack sheets](../variants/README.md) are complete bills of materials **whose seven runner-side
+rows are now marked as verified for Claude Code only**.
 
 **The honest caveat, and it does not shrink with time.** Eleven ADRs landed on 2026-07-28, most
 resting on sources dated the same day and several on unreviewed preprints — and **nobody has run
@@ -47,24 +53,32 @@ Two records deliberately set no threshold where a reader will expect one
 [ADR-0022](decisions/0022-defect-attribution.md) part 6 on T3 volume); each names the signal that
 would set it.
 
-### What is left, and none of it is a research session
+### What is left
 
-1. **Staffing — [OQ-10](#oq-10--who-fills-the-platform-owner-role).** The platform owner and a
+1. **[OQ-19](#oq-19--runner-neutral-stage-procedure-delivery) — runner-neutral stage delivery.**
+   The one open research question that blocks the pilot. Its leading candidate (spec-kit's
+   integration layer) overlaps the gate-model reconciliation below — take them together or
+   split deliberately.
+2. **Staffing — [OQ-10](#oq-10--who-fills-the-platform-owner-role).** The platform owner and a
    backup: the single largest dependency in the design and the only blocking item the owner must
-   supply. The role owns an observability stack, a registry, a signing key, and a
-   defect-attribution countersignature.
-2. **Code and configuration**, listed in
+   supply. Now also owns [ADR-0031](decisions/0031-heterogeneous-runners.md)'s admission
+   contract.
+3. **Code and configuration**, listed in
    [rollout/open-parameters.md](../rollout/open-parameters.md): the feature-artifact checker, the
    CI emitters for gate records and requirements traces, and the phase-0 verifications. **Two
    verifications remain unrun and neither can be settled from documentation** — Harbor's OCI
    referrers path, and the toolchain under TLS termination. Both need hardware.
-3. **The engineer-facing layer** — the "Not yet specified" section at the end of each file in
+4. **The engineer-facing layer** — the "Not yet specified" section at the end of each file in
    [`asdlc/`](../asdlc/README.md) is the work list. Blocks nobody; it is what makes the design
    handable. Needs research sessions, not assembly: the research-before-content rule in
    [`CLAUDE.md`](../CLAUDE.md) applies in full.
-4. **Reconcile the two gate models** — the top row of
-   [open-parameters.md](../rollout/open-parameters.md), and the one item here that needs its own
-   decision record. See the bundle section below.
+5. **Reconcile the two gate models** — the top row of
+   [open-parameters.md](../rollout/open-parameters.md), and the item that needs its own decision
+   record. Which side moves is settled
+   ([ADR-0030](decisions/0030-design-states-the-rules-tools-implement-them.md)); how, is not.
+   See the bundle section below.
+6. **[OQ-20](#oq-20--the-runner-admission-contract) — the admission contract.** Blocks only a
+   second runner; Claude Code is the only admitted one until it closes.
 
 **Do not reopen as research questions:** prompt injection from repository content, decided by
 [ADR-0023](decisions/0023-adversarial-repository-content.md) — reopen only on one of that record's
@@ -77,6 +91,13 @@ mechanism that turns out not to exist, or to exist differently — and expect it
 record rather than a new `OQ-N`.
 
 ### The bundle in `tools/spec-kit-bundle/`, and the checker beside it
+
+**Its status inverted on 2026-08-05** ([ADR-0031](decisions/0031-heterogeneous-runners.md)
+part 6): it was the predecessor convention and a deletion candidate; it is now the leading
+candidate implementation for [OQ-19](#oq-19--runner-neutral-stage-procedure-delivery)'s
+renderer, because spec-kit's integration layer is the only runner-agnostic delivery machinery
+in the tree. Deletion is off the table. Its divergences from the design are still bugs filed
+against it ([ADR-0030](decisions/0030-design-states-the-rules-tools-implement-them.md)).
 
 Renamed from `spec-kit-bundle-nc/` and reset to `0.1.0` on 2026-08-05
 ([ADR-0028](decisions/0028-bundle-rename-and-reset.md)): every component id is `asdlc`, and the
@@ -893,6 +914,49 @@ appended sections or an FR reference, and **nothing enforces that the two stay i
   — cite what those measure and say plainly where they do not fit, rather than adopting one by
   name.
 
+## OQ-19 — Runner-neutral stage-procedure delivery
+
+- **Status:** open — opened by [ADR-0031](decisions/0031-heterogeneous-runners.md) (2026-08-05),
+  which superseded [ADR-0024](decisions/0024-stage-skill-distribution.md)'s Claude-only plugin.
+- **Blocks:** the pilot — the four stage procedures have nowhere to ship from, which is the same
+  blocker the plugin repositories were.
+- **The question:** the architecture is decided (ADR-0031 part 5): one canonical source
+  ([asdlc/skills/](../asdlc/skills/README.md)) → rendered per runner by a generator, never
+  hand-maintained → CI verifies the copies byte-identical to the pinned rendering. What is open
+  is the mechanism: the renderer, the per-runner target formats, the command naming per runner
+  (ADR-0024's `/asdlc:*` names are now provisional Claude renderings), and the CI check.
+- **The leading candidate for the renderer:** spec-kit's integration layer —
+  [`tools/spec-kit-bundle/`](../tools/spec-kit-bundle/README.md) already renders commands per
+  integration (claude, copilot, gemini, opencode). Adopting it means reconciling the bundle's
+  content to the design first ([ADR-0030](decisions/0030-design-states-the-rules-tools-implement-them.md);
+  the top row of [open-parameters.md](../rollout/open-parameters.md)) — the two questions may be
+  one question.
+- **What would close it:** a decided renderer; each admitted runner's target format verified
+  against dated first-party sources (no format asserted from memory); the CI equality check
+  specified; command naming decided; landed as an ADR superseding this shape into a mechanism.
+- **Variant answers:** expected to converge — delivery is above the code-host line; say so
+  explicitly in the closing ADR.
+
+## OQ-20 — The runner admission contract
+
+- **Status:** open — opened by [ADR-0031](decisions/0031-heterogeneous-runners.md) (2026-08-05).
+- **Blocks:** admitting any runner other than Claude Code. Does **not** block phase 0 or the
+  pilot, which run on the one admitted runner.
+- **The question:** ADR-0031 part 3 states the contract's clauses (sandbox, egress, credential
+  handling, procedure delivery, identity, telemetry, licensing). What is open per clause: the
+  verification procedure for a candidate runner, whether `@anthropic-ai/sandbox-runtime` can
+  actually wrap a non-Claude runner to meet the containment clauses (in-tree claim from
+  [ADR-0007](decisions/0007-agent-runner-and-containment.md), never exercised), and what
+  replaces org-wide enforcement for a runner with no managed-settings equivalent.
+- **What would close it:** the contract as a checklist schema in
+  [artifacts.md](artifacts.md); Claude Code shown passing it clause by clause with citations;
+  the verification procedure written so the platform owner can run it against any candidate.
+  Admitting a specific second runner is then bring-up work per runner, not a new OQ.
+- **Variant answers:** the licensing clause diverges by construction — a runner can be
+  admissible in the cloud variant and inadmissible self-hosted
+  ([ADR-0010](decisions/0010-runner-licensing-token-spend-only.md)'s test, applied per runner).
+  Every other clause converges.
+
 ---
 
 ## Question backlog (not yet written up)
@@ -900,18 +964,4 @@ appended sections or an FR reference, and **nothing enforces that the two stay i
 Questions belong in the numbered list above only once they are stated precisely
 enough to point a session at. Rough ideas can sit here first.
 
-*(empty — no ASDLC design question is open.)*
-
-**The bundle's backlog is not here, and one item on it is worth knowing about from
-this file.** `OQ-N` numbers ASDLC design questions; the bundle carries its own
-registry in its own subtree ([`CLAUDE.md`](../CLAUDE.md), two decision
-registries). The item: **three defect classes the pack corpus found in itself,
-none of them machine-checkable, tracked as a table of which file has had which
-check** —
-`packs/index.md` → *"Audits owed"*,
-with the checks themselves defined in
-`packs/research-protocol.md`
-§5. All three were found **after** the file in question had shipped and been read
-repeatedly, and one was found in the oldest source in the corpus after three
-re-readings, so an unaudited row is a check nobody ran rather than a clean file.
-Each row is a bounded session and none of them blocks anything.
+*(empty)*

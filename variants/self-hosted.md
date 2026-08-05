@@ -28,12 +28,19 @@ This is the finding that reversed the early picture that the self-hosted side ha
 ([ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) variant answers). Every
 row below is the same component the cloud variant uses, at the same cost.
 
+**Runners are heterogeneous, and this table describes the one admitted runner**
+([ADR-0031](../reference/decisions/0031-heterogeneous-runners.md)). Engineers may run different
+runners side by side; every "ships with the runner" row below is verified for Claude Code only,
+and each additional runner re-answers this table clause by clause before admission
+([OQ-20](../reference/open-questions.md#oq-20--the-runner-admission-contract)) — including this
+variant's licence test, which applies **per runner**.
+
 | Layer | Component | Licence / plan | Cost | Decided by | Status | Rules |
 |---|---|---|---|---|---|---|
 | Agent runner | **Claude Code** CLI, Console API key | Proprietary; **no per-seat licence** on the API-key path — this is what keeps it inside the variant definition | Model tokens only | [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §1, [ADR-0010](../reference/decisions/0010-runner-licensing-token-spend-only.md) | decided | [session](../asdlc/04-implementation.md) |
 | OS sandbox | **Seatbelt** (macOS) / **bubblewrap** (Linux, WSL2), via the runner's sandbox (also standalone as `@anthropic-ai/sandbox-runtime`) | ships with the runner | $0 | [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §2 | decided | [session](../asdlc/04-implementation.md) |
-| Policy enforcement | Managed settings, platform-owner controlled | ships with the runner | $0 | [ADR-0024](../reference/decisions/0024-stage-skill-distribution.md), [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §2 | decided | [schema](../reference/artifacts.md) |
-| Stage-procedure delivery | The `asdlc` **plugin**, force-enabled from managed settings; marketplace is a **Gerrit repository** reached through a `url` source | ships with the runner | $0 | [ADR-0024](../reference/decisions/0024-stage-skill-distribution.md) §1, §8 | decided — **but the `extraKnownMarketplaces` entry shape for a non-GitHub git host was not verified.** This is the variant's one unverified bring-up step; fallbacks are a local-path marketplace, then per-repository skills | [schema](../reference/artifacts.md) §5 |
+| Policy enforcement | Managed settings, platform-owner controlled | ships with the runner | $0 | [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §2 | decided | [schema](../reference/artifacts.md) |
+| Stage-procedure delivery | Canonical source ([asdlc/skills/](../asdlc/skills/README.md)) rendered per runner, verified byte-identical in CI — **renderer undecided** | — | — | [ADR-0031](../reference/decisions/0031-heterogeneous-runners.md) §5, which superseded [ADR-0024](../reference/decisions/0024-stage-skill-distribution.md)'s plugin (and with it this variant's unverified marketplace-shape step) | **GAP** — [OQ-19](../reference/open-questions.md#oq-19--runner-neutral-stage-procedure-delivery), blocks the pilot | [skills](../asdlc/skills/README.md) |
 | Egress control | Built-in sandbox proxy, deny-by-default allowlist | ships with the runner | $0 | [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §4 | decided — **blast-radius control only, not anti-exfiltration** | [session](../asdlc/04-implementation.md) |
 | TLS termination | **the built-in proxy**, via `sandbox.network.tlsTerminate` | ships with the runner | $0 | [ADR-0016](../reference/decisions/0016-tls-terminating-proxy-and-credential-masking.md) §1 | decided — **no third-party proxy; none needed.** Vendor-marked **experimental**, which is the named reopen trigger. **Adds no content filtering** — the egress row's limit is unchanged | [session](../asdlc/04-implementation.md) |
 | Credential masking | `sandbox.credentials.envVars` with `mode: mask` + `injectHosts` | ships with the runner | $0 | [ADR-0016](../reference/decisions/0016-tls-terminating-proxy-and-credential-masking.md) §2, §4 | decided — **fails closed and the runner reports it at startup.** Constraint: only **environment variables** can be masked, never files | [schema](../reference/artifacts.md) §5 |

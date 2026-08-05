@@ -40,21 +40,24 @@ decision record. On any conflict, the ADR wins and the design document has a bug
 
 ## Status, honestly
 
-**No research question is open, and both stack sheets are complete bills of materials.** The design
-is finished to the point where the next thing that can teach anyone anything is running it.
+**Two research questions are open** — reopened on 2026-08-05 when the owner made **runner
+heterogeneity** a hard requirement ([ADR-0031](reference/decisions/0031-heterogeneous-runners.md):
+engineers may run different agent runners side by side). Both stack sheets are complete bills of
+materials for the **one admitted runner**.
 
 **Decided:** the gate structure and who signs each gate; the tier system and the function that
 computes a tier; the agent runner and its containment; the code host for both variants; the
 progressive-rollout layer; the runner's licensing; the spec, plan and task artifacts and the
 traceability chain through them; the observability backend; TLS termination and credential masking
 at the agent's egress boundary; the artifact registry; the provenance chain in both variants; how
-agent-written code is tested; how the agent is instructed at each stage **and how those instructions
-reach eighteen machines**; the units of work; how a post-merge defect is attributed to a tier.
+agent-written code is tested; how the agent is instructed at each stage; the units of work; how a
+post-merge defect is attributed to a tier.
 
-**Not decided, and blocking — both are the owner's to supply:**
+**Not decided, and blocking:**
 
 | Gap | Blocks |
 |---|---|
+| **How the stage procedures reach the machines** ([OQ-19](reference/open-questions.md)) — the Claude-only plugin was superseded by [ADR-0031](reference/decisions/0031-heterogeneous-runners.md); the runner-neutral replacement is decided in shape, not in mechanism | The pilot — the four stage procedures have nowhere to ship from |
 | Platform owner and backup — **a role that does not exist yet** ([OQ-10](reference/open-questions.md)) | Everything. It owns almost every artifact in the design, and one day's decisions added an observability stack, a registry, a signing key and an attribution countersignature to it. **The single largest unstaffed dependency.** |
 | The deployment target, and what the greenfield projects are ([context.md](reference/context.md)) | The progressive-rollout answer off Kubernetes, and the concrete path→tier map |
 
@@ -64,8 +67,10 @@ gate records and requirements traces. The **four stage procedures now exist**
 [`asdlc/`](asdlc/README.md) ends with a "Not yet specified" section listing what is missing from it;
 [06-deploy.md](asdlc/06-deploy.md)'s is empty. Three phase-0 verifications were recorded as able to
 genuinely fail ([rollout/open-parameters.md](rollout/open-parameters.md)); **one has now been run and
-did fail.** The mechanism assumed for distributing the stage procedures does not exist, and
-[ADR-0024](reference/decisions/0024-stage-skill-distribution.md) replaces it. Two remain unrun,
+did fail.** The mechanism assumed for distributing the stage procedures does not exist; its replacement
+([ADR-0024](reference/decisions/0024-stage-skill-distribution.md)) was itself superseded by
+[ADR-0031](reference/decisions/0031-heterogeneous-runners.md), and the runner-neutral mechanism
+is [OQ-19](reference/open-questions.md). Two remain unrun,
 because both need hardware rather than documentation: Harbor's OCI referrers path, and the toolchain
 under TLS termination.
 

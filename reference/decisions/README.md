@@ -42,10 +42,11 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0021](0021-units-of-work.md) | The three units of work: session, change, and deploy batch | accepted | 2026-07-28 |
 | [0022](0022-defect-attribution.md) | Defect attribution: tooling narrows, a human decides, and unattributed is a first-class outcome | accepted | 2026-07-28 |
 | [0023](0023-adversarial-repository-content.md) | Adversarial or mistaken repository content: what already bounds it, and one hole closed | accepted; inventory extended by 0024 | 2026-07-28 |
-| [0024](0024-stage-skill-distribution.md) | The stage skills ship as one force-enabled plugin, and their names change | accepted | 2026-07-28 |
+| [0024](0024-stage-skill-distribution.md) | The stage skills ship as one force-enabled plugin, and their names change | superseded by 0031 | 2026-07-28 |
 | [0025](0025-monorepo.md) | The repository becomes a monorepo, and `spec-kit-bundle-nc` moves in | accepted; executed as a plain copy, so the bundle's history stayed behind — and was then deleted (0028) | 2026-07-28 |
 | [0026](0026-bundle-distribution.md) | The bundle is distributed from this repository | accepted | 2026-07-28 |
 | [0027](0027-design-is-public.md) | The design is published: this repository is public by decision | accepted | 2026-07-28 |
 | [0028](0028-bundle-rename-and-reset.md) | The bundle is renamed to `spec-kit-bundle` and reset to 0.1.0, and its history is gone | accepted; amends 0025 part 6 — the `B-n` registry is deleted | 2026-08-05 |
 | [0029](0029-bundle-holds-only-installable-components.md) | `tools/spec-kit-bundle/` holds only what `specify` can install; the merge gate moves to `tools/spec-kit-checker/` | accepted; narrows the directory 0025 created | 2026-08-05 |
 | [0030](0030-design-states-the-rules-tools-implement-them.md) | The design states the rules; `tools/` implements them | accepted; narrows 0028's source-of-truth consequence to runtime facts | 2026-08-05 |
+| [0031](0031-heterogeneous-runners.md) | Runners are heterogeneous: the runner is a role, not a product | accepted; supersedes 0024, widens the premise of 0007, 0016 and 0020 part 2; opens OQ-19 and OQ-20 | 2026-08-05 |

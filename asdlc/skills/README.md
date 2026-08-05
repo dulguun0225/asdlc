@@ -12,46 +12,34 @@ them is not in force, however plausible it looks in a repository file.
 
 Rules: [ADR-0020](../../reference/decisions/0020-agent-instruction-layers.md) (the four instruction
 layers, and why a procedure lives in a skill),
-[ADR-0024](../../reference/decisions/0024-stage-skill-distribution.md) (how these reach an
-engineer). Artifact rules:
+[ADR-0031](../../reference/decisions/0031-heterogeneous-runners.md) (how these reach an
+engineer — shape decided, mechanism open at
+[OQ-19](../../reference/open-questions.md#oq-19--runner-neutral-stage-procedure-delivery)).
+Artifact rules:
 [ADR-0014](../../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md).
 Templates: [../templates/](../templates/README.md).
 
 ## How they get to an engineer
 
-They ship as one **plugin**, `asdlc`, force-enabled from managed settings. The plugin lives in its
-own repository — not this one — laid out as the vendor documents:
+**The mechanism is open — [OQ-19](../../reference/open-questions.md#oq-19--runner-neutral-stage-procedure-delivery),
+and it blocks the pilot.** [ADR-0024](../../reference/decisions/0024-stage-skill-distribution.md)'s
+force-enabled plugin was superseded on 2026-08-05 by
+[ADR-0031](../../reference/decisions/0031-heterogeneous-runners.md): runners are heterogeneous —
+engineers may run different agent runners side by side — and a plugin is one runner's feature set.
 
-```
-asdlc-plugin/                        # the plugin repository
-├── .claude-plugin/
-│   └── plugin.json
-└── skills/
-    ├── spec/SKILL.md                # copied from asdlc/skills/spec/SKILL.md
-    ├── plan/SKILL.md
-    ├── tasks/SKILL.md
-    └── implement/SKILL.md
-```
+What is already decided (ADR-0031 part 5) is the shape:
 
-`.claude-plugin/plugin.json`:
+- **These four files are the canonical source.** That does not change with the mechanism.
+- **Rendered per runner by a generator, never hand-maintained.** The `SKILL.md` format, the
+  frontmatter fields below and the `/asdlc:*` command names are the **Claude Code rendering**,
+  and the names are provisional until OQ-19 decides naming per runner.
+- **Verified at merge**: CI checks the deployed copies byte-identical to the pinned rendering.
+  Tamper detection moves from load time to merge time; what backs it is
+  [ADR-0020](../../reference/decisions/0020-agent-instruction-layers.md) part 4's never-write
+  rule and the gates.
 
-```json
-{
-  "name": "asdlc",
-  "description": "The four ASDLC stage procedures: spec, plan, tasks, implement.",
-  "version": "0.1.0"
-}
-```
-
-The `name` field is the namespace, which is where `/asdlc:` comes from. The marketplace repository
-lists this plugin **pinned by `sha`**, and managed settings force-enable it
-([artifacts.md](../../reference/artifacts.md) §5). Both repositories are T1 and the agent identity
-has no write access to either — *an agent may never rewrite its own instructions*.
-
-**Neither `SKILL.md` carries a frontmatter `name` field, deliberately.** In a plugin skill `name`
-replaces the last segment of the command, and before runner v2.1.216 it replaced the **whole**
-command name — dropping the `asdlc:` prefix, which is the property ADR-0024 relies on. Letting the
-directory name supply it is one fewer thing to get wrong on an older runner.
+*An agent may never rewrite its own instructions* is unchanged: wherever the renderings live,
+the agent identity has no write access, and a change to them is T1.
 
 ## Three things these files cannot do, stated so nobody relies on them
 
@@ -96,7 +84,8 @@ sandbox, the never-write list, and the egress allowlist, none of which expire. C
 
 ## Bring-up
 
-Copying these four files into the plugin repository is step one; the rest is in
+Step one is closing [OQ-19](../../reference/open-questions.md#oq-19--runner-neutral-stage-procedure-delivery)
+— these files have nowhere to ship from until the renderer is decided; the rest is in
 [rollout/plan.md](../../rollout/plan.md) §3 and
 [rollout/open-parameters.md](../../rollout/open-parameters.md).
 

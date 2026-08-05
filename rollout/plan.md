@@ -82,13 +82,17 @@ Build and verify the shared artifacts before any team touches the system:
 - Managed settings distributed to every engineer machine; verified: sandbox refuses to run
   where unavailable; masking fails closed without proxy TLS; credential deny list in force
   ([04-implementation.md](../asdlc/04-implementation.md)).
-- **The stage-procedure plugin** ([ADR-0024](../reference/decisions/0024-stage-skill-distribution.md)):
-  the plugin repository holding the four `SKILL.md` files, the marketplace repository listing it
-  pinned by `sha`, both T1 and both with the agent identity denied write access, and the managed
-  settings block that force-enables it. Verified: `/asdlc:spec` resolves on a fresh machine with no
-  per-engineer step; a plugin from any other marketplace is refused; `--plugin-dir` is rejected at
-  startup. **Do this before the rehearsal below** — the rehearsal is supposed to exercise the stage
-  procedures, not a hand-typed imitation of them.
+- **Stage-procedure delivery** — **blocked on
+  [OQ-19](../reference/open-questions.md#oq-19--runner-neutral-stage-procedure-delivery)**, which
+  must close before phase 0 reaches this step.
+  [ADR-0024](../reference/decisions/0024-stage-skill-distribution.md)'s plugin was superseded by
+  [ADR-0031](../reference/decisions/0031-heterogeneous-runners.md); what replaces it renders the
+  four skill texts per runner from [asdlc/skills/](../asdlc/skills/README.md) and verifies the
+  copies byte-identical in CI. Whatever the mechanism, the delivery repositories are T1 with the
+  agent identity denied write access, and the verification is the same in spirit: the stage
+  command resolves on a fresh machine with no per-engineer step. **Do this before the rehearsal
+  below** — the rehearsal is supposed to exercise the stage procedures, not a hand-typed
+  imitation of them.
 - The tier-function job, T3 proof checkers, requester check, and reassignment job
   implemented and tested against fixture repos ([tiers.md](../asdlc/tiers.md) §3,
   [05-merge.md](../asdlc/05-merge.md) §4, [roles.md](../asdlc/roles.md) §3).

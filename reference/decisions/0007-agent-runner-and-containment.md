@@ -1,6 +1,10 @@
 # ADR-0007 — The agent runner and how it is contained
 
-- **Status:** accepted
+- **Status:** accepted. **§1's single-primary-runner premise is widened by
+  [ADR-0031](0031-heterogeneous-runners.md)** — the runner is a role and engineers may run
+  different runners side by side; Claude Code remains the only *admitted* runner until
+  [OQ-20](../open-questions.md#oq-20--the-runner-admission-contract) closes, and this record's
+  containment goals become that contract's first clauses.
 - **Date:** 2026-07-27
 - **Closes:** the runner, sandboxing, credential-brokering and cost parts of
   [OQ-4](../open-questions.md). **Opens OQ-12** (code host) and **OQ-13** (runner licensing).

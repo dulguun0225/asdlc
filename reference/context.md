@@ -34,6 +34,13 @@ selected.
 **SaaS is permitted.** Source code may be sent to a cloud agent runner and to a
 commercial model API.
 
+**Agent runners are heterogeneous.** Runner-agnosticism is a hard requirement, and it means
+side-by-side: engineers may run different agent runners simultaneously, not merely that the
+chosen runner is swappable (owner, 2026-08-05). How the design absorbs this is
+[ADR-0031](decisions/0031-heterogeneous-runners.md); which runners are actually admitted is
+[OQ-20](open-questions.md#oq-20--the-runner-admission-contract) — Claude Code is the only one
+until that closes.
+
 Consequence: the **cloud variant is a live option**, not an academic exercise. This does
 not retire the self-hosted variant — `CLAUDE.md` requires both variants to be answered,
 and a cost or capability comparison needs both sides to exist.

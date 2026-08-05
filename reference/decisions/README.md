@@ -43,6 +43,7 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0022](0022-defect-attribution.md) | Defect attribution: tooling narrows, a human decides, and unattributed is a first-class outcome | accepted | 2026-07-28 |
 | [0023](0023-adversarial-repository-content.md) | Adversarial or mistaken repository content: what already bounds it, and one hole closed | accepted; inventory extended by 0024 | 2026-07-28 |
 | [0024](0024-stage-skill-distribution.md) | The stage skills ship as one force-enabled plugin, and their names change | accepted | 2026-07-28 |
-| [0025](0025-monorepo.md) | The repository becomes a monorepo, and `spec-kit-bundle-nc` moves in | accepted; executed as a plain copy, so the bundle's history stayed behind | 2026-07-28 |
+| [0025](0025-monorepo.md) | The repository becomes a monorepo, and `spec-kit-bundle-nc` moves in | accepted; executed as a plain copy, so the bundle's history stayed behind — and was then deleted (0028) | 2026-07-28 |
 | [0026](0026-bundle-distribution.md) | The bundle is distributed from this repository | accepted | 2026-07-28 |
 | [0027](0027-design-is-public.md) | The design is published: this repository is public by decision | accepted | 2026-07-28 |
+| [0028](0028-bundle-rename-and-reset.md) | The bundle is renamed to `spec-kit-bundle` and reset to 0.1.0, and its history is gone | accepted; amends 0025 part 6 — the `B-n` registry is deleted | 2026-08-05 |

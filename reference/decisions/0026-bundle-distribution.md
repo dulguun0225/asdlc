@@ -14,7 +14,7 @@
 
 `spec-kit-bundle-nc` moved into `tools/` on 2026-07-28 ([ADR-0025](0025-monorepo.md)). Porting its
 release workflow later that day exposed that **the code moved and the distribution channel did
-not**: all four `tools/spec-kit-bundle-nc/catalogs/*.json` still named
+not**: all four `tools/spec-kit-bundle/catalogs/*.json` still named
 `dulguun0225/spec-kit-bundle-nc` at tag `v0.2.0`. Dry-running the ported asserts at
 `GITHUB_REF_NAME=bundle-v0.2.0` gave three passes and four catalog-URL failures.
 
@@ -92,11 +92,18 @@ Releases are cut here, from the tag namespace `bundle-v*`
 | `catalogs/presets.json` | `github.com/dulguun0225/asdlc/releases/download/bundle-v<v>/nc-ears-<v>.zip` |
 | `catalogs/extensions.json` | `github.com/dulguun0225/asdlc/releases/download/bundle-v<v>/nc-<v>.zip` |
 | `catalogs/bundles.json` | `github.com/dulguun0225/asdlc/releases/download/bundle-v<v>/nc-sdd-<v>.zip` |
-| `catalogs/workflows.json` | `raw.githubusercontent.com/dulguun0225/asdlc/bundle-v<v>/tools/spec-kit-bundle-nc/workflows/nc-sdd/workflow.yml` |
+| `catalogs/workflows.json` | `raw.githubusercontent.com/dulguun0225/asdlc/bundle-v<v>/tools/spec-kit-bundle/workflows/nc-sdd/workflow.yml` |
 
-**The raw workflow URL gained a `tools/spec-kit-bundle-nc/` path segment.** The release workflow's
+**The raw workflow URL gained a `tools/spec-kit-bundle/` path segment.** The release workflow's
 assert was loosened to match the tag and the file path without pinning the repository between them,
 so it survives that shape change and still fails on a stale tag.
+
+> **Asset names and component ids changed on 2026-08-05**
+> ([ADR-0028](0028-bundle-rename-and-reset.md)); the decision — publish from this repository, on
+> `bundle-v*` — did not. `catalogs/extensions.json` is gone with the extension, and the three that
+> remain point at `asdlc-preset-<v>.zip`, `asdlc-bundle-<v>.zip`, and
+> `…/bundle-v<v>/tools/spec-kit-bundle/workflows/asdlc/workflow.yml`. The loosened assert survived
+> that change too, which is the second time it has earned the loosening.
 
 **Consumers add the catalogs from `master`, not from a tag**, so a new release reaches them without
 re-running `catalog add`. That is unchanged from the standalone convention, and it is why `master`
@@ -125,6 +132,11 @@ credential in a file cannot be masked at the egress proxy while an environment v
 behind ([ADR-0025](0025-monorepo.md) *"What was actually done"* item 1). **Do not delete it, and do
 not release from it** — being archived, it cannot be released from anyway. Its catalog URLs are now
 superseded; because nothing was ever published there, no consumer is stranded.
+
+> **It was deleted on 2026-08-05** ([ADR-0028](0028-bundle-rename-and-reset.md)): 404 from the
+> authenticated API, and absent from the owner's repository list. This section's *conclusion* is
+> unaffected — nothing was ever published from it, so no consumer is stranded and no URL that ever
+> worked has broken. What is affected is the sentence above it: the 19 commits are gone.
 
 **Its README still describes itself as the distribution origin.** It is read-only, so that cannot be
 corrected in place. Anyone arriving from an old link finds no releases, which is the right outcome

@@ -1,0 +1,18 @@
+{
+  "workflows": {
+    "asdlc": {
+      "id": "asdlc",
+      "name": "ASDLC Cycle",
+      "description": "The stock spec-kit cycle (specify - plan - tasks - implement) with review gates after specify and after plan.",
+      "author": "Dulguun Otgon",
+      "version": "0.1.0",
+      "url": "https://raw.githubusercontent.com/dulguun0225/asdlc/bundle-v0.1.0/tools/spec-kit-bundle/workflows/asdlc/workflow.yml",
+      "repository": "https://github.com/dulguun0225/asdlc",
+      "license": "MIT",
+      "requires": { "speckit_version": ">=0.14.2,<1.0.0" },
+      "tags": ["asdlc", "ears", "traceability"],
+      "created_at": "2026-07-23",
+      "updated_at": "2026-07-27"
+    }
+  }
+}

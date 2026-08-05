@@ -104,9 +104,12 @@ reference/             THE WORKING RECORD
 > [ADR-0025](0025-monorepo.md) lifted the documents-only restriction and added:
 >
 > ```
-> tools/                 THE CODE — programs and packages the life cycle needs
->   spec-kit-bundle-nc/  the predecessor convention, live and released
+> tools/                THE CODE — programs and packages the life cycle needs
+>   spec-kit-bundle/    the predecessor convention, built but never released
 > ```
+>
+> (Named `spec-kit-bundle-nc/` until 2026-08-05 —
+> [ADR-0028](0028-bundle-rename-and-reset.md).)
 >
 > The documents-only rule is **scoped, not deleted**: `asdlc/`, `variants/`, `rollout/` and
 > `reference/` still hold no code, no build system and no package manifest. The by-subject

@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "presets": {
+    "asdlc": {
+      "id": "asdlc",
+      "name": "ASDLC EARS Requirements",
+      "version": "0.1.0",
+      "description": "Write spec-kit requirements in EARS format with stable FR-nnn IDs, carry FR-nnn traceability through plan and tasks, trace technology choices to the project's decision records, and seed one constitution that makes these rules non-negotiable.",
+      "author": "Dulguun Otgon",
+      "requires": { "speckit_version": ">=0.14.2,<1.0.0" },
+      "download_url": "https://github.com/dulguun0225/asdlc/releases/download/bundle-v0.1.0/asdlc-preset-0.1.0.zip"
+    }
+  }
+}

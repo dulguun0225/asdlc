@@ -53,7 +53,7 @@ in it.
   that are decided and **not yet built**. That is the most operationally sensitive file here, and
   it is sensitive precisely because it is honest.
 - **[asdlc/skills/](../../asdlc/skills/README.md)** — the prompt text the agent is given.
-- **[tools/spec-kit-bundle-nc/](../../tools/README.md)** — already public in its own right, MIT,
+- **[tools/spec-kit-bundle/](../../tools/README.md)** — already public in its own right, MIT,
   and previously public as a standalone repository.
 
 None of it is a credential, a customer, or a running system. That is the reason the answer is
@@ -112,7 +112,7 @@ decision here depends on which human holds the role, only on the role existing a
 
 There is **no root `LICENSE`**, and the GitHub API reports no licence for the repository. Public and
 unlicensed means **all rights reserved by default** — a reader may read the design and has no
-granted right to reuse it. Meanwhile `tools/spec-kit-bundle-nc/LICENSE` is **MIT**, so the tree
+granted right to reuse it. Meanwhile `tools/spec-kit-bundle/LICENSE` is **MIT**, so the tree
 carries one subtree that grants rights and a surrounding body of work that grants none.
 
 That may be exactly what is wanted. It has not been decided, and choosing a licence allocates the

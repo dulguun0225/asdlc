@@ -9,7 +9,10 @@ improved on.
 
 - [`dulguun0225/sdd-standard`](https://github.com/dulguun0225/sdd-standard), local working copy
   at commit `65dc49e`. Private on GitHub; read from disk.
-- [`dulguun0225/spec-kit-bundle-nc`](https://github.com/dulguun0225/spec-kit-bundle-nc), `master`.
+- `dulguun0225/spec-kit-bundle-nc`, `master`. **Unreachable since 2026-08-05** — the repository was
+  deleted ([ADR-0028](../decisions/0028-bundle-rename-and-reset.md)). The copy taken on 2026-07-28
+  lives at [`tools/spec-kit-bundle/`](../../tools/spec-kit-bundle/README.md), renamed and reset;
+  the `nc-ears` / `nc-sdd` / `nc` component ids this note compares are now all `asdlc`.
 - Published sources listed per finding below, each with the date checked.
 
 **Outcome:** closed as [ADR-0014](../decisions/0014-feature-artifacts-and-the-traceability-chain.md).

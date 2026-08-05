@@ -5,7 +5,7 @@
 # invalidates a gate signature. A repository that normalises per-platform
 # cannot carry hash-bound approvals.
 #
-# tools/spec-kit-bundle-nc/ already required this for the same reason and
+# tools/spec-kit-bundle/ already required this for the same reason and
 # enforces it on product repos in ci/check_specs.py.
 #
 # Set 2026-07-28 by ADR-0025 part 5, before anything in this repository pins a

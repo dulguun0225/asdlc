@@ -55,13 +55,16 @@ second trigger list ([tiers.md](../tiers.md)).
   advisory ones; writing the program is a phase-0 bring-up task
   ([open-parameters.md](../../rollout/open-parameters.md)), and it goes in
   [`tools/feature-artifact-checker/`](../../tools/README.md). Prior art is
-  [`tools/spec-kit-bundle-nc/`](../../tools/spec-kit-bundle-nc/README.md) — **in this repository
-  since [ADR-0025](../../reference/decisions/0025-monorepo.md)**, so read it there rather than at
-  its archived standalone URL — plus `sdd-standard`, which is private and was read from a local
-  clone. **Prior art, with a warning:** the bundle implements the gate model
+  [`tools/spec-kit-bundle/`](../../tools/spec-kit-bundle/README.md) — **in this repository
+  since [ADR-0025](../../reference/decisions/0025-monorepo.md)**, and the only place left to read
+  it, because the standalone repository it came from has been deleted
+  ([ADR-0028](../../reference/decisions/0028-bundle-rename-and-reset.md)) — plus `sdd-standard`,
+  which is private and was read from a local clone. **Prior art, with a warning:** the bundle
+  required a typed `Status: Approved` line until its 2026-08-05 reset dropped it, so it no longer
+  contradicts what these templates forbid. What it still is not, is a gate: it checks traceability
+  after the fact and enforces no approval, while
   [ADR-0014](../../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md) part 3
-  **replaced** — a typed `Status: Approved` line, which these templates forbid — and it is the half
-  with working tooling. Reconciling the two is the top row of
+  requires a gate record per tier. Reconciling the two is the top row of
   [open-parameters.md](../../rollout/open-parameters.md).
 - ~~**The text of the four stage skills** that drive these templates.~~ **Written 2026-07-28** —
   [../skills/](../skills/README.md). `/asdlc:spec`, `/asdlc:plan`, `/asdlc:tasks`,

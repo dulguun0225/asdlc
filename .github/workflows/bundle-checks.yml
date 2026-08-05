@@ -1,38 +1,42 @@
-# Ported from tools/spec-kit-bundle-nc/.github/workflows/checks.yml when the
-# bundle moved into this monorepo (ADR-0025 part 3).
+# CI for the spec-kit bundle in tools/spec-kit-bundle/.
 #
 # WHY THIS FILE EXISTS AT THE ROOT: GitHub runs workflows only from the
 # repository root `.github/workflows/`. A workflow under tools/ would be inert,
-# so the bundle keeps no copy of this file — its .github/ was deleted on
-# 2026-07-28 (ADR-0025 "What was actually done" item 6). THIS IS THE ONLY COPY.
-# Delete it and the bundle silently loses its CI.
+# so the bundle keeps no copy of this file. THIS IS THE ONLY COPY. Delete it
+# and the bundle silently loses its CI.
 #
-# Three differences from the bundle's original, and nothing else:
+# Three differences from a workflow living inside the bundle, and nothing else:
 #   1. `paths` filters, so a change to the design does not install the
 #      spec-kit CLI and run an end-to-end probe.
 #   2. `defaults.run.working-directory`, which fixes every relative path.
 #   3. $BUNDLE_DIR, because `working-directory` does not help the steps that
 #      `cd /tmp/proj` first and then reach back with an absolute path.
+#
+# Retargeted on 2026-08-05 (ADR-0028) from the pre-rename layout: the bundle
+# directory, both component ids, and the component count all changed, and the
+# extension the bundle used to ship is gone. NOT RE-RUN SINCE — every assert
+# below is dry-run reasoning against the working tree, and the first push that
+# touches tools/spec-kit-bundle/ is the proof.
 
 name: bundle-checks
 
 on:
   push:
     paths:
-      - 'tools/spec-kit-bundle-nc/**'
+      - 'tools/spec-kit-bundle/**'
       - '.github/workflows/bundle-checks.yml'
   pull_request:
     paths:
-      - 'tools/spec-kit-bundle-nc/**'
+      - 'tools/spec-kit-bundle/**'
       - '.github/workflows/bundle-checks.yml'
 
 env:
   SPECKIT_PIN: v0.14.2
-  BUNDLE_DIR: ${{ github.workspace }}/tools/spec-kit-bundle-nc
+  BUNDLE_DIR: ${{ github.workspace }}/tools/spec-kit-bundle
 
 defaults:
   run:
-    working-directory: tools/spec-kit-bundle-nc
+    working-directory: tools/spec-kit-bundle
 
 jobs:
   validate:
@@ -42,10 +46,11 @@ jobs:
       - uses: astral-sh/setup-uv@v5
       - name: Install pinned specify CLI
         run: uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@${{ env.SPECKIT_PIN }}
-      # --offline: structural checks still run in full; the nc-ears / nc /
-      # nc-sdd component references cannot resolve from CI (they live in this
-      # repo, not in any catalog reachable here), which offline downgrades to
-      # warnings instead of errors.
+      # --offline: structural checks still run in full; the two `asdlc`
+      # component references (the preset and the workflow) cannot resolve from
+      # CI — they live in this repo, not in any catalog reachable here — which
+      # offline downgrades to warnings instead of errors. Two warnings, one per
+      # component; the bundle ships no extension.
       - name: Validate bundle manifest
         run: specify bundle validate --path . --offline
       - name: Check examples stay well-formed
@@ -53,13 +58,13 @@ jobs:
 
       # This job held five more steps until 2026-07-30 — a failing `Pack
       # structure` gate over `packs/`, its three negative probes, and an
-      # advisory freshness tripwire. `packs/` was deleted that day
-      # (DECISIONS.md B-17) and `ci/check_packs.py` with it, so all five went
-      # too. They are NOT an example of the "never delete a probe to make CI
-      # pass" rule being broken: that rule protects a probe whose checker still
-      # exists. There is no checker and nothing to check. The probes for
-      # `check_specs.py`, whose checker does still exist, are in the smoke job
-      # below and the rule holds there in full.
+      # advisory freshness tripwire. `packs/` was deleted that day and
+      # `ci/check_packs.py` with it, so all five went too. They are NOT an
+      # example of the "never delete a probe to make CI pass" rule being
+      # broken: that rule protects a probe whose checker still exists. There is
+      # no checker and nothing to check. The probes for `check_specs.py`, whose
+      # checker does still exist, are in the smoke job below and the rule holds
+      # there in full.
 
   smoke:
     runs-on: ubuntu-latest
@@ -78,15 +83,14 @@ jobs:
           git init -q
           git config user.email ci@example.com && git config user.name ci
           specify init --here --force --integration claude --script sh --ignore-agent-tools
-          specify preset add    --dev "$BUNDLE_DIR/presets/nc-ears"
-          specify extension add --dev "$BUNDLE_DIR/extensions/nc"
-          specify workflow add  --dev "$BUNDLE_DIR/workflows/nc-sdd"
-          # Assert the report text: all three components must resolve from the
+          specify preset add    --dev "$BUNDLE_DIR/presets/asdlc"
+          specify workflow add  --dev "$BUNDLE_DIR/workflows/asdlc"
+          # Assert the report text: both components must resolve from the
           # --dev installs above. "1 added" would mean the bundler reinstalled
-          # something from elsewhere; a failure line would mean it resolved none.
-          # `tee` keeps the output in the log.
+          # something from elsewhere; a failure line would mean it resolved
+          # neither. `tee` keeps the output in the log.
           specify bundle install "$BUNDLE_DIR/bundle.yml" --offline | tee /tmp/install.txt
-          grep -q '0 added, 3 already present' /tmp/install.txt
+          grep -q '0 added, 2 already present' /tmp/install.txt
 
       - name: Composed commands are real compositions, not placeholders
         run: |
@@ -98,20 +102,35 @@ jobs:
           grep -q 'Requirements Traceability' .claude/skills/speckit-plan/SKILL.md
           grep -q 'FR-nnn' .claude/skills/speckit-tasks/SKILL.md
           grep -q 'Constitution guard' .claude/skills/speckit-constitution/SKILL.md
-          test -f .claude/skills/speckit-nc-gate/SKILL.md
-          test -f .claude/skills/speckit-nc-review/SKILL.md
-          grep -q 'before_implement' .specify/extensions.yml
-          grep -q 'after_implement' .specify/extensions.yml
-          grep -q 'speckit.nc.gate' .specify/extensions.yml
 
-      - name: Workflow is installed and carries its three gates
+      # The bundle ships no extension, so nothing gates implementation. This is
+      # a positive assert on that absence: an extension re-added without also
+      # restoring the release workflow's extension asserts would ship
+      # unvalidated, and the pre-rename version of this job asserted the
+      # opposite. Delete this step only together with the CLAUDE.md rule 2 that
+      # records the removal.
+      - name: The bundle installs no extension and gates nothing
         run: |
           cd /tmp/proj
-          test -f .specify/workflows/nc-sdd/workflow.yml
-          grep -q '"nc-sdd"' .specify/workflows/workflow-registry.json
-          test "$(grep -c 'type: gate' .specify/workflows/nc-sdd/workflow.yml)" = 3
-          # the added gate sits between tasks and implement
-          awk '/id: tasks/{t=NR} /id: approve/{a=NR} /id: implement/{i=NR} END{exit !(t<a && a<i)}' .specify/workflows/nc-sdd/workflow.yml
+          # Whether `specify init` writes an empty .specify/extensions.yml is
+          # not verified, so check its CONTENT rather than its existence: no
+          # hook may be registered.
+          if [ -f .specify/extensions.yml ] && grep -qE 'before_implement|after_implement' .specify/extensions.yml; then
+            echo 'a hook is registered — the bundle installed an extension'; cat .specify/extensions.yml; exit 1
+          fi
+          if ls .claude/skills/ | grep -q '^speckit-asdlc-'; then
+            echo 'an extension command skill was installed'; exit 1
+          fi
+
+      - name: Workflow is installed and carries its two gates
+        run: |
+          cd /tmp/proj
+          test -f .specify/workflows/asdlc/workflow.yml
+          grep -q '"asdlc"' .specify/workflows/workflow-registry.json
+          test "$(grep -c 'type: gate' .specify/workflows/asdlc/workflow.yml)" = 2
+          # review-spec sits between specify and plan; review-plan between plan
+          # and tasks. Nothing gates implement.
+          awk '/id: specify/{s=NR} /id: review-spec/{rs=NR} /id: plan/{p=NR} /id: review-plan/{rp=NR} /id: tasks/{t=NR} END{exit !(s<rs && rs<p && p<rp && rp<t)}' .specify/workflows/asdlc/workflow.yml
 
       - name: Scaffolded artifacts are composed, not placeholders
         run: |
@@ -138,7 +157,10 @@ jobs:
           fi
           grep -q 'carries no \[FR-nnn\] reference' /tmp/out.txt
 
-      - name: Negative probe — plan without an Approval section turns the gate red
+      # `## Approval` was a required section until the 2026-08-05 reset removed
+      # the bundle's gate; the checker no longer looks for it and this probe no
+      # longer asserts it. The two sections below are the ones that remain.
+      - name: Negative probe — plan without the appended sections turns the gate red
         run: |
           mkdir -p /tmp/bad-repo2/specs/001-bad
           cp "$BUNDLE_DIR/examples/password-reset/spec.md" /tmp/bad-repo2/specs/001-bad/spec.md
@@ -146,7 +168,6 @@ jobs:
           if python3 ci/check_specs.py --repo /tmp/bad-repo2 > /tmp/out2.txt 2>&1; then
             echo 'checker passed a plan without the required sections'; cat /tmp/out2.txt; exit 1
           fi
-          grep -q '## Approval' /tmp/out2.txt
           grep -q '## Requirements Traceability' /tmp/out2.txt
           grep -q '## Decision Trace' /tmp/out2.txt
 

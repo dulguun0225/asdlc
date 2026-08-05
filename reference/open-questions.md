@@ -33,50 +33,77 @@ archive banners in this file and in [`README.md`](../README.md) are reverted, so
 below is current, not a snapshot. Two items the archive had recorded as permanently blocked are
 unblocked again and revert to their original state:
 
-- **`bundle-v0.2.0` can be cut from here.** [ADR-0026](decisions/0026-bundle-distribution.md) makes
-  this repository the publish point, and it accepts tags again — see the two prerequisites listed
-  further down before tagging.
-- **Re-importing `spec-kit-bundle-nc` with history is possible again.** That history still lives in
-  [`dulguun0225/spec-kit-bundle-nc`](https://github.com/dulguun0225/spec-kit-bundle-nc), which stays
-  archived — **do not delete it.** The item's own merge-cost argument, not archiving, is the reason
-  it may still not be worth doing.
+- **`bundle-v0.1.0` can be cut from here.** [ADR-0026](decisions/0026-bundle-distribution.md) makes
+  this repository the publish point, and it accepts tags again — see the prerequisites listed
+  further down before tagging. (The version is `0.1.0`, not `0.2.0`: the bundle was reset later the
+  same day — [ADR-0028](decisions/0028-bundle-rename-and-reset.md).)
+- ~~**Re-importing `spec-kit-bundle-nc` with history is possible again.**~~ **No.** That repository
+  has since been deleted; see the next section.
 
 [ADR-0027](decisions/0027-design-is-public.md)'s repository-state table (`archived: false`) is
 accurate again; no ADR needed changing.
 
 ### ▶ START HERE — the state, and the next session's first action
 
-**This is a monorepo now.** The owner lifted the documents-only restriction on 2026-07-28 and
-`spec-kit-bundle-nc` lives at [`tools/spec-kit-bundle-nc/`](../tools/README.md).
+**This is a monorepo now.** The owner lifted the documents-only restriction on 2026-07-28 and the
+spec-kit bundle lives at [`tools/spec-kit-bundle/`](../tools/README.md) — renamed from
+`spec-kit-bundle-nc/` and reset to `0.1.0` on 2026-08-05
+([ADR-0028](decisions/0028-bundle-rename-and-reset.md)).
 [ADR-0025](decisions/0025-monorepo.md) is **accepted and executed** — read its *"What was actually
 done"* section, which records two ways execution differed from the plan.
 
-**The first action is a judgement call with a deadline, not a task:**
+**What landed on 2026-08-05, second session.** The owner renamed and reset the bundle in a scratch
+repository and copied the result in; this session absorbed it. Every `nc` id is gone
+(`nc-sdd`/`nc-ears`/`nc` → `asdlc` throughout), the version went `0.2.0` → `0.1.0`, and four things
+were deleted: the `nc` extension with both its hooks, `DECISIONS.md` (`B-1` … `B-17`),
+`CHANGELOG.md`, and `catalogs/extensions.json`. The owner confirmed all four deletions stand.
+[ADR-0028](decisions/0028-bundle-rename-and-reset.md) is the record; it also lists the ten
+bundle-internal paths that arrived wrong (the rewrite assumed the bundle sat at the repository
+root) and the three claims in it that were false rather than misplaced.
 
-**Re-import the bundle with history, or accept losing it.** ADR-0025 chose `git subtree` to keep
-the bundle's 19 commits. The import was a plain copy, so that history — including the reasoning
-behind every rule in its `CLAUDE.md` section *"Rules that exist because something broke"* — lives
-only in [`dulguun0225/spec-kit-bundle-nc`](https://github.com/dulguun0225/spec-kit-bundle-nc).
-**Do not delete that repository.** Nobody has to re-import — the copy was byte-identical to
-`master` at import; the history is elsewhere, not gone.
+**`DECISIONS.md` is gone, so this file's `B-n` citations link to nothing.** They are left as plain
+text on purpose. `CLAUDE.md` now names one decision registry, not two — amending
+[ADR-0025](decisions/0025-monorepo.md) part 6.
 
-**The deadline this item used to carry has passed, and the item is weaker for it.** It said
-*"decide before the bundle is next edited."* Four commits have since modified the subtree
-(`12401a3`, `465e089`, `beae3eb`, and the 2026-07-28 workflow-copy deletion), so a `git subtree add`
-would now have to be merged against local changes rather than laid down cleanly. Still possible,
-no longer cheap. **Treat this as "accept losing it unless someone wants to pay the merge"**, and
-note that the archived repository preserves the history either way — the cost is only that it is
-not readable from `git log` here.
+**The first action is a check, not a task: push, then watch CI.** Both root workflows were
+retargeted and **neither has ever run on GitHub**. Everything about them is dry-run reasoning:
+`bundle validate --offline` exits 0 with two warnings, `check_specs.py --self` is green, all three
+negative probes fail for the right reason, and every release assert passes at
+`GITHUB_REF_NAME=bundle-v0.1.0` — all verified locally on 2026-08-05, none verified on Actions. The
+first push touching `tools/spec-kit-bundle/**` triggers `bundle-checks`; **read that run before
+doing anything else with the bundle.** One inherited probe had already gone stale (it asserted the
+checker requires `## Approval`, which the reset checker no longer does), which is the reason to
+distrust the rest until a run says otherwise.
 
-**The risk that outlives the migration, and it is the real one.** The bundle approves with a typed
-`Status: Approved — <name>, <date>` line, which
+**The finding, and it is the one to carry forward.** `dulguun0225/spec-kit-bundle-nc` **has been
+deleted** — 404 from the authenticated GitHub API, absent from the owner's repository list
+(`asdlc`, `b64-rs`, `b64-zig`, `skills`), and no clone left at `/d/repos/nc/spec-kit-bundle-nc`.
+The bundle's 19 commits are gone with it. Three separate documents said *"do not delete that
+repository"* — [ADR-0025](decisions/0025-monorepo.md), [tools/README.md](../tools/README.md), and
+this handover note — and all three were still there when it went.
+
+> **An instruction in a document does not protect an artifact outside the tree.** ADR-0025 chose
+> `git subtree` to bring the history in; the plain copy that replaced it was covered with a warning
+> instead of a mechanism. Read every remaining "do not delete X, it is the only copy" in this
+> repository as an unfunded liability.
+
+The rules the history explained survive as text in the bundle's `CLAUDE.md`, under *"Rules that
+exist because something broke"*. What is lost is which incident produced which rule.
+
+**The risk that outlives the migration — narrowed on 2026-08-05, still open.** The bundle used to
+approve with a typed `Status: Approved — <name>, <date>` line, which
 [ADR-0014](decisions/0014-feature-artifacts-and-the-traceability-chain.md) part 3 replaced with a
-hash-bound gate record *precisely so an approval cannot be forged by typing one*. Both conventions
-now live in one tree — and **the superseded one has working tooling and CI while the new one has
-neither.** That is how an old convention wins: not by argument, by being the one that runs.
-Reconciling them is the top row of [open-parameters.md](../rollout/open-parameters.md) and **needs
-its own decision record.** Both worked examples now carry a header note saying which convention
-they follow; that is a signpost, not a fix.
+hash-bound gate record *precisely so an approval cannot be forged by typing one*. **The reset
+dropped it**, along with the `before_implement` hook, so the forgeable convention no longer runs
+anywhere — the failure mode ADR-0014 named cannot happen now. What is left is a coverage gap: the
+bundle checks traceability after the fact and gates nothing, the design requires a gate record per
+tier and has no tooling for one. Still the top row of
+[open-parameters.md](../rollout/open-parameters.md) and **still needs its own decision record** —
+"no gate" is not "the design's gate". Both worked examples carry a header note saying which
+convention they follow; that is a signpost, not a fix.
+
+**Uncommitted as of this note.** Everything above is in the working tree and unpushed. Commit and
+push before the next session, or none of it travels.
 
 **The bundle's v0.2.0 release is ready to cut, and cutting it is the owner's call.** The previous
 developer's pre-release fix list was executed on 2026-07-28, and
@@ -156,11 +183,11 @@ org, it costs that file to each of those consumers, discovered by them as a 404.
 
 **One thing ADR-0027 deliberately did not close: the licence.** There is **no root `LICENSE`** and
 GitHub reports none, so the public design is **all rights reserved** by default — while
-`tools/spec-kit-bundle-nc/LICENSE` grants MIT. One tree, two rights positions. That allocates the
+`tools/spec-kit-bundle/LICENSE` grants MIT. One tree, two rights positions. That allocates the
 org's rights, so it is the owner's call, not research. New row in
 [open-parameters.md](../rollout/open-parameters.md); it blocks nothing.
 
-**The inert workflow copies are gone.** `tools/spec-kit-bundle-nc/.github/` is deleted, both files
+**The inert workflow copies are gone.** `tools/spec-kit-bundle/.github/` is deleted, both files
 with it, on 2026-07-28 — see ADR-0025 *"What was actually done"* item 6 for why the readable-diff
 reason had already expired. The bundle's CI is now exactly two files, both at the repository root,
 and each says **THIS IS THE ONLY COPY** in its header. **Nothing needs keeping in sync any more.**
@@ -168,9 +195,9 @@ The bundle's `CLAUDE.md` now forbids creating a `.github/` there rather than war
 that existed.
 
 **The pack corpus is deleted, and nothing replaced it.** The owner removed
-`tools/spec-kit-bundle-nc/packs/` on 2026-07-30 to keep the bundle to installable components, and
+`tools/spec-kit-bundle/packs/` on 2026-07-30 to keep the bundle to installable components, and
 chose discarding it over relocating it here or into its own repository
-([`DECISIONS.md`](../tools/spec-kit-bundle-nc/DECISIONS.md) **B-17**). Ten files went: the two
+(`DECISIONS.md` **B-17**). Ten files went: the two
 adoptable packs and their seed text, the three rule sources (`money-grade` with its 43 money
 directives, `cache-discipline`, `event-broker-discipline` with 36), the research protocol, the
 index and the README. **The last four commits on `master` are all work on files that no longer
@@ -196,7 +223,7 @@ records is now the whole mechanism.
 1. **`.github/workflows/bundle-release.yml` has never run**, and it fires only on `bundle-v*`, so a
    `v1.0.0` cut for the design is safe. Its first run will be the real release.
 2. ~~`bundle-checks.yml`~~ — **closed 2026-07-28, both halves verified.** It fires on
-   **`tools/spec-kit-bundle-nc/**` and on its own file** — *not* on `tools/**`, which an earlier
+   **`tools/spec-kit-bundle/**` and on its own file** — *not* on `tools/**`, which an earlier
    version of this line said — and passes: five green runs (`12401a3`, `465e089`, `beae3eb`,
    `bf0ab33`, `f86ba54`), the first on the commit that added it. **The filter declines as well as
    accepts, verified twice and the second is the tighter case:** `5c6bbcc` touched only
@@ -221,11 +248,11 @@ choose between options here. Research it, decide it, record it, and say what wou
 
 ### Last session: 2026-07-30 — `packs/` is deleted, and nine places existed to serve it
 
-The owner removed `tools/spec-kit-bundle-nc/packs/` from the working tree before the session
+The owner removed `tools/spec-kit-bundle/packs/` from the working tree before the session
 started, to keep the bundle focused, and asked for the consequences to be carried through. Asked
 whether the corpus should move elsewhere in this monorepo, move to its own repository, or be
 discarded, the owner chose **discarded**. Recorded as
-[`DECISIONS.md`](../tools/spec-kit-bundle-nc/DECISIONS.md) **B-17**.
+`DECISIONS.md` **B-17**.
 
 **The ten deleted files were not the work.** `packs/` was load-bearing in nine places, and the
 session's value is that all nine were found before CI or a release found them:
@@ -284,7 +311,7 @@ exact decimal, explicit precision and scale, scale 4, no float column, no vendor
 Storage section was not missing. **What was missing sat one layer down**, and nothing in the file
 pointed at it. The owner then said "run one scoped to persistence".
 
-**The finding, and it is the reusable one** ([`DECISIONS.md`](../tools/spec-kit-bundle-nc/DECISIONS.md)
+**The finding, and it is the reusable one** (`DECISIONS.md`
 **B-16**): **a rule set is scoped to the layer its checks read, and the rules never say so.** All
 twenty-nine directives in `money-grade` are enforced by checks that read **application source** —
 an architecture rule, a compiler or linter check, a parse test, a property test. A stored amount
@@ -400,7 +427,7 @@ extends it). It started as a question — the owner asked what patterns an event
 beyond notification, job queue and request-reply — and the answer surfaced five shapes the source
 said **nothing** about. The owner then said "close all the gaps".
 
-**What landed.** [`DECISIONS.md` B-15](../tools/spec-kit-bundle-nc/DECISIONS.md) is the record.
+**What landed.** `DECISIONS.md` B-15 is the record.
 Twenty-eight directives → **thirty-six** (`E-29` … `E-36`, groups J … M);
 `java-backend`'s seed text 141 rules in 18 sections → **149 in 18** (same section count — every new
 rule lands in the existing event-broker section). Permitted with rules: a **flow committing across
@@ -485,7 +512,7 @@ agent will otherwise reconstruct them from its training corpus.
 
 The owner asked for event-broker files under `packs/` "like we did with cache", named Kafka as the
 likely pick, and asked for deep research on both the pick and the discipline.
-[`DECISIONS.md` B-13](../tools/spec-kit-bundle-nc/DECISIONS.md) is the record;
+`DECISIONS.md` B-13 is the record;
 `packs/rule-sources/event-broker-discipline.md`
 is the source, twenty-eight directives, instantiated into `java-backend`'s seed text in the same
 change (110 rules in 17 sections → **141 in 18**).
@@ -520,7 +547,7 @@ one transaction, so publish-after-commit *is* the dual write whatever the transp
 adopts the broker and drops the outbox has the failure the source was written for.
 
 **The source shipped recommending the opposite and was reversed within hours
-([`DECISIONS.md`](../tools/spec-kit-bundle-nc/DECISIONS.md) B-14).** Its first version made a polled
+(`DECISIONS.md` B-14).** Its first version made a polled
 table in the service's own PostgreSQL the recommendation, with a broker as a conditional escalation
 above three named thresholds (T1 a consumer cannot read the producer's database, T2 two consumers
 need independent retention or replay, T3 the queue table's measured cost exceeds a committed budget).
@@ -612,7 +639,7 @@ alone. `packs/*.md` adoptable, `packs/rule-sources/` never adopted, `packs/seed/
 — that split makes "can I adopt this?" a path question (B-10), and the tempting regroup by topic
 (`packs/money/` holding a source, its directives and its evidence together) would destroy it for
 the same reason B-10 rejected `cross-pack/`. **Every real defect was inside a file**, and all five
-are fixed. [`DECISIONS.md` B-12](../tools/spec-kit-bundle-nc/DECISIONS.md) is the record.
+are fixed. `DECISIONS.md` B-12 is the record.
 
 1. **`java-backend.md` section 4 was a 727-line flat list ordered by research pass**, while the
    seed text it justifies has seventeen topical sections — so "what is the evidence for the
@@ -674,7 +701,7 @@ language. The research says the discipline rules do and the engine pick does not
 says the reason the corpus already gave for excluding the pick was wrong.
 **`packs/rule-sources/cache-discipline.md`
 is written, instantiated into `java-backend` in the same change, and recorded as
-[`DECISIONS.md`](../tools/spec-kit-bundle-nc/DECISIONS.md) B-11.**
+`DECISIONS.md` B-11.**
 
 **The routing rule, because it is the reusable part and it will be asked again.**
 Language-independence is *not* what makes a source — `agent-traps` is language-independent and is
@@ -810,7 +837,7 @@ money "the standing case". It is not: every shared infrastructure concern has th
 search index, feature flags. The source mechanism is the general form for cross-stack
 infrastructure, and that is now stated where the next author will read it.
 
-**The decision** — [`DECISIONS.md`](../tools/spec-kit-bundle-nc/DECISIONS.md) **B-10**. Sources live
+**The decision** — `DECISIONS.md` **B-10**. Sources live
 in `packs/rule-sources/`; `money-grade.md` moved there. The kind was carried only by a frontmatter
 field, and README's own Anatomy says that field exists *because* "the difference has to be visible
 before anyone looks for one" — a field you must open the file to read is the weakest form of that.
@@ -867,7 +894,7 @@ was no source to walk. The owner's question was *"and where is that cross pack r
 the correct reaction: **governance written ahead of the artifact it governs reads as decided and
 is unusable.** Write the artifact in the same session, or write neither.
 
-**The decision** — [`DECISIONS.md`](../tools/spec-kit-bundle-nc/DECISIONS.md) B-8, amended. A
+**The decision** — `DECISIONS.md` B-8, amended. A
 cross-stack rule that needs a **different check on every platform** is a **source**, not a pack. A
 source has no seed file and nobody adopts it; it carries the directives under stable ids (`M-n`),
 the evidence, the re-open triggers, and a table of which stack pack has instantiated each rule.
@@ -1131,7 +1158,7 @@ the index is a trap:
   the tag and catalog steps plus **three** in the shipped-manifest step.
 - **The seed-file rule holds.** `packs/README.md` forbids a seed file pointing back at this
   repository, and the handover flagged it as hand-enforced on two files only — swept both, clean.
-- **Both workflows exist only at the repository root**, `tools/spec-kit-bundle-nc/.github/` is gone,
+- **Both workflows exist only at the repository root**, `tools/spec-kit-bundle/.github/` is gone,
   and the bundle's `CLAUDE.md` forbids recreating it and carries rule 9.
 
 **What the next session should pick up:** unchanged by this audit. The owner-held items still gate
@@ -1321,7 +1348,7 @@ rest of [ADR-0025](decisions/0025-monorepo.md) in its stated order and flipped i
 two NFRs, three success criteria, five open items.** It is simultaneously the checker's
 specification, the worked example the templates never had, and the first real test of the templates.
 
-**The owner pointed at [`spec-kit-bundle-nc`](https://github.com/dulguun0225/spec-kit-bundle-nc),
+**The owner pointed at `spec-kit-bundle-nc`,
 and it settles a question that was about to be asked.** It already carries `ci/check_specs.py` —
 stdlib-only Python, run as merge-blocking CI. So the checker is an extension of a pattern this org
 already runs, and it belongs in a tooling repository of that shape, **not in this documents-only
@@ -1709,7 +1736,7 @@ templates in [`asdlc/templates/`](../asdlc/templates/README.md). Prompted by the
 asked for EARS with traceability and pointed at their two existing conventions
 ([`sdd-standard`](https://github.com/dulguun0225/sdd-standard) — private, read from a local
 clone at `65dc49e` — and
-[`spec-kit-bundle-nc`](https://github.com/dulguun0225/spec-kit-bundle-nc)).
+`spec-kit-bundle-nc`).
 
 What changed beyond those two conventions, in one line each: the trace ends at a **passing test**
 rather than at a task; approval binds to a **content hash** instead of a typed status line;
@@ -2142,7 +2169,7 @@ Phase-2 content needs research sessions, not assembly — the research-before-co
   and unreviewable.
 
   **Widened 2026-07-29 — it now also blocks any self-hosted repo that hands work off
-  asynchronously.** `tools/spec-kit-bundle-nc/DECISIONS.md` B-14 makes a message broker the
+  asynchronously.** `DECISIONS.md` (deleted 2026-08-05) B-14 makes a message broker the
   only permitted asynchronous mechanism, and the self-hosted pick (Apache Kafka in KRaft
   mode) carries a named owner for the cluster, its upgrade calendar and its **metadata
   version** as a *prerequisite* rather than a condition — a metadata downgrade out of 4.3 is

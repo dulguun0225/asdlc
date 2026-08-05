@@ -1,6 +1,0 @@
-# Every text file is LF on every OS. Markdown and YAML here are consumed by
-# a cross-platform CLI (spec-kit reads preset/extension files verbatim and
-# composes command wrappers), so the wrap placeholder and markdown must be
-# byte-identical everywhere; the catch-all also covers extensionless files
-# (LICENSE, .gitattributes, .gitignore). text=auto leaves binary files alone.
-* text=auto eol=lf

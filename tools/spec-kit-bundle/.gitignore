@@ -1,0 +1,12 @@
+# Spec Kit writes composed command output here during dev installs.
+.composed/
+
+# Built bundle artifacts (specify bundle build): <id>-<version>.zip
+*.zip
+
+# Machine-local config, deliberately not shared: mise.toml is the shared one.
+mise.local.toml
+
+# Local scratch
+tree.txt
+__pycache__/

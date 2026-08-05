@@ -16,7 +16,7 @@
 
 This repository is documents by rule: *"There is no application code, build system, test suite, or
 package manifest — and none is expected."*
-[`spec-kit-bundle-nc`](https://github.com/dulguun0225/spec-kit-bundle-nc) is a separate repository
+`spec-kit-bundle-nc` is a separate repository
 holding working tooling for the same programme of work by the same author — EARS requirements under
 stable `FR-nnn` ids, requirement traceability through plan and tasks, a human approval gate, and
 `ci/check_specs.py`, a stdlib-only merge-blocking checker.
@@ -45,7 +45,7 @@ between a specification and the program meant to satisfy it.
 
 1. **Keep them separate.** Rejected. It is the status quo, and it guarantees the drift above. It
    also fails the owner's own test for the deliverable — one repository you can hand to someone.
-2. **`git subtree` into `tools/spec-kit-bundle-nc/`, history preserved.** **Chosen.** One new
+2. **`git subtree` into `tools/spec-kit-bundle/`, history preserved.** **Chosen.** One new
    top-level subject, the four design subjects untouched, and the bundle's 19 commits arrive with
    it. Its `CLAUDE.md` has a section titled *"Rules that exist because something broke"*; that
    history is the most valuable thing in the repository and a plain copy discards its provenance.
@@ -90,13 +90,13 @@ where it gets a reviewable diff. **Nothing is lost and nothing is promoted by ac
 
 ### 3. The CI trap, which is the one thing that will break quietly
 
-After the subtree, the bundle's workflows sit at `tools/spec-kit-bundle-nc/.github/workflows/`.
+After the subtree, the bundle's workflows sit at `tools/spec-kit-bundle/.github/workflows/`.
 **GitHub runs workflows only from the repository root `.github/`. They go inert on import, and
 nothing reports it.** The bundle has working CI today, so this is a regression unless it is handled
 in the same change.
 
 - **Port `checks.yml`** to root `.github/workflows/bundle-checks.yml`, with `on.push.paths` and
-  `on.pull_request.paths` limited to `tools/spec-kit-bundle-nc/**`, and
+  `on.pull_request.paths` limited to `tools/spec-kit-bundle/**`, and
   `defaults.run.working-directory: tools/spec-kit-bundle-nc`. Without the path filter every
   design-document commit would install the spec-kit CLI and run an end-to-end probe.
 - **Leave the originals in place** under the subtree, so the diff against the standalone repository
@@ -134,7 +134,8 @@ one commit. Once the checker starts pinning hashes it becomes a migration.
 ### 6. Two registries, two conventions, and one inconsistency that is accepted rather than hidden
 
 **Two decision registries, scoped.** [`reference/decisions/`](README.md) (`ADR-NNNN`) governs the
-ASDLC design. `tools/spec-kit-bundle-nc/DECISIONS.md` (`B-n`) governs the bundle's spec-kit
+ASDLC design. `tools/spec-kit-bundle-nc/DECISIONS.md` (`B-n`, deleted 2026-08-05 —
+[ADR-0028](0028-bundle-rename-and-reset.md)) governs the bundle's spec-kit
 behaviour. **Neither overrides the other outside its own subtree**, and neither is renumbered.
 
 **Two `CLAUDE.md` files, which is correct.** Nested instruction files are supported and
@@ -142,7 +143,7 @@ path-scoped. The root one is edited by part 7 step 1; the bundle's stays as it i
 
 **Two worked examples under opposite approval rules, which is not correct and is accepted anyway:**
 
-| | `tools/spec-kit-bundle-nc/examples/password-reset/` | `asdlc/examples/001-feature-artifact-checker/` |
+| | `tools/spec-kit-bundle/examples/password-reset/` | `asdlc/examples/001-feature-artifact-checker/` |
 |---|---|---|
 | Approval | a typed `Status: Approved — <name>, <date>` line | a gate record binding the artifact's sha256 |
 | A status line in the artifact | required | **forbidden** |
@@ -183,14 +184,14 @@ machine, with none of the conversation that produced it.
    If the clone has moved, substitute its path or the GitHub URL. Check the source is `master`, not
    the branch the clone happens to be on.
 4. **Re-apply `47173eb`** — the Java-backend observability rules — as its own commit under
-   `tools/spec-kit-bundle-nc/packs/`.
+   `tools/spec-kit-bundle/packs/`.
 5. **Write `tools/README.md`**: what the subject is for, what is in it, what is coming.
 6. **Port `checks.yml`** per part 3. **Do not port `release.yml`** — part 4.
 7. **Header notes on both worked examples** per part 6.
 8. **Records:** flip this ADR to `accepted` with the date, update the index row, add the
    open-parameters rows, update the handover note.
 
-**Verify:** `python tools/spec-kit-bundle-nc/ci/check_specs.py --self` passes from the new
+**Verify:** `python tools/spec-kit-bundle/ci/check_specs.py --self` passes from the new
 location; `diff -r` against the standalone repository at `master` shows only the header note;
 `git ls-files --eol` shows nothing with CRLF; a commit touching only `asdlc/` does **not** trigger
 `bundle-checks`.
@@ -209,7 +210,7 @@ verified **byte-identical to `master`** (37 files; the bundle's `.gitignore` cor
 What that costs: the reasoning behind every rule in the bundle's `CLAUDE.md` — a section literally
 titled *"Rules that exist because something broke"* — is no longer reachable by `git log` from this
 repository. It lives only in
-[`dulguun0225/spec-kit-bundle-nc`](https://github.com/dulguun0225/spec-kit-bundle-nc).
+`dulguun0225/spec-kit-bundle-nc`.
 
 **Two consequences, and the second has a deadline:**
 
@@ -217,11 +218,24 @@ repository. It lives only in
   recorded in [tools/README.md](../../tools/README.md) as well, because that is where someone
   tidying up would look.
 - **Re-importing with history is still possible, but not for long.** It means removing
-  `tools/spec-kit-bundle-nc/` and re-adding it with
+  `tools/spec-kit-bundle/` and re-adding it with
   `git subtree add --prefix=tools/spec-kit-bundle-nc <path> master`. That is cheap now and gets
   expensive as soon as commits in this repository start modifying files inside the subtree. **If
   the history matters, do it before the bundle is next edited here.** Nobody needs to — the copy is
   correct and the history is not lost, only elsewhere.
+
+> **Both consequences expired on 2026-08-05, and the first one expired by being ignored.**
+> `dulguun0225/spec-kit-bundle-nc` **has been deleted** — 404 from the authenticated GitHub API,
+> absent from the owner's repository list, and no local clone remains at
+> `/d/repos/nc/spec-kit-bundle-nc`. The 19 commits are gone; there is nothing left to re-import.
+> The rules survive as text in the bundle's `CLAUDE.md`, so what was lost is the reasoning trail
+> behind them, exactly as this section predicted. See
+> [ADR-0028](0028-bundle-rename-and-reset.md).
+>
+> **The reusable lesson: "do not delete X" written in a document does not protect X.** It was
+> recorded in three places — here, `tools/README.md`, and the handover note — and the repository
+> was deleted anyway. A history worth keeping has to be *in the tree*, which is what the `git
+> subtree` this ADR chose would have done.
 
 **2. Part 2's hazard resolved itself before execution.** When this ADR was written, the bundle's
 local clone sat on `packs/java-backend-observability`, one commit ahead of `master` and of
@@ -247,7 +261,7 @@ on the `bundle-v*` trigger, so a `v1.0.0` cut for the design can no longer publi
 had treated the tag prefix as the whole problem. It is not:
 
 **Every catalog URL points at the wrong repository, and the right one is private.** All four
-`tools/spec-kit-bundle-nc/catalogs/*.json` name `dulguun0225/spec-kit-bundle-nc` at tag `v0.2.0`.
+`tools/spec-kit-bundle/catalogs/*.json` name `dulguun0225/spec-kit-bundle-nc` at tag `v0.2.0`.
 The bundle now lives in `dulguun0225/asdlc`, which is **private** — an unauthenticated raw fetch
 returns 404, and both release assets and raw catalog files need public read. Dry-running the ported
 asserts with `GITHUB_REF_NAME=bundle-v0.2.0` gives three passes and **four failures**, all of them
@@ -279,7 +293,7 @@ escalation to the owner for a decision that did not exist**, which is the failur
 as much as to tool choices.
 
 **6. Part 3's "leave the originals in place" was reversed on 2026-07-28, and the reason it was
-written had already expired.** `tools/spec-kit-bundle-nc/.github/` is deleted, both files with it.
+written had already expired.** `tools/spec-kit-bundle/.github/` is deleted, both files with it.
 
 Part 3 kept the inert copies *"so the diff against the standalone repository stays readable."* That
 benefit is **one-time and was consumed by the port itself** — the diff was taken, and each root
@@ -361,8 +375,11 @@ are not equally strong, which matters for the reopen conditions below.**
 
 ### What would reopen this
 
-- **The bundle is retired** once the ASDLC's own tooling covers it. Then `tools/spec-kit-bundle-nc/`
+- **The bundle is retired** once the ASDLC's own tooling covers it. Then `tools/spec-kit-bundle/`
   becomes history rather than a live component, and the two-registry rule can collapse to one.
+  (**The registry half already happened**, and not for this reason: the bundle's reset deleted
+  `DECISIONS.md` on 2026-08-05, so part 6's `B-n` registry is gone while the bundle itself stays
+  live — [ADR-0028](0028-bundle-rename-and-reset.md).)
 - **`tools/` grows past a handful of entries**, or acquires something that is not a program or a
   package. The subject is defined by what it holds; a `tools/` that holds anything is a `misc/`.
 - **A third product wants in.** Two products in one repository is a monorepo; the argument that

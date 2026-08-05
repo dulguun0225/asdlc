@@ -22,7 +22,7 @@ fill in. Seven "Not yet specified" sections say so, and three of them are the sa
 The owner asked for spec, plan and task templates in EARS with requirement traceability, and
 pointed at two conventions they have already written —
 [`sdd-standard`](https://github.com/dulguun0225/sdd-standard) and
-[`spec-kit-bundle-nc`](https://github.com/dulguun0225/spec-kit-bundle-nc) — asking whether either
+`spec-kit-bundle-nc` — asking whether either
 can be improved on.
 
 Both were read first-party. Both are the same shape: three markdown artifacts per feature, EARS

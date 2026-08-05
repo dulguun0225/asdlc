@@ -31,7 +31,10 @@ notation always fits.
   repository). The program goes in [`tools/feature-artifact-checker/`](../../tools/README.md), in
   **this** repository — [ADR-0025](../../reference/decisions/0025-monorepo.md) lifted the
   documents-only restriction on 2026-07-28 and brought the nearest prior art in with it:
-  [`tools/spec-kit-bundle-nc/ci/check_specs.py`](../../tools/spec-kit-bundle-nc/ci/check_specs.py),
+  [`tools/spec-kit-bundle/ci/check_specs.py`](../../tools/spec-kit-bundle/ci/check_specs.py),
   stdlib-only Python run as merge-blocking CI. **Whether the checker forks it or extends it in
   place is still open** ([open-parameters.md](../../rollout/open-parameters.md)) — and it is not a
-  free choice, because that program enforces the **superseded** gate model.
+  free choice, because that program checks traceability after the fact and enforces **no gate at
+  all**. It required a typed `Status: Approved` line — the model ADR-0014 part 3 superseded — until
+  the 2026-08-05 reset dropped it
+  ([ADR-0028](../../reference/decisions/0028-bundle-rename-and-reset.md)).

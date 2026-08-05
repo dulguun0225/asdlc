@@ -153,10 +153,12 @@ appended sections or an FR reference, and **nothing enforces that the two stay i
   identified 2026-08-05, ~20 engineering-decision skills (money, caching, primary-keys,
   async-handoff, …) delivered by the `skills` CLI, and visibly the
   [ADR-0028](decisions/0028-bundle-rename-and-reset.md) scratch repository (its log carries the
-  rename-and-reset commit). Both stale sentences in the bundle's docs are repaired. **That
-  repository has no git remote** — three commits, twenty researched skills, no copy anywhere.
-  This is exactly the shape ADR-0028 part 4 warns about, and pushing it somewhere is the owner's
-  cheapest insurance this week. It is also OQ-19 candidate 1's home.
+  rename-and-reset commit). Both stale sentences in the bundle's docs are repaired. That
+  repository has no git remote; the owner states a backup exists elsewhere (2026-08-05).
+  **Moving the skills into this monorepo is decided in intent and pending execution** — the
+  owner confirmed publication is intended (the repo is public), and the move itself is a row in
+  [open-parameters.md](../rollout/open-parameters.md) with the four things to settle at move
+  time. It is OQ-19 candidate 1's home until then.
 
 ### Standing rules that bind every session
 

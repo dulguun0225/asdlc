@@ -333,8 +333,7 @@ threshold plus margin and **stay silent below it.** Rule that cannot fire is
 
 *Off-the-shelf host — `promtool test rules` and its `alert_rule_test` form,
 **including empty-expected-alerts case for must-not-fire**; fixtures author per
-repo. Rule-file validation step run in CI. **Primary-source verified 2026-07-27**
-— earlier draft mark this bespoke, which was wrong.*
+repo. Rule-file validation step run in CI. **Primary-source verified 2026-07-27**.*
 
 ***A rule that fire in a test and a rule that reach somebody are two claims.* Layer
 check, 2026-08-02, conversion-dated.** Fire-test read the committed rule file and

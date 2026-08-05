@@ -190,8 +190,8 @@ drops only part of a rule set, which is why [SKILL.md](SKILL.md) says which part
   **explicitly supports the one-time-check form "for tests to verify your
   instrumentation".**
 
-  **An earlier draft of this rule marked the gate bespoke; that was wrong and is
-  corrected here.** And **do not state a default threshold — the detector
+  **Do not mark the gate bespoke — the host is shipped; only the fixtures are
+  per repo.** And **do not state a default threshold — the detector
   documentation gives none.** Sources: `prometheus.io/docs/practices/naming/`;
   the `docs.micrometer.io` meter-filters and high-cardinality-tags-detector
   pages.
@@ -202,7 +202,7 @@ drops only part of a rule set, which is why [SKILL.md](SKILL.md) says which part
   evaluation time, and **the must-not-fire case is expressed by leaving the
   expected-alerts list empty.** That is exactly the fires-at-threshold and
   silent-below discipline, so the host is off-the-shelf and **only the fixtures
-  are per repo. An earlier draft marked this bespoke; corrected.** Sources: the
+  are per repo.** Sources: the
   Prometheus unit-testing-rules and promtool command-line pages.
 
 - **Convention, with no external evidence sought or found, for the remaining
@@ -238,9 +238,8 @@ drops only part of a rule set, which is why [SKILL.md](SKILL.md) says which part
 
 - **The ArchUnit-is-the-wrong-host ban for non-loggability**, as a cross-cutting
   trap. `llm-default-traps` carries that, with the erasure ground. **This skill
-  carries the rule the ban protects**, which is the half that was previously
-  unpublished — that skill's own text says so, and says the ban is the half an
-  agent gets wrong.
+  carries the rule the ban protects** — that skill's own text says the ban is
+  the half an agent gets wrong.
 
 - **Any threshold.** No cardinality ceiling, no alert threshold, no log volume
   budget. Each is named as the adopting repo's call, and **a gate with no

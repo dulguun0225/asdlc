@@ -29,17 +29,16 @@ That is the whole reason the pass table distinguishes it from evidence: a
 reference implementation showing the same call is not a second source for the
 claim.
 
-**Narrowed 2026-08-01, and the narrowing is partial.** That research's
-consolidated output — the tool map, its selection criteria and the four whole
-concerns its completeness critic found — **is now restated in
-`guardrails-toolchain`**, so a reader can see what it concluded. The research
-itself is still unpublished: no transcript, no per-claim marker, no primary
-source. So the sentence above holds for weight and no longer holds for content,
-and the skill restating it marks everything **convention** for exactly the reason
-this table gives.
+**One partial exception.** That research's consolidated output — the tool map,
+its selection criteria and the four whole concerns its completeness critic
+found — **is restated in `guardrails-toolchain`**, so a reader can see what it
+concluded. The research itself is unpublished: no transcript, no per-claim
+marker, no primary source. Content is readable there; weight still cannot be
+checked, and the skill restating it marks everything **convention** for exactly
+the reason this table gives.
 
-**The 2026-06-11..14 platform pass's own record is restated in two skills since
-2026-08-01, and neither is this one.** `backend-stack` carries its candidate list
+**The 2026-06-11..14 platform pass's own record is restated in two skills, and
+neither is this one.** `backend-stack` carries its candidate list
 and the criteria it ranked on; `ai-maintainer-principles` carries the governing
 principle the persistence rejections were reasoned from — startup-loud magic is
 acceptable, runtime-silent magic is banned — together with the context-locality
@@ -47,10 +46,6 @@ premise under it. **This skill keeps the rejections themselves and the per-mecha
 bans**, which is the split the write-once rule forces: the ground travels once, the
 checks stay with the stack. Weight is unchanged in both: prior art, no per-claim
 marker, no cited source.
-
-One presentation note, so provenance is not lost: the 2026-07-21 pass recorded
-several of its conventions as a single list, and they are now stated under the
-areas they govern. No claim changed and none was dropped.
 
 ## Platform
 
@@ -259,13 +254,11 @@ a concurrency rule.
   does not rest on it. Source:
   `docs.oracle.com/en/java/javase/25/migrate/significant-changes-jdk-25.html`.
 
-- **Correction to an existing rule (2026-07-27).** The per-request-context
-  directive previously preferred a Scoped Value over a `ThreadLocal` without
-  qualification. **The preference stands on the bounded lifetime and the
-  write-once binding, but not on child-thread sharing**: that property is
-  reachable only through `StructuredTaskScope`, which the preview ban forbids.
-  The directive now says so, and nothing else about it changed. The inheritance
-  facts behind the correction are confirmed by the fan-out context panel — see
+- **The Scoped-Value preference is qualified (2026-07-27).** It stands on the
+  bounded lifetime and the write-once binding, **not on child-thread sharing**:
+  that property is reachable only through `StructuredTaskScope`, which the
+  preview ban forbids — an unqualified preference cites a property this stack
+  cannot use. The inheritance facts are confirmed by the fan-out context panel — see
   the `java-backend-observability` skill, which owns that rule.
 
 ### The fan-out helper's ground is thinner than the rule around it

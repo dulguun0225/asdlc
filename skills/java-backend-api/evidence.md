@@ -13,10 +13,10 @@ The pass harvested from a prior architecture decision record and its guardrails
 document — **an internal record of another repository**, so its weight cannot be
 checked from here. It is named where a note below leans on it, as "the prior-art
 repo". **That is prior art, not independent confirmation** — it records that
-another repo made the same call. **Narrowed 2026-08-01: the guardrails document's
+another repo made the same call. **The guardrails document's
 tool map and gap classes are restated in `guardrails-toolchain`; the decision
-records themselves are still unpublished**, so a note leaning on an ADR is
-pointing at material a reader still cannot open. Where a note below says a claim is confirmed, it
+records themselves are unpublished**, so a note leaning on an ADR is
+pointing at material a reader cannot open. Where a note below says a claim is confirmed, it
 means the pass checked it against a published standard or vendor documentation,
 **not** that it survived a refutation panel; **no panel has ever been run over
 this area.** Running one is the first re-open trigger below.
@@ -76,7 +76,7 @@ the founding pass, which did not cover this area at all.
   CLI**, so a repo expecting that workflow from the CLI will not find it. The
   **scope** — gate the surface whose clients are not rebuilt in the same pull
   request — is **convention**; the prior-art repo ran the full-document diff
-  internally too. **That position is now published in `guardrails-toolchain`, and
+  internally too. **That position is published in `guardrails-toolchain`, and
   reading it closely narrows the disagreement rather than confirming it:** the
   prior-art repo's full-document diff runs under an allow policy whose allowed set
   is additive change the same-change client regeneration and compile already

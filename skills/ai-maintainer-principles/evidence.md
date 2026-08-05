@@ -391,9 +391,9 @@ maintainer, no operations role, no human code reader.
 
 ## The two counterfactuals
 
-**They are two documents, they change different axioms, and the first draft of this
-skill fused them. The audit caught it.** The fusion produced a claim that is false of
-the record whose axiom it stated, which is why both are now named separately.
+**They are two documents and they change different axioms — fusing them produces
+a claim that is false of the record whose axiom it stated**, which is why both
+are named separately.
 
 - **The non-authoritative variant**, kept deliberately outside that repo's index and
   **carrying no date of its own**. Axiom: multiple independent teams, each owning one

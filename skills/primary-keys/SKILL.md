@@ -532,7 +532,7 @@ it is not retractable.*
 
 ## Composite shapes a repo assembles out of the key
 
-**Added 2026-08-02 by `enforceable-rules`' composite-shape check, conversion-dated.**
+**`enforceable-rules`' composite-shape check, run 2026-08-02, conversion-dated.**
 The directives above govern primitives — a row key, a composite child key, an
 externally governed code, a library's own key, a human-facing number, an id on the
 wire. **A repo assembles things out of two of them, and naming an undecidable

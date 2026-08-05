@@ -558,12 +558,12 @@ with no record become skipped item nobody remember choosing.
 
 ## Composite shapes a repo assembles out of gates
 
-**Added 2026-08-02 by `enforceable-rules`' composite-shape check, conversion-dated.
+**`enforceable-rules`' composite-shape check, run 2026-08-02, conversion-dated.
 This skill decide which tool may occupy a gate and which layer own which class, and
-it decided nothing about what a repo build out of two gates.** Every entry marked;
-**silence about a shape is a defect in this section.** The table promote no marker,
-and **one ban is new**, carrying its ground, the organisation fact, the absence of a
-panel, and its re-open condition.
+the directives above decide nothing about what a repo build out of two gates.** Every
+entry marked; **silence about a shape is a defect in this section.** The table promote
+no marker, and **one entry is a ban no directive implies**, carrying its ground, the
+organisation fact, the absence of a panel, and its re-open condition.
 
 | Shape | Verdict |
 | ----- | ------- |

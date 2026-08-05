@@ -59,7 +59,7 @@ be the first evidence about how often it happens.
 A web-verified guardrails sweep recorded **Trivy compromised twice during 2026**,
 and the adoption rule taken from it is SHA-pin-only. The record is carried with
 its date rather than as a current fact. **That sweep's consolidated output is
-restated in `guardrails-toolchain` since 2026-08-01**, which carries the same
+restated in `guardrails-toolchain`**, which carries the same
 row as its worked case — the scanner is itself attack surface — and points back
 here for the pin rule rather than restating it.
 

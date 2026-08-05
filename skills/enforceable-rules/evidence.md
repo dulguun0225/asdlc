@@ -112,8 +112,7 @@ in observed instances rather than in an argument. Both are published here:
   anonymised-subject defect surviving inside the evidence for a principle about
   false assurance.
 
-Counting these as three independent instances, which an earlier draft of this
-file did, double-counts the erasure case. **The clause's ground is still better
+Counting these as three independent instances double-counts the erasure case. **The clause's ground is still better
 than the principle's**, and a reader who trusts only one thing in `SKILL.md`
 should trust that clause.
 
@@ -215,6 +214,15 @@ struck and not how many:
 - Two superlatives were false as written: "the weakest-marked skill in the set"
   and "the first skill in this set with no wiring section" (six others have
   none).
+
+Two more from the same publish: a draft of `tech-decision-research`'s evidence
+file grounded a claim about this set's marker vocabulary in **four tallies of
+other files' contents**, and publishing the two skills changed all four within
+the hour, because both files use the vocabulary they were counting — the fix was
+the grep itself, not corrected numbers. And a superlative — *alone among the
+stack skills here*, about named-gaps sections — was written without running the
+grep that decides it, and happened to be true: nothing distinguishes a checked
+superlative from an unchecked one.
 
 **Publishing a check does not exempt the publisher**, and no part of authoring
 these two skills caught any of it.

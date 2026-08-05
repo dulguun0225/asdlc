@@ -186,9 +186,9 @@ Nothing in differential gate verifies its own configurations. Test-scoped bindin
 
 ## Composite shapes a repo assembles out of these primitives
 
-**Added 2026-08-02 by `enforceable-rules`' composite-shape check, conversion-dated. This section is owed to a defect in a neighbouring rule set and this one had the same defect** — sixteen directives each naming its own honest limit, reading as thorough, and **silent about every shape a repo build out of two of them.** Naming a gap inside a directive surface nothing about a shape nobody wrote a rule about. Every entry below is marked; **silence about a shape is a defect in this section, not the reader's problem.**
+**`enforceable-rules`' composite-shape check, run 2026-08-02, conversion-dated. This section is owed to a defect in a neighbouring rule set and this one had the same defect** — sixteen directives each naming its own honest limit, reading as thorough, and **silent about every shape a repo build out of two of them.** Naming a gap inside a directive surface nothing about a shape nobody wrote a rule about. Every entry below is marked; **silence about a shape is a defect in this section, not the reader's problem.**
 
-**This table promote no marker.** Most entries are a verdict a published directive already imply and nobody stated as a shape. **One ban is new**, and it carry its ground, the organisation fact it rest on, the absence of a panel, and the condition that reopen it.
+**This table promote no marker.** Most entries are a verdict a published directive already imply and nobody stated as a shape. **One entry is a ban no directive implies**, and it carry its ground, the organisation fact it rest on, the absence of a panel, and the condition that reopen it.
 
 | Shape | Verdict |
 | ----- | ------- |

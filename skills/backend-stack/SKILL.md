@@ -183,8 +183,9 @@ whether observability rules this set publish can be hosted at all.
 
 *Check: record state operability veto per candidate as fact about *this team*,
 not general property of technology, and state it separate from ranking.
-**Convention**, 2026-08-01 — conversion-dated narrowing of sentence
-`java-backend-rules` used to carry as dominant criterion.*
+**Convention**, 2026-08-01, conversion-dated — the rejected wider reading,
+operability as the dominant criterion, is on the record in
+[evidence.md](evidence.md).*
 
 ### A rule set is never a reason to adopt a stack
 
@@ -295,7 +296,7 @@ re-open trigger per loser, and a criterion ever selected against a real alternat
 
 ## Composite shapes an organisation assembles out of stack choices
 
-**Added 2026-08-02 by `enforceable-rules`' composite-shape check, conversion-dated.**
+**`enforceable-rules`' composite-shape check, run 2026-08-02, conversion-dated.**
 Directives above govern one decision: a candidate, its enforcement hosts, its corpus
 gravity, its operability veto, its losers and their grounds. **An organisation build
 things out of two of those and this skill decided none of them** — which matter here

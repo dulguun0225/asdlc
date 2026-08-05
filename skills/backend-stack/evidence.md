@@ -43,12 +43,12 @@ same day and did not drift between the two. The third is the frontend profile,
 accepted the same day, which is where the competing census comes from — and a
 consolidated toolchain map dated the day after is what makes that census a
 per-category comparison rather than a list of tool names. **That map is itself
-restated in `guardrails-toolchain` since 2026-08-01**, minus the frontend column,
+restated in `guardrails-toolchain`**, minus the frontend column,
 which stays here because it is this skill's evidence about host counting rather
 than that skill's evidence about tool selection.
 
-**The persistence ADR's other half is restated in `ai-maintainer-principles`
-since 2026-08-01.** That record states a governing principle — startup-loud magic
+**The persistence ADR's other half is restated in
+`ai-maintainer-principles`.** That record states a governing principle — startup-loud magic
 is acceptable, runtime-silent magic is banned — and the premise sentence under it,
 that runtime behaviour absent from the program text is invisible to a text-based
 maintainer in an absolute sense. Neither is a stack-choice criterion, which is why

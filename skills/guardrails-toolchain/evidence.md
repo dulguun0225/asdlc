@@ -168,8 +168,8 @@ column would have shipped as covered.
 
 ## What the record contradict, and what stay unresolved
 
-- **Consumer-bound surfaces, against `java-backend-api` — and narrower than the
-  first draft of this file said.** That skill scope breaking-change diff to
+- **Consumer-bound surfaces, against `java-backend-api` — a narrower
+  disagreement than the consolidated map alone suggests.** That skill scope breaking-change diff to
   surfaces crossing a build boundary, on ground that an atomically-rebuilt
   consumer's compile is the check. **The record does not contradict that ground —
   it applies it as a carve-out inside a wider gate**: its full-document diff runs
@@ -177,9 +177,9 @@ column would have shipped as covered.
   same-change client regeneration and frontend compile already absorb, with the
   stricter published-surface contract layered on top. So the two positions share a
   premise *and* share the reasoning, and differ on whether that reasoning removes
-  the gate or configures it. **Corrected 2026-08-01 during hostile audit**, which
-  found the first draft had presented a flat disagreement by reading only the
-  consolidated map and not the contract record behind it.
+  the gate or configures it. **A flat-disagreement reading is wrong and comes
+  from the consolidated map alone; the contract record behind it is what
+  narrows it.**
 - **japicmp is the residue that really is contested.** The record proposes a
   source-and-binary compatibility check on each module's published package;
   `java-backend-api` evaluated japicmp and **dropped it as a default rule**,

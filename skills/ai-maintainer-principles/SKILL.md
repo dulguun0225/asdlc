@@ -123,7 +123,7 @@ session — so cost is charged every time and never amortised.
 Bespoke and mostly unbuilt — architecture test assert absence of specific named
 construct, nothing assert reasoning span. **Convention**, 2026-06-12.*
 
-**Worked instance, added 2026-08-02, conversion-dated — and this directive caught a
+**Worked instance, 2026-08-02, conversion-dated — this directive caught a
 draft that violated it.** The composite-shape check on `business-numbering` found a
 repo can hold **two contended rows in one transaction**: a numbering counter row,
 and the mutable balance row `money-storage` `M-39` permits. Two transactions taking
@@ -469,7 +469,7 @@ cite.
 
 ## Composite shapes a repo assembles out of these primitives
 
-**Added 2026-08-02 by `enforceable-rules`' composite-shape check, conversion-dated.**
+**`enforceable-rules`' composite-shape check, run 2026-08-02, conversion-dated.**
 Directives above govern a module, a sub-module, a will, a topology, an idiom, a
 gate, a review pass, a dependency, a quarantine, a subtle piece and an operational
 surface. **A repo build things out of two of them, and this skill decided none of

@@ -89,7 +89,7 @@ Three things reader will look for here and not find.
 
 **This is general home of contract-conformance fuzz gate.** Money rules extend it and **add no second tool**: `M-26` in `money` is money-side obligation that gate exists, `M-19` in `money-api` is money edge-case input set it must cover. One gate, one tool, two input sets.
 
-**Why gate exists is reasoning step, not tool fact, and marked convention:** one model wrote both specification and implementation, so self-authored tests share blind spot; generator deriving cases from document does not. **Zero-retry rule is this rule set's own governance choice**, not tool precondition — and since 2026-08-01 it published as general rule in `ai-maintainer-principles`, with quarantine shape that go with it. Still no tool precondition; Schemathesis require nothing of the kind.
+**Why gate exists is reasoning step, not tool fact, and marked convention:** one model wrote both specification and implementation, so self-authored tests share blind spot; generator deriving cases from document does not. **Zero-retry rule is this rule set's own governance choice**, not tool precondition — published as general rule in `ai-maintainer-principles`, with quarantine shape that go with it. Still no tool precondition; Schemathesis require nothing of the kind.
 
 ## Errors
 
@@ -161,7 +161,7 @@ Three things reader will look for here and not find.
 
 *Convention — **dormant where no such ban exists**; exemption scoped to the one pager class by ArchUnit. 2026-07-25.*
 
-**Where that ban is published, since 2026-08-01: `primary-keys`**, as *A time-ordered key is not an ordering* — a time-ordered key be monotonic per generator and not across a pool, so `ORDER BY id` be right in single-connection test and wrong under pool. That skill carry this carve-out from other side with **four constraints, and this directive state two of them**: business sort column precede tiebreak ("never leading sort", above) and exemption scoped to pager class alone. **Two are stated nowhere in this skill** — that id never appear in the declared `sort` vocabulary, and that **relative order of ties be an explicit non-promise in the contract text.** Repo wiring the pager off this skill alone get the ArchUnit half and neither contract half. **Condition above stay real** — repo install this skill without that one still have no ban, and this directive still dormant for it.
+**Where that ban is published: `primary-keys`**, as *A time-ordered key is not an ordering* — a time-ordered key be monotonic per generator and not across a pool, so `ORDER BY id` be right in single-connection test and wrong under pool. That skill carry this carve-out from other side with **four constraints, and this directive state two of them**: business sort column precede tiebreak ("never leading sort", above) and exemption scoped to pager class alone. **Two are stated nowhere in this skill** — that id never appear in the declared `sort` vocabulary, and that **relative order of ties be an explicit non-promise in the contract text.** Repo wiring the pager off this skill alone get the ArchUnit half and neither contract half. **Condition above stay real** — repo install this skill without that one still have no ban, and this directive still dormant for it.
 
 ## Wire temporals
 

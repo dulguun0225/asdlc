@@ -117,7 +117,7 @@ This be one directive here that ban **claim**, not pick. It matter under premise
 
 ## Composite shapes a repo assembles out of these primitives
 
-**Added 2026-08-02 by `enforceable-rules`' composite-shape check, conversion-dated.**
+**`enforceable-rules`' composite-shape check, run 2026-08-02, conversion-dated.**
 Directives above govern a pin, a version ceiling, a lockfile, a banned dependency, a
 channel and a claim. **A repo build things out of two of them and this skill decided
 none of those.** Every entry marked; **silence about a shape is a defect in this

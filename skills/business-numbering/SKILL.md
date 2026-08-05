@@ -512,8 +512,8 @@ predicates, the capacity gauges, the gap report and the cutover gate.
 
 ## Composite shapes a repo assembles out of these primitives
 
-**Added 2026-08-02 by `enforceable-rules`' composite-shape check, run against this
-skill on the day it was published, conversion-dated.** The directives govern a class,
+**`enforceable-rules`' composite-shape check, run 2026-08-02,
+conversion-dated.** The directives govern a class,
 a counter row, a period, a format version, a check digit, a block, a gapless flag and
 a legacy import. **A repo builds things out of two of them.** Every entry marked;
 **silence about a shape is a defect in this section.** No marker promoted, **no ban
@@ -524,7 +524,7 @@ verdict two published directives already imply.
 | ----- | ------- |
 | **A transaction that touches the counter row and a second contended row** — a balance projection, an aggregate, any hot row | **permitted with conditions, and the conditions were stated in no skill.** *Issue late in the transaction* asks for the counter to be the last lock taken, because it is held until commit. **A repo can have more than one such row**: `money-storage` `M-39` permits a mutable balance row beside the effect rows, and it is contended for the same reason. **Two hot rows taken in different orders by two transactions deadlock**, and that is a failure neither skill's checks reach. **Do not answer this by writing the lock order down.** `ai-maintainer-principles` names lock ordering by name as a requirement that **cannot be documented** — a fact spread over files, re-derived wrongly by every session that reads one of them. Two honest answers, and this skill takes no position on which: **eliminate the second contended row** — `money-storage` `M-38`'s append shape has none, which is that skill's recommendation for its own reasons — or **confine every transaction touching more than one contended row to a single named operation that takes them in a fixed order**, so no call site chooses. A repo doing neither has accepted a permanent defect source and should record that it did |
 | **Issuing a number in the same transaction that appends an outbox row** | **permitted, and it does not compete** — stated because it reads as though it should. `async-handoff` `E-5` and `E-6` require the outbox append inside the same transaction, and an append is an insert of a new row: **it takes no contended lock, so it does not belong in the ordering question above.** A reader who has installed both skills sees two *do this inside the transaction* instructions and needs to know that only one of them is about contention |
-| **Demoting counter granularity under contention** — the relief ladder's *per-branch series* step | **permitted with conditions, and this is the sharpest thing the check found.** Splitting a class's counter into per-branch series **changes what gaplessness means mid-life**: numbers before the change are gapless per tenant, numbers after are gapless per branch, and the production invariant that asserts range-equals-count silently starts asserting something weaker. Condition: **a granularity change is a new series key and therefore a new format version at a period rollover**, exactly like a width change — never a configuration flip inside a live period, which is how the relief ladder reads if nobody states this |
+| **Demoting counter granularity under contention** — the relief ladder's *per-branch series* step | **permitted with conditions.** Splitting a class's counter into per-branch series **changes what gaplessness means mid-life**: numbers before the change are gapless per tenant, numbers after are gapless per branch, and the production invariant that asserts range-equals-count silently starts asserting something weaker. Condition: **a granularity change is a new series key and therefore a new format version at a period rollover**, exactly like a width change — never a configuration flip inside a live period, which is how the relief ladder reads if nobody states this |
 | **Two senses of "a block"** | **both permitted, and they must not be confused.** A **transactional block** — increment by N inside the committing transaction — is gapless-safe and is what batch work takes. An **in-memory block** pre-allocated across transactions trades gaps on restart for no contention, and is available **only to gap-tolerant classes**. Marked because this skill uses the same word for both and a reader applying the second to a gapless class breaks its invariant |
 | **A check-digited number nested inside a rail-constructed identifier** | **permitted, and it is why the two algorithms are separate.** A domestic account number carries its own Damm digit; the interbank identifier built around it carries its own mod-97 digits. **Two check digits over overlapping payloads is correct, not redundant** — they protect different transcription paths, and neither validates the other |
 | **A business number in a message payload or an outbox row** | **permitted, and out of scope here** — `async-handoff` `E-21` governs payload content. **The one clause worth carrying across: a consumer that parses meaning out of the number is this skill's ban arriving in another deployable**, where no lint of this repo's reaches it |
@@ -534,14 +534,14 @@ verdict two published directives already imply.
 
 ## Named gaps — where no check reaches
 
-- **The predicate check, run 2026-08-02, widened the load trigger and left one thing
-  it could not close.** The trigger named writing an issuer, a counter, a format or a
+- **The predicate check, run 2026-08-02, left one thing it could not close.** The
+  trigger named writing an issuer, a counter, a format or a
   check digit — **and two directives govern acts none of those describe**: *Validate
   at every ingress* is about **adding an entry point that accepts a number**, which is
   the act whose failure mode the directive itself names — validation living in one of
   three entry points; and *Parsing meaning out of a number is banned everywhere*
   extends to reports, so **writing a report that filters or groups on a number** is
-  governed by it and fired no trigger. Both are now in the description. **What it
+  governed by it and fired no trigger. Both are named in the description. **What it
   could not close**: the birth-fact argument bites hardest when a branch closes or an
   organisation restructures, and *reorganising* is not an act anyone loads a
   numbering skill before.
@@ -570,7 +570,7 @@ verdict two published directives already imply.
   stay disjoint, and ordering columns are persisted beside the rendered string.
   **Two directives here are also stated in full there** — *Numbers are immutable,
   never reused, never reassigned* and *Parsing meaning out of a number is banned* —
-  and **this skill is the owner of record for both since 2026-08-02**. The
+  and **this skill is the owner of record for both**. The
   duplication is deliberate: a repo can install one skill and not the other, and both
   bans bear on that skill's split as directly as on this one's subject. **A change to
   either ban's wording is a change in two files**, and the index for that is the
@@ -588,7 +588,7 @@ verdict two published directives already imply.
   contents. **And `money-storage` `M-39` is where the second contended row comes
   from**: a mutable balance row beside the effect rows is optional there and hot for
   the same reason the counter is, so a repo taking both owes one lock order over
-  both. **Both skills state that from their own side since 2026-08-02.**
+  both. **Both skills state that from their own side.**
 - **`ai-maintainer-principles`** — *A hand-built subtle piece ships with a safety
   argument and a stress test*, which is the ground under this skill's stress suite and
   under stating the safety argument explicitly: **a number exists if and only if its

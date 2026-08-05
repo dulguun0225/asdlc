@@ -108,6 +108,11 @@ The same reading applies to the other known divergences, all of which are gaps r
 contradictions: the bundle carries no tier map, no NFR enforcement point, and no sha256 pinning
 of `spec.md` and `plan.md`.
 
+*(The bundle was retired and deleted on 2026-08-05 —
+[ADR-0035](0035-bundle-retired-and-deleted.md). These divergences are moot; the repair-direction
+rule they illustrated stands, and the reconciliation row survives as the design's own
+gate-tooling gap.)*
+
 ### 4. Where the rule is written
 
 Four places, because the rule is only useful where someone is about to edit a file:
@@ -116,7 +121,7 @@ Four places, because the rule is only useful where someone is about to edit a fi
 |---|---|
 | [`CLAUDE.md`](../../CLAUDE.md) → *Where things live* | The rule itself. The binding statement |
 | [`tools/README.md`](../../tools/README.md) | The rule, restated at the top of the directory it binds |
-| [`tools/spec-kit-bundle/CLAUDE.md`](../../tools/spec-kit-bundle/CLAUDE.md) | Rule 10, in the list a maintainer reads before changing a component |
+| `tools/spec-kit-bundle/CLAUDE.md` | Rule 10, in the list a maintainer reads before changing a component — deleted with the bundle ([ADR-0035](0035-bundle-retired-and-deleted.md)) |
 | [`tools/spec-kit-checker/CLAUDE.md`](../../tools/spec-kit-checker/CLAUDE.md) | The same, under its invariants |
 
 **No file under `tools/` gets a copy of a design rule as part of carrying this one.** Each carries

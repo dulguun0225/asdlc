@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 A **monorepo holding two things**: the ASDLC design, and the code that implements it.
 
 - **The design** — the target ASDLC ([`asdlc/`](asdlc/README.md)), a stack sheet per deployment variant ([`variants/`](variants/README.md)), and a rollout plan ([`rollout/`](rollout/plan.md)), with the working record in [`reference/`](reference/open-questions.md).
-- **The code** — [`tools/`](tools/README.md). Set by [ADR-0025](reference/decisions/0025-monorepo.md) on 2026-07-28, when the owner lifted the documents-only restriction and brought `spec-kit-bundle-nc` in. Renamed to [`tools/spec-kit-bundle/`](tools/spec-kit-bundle/README.md) and reset on 2026-08-05 by [ADR-0028](reference/decisions/0028-bundle-rename-and-reset.md).
+- **The code** — [`tools/`](tools/README.md). Set by [ADR-0025](reference/decisions/0025-monorepo.md) on 2026-07-28, when the owner lifted the documents-only restriction and brought `spec-kit-bundle-nc` in — renamed and reset by [ADR-0028](reference/decisions/0028-bundle-rename-and-reset.md), then retired and deleted on 2026-08-05 by [ADR-0035](reference/decisions/0035-bundle-retired-and-deleted.md).
 
 **ASDLC** = **agentic software development life cycle** ("Agentic SDLC" in prose; "life cycle" as three words). Set by [ADR-0002](reference/decisions/0002-scope-agentic-not-ai-assisted.md), which also fixes the scope boundary this implies: the subject is a life cycle where **agents execute multi-step development work under human review gates**. AI-assisted tooling that only speeds up a human executing every step is background context, not the subject. Where the agent/human boundary actually falls is still open — [OQ-3](reference/open-questions.md).
 
@@ -26,9 +26,10 @@ governing the ASDLC design. ADRs are never renumbered.
 There were two until 2026-08-05. [ADR-0025](reference/decisions/0025-monorepo.md) part 6 gave the
 bundle its own `B-n` registry in `tools/spec-kit-bundle-nc/DECISIONS.md`, scoped to that subtree;
 the bundle's reset deleted the file with its seventeen records
-([ADR-0028](reference/decisions/0028-bundle-rename-and-reset.md)). Bundle behaviour rules now live
-in the bundle's own `CLAUDE.md`, unnumbered. Nested `CLAUDE.md` files are path-scoped guidance for
-their subtree and do not override this file outside it.
+([ADR-0028](reference/decisions/0028-bundle-rename-and-reset.md)), and the bundle itself was
+deleted later the same day ([ADR-0035](reference/decisions/0035-bundle-retired-and-deleted.md)).
+Nested `CLAUDE.md` files are path-scoped guidance for their subtree and do not override this file
+outside it.
 
 The repository is under version control (branch `master`). Don't commit unless asked.
 
@@ -165,14 +166,13 @@ is subordinate.
 **The code:**
 
 - [`tools/`](tools/README.md) — the programs and packages the life cycle needs.
-  `spec-kit-bundle/` and `spec-kit-checker/` carry the predecessor convention, built but never
-  released; the bundle is **not** the stage-delivery vehicle — that is the `skills` CLI
-  ([ADR-0032](reference/decisions/0032-stage-delivery-via-skills-cli.md)) — and its fate is
-  decided with the gate-model reconciliation;
+  `spec-kit-checker/` carries the predecessor convention's merge gate, built but never released —
+  the rest of that convention, `spec-kit-bundle/`, was retired and deleted on 2026-08-05
+  ([ADR-0035](reference/decisions/0035-bundle-retired-and-deleted.md)); stage delivery is the
+  `skills` CLI ([ADR-0032](reference/decisions/0032-stage-delivery-via-skills-cli.md));
   `feature-artifact-checker/` is specified and not yet built.
-  The bundle directory holds **only components `specify` can install**
-  ([ADR-0029](reference/decisions/0029-bundle-holds-only-installable-components.md)) — a companion
-  program that travels any other way gets its own `tools/` directory.
+  A companion program that travels a different way than the component it serves gets its own
+  `tools/` directory ([ADR-0029](reference/decisions/0029-bundle-holds-only-installable-components.md)).
   **`tools/` earns its name only while it holds programs and packages** — a `tools/` that holds
   anything is a `misc/`.
 

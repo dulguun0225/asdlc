@@ -5,8 +5,10 @@
 - **Extends:** [ADR-0014](0014-feature-artifacts-and-the-traceability-chain.md)'s plan template —
   §9, the decision trace, which no record had specified beyond its presence.
 - **Source:** the bundle's wrapped plan command,
-  [`tools/spec-kit-bundle/presets/asdlc/commands/speckit.plan.md`](../../tools/spec-kit-bundle/presets/asdlc/commands/speckit.plan.md)
-  ("Decision discipline" section), read against the design side on 2026-08-05. Per
+  `tools/spec-kit-bundle/presets/asdlc/commands/speckit.plan.md` ("Decision discipline"
+  section), read against the design side on 2026-08-05. The bundle was deleted later the same
+  day ([ADR-0035](0035-bundle-retired-and-deleted.md)); the file survives in git history at
+  commit `786fd3b`. Per
   [ADR-0030](0030-design-states-the-rules-tools-implement-them.md) the rules move by being
   written into the design, not by citing the tool.
 

@@ -133,10 +133,8 @@ it the **leading candidate implementation for OQ-19's renderer**, and takes dele
 table. *(Same day, twice over: a second candidate surfaced — the `skills` CLI the owner already
 uses — and [ADR-0032](0032-stage-delivery-via-skills-cli.md) chose it. The bundle is **not** the
 delivery vehicle; "leading candidate" describes what was in the tree when this record landed,
-and the bundle's fate question returned with ADR-0032 part 5.)* Its gate-model and template divergences remain bugs under
-[ADR-0030](0030-design-states-the-rules-tools-implement-them.md); the reconciliation row at the
-top of [open-parameters.md](../../rollout/open-parameters.md) now includes whether the bundle
-becomes the design's delivery vehicle.
+and the bundle's fate question returned with ADR-0032 part 5 — then was settled the same day by
+[ADR-0035](0035-bundle-retired-and-deleted.md): retired and deleted.)*
 
 ## Variant answers
 

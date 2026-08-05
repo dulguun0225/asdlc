@@ -3,14 +3,14 @@
 > **Which convention this is.** This example follows the **ASDLC design's** rules: approval is a
 > gate record binding this file's sha256, and a `Status:` line in the artifact is **forbidden**
 > ([ADR-0014](../../../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md)
-> part 3). `tools/spec-kit-bundle/` in this same repository used the opposite rule — approval *was*
-> a typed Status line — until its 2026-08-05 reset
+> part 3). The predecessor convention (`tools/spec-kit-bundle/`, deleted 2026-08-05 —
+> [ADR-0035](../../../reference/decisions/0035-bundle-retired-and-deleted.md)) used the opposite
+> rule — approval *was* a typed Status line — until its reset
 > ([ADR-0028](../../../reference/decisions/0028-bundle-rename-and-reset.md)) dropped the gate
-> entirely; it now checks traceability after the fact and enforces no approval at all. Its worked
-> example is
+> entirely. Its surviving worked example is
 > [`tools/spec-kit-checker/examples/password-reset/`](../../../tools/spec-kit-checker/examples/password-reset/spec.md),
 > whose plan still carries the now-unchecked `## Approval` section. The two artifact sets are
-> **not** interchangeable; reconciling the two gate models is an open item
+> **not** interchangeable; the design's own gate tooling is an open item
 > ([`rollout/open-parameters.md`](../../../rollout/open-parameters.md)).
 
 <!--

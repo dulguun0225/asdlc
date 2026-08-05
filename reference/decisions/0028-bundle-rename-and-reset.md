@@ -14,6 +14,9 @@
 - **Decided by:** the owner, 2026-08-05, who performed the rename and reset in a scratch
   repository and copied the result in. This record documents an executed change and its
   consequences; it does not re-open the change.
+- **The bundle is gone:** retired and deleted later the same day by
+  [ADR-0035](0035-bundle-retired-and-deleted.md). This record remains the account of the
+  rename, the reset, and the lost history.
 
 ## Context
 

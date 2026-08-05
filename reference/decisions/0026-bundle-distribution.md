@@ -1,6 +1,7 @@
 # ADR-0026 — The bundle is distributed from this repository
 
-- **Status:** accepted, 2026-07-28
+- **Status:** superseded by [ADR-0035](0035-bundle-retired-and-deleted.md) — the bundle was
+  deleted on 2026-08-05 with nothing ever released, so there is nothing to distribute
 - **Date:** 2026-07-28
 - **Extends:** [ADR-0025](0025-monorepo.md) part 4, which named the `bundle-v*` tag namespace and
   treated it as the whole problem. It was not.

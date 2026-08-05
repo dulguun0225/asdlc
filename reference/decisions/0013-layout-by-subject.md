@@ -101,7 +101,8 @@ reference/             THE WORKING RECORD
 ```
 
 > **A fifth subject is missing from that tree.** [ADR-0025](0025-monorepo.md) added
-> `tools/` — the code, holding `spec-kit-bundle/` — and **scoped** the documents-only rule rather
+> `tools/` — the code, holding `spec-kit-bundle/` until
+> [ADR-0035](0035-bundle-retired-and-deleted.md) deleted it — and **scoped** the documents-only rule rather
 > than deleting it: `asdlc/`, `variants/`, `rollout/` and `reference/` still hold no code, no build
 > system and no package manifest. The by-subject principle is unchanged; `tools/` is one more
 > subject, which is why no new layout record was needed. **Do not read this tree as forbidding

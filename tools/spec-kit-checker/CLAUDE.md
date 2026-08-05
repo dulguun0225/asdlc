@@ -1,19 +1,16 @@
 # CLAUDE.md — spec-kit-checker
 
 `check_specs.py` is a merge gate that **product repos adopt by copying the
-file**. It checks the artifacts the [`spec-kit-bundle`](../spec-kit-bundle/README.md)
-convention produces — `specs/*/spec.md`, `plan.md`, `tasks.md` — and it is
-**not part of that bundle**. A spec-kit bundle ships only what
-`specify preset add` / `specify workflow add` / `specify bundle install` can
-resolve, and nothing installs a Python file; keeping the checker in the bundle
-directory made it look installable. Set by
-[ADR-0029](../../reference/decisions/0029-bundle-holds-only-installable-components.md).
-
-The two directories are still coupled: the bundle's wrapped plan and tasks
-commands tell the agent that this checker will fail an artifact that omits the
-appended sections or an FR reference. **A change to what the checker blocks on
-is a change to what those commands promise** — check
-`../spec-kit-bundle/presets/asdlc/commands/` for a claim that stops being true.
+file**. It checks the artifacts of the predecessor spec-kit convention —
+`specs/*/spec.md`, `plan.md`, `tasks.md` with EARS requirements, FR-nnn
+traceability and a decision trace. The bundle that authored that convention,
+`tools/spec-kit-bundle/`, was retired and deleted on 2026-08-05
+([ADR-0035](../../reference/decisions/0035-bundle-retired-and-deleted.md));
+this directory is kept as prior art for the design's own checker and stands
+alone ([ADR-0029](../../reference/decisions/0029-bundle-holds-only-installable-components.md)
+split it out of the bundle earlier the same day). No sibling directory promises
+anything about what this checker blocks on any more; its own README and the
+examples are the whole statement of the convention it checks.
 
 ## Invariants
 
@@ -62,10 +59,10 @@ Known regressions to preserve:
   `### Decision Trace` does not satisfy `## Decision Trace`).
 - `contracts/` prose without a file extension is not a link.
 - A checkbox line that does not parse as `- [ ] Tnnn …` is a violation.
-- A spec with no FR bullets at all is a violation. The bundle's spec template
-  ships five placeholder FR bullets, so this fires only after they are
-  deleted, not when they are left unfilled — placeholder wording is phrasing,
-  and phrasing is left to the agent and the reviewer.
+- A spec with no FR bullets at all is a violation. The convention's spec
+  template shipped five placeholder FR bullets, so this fires only after they
+  are deleted, not when they are left unfilled — placeholder wording is
+  phrasing, and phrasing is left to the agent and the reviewer.
 - Bogus task FR references are violations even when the spec defines no FRs.
 - A Decision Trace with only its header row is a violation (separators are
   detected cell-wise — GFM allows omitting the trailing pipe), and so is a
@@ -104,4 +101,6 @@ and would look live. The checker's CI is one workflow at the repository root:
   the whole toolchain.
 
 The probes moved there from `bundle-checks.yml` when the checker left the
-bundle. They were relocated, not deleted — the rule above holds in full.
+bundle (both bundle and workflow have since been deleted —
+[ADR-0035](../../reference/decisions/0035-bundle-retired-and-deleted.md)).
+They were relocated, not deleted — the rule above holds in full.

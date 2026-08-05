@@ -74,11 +74,14 @@ would set it.
    [`asdlc/`](../asdlc/README.md) is the work list. Blocks nobody; it is what makes the design
    handable. Needs research sessions, not assembly: the research-before-content rule in
    [`CLAUDE.md`](../CLAUDE.md) applies in full.
-5. **Reconcile the two gate models** — the top row of
+5. **Gate-record tooling** — the top row of
    [open-parameters.md](../rollout/open-parameters.md), and the item that needs its own decision
-   record. Which side moves is settled
-   ([ADR-0030](decisions/0030-design-states-the-rules-tools-implement-them.md)); how, is not.
-   See the bundle section below.
+   record: the design requires a gate record per tier and has no tooling for one. It also
+   decides where a plan-ratified `NEW — proposed` decision accumulates
+   ([ADR-0034](decisions/0034-plan-decision-trace.md)). The other half this row used to carry —
+   the bundle's fate — was decided on 2026-08-05: retired and deleted
+   ([ADR-0035](decisions/0035-bundle-retired-and-deleted.md)). See the predecessor-convention
+   section below.
 6. **[OQ-20](#oq-20--the-runner-admission-contract) — the admission contract.** Blocks only a
    second runner; Claude Code is the only admitted one until it closes.
 
@@ -92,85 +95,45 @@ enterprise-scope skill distribution failed and produced
 mechanism that turns out not to exist, or to exist differently — and expect it as a correction to a
 record rather than a new `OQ-N`.
 
-### The bundle in `tools/spec-kit-bundle/`, and the checker beside it
+### The predecessor convention: `tools/spec-kit-checker/`
 
-**Its status moved twice on 2026-08-05.**
-[ADR-0031](decisions/0031-heterogeneous-runners.md) part 6 promoted it from deletion candidate
-to leading candidate for [OQ-19](#oq-19--runner-neutral-stage-procedure-delivery)'s renderer;
-[ADR-0032](decisions/0032-stage-delivery-via-skills-cli.md) then chose the `skills` CLI instead.
-**The bundle is not the delivery vehicle, and its fate question is back, smaller and uncoupled
-from delivery**: prior art with working CI for the predecessor convention, or retirement —
-decided in the gate-model reconciliation record (the top row of
-[open-parameters.md](../rollout/open-parameters.md)) or its own. **The owner said on 2026-08-05:
-do not retire it yet** — it stays until that record decides. Its divergences from the design
-remain bugs filed against it
-([ADR-0030](decisions/0030-design-states-the-rules-tools-implement-them.md)).
+**The bundle is gone.** `tools/spec-kit-bundle/` was retired and deleted on 2026-08-05
+([ADR-0035](decisions/0035-bundle-retired-and-deleted.md)), reversing the owner's same-day "do
+not retire it yet": after [ADR-0034](decisions/0034-plan-decision-trace.md) ported the wrapped
+plan command's decision-trace discipline into the design — four row kinds, the visible
+`NEW — proposed` format, no re-research of covered entries — the owner judged the bundle
+harvested and ordered the deletion. Nothing was ever released: no `bundle-v*` tag, no consumer,
+so no external identity broke. `bundle-checks.yml` (green) and `bundle-release.yml` (never
+fired) were deleted with it; the final tree is in git history at commit `786fd3b`. What the
+deletion costs is named in the ADR: the predecessor convention's only working CI, and the
+spec-kit v0.14.2 runtime facts.
 
-One piece moved the other way on 2026-08-05:
-[ADR-0034](decisions/0034-plan-decision-trace.md) wrote the wrapped plan command's decision-trace
-discipline into the design — four row kinds, the visible `NEW — proposed` format, no re-research
-of covered entries — so on those rules the command is now an implementation rather than the only
-statement. Its rule 6 (a `NEW` decision binding beyond one feature is drafted as a repo decision
-record in the same change) is unadopted; the gate-model reconciliation record inherits that
-question, and its row in open-parameters.md says so.
+What remains is `tools/spec-kit-checker/` — `check_specs.py` and the `password-reset` example —
+kept as prior art for the feature-artifact checker
+([open-parameters.md](../rollout/open-parameters.md)):
 
-Renamed from `spec-kit-bundle-nc/` and reset to `0.1.0` on 2026-08-05
-([ADR-0028](decisions/0028-bundle-rename-and-reset.md)): every component id is `asdlc`, and the
-extension, `DECISIONS.md` and `CHANGELOG.md` are deleted.
-
-**It is now two directories** ([ADR-0029](decisions/0029-bundle-holds-only-installable-components.md),
-2026-08-05). `tools/spec-kit-bundle/` holds only what `specify` can install — the manifest, the
-preset, the workflow, the catalogs. `check_specs.py` and the `password-reset` example moved to
-`tools/spec-kit-checker/`, because a product repo adopts the checker by **copying the file** and
-nothing in the install path ever touched it. The two are coupled by promise, not packaging: the
-wrapped plan and tasks commands tell the agent the checker will fail an artifact missing the
-appended sections or an FR reference, and **nothing enforces that the two stay in step**.
-
-- **`spec-kit-checker-checks.yml` has never run on Actions.** New root workflow, path-filtered to
-  `tools/spec-kit-checker/**`, holding `--self` and the three negative probes moved out of
-  `bundle-checks`. All four steps pass locally; the first push touching that directory is the
-  proof.
-- **`bundle-checks` is green on GitHub.** It failed on its first push after the reset — it asserted
-  a scaffolded spec carries `**Status**: Draft`, which the reset deleted from the spec template —
-  and passed on the second. That was the second stale assert about the removed gate; the first
-  (the checker requires `## Approval`) was caught by reading. **The one that survived review was
-  the one only CI could reach.**
-- **`bundle-release` has never run.** Every assert passes in a local dry-run at
-  `GITHUB_REF_NAME=bundle-v0.1.0`, none on Actions. **Cutting `bundle-v0.1.0` is the next real
-  action on the bundle and it is the owner's call.** `master` must hold the final catalog JSONs
-  when the tag is cut — consumers read catalogs from `master` and assets from the tag.
-- **Release identity is free to change only until that tag exists.** Ids, asset names and version
-  have already moved twice at no cost because nothing was ever published.
-- **The gate models still disagree, more narrowly than before.** The bundle used to require a typed
-  `Status: Approved` line and a `before_implement` hook — the convention
-  [ADR-0014](decisions/0014-feature-artifacts-and-the-traceability-chain.md) part 3 replaced
-  *precisely so an approval cannot be forged by typing one*. The reset dropped both, so the
-  forgeable convention no longer runs anywhere. What remains is a coverage gap:
-  `spec-kit-checker` checks traceability after the fact and gates nothing, the design requires a
-  gate record per tier and has no tooling for one. **"No gate" is not "the design's gate."**
-  **Which side has to move is now settled** —
-  [ADR-0030](decisions/0030-design-states-the-rules-tools-implement-them.md): the design states
-  the rules, `tools/` implements them, so this is a bug filed against the tools. *How* it moves is
-  still the top row of [open-parameters.md](../rollout/open-parameters.md) and still needs its own
-  record.
-- **The same rule is written in five places, and two copies have drifted.** The six EARS patterns,
-  stable `FR-nnn`, WITHDRAWN and one-behaviour-per-requirement appear in
-  [`asdlc/templates/spec.md`](../asdlc/templates/spec.md),
-  [`skills/asdlc-spec/SKILL.md`](../skills/asdlc-spec/SKILL.md), and three files under
-  `tools/spec-kit-bundle/presets/asdlc/`. Nothing keeps them in step. The known drift: a
-  requirement matching no EARS pattern gets a **counted** `[form: table]` / `[form: prose]` escape
-  tag in the design and an **uncounted** one-line note in the bundle's wrapped `speckit.specify`.
-  Under ADR-0030 that is the bundle's bug. Generating the bundle's texts from the design's was
-  rejected for now and is that record's first reopen condition — if the copies drift again after
-  being reconciled, generate them.
+- **`spec-kit-checker-checks.yml` has never run on Actions.** Root workflow, path-filtered to
+  `tools/spec-kit-checker/**`, holding `--self` and the three negative probes. All four steps
+  pass locally; the first push touching that directory is the proof.
+- **The gate-tooling gap survives the bundle.** The checker checks traceability after the fact
+  and gates nothing; the design requires a gate record per tier and has no tooling for one.
+  **"No gate" is not "the design's gate."** That is the top row of
+  [open-parameters.md](../rollout/open-parameters.md) and still needs its own record — which
+  also decides where a plan-ratified `NEW — proposed` decision accumulates
+  ([ADR-0034](decisions/0034-plan-decision-trace.md)'s deferred question).
+- **The shared spec rules now live in two places, not five.** The six EARS patterns, stable
+  `FR-nnn`, WITHDRAWN and one-behaviour-per-requirement appear in
+  [`asdlc/templates/spec.md`](../asdlc/templates/spec.md) and
+  [`skills/asdlc-spec/SKILL.md`](../skills/asdlc-spec/SKILL.md). Nothing keeps them in step;
+  the previously known drift — the design's counted `[form: …]` escape against the bundle's
+  uncounted note — was deleted with the bundle's copies.
 - **The skills live here now.** The owner's skills repository moved in on 2026-08-05
   ([ADR-0033](decisions/0033-skills-move-into-the-monorepo.md)): the engineering-decision skills
   and the four stage procedures at top-level [`skills/`](../skills/README.md), the QA harness at
-  `tools/skills-harness/`, one `skills add dulguun0225/asdlc` delivering all of it. The bundle
-  README's dangling *"this repository's `skills/` tree"* is finally true. `skills-checks.yml`
-  has **never run on Actions** — every step passes locally; the first push touching `skills/`
-  or the harness is the proof. The source repository (no remote; owner holds a backup) is no
-  longer load-bearing.
+  `tools/skills-harness/`, one `skills add dulguun0225/asdlc` delivering all of it.
+  `skills-checks.yml` has **never run on Actions** — every step passes locally; the first push
+  touching `skills/` or the harness is the proof. The source repository (no remote; owner holds
+  a backup) is no longer load-bearing.
 
 ### Standing rules that bind every session
 
@@ -940,8 +903,9 @@ appended sections or an FR reference, and **nothing enforces that the two stay i
   `skills add ./`. Skill names `asdlc-spec` … `asdlc-implement`; commands surface hyphenated
   (`/asdlc-spec`), restoring ADR-0020's original names. Spec-kit was rejected as delivery — 4
   integrations, wrap coupling to stock commands, `.specify/` state and the predecessor gate
-  model — so the bundle's fate question returns, uncoupled from delivery. Three one-command
-  bring-up verifications live in the ADR's §4.
+  model — so the bundle's fate question returned, uncoupled from delivery (since settled:
+  retired and deleted, [ADR-0035](decisions/0035-bundle-retired-and-deleted.md)). Three
+  one-command bring-up verifications live in the ADR's §4.
 - ~~**Blocks:** the pilot~~ — no longer; what remains is bring-up work
   ([open-parameters.md](../rollout/open-parameters.md)).
 - **Variant answers:** converges — delivery is above the code-host line; the closing ADR says

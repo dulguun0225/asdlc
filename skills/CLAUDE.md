@@ -22,9 +22,9 @@ live here, and this file's authoring invariants bind only the first:
 ([ADR-0033](../reference/decisions/0033-skills-move-into-the-monorepo.md)).
 This directory holds only what `skills add` delivers, plus its own `README.md`
 and this file ([ADR-0029](../reference/decisions/0029-bundle-holds-only-installable-components.md)'s
-rule). The sibling `tools/spec-kit-bundle/` ships the mechanism for tracing a
-technology choice to a decision record and ships no decision content; this is
-where researched decision content lives. Neither installs the other.
+rule). Researched decision content lives here; the mechanism that traces a
+plan's technology choices to decision records is the design's
+([ADR-0034](../reference/decisions/0034-plan-decision-trace.md)).
 
 Layout: **one skill per topic, flat, at `<name>/SKILL.md` directly in this
 directory** — which the CLI discovers as `skills/<name>/SKILL.md` from the
@@ -178,7 +178,7 @@ rules should load only when something is about to be cached.
 **A skill directory is the whole world its consumer has.** Every link in a
 skill resolves inside that directory or is an absolute URL. Text is rewritten
 wholesale, never half-copied. **This includes the rest of this repository**: no
-skill may link into `../tools/spec-kit-bundle/`, `../asdlc/` or any path above
+skill may link into `../asdlc/`, `../tools/` or any path above
 its own directory, and nothing that ships from here may assume a consumer
 installed the bundle or holds the design.
 

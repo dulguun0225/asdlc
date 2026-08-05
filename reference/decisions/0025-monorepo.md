@@ -230,6 +230,8 @@ re-read ADR-0024 parts 3 and 4 at that point.
 - **The bundle is retired** once the ASDLC's own tooling covers it. Then `tools/spec-kit-bundle/`
   becomes history rather than a live component. **Re-argue the rest of the bundle's presence on its
   own merits at that point rather than inheriting this record** — see the consequence above.
+  *(Happened 2026-08-05, ahead of the design's own tooling, by owner decision —
+  [ADR-0035](0035-bundle-retired-and-deleted.md). The monorepo itself is unaffected.)*
 - **The bundle is extracted back into a standalone repository.** Both root workflows would move
   back, and `bundle-checks.yml`'s `paths` filters and `$BUNDLE_DIR` would have to be unwound. The
   header comments exist to make that reversal mechanical.

@@ -11,6 +11,11 @@
   [ADR-0028](0028-bundle-rename-and-reset.md) narrowed.
 - **Decided by:** the owner, 2026-08-05 — the bundle directory is for
   spec-kit deliverables and `check_specs.py` is not one.
+- **The directory this narrows is gone:** the bundle was retired and deleted
+  later the same day by [ADR-0035](0035-bundle-retired-and-deleted.md).
+  `tools/spec-kit-checker/` — the half this record split out — survives, and
+  the residual rule stands: a companion program that travels a different way
+  than the component it serves gets its own `tools/` directory.
 
 ## Context
 

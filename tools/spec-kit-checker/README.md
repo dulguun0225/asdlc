@@ -1,17 +1,19 @@
 # spec-kit-checker
 
 `check_specs.py` — a stdlib-only merge gate for a product repo that follows the
-[`spec-kit-bundle`](../spec-kit-bundle/README.md) convention: requirements in
-EARS under stable `FR-nnn` ids, traced through `plan.md` and `tasks.md`, with
-technology choices traced to decision records.
+predecessor spec-kit convention: requirements in EARS under stable `FR-nnn`
+ids, traced through `plan.md` and `tasks.md`, with technology choices traced to
+decision records. The bundle that authored that convention,
+`tools/spec-kit-bundle/`, was retired and deleted on 2026-08-05
+([ADR-0035](../../reference/decisions/0035-bundle-retired-and-deleted.md));
+this checker is kept as prior art for the design's own checker (below).
 
-**It is not part of the bundle.** A spec-kit bundle ships only components
-`specify` can install — presets, workflows, extensions — and nothing installs a
-Python file. This one travels by copy ([ADR-0029](../../reference/decisions/0029-bundle-holds-only-installable-components.md)).
+**It travels by copy**
+([ADR-0029](../../reference/decisions/0029-bundle-holds-only-installable-components.md)):
+one Python file, versioned in the product repo like any other file.
 
-**It gates nothing before the fact.** The bundle ships no extension and no
-hook, so nothing stops `speckit.implement`. This checker runs in the product
-repo's CI, after the work is done, and blocks the merge.
+**It gates nothing before the fact.** It runs in the product repo's CI, after
+the work is done, and blocks the merge.
 
 | Path | What it is |
 | ---- | ---------- |
@@ -27,16 +29,16 @@ Copy the one file in (version it like any other file), then:
 - run: python3 ci/check_specs.py --repo .
 ```
 
-`ci/check_specs.py` is the path the bundle's wrapped commands name to the
-agent; put it elsewhere and update them.
+`ci/` is the path the examples assume; any path works — nothing else names it
+since the bundle's wrapped commands were deleted.
 
 ## What it blocks the merge on
 
 - A feature folder without `spec.md`.
-- A spec that defines no `FR-nnn` at all. The bundle's spec template ships five
-  placeholder FR bullets, so this fires only once they are deleted rather than
-  filled — unfilled placeholder wording inside a requirement is the reviewer's
-  job, not the checker's.
+- A spec that defines no `FR-nnn` at all. The convention's spec template
+  shipped five placeholder FR bullets, so this fires only once they are deleted
+  rather than filled — unfilled placeholder wording inside a requirement is the
+  reviewer's job, not the checker's.
 - `tasks.md` without `plan.md`.
 - Duplicate FR-ids or task ids.
 - A plan missing `## Requirements Traceability` or `## Decision Trace`; a
@@ -83,5 +85,4 @@ sha256, per tier.
 ## License
 
 MIT — see [LICENSE](LICENSE). A product repo copies `check_specs.py` in, so
-the terms travel with the file rather than with the bundle it was extracted
-from.
+the terms travel with the file.

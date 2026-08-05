@@ -100,22 +100,12 @@ reference/             THE WORKING RECORD
   research/            dated research notes
 ```
 
-> **One directory is missing from that tree, added 2026-07-28.**
-> [ADR-0025](0025-monorepo.md) lifted the documents-only restriction and added:
->
-> ```
-> tools/                THE CODE — programs and packages the life cycle needs
->   spec-kit-bundle/    the predecessor convention, built but never released
-> ```
->
-> (Named `spec-kit-bundle-nc/` until 2026-08-05 —
-> [ADR-0028](0028-bundle-rename-and-reset.md).)
->
-> The documents-only rule is **scoped, not deleted**: `asdlc/`, `variants/`, `rollout/` and
-> `reference/` still hold no code, no build system and no package manifest. The by-subject
-> principle below is unchanged by this — `tools/` is one more subject at the top level, which is
-> why ADR-0025 needed no new layout record. **Do not read this tree as forbidding `tools/`**; it
-> predates it.
+> **A fifth subject is missing from that tree.** [ADR-0025](0025-monorepo.md) added
+> `tools/` — the code, holding `spec-kit-bundle/` — and **scoped** the documents-only rule rather
+> than deleting it: `asdlc/`, `variants/`, `rollout/` and `reference/` still hold no code, no build
+> system and no package manifest. The by-subject principle is unchanged; `tools/` is one more
+> subject, which is why no new layout record was needed. **Do not read this tree as forbidding
+> `tools/`** — it predates it.
 
 The root directory listing is itself the map. A reader who has read nothing can see that there
 is a life cycle, that there are two variants, and that decisions and research are working

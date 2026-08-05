@@ -19,26 +19,15 @@ not**: all four `tools/spec-kit-bundle/catalogs/*.json` still named
 `GITHUB_REF_NAME=bundle-v0.2.0` gave three passes and four catalog-URL failures.
 
 **Facts established before deciding, from the authenticated GitHub API on 2026-07-28:**
+`dulguun0225/asdlc` is **public** and not archived. The standalone `spec-kit-bundle-nc` was public
+and **archived** — read-only, so publishing from it was impossible rather than merely undesirable.
+**Nothing had ever been published from either**: zero tags, zero releases, so no consumer URL was
+ever live and rewriting the catalogs cost nothing.
 
-| Repository | `visibility` | `archived` |
-|---|---|---|
-| `dulguun0225/asdlc` | **public** | false |
-| `dulguun0225/spec-kit-bundle-nc` | public | **true** |
-
-- The standalone repository being **archived** means read-only: no tag and no release can ever be
-  created in it again. Any plan that publishes from it — including mirroring this subtree back to
-  it — is impossible, not merely undesirable.
-- **Nothing has ever been published from either.** `spec-kit-bundle-nc` has zero tags and zero
-  releases, so no consumer URL was ever live and rewriting the catalogs cost nothing.
-
-**A correction that is part of this record, because a wrong fact drove a wrong escalation.** An
-earlier unauthenticated `curl` of `raw.githubusercontent.com/dulguun0225/asdlc/master/README.md`
-returned **404**, and that was read as proof the repository is private. It is not private. The same
-URL returns 200, and `gh api repos/dulguun0225/asdlc` reports `private: false`. On the strength of
-the 404 a disclosure question — *"may the ASDLC design be public?"* — was escalated to the owner and
-the release was parked for it. **The question did not exist.** Whatever produced the 404 (a stale
-negative cache, or a visibility flip between the two checks), the lesson is the same: **an
-unauthenticated 404 is not a visibility check.** The authenticated API is, and it costs one call.
+**Check visibility with the authenticated API, not with `curl`.** An unauthenticated 404 on a raw
+URL was read here as proof the repository was private, and escalated a disclosure question to the
+owner that did not exist. **An unauthenticated 404 is not a visibility check.** The authenticated
+API is, and it costs one call.
 
 ## What the source says, checked 2026-07-28 against the installed Spec Kit v0.14.2
 
@@ -98,12 +87,10 @@ Releases are cut here, from the tag namespace `bundle-v*`
 assert was loosened to match the tag and the file path without pinning the repository between them,
 so it survives that shape change and still fails on a stale tag.
 
-> **Asset names and component ids changed on 2026-08-05**
-> ([ADR-0028](0028-bundle-rename-and-reset.md)); the decision — publish from this repository, on
-> `bundle-v*` — did not. `catalogs/extensions.json` is gone with the extension, and the three that
-> remain point at `asdlc-preset-<v>.zip`, `asdlc-bundle-<v>.zip`, and
-> `…/bundle-v<v>/tools/spec-kit-bundle/workflows/asdlc/workflow.yml`. The loosened assert survived
-> that change too, which is the second time it has earned the loosening.
+**Asset names and component ids changed on 2026-08-05**
+([ADR-0028](0028-bundle-rename-and-reset.md)); the decision did not. There are three catalogs now,
+naming `asdlc-preset-<v>.zip`, `asdlc-bundle-<v>.zip`, and the raw `workflows/asdlc/workflow.yml`
+at the tag. The loosened assert survived that change too.
 
 **Consumers add the catalogs from `master`, not from a tag**, so a new release reaches them without
 re-running `catalog add`. That is unchanged from the standalone convention, and it is why `master`
@@ -126,21 +113,12 @@ entirely on Windows (`if os.name != "nt"`), where some of the 18 engineers work
 [ADR-0016](0016-tls-terminating-proxy-and-credential-masking.md) §4 already established that a
 credential in a file cannot be masked at the egress proxy while an environment variable can.
 
-### 4. The archived repository is history, not a fallback
+### 4. There is no fallback origin, and nothing is stranded
 
-`dulguun0225/spec-kit-bundle-nc` holds the bundle's 19 commits, which the plain-copy import left
-behind ([ADR-0025](0025-monorepo.md) *"What was actually done"* item 1). **Do not delete it, and do
-not release from it** — being archived, it cannot be released from anyway. Its catalog URLs are now
-superseded; because nothing was ever published there, no consumer is stranded.
-
-> **It was deleted on 2026-08-05** ([ADR-0028](0028-bundle-rename-and-reset.md)): 404 from the
-> authenticated API, and absent from the owner's repository list. This section's *conclusion* is
-> unaffected — nothing was ever published from it, so no consumer is stranded and no URL that ever
-> worked has broken. What is affected is the sentence above it: the 19 commits are gone.
-
-**Its README still describes itself as the distribution origin.** It is read-only, so that cannot be
-corrected in place. Anyone arriving from an old link finds no releases, which is the right outcome
-by accident rather than by signposting.
+`dulguun0225/spec-kit-bundle-nc` was the standalone repository. It has since been **deleted**
+([ADR-0028](0028-bundle-rename-and-reset.md) part 4), taking the bundle's 19 commits with it. That
+does not change this decision: nothing was ever published from it — zero tags, zero releases — so
+no consumer URL that ever worked has broken, and there was never a second origin to fall back to.
 
 ### 5. Distributing from this repository publishes nothing that was not already public — and that is worth stating plainly
 

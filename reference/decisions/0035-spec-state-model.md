@@ -98,7 +98,10 @@ spec, covers these too):
 6. **Ambiguity.** Two rows with the same `(From, Trigger)` and textually identical guards fail.
 7. **Diagram generation.** A spec carries no hand-written diagram. Where a rendered view is
    committed, CI regenerates it from the table and fails on any byte difference; where it is
-   not committed, the checker posts the generated view on the change.
+   not committed, the checker posts the generated view on the change. The spec-stage session
+   may run the generator itself — it is deterministic and read-only, so this is the one shell
+   command that stage permits; output is committed verbatim or not at all, and the
+   regenerate-and-diff gate is what catches a "tidied" copy.
 
 **The checks are structural, not semantic — stated so nobody reads them as more.** Names,
 citations and graph shape are verified; that an FR sentence agrees with the transition citing

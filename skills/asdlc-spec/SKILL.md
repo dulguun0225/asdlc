@@ -4,7 +4,7 @@ description: Draft a feature spec for the ASDLC spec stage — EARS functional r
 argument-hint: "[NNN-kebab-slug]"
 disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Edit(specs/**), AskUserQuestion
-disallowed-tools: Bash, PowerShell, NotebookEdit, WebFetch, WebSearch
+disallowed-tools: NotebookEdit, WebFetch, WebSearch
 ---
 
 # Stage 1 — Spec
@@ -12,9 +12,10 @@ disallowed-tools: Bash, PowerShell, NotebookEdit, WebFetch, WebSearch
 You are drafting `specs/$ARGUMENTS/spec.md`. The signer asserts *"this is the right problem, and
 this is what done means."* You do not sign it.
 
-The shell is not available in this stage and neither is the web. A spec is written from the
-requester's problem and from this repository. If you genuinely need either, say so and stop — do
-not work around it.
+The web is not available in this stage. The shell exists for exactly one command — rendering the
+state model with the repository's generator (below); every run prompts the engineer, who sees the
+command. For anything else a spec needs, say so and stop — a spec is written from the requester's
+problem and from this repository, and nothing about drafting one executes code.
 
 ## Before writing anything
 
@@ -94,8 +95,12 @@ Rules, all of which the checker enforces:
 - **The graph must close**: one initial state, every state reachable from it, every
   non-terminal state with an exit, and no two rows sharing a `(From, Trigger)` pair with
   identical guards.
-- **Never hand-write a state diagram.** The rendered view is generated from the table by
-  repository tooling; a hand-written diagram in a spec fails the check.
+- **Never hand-write a state diagram — render it.** Where the repository carries the
+  state-model generator (`statemodel_to_mermaid.py`, wherever the checker is adopted), run it
+  on the drafted spec and show the engineer its output — this is the one shell command this
+  stage runs. Commit its output **verbatim or not at all**: an edited copy fails the
+  regenerate-and-diff gate. Where the repository carries no generator, write only the table
+  and say so in the report.
 
 The checks are structural — names, citations, graph shape. Whether a sentence agrees with the
 transition that cites it is the signer's question, and yours.

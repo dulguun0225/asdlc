@@ -25,23 +25,24 @@ computer and the agent's local memory does not travel, so this section — not a
 the conversation — is where the state lives. Anyone finishing a session updates it
 ([`CLAUDE.md`](../CLAUDE.md) → "Assume every session starts on a different computer").
 
-### ▶ Archived 2026-08-05 — there is no next session
+### ▶ Unarchived 2026-08-05 — the state below is live again
 
-The owner archived this repository on 2026-08-05 and renamed it `asdlc-archived`. It is
-read-only on GitHub; no further work is planned. Everything below is the state as it stood
-at that moment, kept because it is still the correct starting point if the design is ever
-resumed. Nothing in it was abandoned mid-change: the working tree was clean and in sync with
-`origin/master` when the repository was archived.
+The repository was archived and renamed `asdlc-archived` earlier on 2026-08-05, then unarchived
+and renamed back to [`dulguun0225/asdlc`](https://github.com/dulguun0225/asdlc) the same day. The
+archive banners in this file and in [`README.md`](../README.md) are reverted, so the handover note
+below is current, not a snapshot. Two items the archive had recorded as permanently blocked are
+unblocked again and revert to their original state:
 
-Two items became permanently blocked by archiving rather than closed:
+- **`bundle-v0.2.0` can be cut from here.** [ADR-0026](decisions/0026-bundle-distribution.md) makes
+  this repository the publish point, and it accepts tags again — see the two prerequisites listed
+  further down before tagging.
+- **Re-importing `spec-kit-bundle-nc` with history is possible again.** That history still lives in
+  [`dulguun0225/spec-kit-bundle-nc`](https://github.com/dulguun0225/spec-kit-bundle-nc), which stays
+  archived — **do not delete it.** The item's own merge-cost argument, not archiving, is the reason
+  it may still not be worth doing.
 
-- **`bundle-v0.2.0` cannot be cut from here.** [ADR-0026](decisions/0026-bundle-distribution.md)
-  made this repository the publish point, and an archived repository accepts no new tags.
-  Resuming means either unarchiving or choosing a new publish point.
-- **Re-importing `spec-kit-bundle-nc` with history is now moot from this side.** The history
-  still exists in [`dulguun0225/spec-kit-bundle-nc`](https://github.com/dulguun0225/spec-kit-bundle-nc)
-  — **do not delete that repository.** A `git subtree add` into this tree is no longer possible
-  without unarchiving.
+[ADR-0027](decisions/0027-design-is-public.md)'s repository-state table (`archived: false`) is
+accurate again; no ADR needed changing.
 
 ### ▶ START HERE — the state, and the next session's first action
 

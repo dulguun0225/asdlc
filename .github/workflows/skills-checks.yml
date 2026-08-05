@@ -16,8 +16,7 @@
 # real — an unquoted `argument-hint: [.. ] [..]` made asdlc-implement invisible
 # on this workflow's first local run.
 #
-# NOT YET RUN ON ACTIONS. Every step below passes locally; the first push that
-# touches skills/ or tools/skills-harness/ is the proof.
+# First ran on Actions 2026-08-05: green, multiple runs the same day.
 
 name: skills-checks
 

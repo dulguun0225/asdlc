@@ -116,11 +116,10 @@ closed as **fork**, `check_specs.py` and the `password-reset` fixtures were harv
 as the **fork seed** of the design's own (unbuilt) checker, and `tools/spec-kit-checker/` was
 deleted. No file content was lost; only the predecessor-convention identity went.
 
-- **`feature-artifact-checker-checks.yml` has never run on Actions.** Root workflow,
-  path-filtered to `tools/feature-artifact-checker/**`, holding `--self` and the three negative
-  probes — relocated with the rename, not weakened. All four steps re-verified locally after
-  the move (2026-08-05: `--self` green, all three probes red for the right reason); the first
-  push touching that directory is the proof.
+- **`feature-artifact-checker-checks.yml` is green on Actions.** Root workflow, path-filtered
+  to `tools/feature-artifact-checker/**`, holding `--self` and the three negative probes —
+  relocated with the rename, not weakened. First Actions run 2026-08-05, on the rename commit
+  itself: green (run 30994545573), after the same four steps passed locally.
 - **The gate-tooling gap survives the bundle.** The fork seed checks traceability after the
   fact and gates nothing; the design requires a gate record per tier and has no tooling for one.
   **"No gate" is not "the design's gate."** That is the top row of
@@ -137,9 +136,8 @@ deleted. No file content was lost; only the predecessor-convention identity went
   ([ADR-0033](decisions/0033-skills-move-into-the-monorepo.md)): the engineering-decision skills
   and the four stage procedures at top-level [`skills/`](../skills/README.md), the QA harness at
   `tools/skills-harness/`, one `skills add dulguun0225/asdlc` delivering all of it.
-  `skills-checks.yml` has **never run on Actions** — every step passes locally; the first push
-  touching `skills/` or the harness is the proof. The source repository (no remote; owner holds
-  a backup) is no longer load-bearing.
+  `skills-checks.yml` is **green on Actions** — multiple runs on 2026-08-05. The source
+  repository (no remote; owner holds a backup) is no longer load-bearing.
 
 ### Standing rules that bind every session
 

@@ -57,7 +57,8 @@ open), and it outgrows the name `spec-kit-checker` and its directory. The fork i
   `.github/workflows/feature-artifact-checker-checks.yml`, path filter updated. The three
   negative probes were relocated for the second time (first: ADR-0029 §4), not rewritten and not
   weakened. Verified 2026-08-05: `--self` green in the new home, all three probes red for the
-  right reason, locally — the workflow has still never run on Actions.
+  right reason, locally — and the commit landing this record gave the workflow its first
+  Actions run, green (run 30994545573).
 - The directory's `README.md` and `CLAUDE.md` were rewritten to the new identity: home of the
   design's checker, holding the seed until the rewrite to the spec.
 

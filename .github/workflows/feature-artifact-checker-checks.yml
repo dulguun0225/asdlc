@@ -17,8 +17,9 @@
 # It installs nothing. check_specs.py is stdlib-only by rule, so the runner's
 # python3 is the whole toolchain.
 #
-# NOT YET RUN ON ACTIONS. Every step below passes locally; the first push that
-# touches tools/feature-artifact-checker/ is the proof.
+# First ran on Actions 2026-08-05 (the rename commit itself): green, run
+# 30994545573. Its predecessor spec-kit-checker-checks also ran green once,
+# on the bundle-deletion push earlier the same day.
 
 name: feature-artifact-checker-checks
 

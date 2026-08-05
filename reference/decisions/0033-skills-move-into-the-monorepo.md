@@ -126,10 +126,9 @@ component either variant installs differently.
   two; its three-streams reopen condition is unchanged.
 - **The disclosure scan ran clean** before the first commit: the only external domain in the
   entire skill set is `github.com`, no org names, no credentials, no emails.
-- **`skills-checks.yml` has never run on Actions.** Every step passes locally; the first push
-  touching `skills/` or the harness is the proof — the same standing state as
-  `feature-artifact-checker-checks.yml` (named `spec-kit-checker-checks.yml` until
-  [ADR-0036](0036-checker-harvested-fork-seed.md)).
+- **`skills-checks.yml` had never run on Actions at this record's writing.** It ran green later
+  the same day, as did `feature-artifact-checker-checks.yml` (named
+  `spec-kit-checker-checks.yml` until [ADR-0036](0036-checker-harvested-fork-seed.md)).
 
 ### What would reopen this
 

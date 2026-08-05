@@ -20,7 +20,7 @@ language against another CLI. If yes, it is a design rule.
 |---|---|---|
 | [feature-artifact-checker/](feature-artifact-checker/README.md) | The design's checker — [ADR-0014](../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md) part 7's blocking checks plus the requirements trace | **Not built.** Specified at [asdlc/examples/001-feature-artifact-checker/spec.md](../asdlc/examples/001-feature-artifact-checker/spec.md). Holds its **fork seed**: `check_specs.py`, the predecessor convention's stdlib-only merge gate, harvested from the deleted `spec-kit-checker/` ([ADR-0036](../reference/decisions/0036-checker-harvested-fork-seed.md)) — runnable, green as its own CI's subject, never adopted by any product repo |
 | *(stage-procedure delivery)* | Not a `tools/` program at all: the four stage procedures ship as Agent Skills from the repository's [skills/](../skills/README.md) tree via the **`skills` CLI** (`vercel-labs/skills`, MIT, external) | **Decided** — [ADR-0032](../reference/decisions/0032-stage-delivery-via-skills-cli.md), which rejected both a home-built renderer and the spec-kit bundle for the role. Row kept so nobody re-invents it here |
-| [skills-harness/](skills-harness/) | QA harness for the top-level [`skills/`](../skills/README.md) tree: the CLI discovery check, the two wired gates (evidence order, dangling pointers), token reports, and the firing harness | **Built and green.** Moved in with the skills ([ADR-0033](../reference/decisions/0033-skills-move-into-the-monorepo.md)); CI is `.github/workflows/skills-checks.yml` at the root, never run on Actions yet |
+| [skills-harness/](skills-harness/) | QA harness for the top-level [`skills/`](../skills/README.md) tree: the CLI discovery check, the two wired gates (evidence order, dangling pointers), token reports, and the firing harness | **Built and green.** Moved in with the skills ([ADR-0033](../reference/decisions/0033-skills-move-into-the-monorepo.md)); CI is `.github/workflows/skills-checks.yml` at the root, green on Actions since 2026-08-05 |
 
 **There was a fourth directory.** `spec-kit-bundle/` — the GitHub Spec Kit bundle that authored
 the predecessor convention the checker checks — was retired and deleted on 2026-08-05
@@ -62,12 +62,12 @@ design-document change runs nothing:
 
 - **[`.github/workflows/feature-artifact-checker-checks.yml`](../.github/workflows/feature-artifact-checker-checks.yml)**
   — runs `check_specs.py --self` and its three negative probes. Installs nothing: the checker is
-  stdlib-only, so the runner's `python3` is the whole toolchain. **Never run on Actions** —
-  every step passes locally (re-verified after the 2026-08-05 rename), and the first push
-  touching `tools/feature-artifact-checker/` is its proof.
+  stdlib-only, so the runner's `python3` is the whole toolchain. **Green on Actions** — first
+  run 2026-08-05 on the rename commit itself (run 30994545573); its predecessor
+  `spec-kit-checker-checks` also ran green once, on the bundle-deletion push the same day.
 - **[`.github/workflows/skills-checks.yml`](../.github/workflows/skills-checks.yml)** — the
   skills harness's discovery check and gates, filtered to `skills/` and `tools/skills-harness/`.
-  **Never run on Actions either**, same proof condition.
+  **Green on Actions too** — multiple runs on 2026-08-05.
 
 The bundle's two workflows — `bundle-checks.yml` (green) and `bundle-release.yml` (never fired;
 no `bundle-v*` tag was ever cut) — were deleted with the bundle

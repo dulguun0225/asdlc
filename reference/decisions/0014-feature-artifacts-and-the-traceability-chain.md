@@ -1,19 +1,9 @@
 # ADR-0014 — The feature artifacts, EARS, and where the traceability chain ends
 
-- **Status:** accepted
+- **Status:** accepted; the plan template's §9 decision trace is specified by
+  [ADR-0034](0034-plan-decision-trace.md)
 - **Date:** 2026-07-27
-- **Closes:** the "no spec template exists" / "no plan template exists" / "no task format
-  exists" gaps in [01-spec.md](../../asdlc/01-spec.md), [02-plan.md](../../asdlc/02-plan.md) and
-  [03-tasks.md](../../asdlc/03-tasks.md); **what the tasks-stage consistency check actually
-  checks**, which [open-questions.md](../open-questions.md) records as a design defect rather
-  than missing documentation; where the spec lives; and the missing format for proposing
-  per-service SLO values ([02-plan.md](../../asdlc/02-plan.md), [06-deploy.md](../../asdlc/06-deploy.md)).
-- **Opens:** nothing new that blocks. Requirement-level defect attribution is *enabled* by this
-  record and still not *defined* — see Consequences.
-- **Extended:** the plan template's §9 decision trace, present here but unspecified, is
-  specified by [ADR-0034](0034-plan-decision-trace.md) (2026-08-05).
 - **Research:** [2026-07-27 — spec, plan and task templates](../research/2026-07-27-spec-plan-task-templates.md)
-- **Environment:** [target environment](../context.md)
 
 ## Context
 

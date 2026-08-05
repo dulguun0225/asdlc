@@ -2,8 +2,6 @@
 
 - **Status:** accepted
 - **Date:** 2026-07-27
-- **Closes:** [OQ-5](../open-questions.md)
-- **Opens:** [OQ-9](../open-questions.md)
 - **Research:** [2026-07-27 — where gates go, and who assigns the tier](../research/2026-07-27-gate-placement-and-tiering.md)
 
 ## Context

@@ -1,28 +1,18 @@
 # ADR-0033 — The skills move into the monorepo: `skills/` at the root, the harness in `tools/`
 
-- **Status:** accepted, 2026-08-05
+- **Status:** accepted; moves [ADR-0032](0032-stage-delivery-via-skills-cli.md) §1's canonical
+  path by one step — the four stage procedures' canonical files live at `skills/asdlc-<stage>/`,
+  so one `skills add` delivers them with everything else. The rules governing them stay at
+  [asdlc/skills/README.md](../../asdlc/skills/README.md).
 - **Date:** 2026-08-05
-- **Decided by:** the owner, 2026-08-05 — the move in intent ("*I'm thinking of moving them into
-  this monorepo*", then "*go ahead with the placement*"), publication confirmed intended, and the
-  placement fact: the `skills` CLI discovers `./skills/` and `./skills/skills/` (owner-tested,
-  2026-08-05).
-- **Extends:** [ADR-0025](0025-monorepo.md) — the monorepo gains its second imported project —
-  and [ADR-0029](0029-bundle-holds-only-installable-components.md), whose rule is applied a
-  second time.
-- **Amends:** [ADR-0032](0032-stage-delivery-via-skills-cli.md) §1 by one path — the four stage
-  procedures' canonical files move from `asdlc/skills/` to `skills/asdlc-<stage>/`, so one
-  `skills add` delivers them with everything else. The rules governing them do not move:
-  [asdlc/skills/README.md](../../asdlc/skills/README.md) remains the design's page for them.
-- **Closes:** the pending-move row opened in
-  [open-parameters.md](../../rollout/open-parameters.md) on 2026-08-05.
+- **Decided by:** the owner; placement fact owner-tested — the `skills` CLI discovers
+  `./skills/` and `./skills/skills/`.
 
 ## Context
 
 The owner's skills project — researched engineering-decision skills plus a QA harness — lived in
-a local repository with no git remote (a backup exists, owner-stated). Its own docs already
-described it as a subproject of an `asdlc` monorepo, written for the scratch repository the
-2026-08-05 bundle rework happened in ([ADR-0028](0028-bundle-rename-and-reset.md)); its README's
-install command already named `dulguun0225/asdlc`. This move makes those statements true.
+a local repository with no git remote (a backup exists, owner-stated). Its README's install
+command already named `dulguun0225/asdlc`. This move makes that statement true.
 
 Placement is constrained by delivery, not by taste: a consumer's
 `skills add dulguun0225/asdlc` clones the repository root and discovers skills at documented,
@@ -38,12 +28,12 @@ The directory is documents (prompt text and evidence), so the four design direct
 documents-only rule and "code goes in `tools/` and nowhere else" both survive unamended;
 [CLAUDE.md](../../CLAUDE.md)'s layout list gains the entry.
 
-### 2. The harness goes to `tools/skills-harness/` — ADR-0029's rule, applied again
+### 2. The harness goes to `tools/skills-harness/` — the companion-program rule, applied again
 
 `skills add` reads `SKILL.md` files and never touches `package.json`. The npm harness (the
 discovery check, the two gates, the token reports, the firing harness) travels no install path,
-so it is a companion program and gets its own `tools/` directory — the same split
-[ADR-0029](0029-bundle-holds-only-installable-components.md) made for `check_specs.py`.
+so it is a companion program and gets its own `tools/` directory — the same split made for
+`check_specs.py` ([tools/README.md](../../tools/README.md)'s companion-program rule).
 `skills/` holds only what `skills add` delivers, plus its own `README.md` and `CLAUDE.md`
 (the metadata exemption, unchanged). The package is renamed `skills-harness` — its old name
 `asdlc` was a third artifact carrying that id. The scripts' one location assumption (the skills
@@ -99,13 +89,12 @@ The now-false claim this created was swept per the skills' own "publish obliges 
 - **Everything under `tools/skills/`.** Rejected — `tools/skills/skills/` is a discovery shape
   nobody tested, and the org install flow would ride on it.
 - **Whole project at top level, harness included.** Rejected — puts code outside `tools/` and
-  re-creates the mixed directory ADR-0029 unmixed.
+  re-creates a mixed skills-plus-code directory.
 - **Leave the stage procedures in `asdlc/skills/`.** Rejected — the delivery mechanism cannot
   discover them there; keeping them means a second install path for exactly the four files the
   delivery decision exists for.
-- **Subtree merge to keep the source history.** Rejected — three commits, self-dating content, a
-  backup held by the owner; the cost of ADR-0025's shortfall came from losing *reasoning*, and
-  this project's reasoning is in its files.
+- **Subtree merge to keep the source history.** Rejected — three commits, self-dating content,
+  a backup held by the owner; this project's reasoning is in its files, not its commits.
 
 ## Variant answers
 
@@ -117,25 +106,14 @@ component either variant installs differently.
 - **`npx skills add dulguun0225/asdlc` now delivers twenty-four skills** — the four stage
   procedures and the twenty engineering-decision skills, from one public origin. The install
   command the skills README carried is true for the first time.
-- **The repository gains a top-level directory** and every layout description was updated:
-  root `README.md` and `CLAUDE.md`, `asdlc/skills/README.md`, the stack sheets' delivery rows,
-  `tools/README.md`, and the bundle README's skills sentence — which has now flipped three times
-  in one day and finally points at a path in this tree.
-- **A third product family shares the repository** (design, bundle, skills). The skills need no
-  release assets — `skills add` reads the tree — so ADR-0026's release-stream counter stays at
-  two; its three-streams reopen condition is unchanged.
 - **The disclosure scan ran clean** before the first commit: the only external domain in the
   entire skill set is `github.com`, no org names, no credentials, no emails.
-- **`skills-checks.yml` had never run on Actions at this record's writing.** It ran green later
-  the same day, as did `feature-artifact-checker-checks.yml` (named
-  `spec-kit-checker-checks.yml` until [ADR-0036](0036-checker-harvested-fork-seed.md)).
 
 ### What would reopen this
 
 - **The CLI's discovery layout changes.** The placement is pinned to owner-tested discovery
   shapes at `skills` CLI v1.5.21; a breaking change there moves the tree or the consumers.
-- **The engineering skills and the design stop wanting one repository** — the three-products
-  pressure ADR-0025 and ADR-0026 already name. The skills are the easiest of the three to
+- **The skills and the design stop wanting one repository.** The skills are the easiest to
   re-extract: one directory of documents plus one harness directory.
 - **A licence lands** (part 5's row) — no relocation, but the files gain a header or a LICENSE
   and this record's part 5 is superseded by that row's answer.

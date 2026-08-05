@@ -5,10 +5,9 @@ them is not in force, however plausible it looks in a repository file.
 
 **The files live in the repository's [`skills/`](../../skills/) tree** — the directory the
 `skills` CLI discovers and delivers from
-([ADR-0033](../../reference/decisions/0033-skills-move-into-the-monorepo.md), which moved them
-out of this directory so one `skills add` delivers the stage procedures and the
-engineering-decision skills together). This page is the design's description of them, and it is
-where their conventions are stated.
+([ADR-0033](../../reference/decisions/0033-skills-move-into-the-monorepo.md)), so one
+`skills add` delivers the stage procedures and the engineering-decision skills together. This
+page is the design's description of them, and it is where their conventions are stated.
 
 | Skill | Command | Stage | Produces |
 |---|---|---|---|
@@ -29,8 +28,7 @@ Templates: [../templates/](../templates/README.md).
 ## How they get to an engineer
 
 **As Agent Skills, delivered by the `skills` CLI**
-([ADR-0032](../../reference/decisions/0032-stage-delivery-via-skills-cli.md), which closed
-[OQ-19](../../reference/open-questions.md#oq-19--runner-neutral-stage-procedure-delivery)):
+([ADR-0032](../../reference/decisions/0032-stage-delivery-via-skills-cli.md)):
 
 - **These four files are the canonical source.** The skill names are `asdlc-spec`,
   `asdlc-plan`, `asdlc-tasks`, `asdlc-implement` — the `name:` frontmatter field, which the
@@ -75,16 +73,14 @@ sandbox, the never-write list, and the egress allowlist, none of which expire. C
 
 - **`name: asdlc-<stage>` in frontmatter.** Required by the Agent Skills standard, and the
   `asdlc-` prefix does the namespacing job inside a shared `.agents/skills/` directory
-  ([ADR-0032](../../reference/decisions/0032-stage-delivery-via-skills-cli.md) §2). The
-  ADR-0024-era rule that omitted `name` deliberately died with the plugin.
+  ([ADR-0032](../../reference/decisions/0032-stage-delivery-via-skills-cli.md) §2).
 - **`disable-model-invocation: true`.** The engineer enters a stage; the model does not decide it
   has moved on ([ADR-0020](../../reference/decisions/0020-agent-instruction-layers.md) part 2).
   Whether every non-Claude agent honours it is that runner's admission question
   ([OQ-20](../../reference/open-questions.md#oq-20--the-runner-admission-contract)).
 - **No inline shell.** No `` !`command` `` and no ` ```! ` blocks, anywhere. Managed settings set
-  `disableSkillShellExecution: true`, and whether that exempts a managed-scope plugin skill was not
-  established ([ADR-0024](../../reference/decisions/0024-stage-skill-distribution.md) part 6).
-  Writing them without inline shell makes the ambiguity irrelevant.
+  `disableSkillShellExecution: true`; writing the skills without inline shell makes any scope
+  ambiguity in that flag irrelevant.
 - **Tool names are the canonical ones**, checked 2026-07-28 against the
   [tools reference](https://code.claude.com/docs/en/tools-reference) — *"The tool names are the
   exact strings you use in permission rules"*. Specifier forms used here: `Bash(npm run *)` for

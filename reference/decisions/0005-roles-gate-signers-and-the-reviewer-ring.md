@@ -1,18 +1,14 @@
 # ADR-0005 — Who signs each gate, and how the reviewer pool works
 
-- **Status:** accepted
+- **Status:** accepted; supersedes the first gate-placement record (ADR-0004, deleted — its
+  gate table is restated here in full and its research content is preserved here)
 - **Date:** 2026-07-27
-- **Supersedes:** [ADR-0004](0004-gate-placement.md) — two rows of its gate table change,
-  so the table is restated here in full rather than split across two records
-- **Depends on:** [ADR-0003](0003-graduated-gating-machine-derived-tier.md) — how a tier
-  is assigned
-- **Environment:** [target environment](../context.md)
 - **Research:** [2026-07-27 — where gates go, and who assigns the tier](../research/2026-07-27-gate-placement-and-tiering.md),
   [2026-07-27 — implementation survey](../research/2026-07-27-asdlc-implementation-survey.md)
 
 ## Context
 
-[ADR-0004](0004-gate-placement.md) placed the human gates but left **who signs them**
+ADR-0004 placed the human gates but left **who signs them**
 unspecified beyond "a named signer." It assumed a reviewer pool existed. The
 organisation's actual shape, recorded on 2026-07-27, says it does not.
 

@@ -1,15 +1,14 @@
 # Research note — progressive rollout and automated rollback
 
-- **Date of session:** 2026-07-27 (fourth research session this day)
 - **All sources fetched/checked:** 2026-07-27
 - **Question asked:** [OQ-11](../open-questions.md) — is progressive rollout with automated
   rollback achievable, on what, triggered by what signal, proved how, and at what cost? It is
   the named exit condition for the T3 automatic deploy path
   ([ADR-0005](../decisions/0005-roles-gate-signers-and-the-reviewer-ring.md) part 6).
-- **Method:** inline first-party fetches (tool documentation and licence files). No delegated
-  agents this session. Capability claims only — the prior finding stands that **no outcome
-  evidence exists** for progressive rollout on agent-authored changes; nothing here upgrades
-  vendor capability documentation into effectiveness evidence.
+- **Method:** first-party fetches (tool documentation and licence files). Capability claims
+  only — the prior finding stands that **no outcome evidence exists** for progressive rollout
+  on agent-authored changes; nothing here upgrades vendor capability documentation into
+  effectiveness evidence.
 - **Closes:** OQ-11 → [ADR-0011](../decisions/0011-progressive-rollout.md).
 
 ## Read this first
@@ -97,7 +96,7 @@ fetched 2026-07-27.
 
 | Claim | Status | Why |
 |---|---|---|
-| Progressive rollout tooling proves agent-authored changes are safe to auto-deploy | **Still unsupported** | Everything above is capability documentation. No outcome evidence was found in this or any prior session; ADR-0004's original finding stands. |
+| Progressive rollout tooling proves agent-authored changes are safe to auto-deploy | **Still unsupported** | Everything above is capability documentation. No outcome evidence was found in this or any prior session; the original 2026-07-27 gate-placement finding stands (carried in ADR-0005). |
 | Rollback restores the previous state | **Refuted by a vendor's own docs** | Rollback redeploys an old revision as a new deployment and does not reconcile script actions or destroyed content (Finding 3). ADR-0006's declared `reversibility` remains the governing concept. |
 
 ## Coverage gaps — unresearched, not unimportant

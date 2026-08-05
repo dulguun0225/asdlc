@@ -2,19 +2,11 @@
 
 - **Status:** accepted
 - **Date:** 2026-07-27
-- **Closes:** [OQ-8](../open-questions.md), and the residual handed over from
-  [OQ-3](../open-questions.md) — *how autonomy is bounded in practice (blast radius,
-  reversibility, audit trail)*
-- **Extends:** [ADR-0005](0005-roles-gate-signers-and-the-reviewer-ring.md) part 1 and
-  [ADR-0006](0006-tier-function-and-greenfield-cold-start.md) part 3 — both gain a rule here
-  rather than being superseded
-- **Depends on:** [ADR-0007](0007-agent-runner-and-containment.md) — the containment mechanisms
-  this record configures
 - **Research:** [2026-07-27 — the agent runner, its containment, and what it costs](../research/2026-07-27-stack-and-guardrails.md)
 
 ## Context
 
-ADR-0004 flagged, and ADR-0005 inherited, an omission that gate placement does not fix: **nothing
+ADR-0005 inherited an omission that gate placement does not fix: **nothing
 bounds what the agent may touch between gates.** OQ-3 was closed on gate placement with this
 residual explicitly handed to OQ-8. This record answers it.
 

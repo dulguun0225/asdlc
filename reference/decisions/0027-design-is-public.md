@@ -1,22 +1,16 @@
 # ADR-0027 — The design is published: this repository is public by decision
 
-- **Status:** accepted, 2026-07-28
+- **Status:** accepted
 - **Date:** 2026-07-28
-- **Closes:** the open parameter *"Is the design meant to be public?"*
-  ([open-parameters.md](../../rollout/open-parameters.md)).
-- **Extends:** [ADR-0026](0026-bundle-distribution.md) part 5, which named the gap and could not
-  close it — publication is the owner's call, not a research question.
-- **Decided by:** the owner, 2026-07-28, asked directly and given the priced alternative.
+- **Decided by:** the owner, asked directly and given the priced alternative.
 
 ## Context
 
-`dulguun0225/asdlc` has been public since before anyone in this project looked at the setting.
-[ADR-0026](0026-bundle-distribution.md) part 5 recorded the state and said plainly that **no record
-chose it**. This record chooses it.
+`dulguun0225/asdlc` has been public since before anyone in this project looked at the setting;
+no record had chosen it. This record chooses it.
 
 **Facts verified from the authenticated GitHub API on 2026-07-28, immediately before the question
-was put to the owner** — ADR-0026 exists partly because an earlier visibility claim rested on an
-unauthenticated 404, so the check was repeated rather than quoted:
+was put to the owner:**
 
 | Field | Value |
 |---|---|
@@ -26,16 +20,13 @@ unauthenticated 404, so the check was repeated rather than quoted:
 | releases | **0** |
 | forks, stars | 0, 0 |
 
-**Nothing external depends on the URL yet.** That is what made the choice free, and it stops being
-free once `bundle-v0.2.0` is cut and installed anywhere.
+**Nothing external depends on the URL yet.** That is what made the choice free, and it stops
+being free once anything is released and externally consumed.
 
-**Why the question existed at all is co-location.** Before [ADR-0025](0025-monorepo.md) the two
-subjects had two visibility switches: the bundle is a distributable product that wants public,
-credential-free installs, and the design holds facts about one identifiable organisation. One
-repository is one switch. ADR-0026 part 5 framed this as a pre-existing state; it is also **a
-coupling the monorepo created**, and it is priced here rather than left implicit. The two subjects
-resolve in the same direction, so today the coupling costs nothing — that is an outcome, not a
-property of the design.
+**Why the question existed at all is co-location.** The monorepo put products that want public,
+credential-free reads and a design holding facts about one identifiable organisation behind one
+visibility switch. The subjects resolve in the same direction, so today the coupling costs
+nothing — that is an outcome, not a property of the design.
 
 ### What is published, concretely
 
@@ -52,18 +43,15 @@ in it.
 - **[rollout/open-parameters.md](../../rollout/open-parameters.md)** — an inventory of controls
   that are decided and **not yet built**. That is the most operationally sensitive file here, and
   it is sensitive precisely because it is honest.
-- **[asdlc/skills/](../../asdlc/skills/README.md)** — the prompt text the agent is given.
-- **[tools/spec-kit-bundle/](../../tools/README.md)** — already public in its own right, MIT,
-  and previously public as a standalone repository.
+- **[skills/](../../skills/README.md)** — the prompt text the agent is given.
 
 None of it is a credential, a customer, or a running system. That is the reason the answer is
 survivable, and part 2 below is what keeps it true.
 
 ## Options considered
 
-1. **Go private; distribute the bundle with authentication.** Rejected by the owner. The cost was
-   bounded and already written down — one `~/.specify/auth.json` per consumer, no URL change
-   ([ADR-0026](0026-bundle-distribution.md) part 3) — and the consumers are the org's own 18
+1. **Go private; distribute with authentication.** Rejected by the owner. The cost was bounded —
+   one credential per consumer, no URL change — and the consumers are the org's own 18
    engineers, so the friction was near zero. It was the conservative default and it was declined
    deliberately.
 2. **Public, by decision.** **Chosen.** Zero work, credential-free installs, and the design becomes
@@ -77,9 +65,9 @@ survivable, and part 2 below is what keeps it true.
 
 ### 1. The repository is public, and that is now a choice with a record behind it
 
-Effective 2026-07-28. [ADR-0026](0026-bundle-distribution.md) part 3's no-credential consumer path
-is **confirmed as the settled experience**, not a state that happens to hold. Its private-fallback
-paragraph stays exactly as written — it is the reversal runbook, and it is not to be implemented.
+Effective 2026-07-28. The no-credential read path is confirmed as the settled experience, not a
+state that happens to hold. The reversal runbook: going private costs one credential per
+consumer and changes no URL.
 
 ### 2. Publication has a boundary, and the boundary is the part that binds future sessions
 
@@ -112,8 +100,8 @@ decision here depends on which human holds the role, only on the role existing a
 
 There is **no root `LICENSE`**, and the GitHub API reports no licence for the repository. Public and
 unlicensed means **all rights reserved by default** — a reader may read the design and has no
-granted right to reuse it. Meanwhile `tools/spec-kit-bundle/LICENSE` is **MIT**, so the tree
-carries one subtree that grants rights and a surrounding body of work that grants none.
+granted right to reuse it. Meanwhile `tools/feature-artifact-checker/LICENSE` is **MIT**, so the
+tree carries one subtree that grants rights and a surrounding body of work that grants none.
 
 That may be exactly what is wanted. It has not been decided, and choosing a licence allocates the
 org's rights, so it is the owner's call and not a research question. **New owner row in
@@ -131,23 +119,15 @@ document becomes more or less authoritative for being readable.
 **Not applicable**, the same way [ADR-0025](0025-monorepo.md)'s is: this is repository hygiene, with
 no component either variant installs and no cost that differs between them.
 
-One interaction checked and dismissed: [ADR-0024](0024-stage-skill-distribution.md) part 3's
-marketplace-trust warning — *"the marketplace repository's own default branch is trusted, because
-nothing can pin it"* — is **unchanged by visibility.** That risk is about who can **write** to the
-default branch, not who can read it.
-
 ## Consequences
 
-- **Consumers install the bundle with no credential**, and that is now backed by a decision rather
+- **Consumers read and install with no credential**, and that is now backed by a decision rather
   than by an unexamined setting.
 - **Part 2's boundary binds every future session**, including agent sessions, and it is the kind of
   rule that is only ever broken by accident.
 - **OQ-10 will be answered under a naming rule** it did not previously have.
-- **Nothing has to be reverted or migrated.** The state and the record now agree; the only thing
-  that changed is that a reader finds a reason.
-- **Reversal stays bounded only while nothing external consumes the URL.** Today going private costs
-  one `auth.json` per consumer and changes no URL. After `bundle-v0.2.0` is cut and installed
-  outside the org, it costs that file to every one of those consumers, discovered by them as a
+- **Reversal stays bounded only while nothing external consumes the URL.** After anything is
+  released and installed outside the org, going private is discovered by every consumer as a
   404. **Reprice before flipping, do not re-read this paragraph as a standing guarantee.**
 
 ### What would reopen this

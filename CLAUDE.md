@@ -6,221 +6,105 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A **monorepo holding two things**: the ASDLC design, and the code that implements it.
 
-- **The design** — the target ASDLC ([`asdlc/`](asdlc/README.md)), a stack sheet per deployment variant ([`variants/`](variants/README.md)), and a rollout plan ([`rollout/`](rollout/plan.md)), with the working record in [`reference/`](reference/open-questions.md).
-- **The code** — [`tools/`](tools/README.md). Set by [ADR-0025](reference/decisions/0025-monorepo.md) on 2026-07-28, when the owner lifted the documents-only restriction and brought `spec-kit-bundle-nc` in — renamed and reset by [ADR-0028](reference/decisions/0028-bundle-rename-and-reset.md), then retired and deleted on 2026-08-05 by [ADR-0035](reference/decisions/0035-bundle-retired-and-deleted.md).
+- **The design** — the target ASDLC ([`asdlc/`](asdlc/README.md)), a stack sheet per deployment
+  variant ([`variants/`](variants/README.md)), a rollout plan ([`rollout/`](rollout/plan.md)),
+  and the working record ([`reference/`](reference/open-questions.md)).
+- **The code** — [`tools/`](tools/README.md), and nowhere else
+  ([ADR-0025](reference/decisions/0025-monorepo.md)).
 
-**ASDLC** = **agentic software development life cycle** ("Agentic SDLC" in prose; "life cycle" as three words). Set by [ADR-0002](reference/decisions/0002-scope-agentic-not-ai-assisted.md), which also fixes the scope boundary this implies: the subject is a life cycle where **agents execute multi-step development work under human review gates**. AI-assisted tooling that only speeds up a human executing every step is background context, not the subject. Where the agent/human boundary actually falls is still open — [OQ-3](reference/open-questions.md).
+**ASDLC** = **agentic software development life cycle** ("Agentic SDLC" in prose; "life cycle"
+as three words). The subject is a life cycle where **agents execute multi-step development work
+under human review gates** ([ADR-0002](reference/decisions/0002-scope-agentic-not-ai-assisted.md));
+AI-assisted tooling that only speeds up a human is background context. Where the agent/human
+boundary falls is open — [OQ-3](reference/open-questions.md).
 
-**The four design directories stay documents-only.** `asdlc/`, `variants/`, `rollout/` and
-`reference/` hold no application code, build system, test suite, or package manifest, and none is
-expected there. **Do not scaffold a toolchain, CI config, or `package.json` into them.** If you
-find yourself looking for a build command while working in one of the four, re-read the task: the
-deliverable is almost certainly prose, a diagram, or a decision record.
+**The four design directories are documents-only.** `asdlc/`, `variants/`, `rollout/` and
+`reference/` hold no application code, build system, test suite, or package manifest. Do not
+scaffold a toolchain or CI config into them; if you find yourself looking for a build command
+there, the deliverable is prose, a diagram, or a decision record.
 
-The rule was lifted for the repository as a whole, not deleted. Code goes in
-[`tools/`](tools/README.md) and nowhere else.
-
-**One decision registry**: [`reference/decisions/`](reference/decisions/README.md) — `ADR-NNNN`,
-governing the ASDLC design. ADRs are never renumbered.
-
-There were two until 2026-08-05. [ADR-0025](reference/decisions/0025-monorepo.md) part 6 gave the
-bundle its own `B-n` registry in `tools/spec-kit-bundle-nc/DECISIONS.md`, scoped to that subtree;
-the bundle's reset deleted the file with its seventeen records
-([ADR-0028](reference/decisions/0028-bundle-rename-and-reset.md)), and the bundle itself was
-deleted later the same day ([ADR-0035](reference/decisions/0035-bundle-retired-and-deleted.md)).
-Nested `CLAUDE.md` files are path-scoped guidance for their subtree and do not override this file
-outside it.
+**One decision registry**: [`reference/decisions/`](reference/decisions/README.md) — `ADR-NNNN`.
+Numbers are never reused; gaps are deleted records, held by git history.
 
 The repository is under version control (branch `master`). Don't commit unless asked.
 
-## Assume every session starts on a different computer
+## Sessions
 
-Assume it every time, without being told. The project is developed from more than one machine,
-and Claude Code's per-project memory directory lives under the user's home directory — it is
-**not** part of the repository and does not travel. Treat it as empty, never rely on it, and
-never make the owner repeat context that a committed file should have carried.
-
-Two obligations follow, and neither is optional:
-
-1. **Read the state before working.** [`reference/open-questions.md`](reference/open-questions.md)
-   → "What to pick up next" is the handover note. That section, this file, and the design and
-   reference directories are the *only* session state that exists.
-2. **Write the state before finishing.** Any session that changes something ends by updating that
-   same section: what is true now, and what the next session should pick up and why. A finding, a
-   rejected option, or a half-answered question is state too — if it exists only in the
-   conversation, it is lost at the end of it.
-3. **Replace, do not append.** That section records the **current state, not a log of sessions**.
-   Rewrite what is stale; do not add a dated entry beneath it. It grew to 2,600 lines that way and
-   was cut back on 2026-08-05. Git history is the log.
-
-**Uncommitted work does not travel either.** When a session produces something that matters, say
-so and offer to commit it. "Don't commit unless asked" means do not commit silently; it does not
-mean leave the work stranded on one machine.
-
-**Nor does unpushed work, and this had already gone wrong.** On 2026-07-28 the repository was
-**thirteen commits ahead of `origin/master`** — four from that session and **nine from earlier
-ones**. Every one of those sessions wrote a careful handover note into
-[`reference/open-questions.md`](reference/open-questions.md), and none of it would have reached the
-next machine, because the note was committed and the commit never left the laptop. A perfect
-handover note on an unpushed commit is worth nothing.
-
-So: **a session that commits also pushes**, or says plainly that it did not and why. Check with
-`git status -sb` or `git rev-list --count origin/master..HEAD` before declaring a session finished.
-This is part of "write the state before finishing", not a separate courtesy.
+The project is developed from more than one machine, and per-project memory does not travel.
+So: **read [`reference/open-questions.md`](reference/open-questions.md) → "What to pick up
+next" before working; update it when you change something** (replace what is stale — it is the
+current state, not a log); **offer to commit work that matters, and a session that commits also
+pushes** (check `git status -sb` before declaring a session finished).
 
 ## Two variants, tracked in parallel
 
-Every part of the target ASDLC must be answered for **both** deployment variants. Treat this as the primary axis of the design — a section that only addresses one variant is incomplete.
+Every part of the design must be answered for **both** deployment variants; a section that
+addresses one is incomplete.
 
-1. **Self-hosted** — the stack itself must be free to use (open source / no license cost, runnable on infrastructure the team controls). Paid *models* are allowed: calling a commercial model API from a self-hosted stack is in scope. What is out of scope is paid platform/SaaS components.
-   - **Self-operated is not the same as license-cost-free, and the difference has already bitten.**
-     A licensed product running on your own infrastructure (e.g. a paid tier of a self-managed
-     code host with an agent add-on) is a **third** deployment shape that this two-variant axis has
-     no place for, and it is **out of scope as written**. See
-     [ADR-0007](reference/decisions/0007-agent-runner-and-containment.md) → Variant answers for the case that
-     surfaced it. Widening the axis to three variants would be a change to this file and is the
-     owner's call — do not assume it.
-2. **Cloud** — managed/SaaS components allowed. Optimize for capability and time-to-value rather than license cost.
+1. **Self-hosted** — the stack is free to use (open source, runnable on infrastructure the team
+   controls). Paid *models* are in scope; paid platform/SaaS components are not. A licensed
+   product on your own infrastructure is a third shape this axis has no place for — out of
+   scope as written; widening the axis is the owner's call.
+2. **Cloud** — managed/SaaS components allowed; optimize for capability and time-to-value.
 
-Where the two variants converge on the same answer, say so explicitly rather than leaving one column blank. Where they diverge, the divergence and its cost (money, ops burden, capability gap) is itself a finding worth writing down.
+Where the variants converge, say so explicitly; where they diverge, the divergence and its cost
+is itself a finding.
 
 ## Decision authority: there is no in-house expertise to defer to
 
-Stated by the owner, 2026-07-27, and standing for the whole project:
+Nobody in this org has built or operated an Agentic SDLC — there is no internal expert to
+consult. So **research the question and decide it**; do not ask the user to choose a tool, a
+pattern, or a threshold. Still ask about what only the owner knows: scope and priority, appetite
+(money, ops burden, risk), and facts about the environment. A decision nobody here can check on
+merit must trace to a dated source, or be labelled an explicit bet with the signal that would
+falsify it. Everything decided is a starting point: decide → run it → measure → revise.
 
-- **Nobody in this org has built or operated an Agentic SDLC.** There is no internal
-  expert to consult and no prior practice to inherit.
-- **So research the question and decide it.** Do not ask the user to choose a tool, a
-  pattern, or a threshold. They have no basis to answer, and asking hands the decision
-  to someone who cannot make it.
-- **Still ask about what only the owner knows:** scope and priority (which `OQ-N` to
-  take next), appetite (money, ops burden, risk tolerance), and facts about the
-  environment (which repositories, team size, what already runs). Confirming a decision
-  you have already made and justified is also fine — that is review, not deferral.
-- **This tightens "research before content" rather than loosening it.** A decision that
-  nobody here can check on merit must trace to a dated source, or be labelled an
-  explicit bet with the signal that would falsify it. The rule against expanding stubs
-  speculatively still holds: it governs how much prose gets written, not who decides.
-- **Everything decided is a starting point, not settled practice.** The intended loop is
-  decide → run it → measure → revise. Write each ADR so it can be reversed: state the
-  bet, the instrumentation that would show it wrong, and what would reopen the question.
-  [ADR-0003](reference/decisions/0003-graduated-gating-machine-derived-tier.md) is the model.
+## Research before content
 
-## Working constraint: research before content
+The documents *are* the product, so unresearched prose is worse than an empty stub — it reads
+as decided and gets built on.
 
-The documents *are* the product, so unresearched prose is worse than an empty stub — it reads as decided and gets built on.
-
-- Don't expand a stub or heading speculatively. Ask before generating new document content.
-- Each research session should aim to close a **named open question** and land as a completed ADR or a filled-in table. A session that instead finds the question is bigger than assumed lands a dated note in `reference/research/` and splits the remainder into new `OQ-N` entries — that is a valid outcome, not a failed session.
-- Any claim about vendor pricing, SKUs, quotas, model capabilities, or agent-tooling features needs a **source and a date**. These move faster than any training cutoff — do not assert them from memory, and do not carry a figure forward from an older doc in this repo without re-checking it.
-- Prefer recording an explicit "unknown / to be researched" over a plausible guess.
+- Don't expand a stub or heading speculatively; ask before generating new document content.
+- Claims about vendor pricing, quotas, model capabilities, or agent-tooling features need a
+  **source and a date** — never assert them from memory or carry a figure forward unchecked.
+- Prefer an explicit "unknown / to be researched" over a plausible guess.
 
 ## Where things live
 
-Set by [ADR-0013](reference/decisions/0013-layout-by-subject.md), which supersedes ADR-0001's
-layout. The repository is laid out **by subject**: the design is top-level, the working record
-is subordinate.
-
-**The product — adds no decisions; on conflict with an ADR, the ADR wins:**
-
-- [`README.md`](README.md) — what this is and where to start. **The entry point for a human**,
-  including anyone the design is handed to.
-- [`asdlc/`](asdlc/README.md) — the life cycle. `README.md` (overview + the flow diagram),
-  `roles.md`, `tiers.md`, and `01-spec.md` … `07-operate.md`, one file per stage. Every stage
-  file ends with a **"Not yet specified"** section — keep that rule; it is how the design's
-  gaps stay visible. Two subdirectories hold the design of the artifacts the life cycle produces
-  and consumes: [`templates/`](asdlc/templates/README.md) (the spec, plan and tasks templates)
-  and [`skills/`](asdlc/skills/README.md) (the rules and conventions of the four stage
-  procedures — the procedure **files** live in top-level `skills/`, below).
-- [`skills/`](skills/README.md) — what `skills add` delivers
-  ([ADR-0032](reference/decisions/0032-stage-delivery-via-skills-cli.md),
-  [ADR-0033](reference/decisions/0033-skills-move-into-the-monorepo.md)): the four stage
-  procedures (`asdlc-spec` … `asdlc-implement` — **prompt text, and the one place in this
-  repository where repetition and exhaustive case lists are correct**, because no human reads
-  them for pleasure) and the researched engineering-decision skills. **Documents, not code** —
-  the QA harness lives in `tools/skills-harness/`. The directory holds only what `skills add`
-  delivers, plus its own `README.md` and `CLAUDE.md`.
-- [`variants/`](variants/README.md) — the two stacks. `cloud.md` and `self-hosted.md` are
-  **self-contained bills of materials plus host configuration**: building one variant needs
-  one document open. `README.md` states the axis and the ~70% that converges.
-- [`rollout/`](rollout/plan.md) — `plan.md` (phase 0 → pilot → widen → relax) and
-  `open-parameters.md` (values to be filled, and who fills them).
-
-**The working record:**
-
-- [`reference/context.md`](reference/context.md) — the organisation the ASDLC is being designed
-  **for**: team shape and count, roles, data boundary, scope of application. Facts, not
-  decisions. **Read this before answering any open question** — it constrains most of them,
-  and it already invalidated one ADR.
-- [`reference/open-questions.md`](reference/open-questions.md) — numbered `OQ-N` entries, each
-  with a status and what would close it. **Start here when picking up work** — but do not send
-  a human here first; send them to `README.md`.
-- [`reference/artifacts.md`](reference/artifacts.md) — every schema this design defines, in one
-  place: tier map, tier-function output, gate record, ring configuration, managed settings.
-- [`reference/decisions/`](reference/decisions/README.md) — one numbered file per closed
-  decision, plus the index.
-- [`reference/research/`](reference/research/) — `YYYY-MM-DD-topic.md` notes, one per research
-  session. A note records what was found *and what was refuted*, with sources and the
-  date checked; it is the input to an ADR, not a substitute for one.
-
-**The code:**
-
-- [`tools/`](tools/README.md) — the programs and packages the life cycle needs.
-  `feature-artifact-checker/` is specified and not yet built; it holds the fork seed harvested
-  from the predecessor convention's merge gate
-  ([ADR-0036](reference/decisions/0036-checker-harvested-fork-seed.md)). The rest of that
-  convention, `spec-kit-bundle/`, was retired and deleted on 2026-08-05
-  ([ADR-0035](reference/decisions/0035-bundle-retired-and-deleted.md)); stage delivery is the
-  `skills` CLI ([ADR-0032](reference/decisions/0032-stage-delivery-via-skills-cli.md)).
-  A companion program that travels a different way than the component it serves gets its own
-  `tools/` directory ([ADR-0029](reference/decisions/0029-bundle-holds-only-installable-components.md)).
-  **`tools/` earns its name only while it holds programs and packages** — a `tools/` that holds
-  anything is a `misc/`.
-
-**The design states the rules; `tools/` implements them**
-([ADR-0030](reference/decisions/0030-design-states-the-rules-tools-implement-them.md)):
-
-- **No directory under `tools/` is authority for anything the design decides.** Every rule a file
-  under `tools/` states about specs, plans, tasks, requirements, traceability, tiers or gates
-  traces to an ADR or to a file under `asdlc/`. **Where the two differ, the design wins and the
-  tool has a bug.** Repair the tool, or write an ADR changing the design — never edit a design
-  document to match what the code happens to do.
-- **A tool is authority over its own runtime, and the design quotes it.** What `specify` can
-  install, how spec-kit v0.14.2 behaves, what `check_specs.py` blocks on — those are facts about
-  a program. `tools/` states them and dates them.
-- **The test, when it is unclear which side a statement falls on:** would it still be true if the
-  program were rewritten in another language against another CLI? If yes it is a design rule; if
-  no it is a runtime fact.
-
-`CLAUDE.md` — standing instructions and conventions. Not a state log, and **not the entry
-point for a human**.
+- [`README.md`](README.md) — the entry point for a human.
+- [`asdlc/`](asdlc/README.md) — the life cycle: overview, roles, tiers, one file per stage
+  (each ends with a "Not yet specified" section — keep that rule), plus
+  [`templates/`](asdlc/templates/README.md), [`examples/`](asdlc/examples/README.md) and
+  [`skills/`](asdlc/skills/README.md) (the rules of the stage procedures).
+- [`skills/`](skills/README.md) — what `skills add` delivers: the four stage procedures and the
+  engineering-decision skills. Documents, not code; the QA harness is `tools/skills-harness/`.
+- [`variants/`](variants/README.md) — the two stacks, each a self-contained bill of materials.
+- [`rollout/`](rollout/plan.md) — `plan.md` and `open-parameters.md` (values to be filled).
+- [`reference/`](reference/open-questions.md) — `context.md` (the org this is designed for —
+  read it before answering any open question), `open-questions.md` (`OQ-N` entries — start
+  here), `artifacts.md` (every schema), `decisions/`, `research/` (dated notes: findings,
+  sources, and a "do not reintroduce" list of refuted claims).
+- [`tools/`](tools/README.md) — the programs. **The design states the rules; `tools/`
+  implements them** ([ADR-0030](reference/decisions/0030-design-states-the-rules-tools-implement-them.md)):
+  where they differ, the design wins and the tool has a bug. A tool is authority only over its
+  own runtime facts.
 
 ## Conventions
 
-- **No historical baggage until the design is demonstrated and released.** Owner's instruction, 2026-08-05: an account of how the project reached its current state slows every reader down, and git history already holds it. Write what is true now. This governs the four conventions below and was applied on 2026-08-05 — the session log, the ADR execution narratives and the research notes' session tails were all cut.
-- **Decisions go in ADRs.** Anything that closes a choice (tool selection, boundary, process rule) is a numbered decision record with context, options considered, decision, and consequences — not a bullet buried in a larger doc. **One line per rejected option**: what it was, why not. The argument is not the record.
-- **An ADR states what is true now, plus what would reverse it.** No "what was actually done" narrative, no expired deadlines, no lessons about the session that wrote it. When a later record changes an earlier one, the earlier one gets a **one-line pointer** — without it the earlier ADR reads as still true, which is worse than the baggage.
-- **Research notes keep findings, sources and the "do not reintroduce" list.** Not what was searched, not what the session recommended doing next. The evidence is the point; the session is not.
-- **Open questions are first-class.** Keep them named and listed so a research session can be pointed at one. A question that only exists inside a paragraph will not get closed.
-- **Date-stamp volatile content.** Tables of vendor capabilities or prices carry the date they were checked.
-- **Closing an open question touches three places:** the ADR, the ADR index, and the `OQ-N` entry's status line.
-- **Record what was refuted, not just what was found.** A plausible figure that failed verification will otherwise be re-derived from memory in a later session and treated as fact. Research notes carry an explicit "do not reintroduce" list.
-- **Distinguish a source's *claims* from its *evidence*.** Citing a framework as "this paper specifies X" is legitimate; citing the same paper's self-labelled analytical estimates as measurements is not. Say which one a number is.
+- **Decisions go in ADRs.** Anything that closes a choice is a numbered record: the decision,
+  why, one line per rejected option, and what would reverse it. Closing an open question also
+  updates that `OQ-N` entry's status line.
+- **Date-stamp volatile content**, and **record what was refuted** — research notes carry a
+  "do not reintroduce" list so a failed figure is not re-derived later.
+- **No historical narrative in living documents.** Write what is true now; git history holds
+  how it got that way.
 
 ## Writing style
 
-Always: concise first, precise second, simple third. Keep technical terms when the everyday word is less exact. No business-speak or figurative
-speech; say what actually happens.
+Always: concise first, precise second, simple third. Keep technical terms when the everyday
+word is less exact. No business-speak or figurative speech; say what actually happens.
 
-The wording rules apply everywhere. Coverage defaults to complete —
-every edge case. The one exemption is chat and terminal session
-replies: answer what was asked; include an edge case only when it
-changes the answer. Anything used outside the session — a file, a
-spec, a commit message, a code comment — is complete even when
-drafted inside a reply.
-
-## Open items for this file
-
-These are unconfirmed and should be settled with the user, then recorded here:
-
-*(none — see [`reference/open-questions.md`](reference/open-questions.md) for live questions)*
+The wording rules apply everywhere. Coverage defaults to complete — every edge case. The one
+exemption is chat and terminal session replies: answer what was asked; include an edge case only
+when it changes the answer. Anything used outside the session — a file, a spec, a commit
+message, a code comment — is complete even when drafted inside a reply.

@@ -1,16 +1,9 @@
 # ADR-0007 — The agent runner and how it is contained
 
-- **Status:** accepted. **§1's single-primary-runner premise is widened by
-  [ADR-0031](0031-heterogeneous-runners.md)** — the runner is a role and engineers may run
-  different runners side by side; Claude Code remains the only *admitted* runner until
-  [OQ-20](../open-questions.md#oq-20--the-runner-admission-contract) closes, and this record's
-  containment goals become that contract's first clauses.
+- **Status:** accepted; §1's single-primary-runner premise is widened by
+  [ADR-0031](0031-heterogeneous-runners.md) — Claude Code is the only *admitted* runner until
+  [OQ-20](../open-questions.md#oq-20--the-runner-admission-contract) closes
 - **Date:** 2026-07-27
-- **Closes:** the runner, sandboxing, credential-brokering and cost parts of
-  [OQ-4](../open-questions.md). **Opens OQ-12** (code host) and **OQ-13** (runner licensing).
-- **Depends on:** [ADR-0005](0005-roles-gate-signers-and-the-reviewer-ring.md) — who signs;
-  [ADR-0006](0006-tier-function-and-greenfield-cold-start.md) — how the tier is computed
-- **Environment:** [target environment](../context.md)
 - **Research:** [2026-07-27 — the agent runner, its containment, and what it costs](../research/2026-07-27-stack-and-guardrails.md),
   [2026-07-27 — implementation survey](../research/2026-07-27-asdlc-implementation-survey.md)
 

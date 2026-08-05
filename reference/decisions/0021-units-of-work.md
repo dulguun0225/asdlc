@@ -2,17 +2,8 @@
 
 - **Status:** accepted
 - **Date:** 2026-07-28
-- **Closes:** two named gaps — *"What a deploy batch is scoped to"*
-  ([06-deploy.md](../../asdlc/06-deploy.md)) and *"When to open a new session versus continue one,
-  and how session boundaries map to changes"*
-  ([04-implementation.md](../../asdlc/04-implementation.md)).
-- **Depends on:** [ADR-0005](0005-roles-gate-signers-and-the-reviewer-ring.md) part 6 — deploy batch
-  size as a day-one metric; [ADR-0006](0006-tier-function-and-greenfield-cold-start.md) — `service`
-  as the unit that carries `reversibility` and `blast_radius`;
-  [ADR-0011](0011-progressive-rollout.md) — the per-service canary policy;
-  [ADR-0017](0017-artifact-registry.md) part 4 — deploy by digest.
-- **Research:** none. This record is forced by consistency with decisions already made, not by new
-  evidence; where it sets a number it says it is arbitrary and instruments it.
+- **Research:** none — forced by consistency with decisions already made; where it sets a number
+  it says it is arbitrary and instruments it.
 
 ## Context
 

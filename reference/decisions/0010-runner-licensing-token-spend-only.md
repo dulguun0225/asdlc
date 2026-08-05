@@ -2,9 +2,6 @@
 
 - **Status:** accepted
 - **Date:** 2026-07-27
-- **Closes:** [OQ-13](../open-questions.md) — the condition
-  [ADR-0007](0007-agent-runner-and-containment.md) part 1 placed on its own runner choice.
-- **Depends on:** [ADR-0007](0007-agent-runner-and-containment.md)
 - **Sources:** [Claude Code authentication](https://code.claude.com/docs/en/authentication) and
   [Claude Code costs](https://code.claude.com/docs/en/costs), both fetched first-party
   2026-07-27.

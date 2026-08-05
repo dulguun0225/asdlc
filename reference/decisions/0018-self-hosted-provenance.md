@@ -2,11 +2,6 @@
 
 - **Status:** accepted
 - **Date:** 2026-07-28
-- **Closes:** [OQ-15](../open-questions.md) — **the last of the four gaps the stack sheets exposed.**
-- **Depends on:** [ADR-0008](0008-agent-write-scope-and-enforcement.md) part 8 — the SLSA Build
-  Level 2 floor this assembles; [ADR-0017](0017-artifact-registry.md) — the store and the
-  attachment mechanism, without which this could not close; [ADR-0009](0009-code-host.md) — Gerrit
-  and Zuul, whose trust model turns out to do most of the work.
 - **Research:** [2026-07-28 — assembling SLSA Build Level 2 on Gerrit + Zuul + Harbor](../research/2026-07-28-self-hosted-provenance.md)
 
 ## Context

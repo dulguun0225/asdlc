@@ -2,15 +2,6 @@
 
 - **Status:** accepted
 - **Date:** 2026-07-28
-- **Closes:** [OQ-18](../open-questions.md) — the last live research question.
-- **Depends on:** [ADR-0021](0021-units-of-work.md) — the deploy batch's recorded change list, which
-  is the attribution path; [ADR-0014](0014-feature-artifacts-and-the-traceability-chain.md) — the
-  requirements trace, which narrows the candidate set;
-  [ADR-0015](0015-observability-backend.md) — five-year gate-record retention, which is where the
-  history accumulates.
-- **Unblocks:** the third exit condition for T3 automatic deploys
-  ([07-operate.md](../../asdlc/07-operate.md) §4) and the evidence half of the relaxation rule
-  ([ADR-0003](0003-graduated-gating-machine-derived-tier.md)).
 - **Research:** [2026-07-28 — attributing a post-merge defect to a tier](../research/2026-07-28-defect-attribution.md)
 
 ## Context

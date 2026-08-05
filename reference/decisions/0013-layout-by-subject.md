@@ -1,19 +1,9 @@
 # ADR-0013 — The repository is laid out by subject, and the design is the entry point
 
-- **Status:** accepted
+- **Status:** accepted; part 1's tree gains top-level `tools/`
+  ([ADR-0025](0025-monorepo.md)). Supersedes the first layout record (ADR-0001, deleted — its
+  durable-state rule is restated in part 5).
 - **Date:** 2026-07-27
-- **Part 1's tree is extended by [ADR-0025](0025-monorepo.md)** (2026-07-28), which added
-  top-level **`tools/`** for code. The tree below was written when the whole repository was
-  documents, and it is not a complete listing any more — see part 1's note. Nothing else in this
-  record changes: the by-subject principle, the entry point, and `reference/` being subordinate all
-  survived the monorepo unchanged, which is the argument that this layout was the right one.
-- **Supersedes:** [ADR-0001](0001-documentation-layout.md) — its layout only. ADR-0001's other
-  provision (durable project state is committed, because the machine-local memory directory
-  does not travel) stands unchanged and is restated in part 5.
-- **Amends:** [ADR-0012](0012-per-variant-stack-sheets.md) part 4, which decided *no directory
-  split by variant*. Part 3 below states exactly what changes and what does not.
-- **Closes:** nothing. **Reopens** nothing.
-- **Environment:** [target environment](../context.md)
 
 ## Context
 
@@ -101,12 +91,11 @@ reference/             THE WORKING RECORD
 ```
 
 > **A fifth subject is missing from that tree.** [ADR-0025](0025-monorepo.md) added
-> `tools/` — the code, holding `spec-kit-bundle/` until
-> [ADR-0035](0035-bundle-retired-and-deleted.md) deleted it — and **scoped** the documents-only rule rather
-> than deleting it: `asdlc/`, `variants/`, `rollout/` and `reference/` still hold no code, no build
-> system and no package manifest. The by-subject principle is unchanged; `tools/` is one more
-> subject, which is why no new layout record was needed. **Do not read this tree as forbidding
-> `tools/`** — it predates it.
+> `tools/` — the code — and **scoped** the documents-only rule rather than deleting it:
+> `asdlc/`, `variants/`, `rollout/` and `reference/` still hold no code, no build system and no
+> package manifest. The by-subject principle is unchanged; `tools/` is one more subject, which
+> is why no new layout record was needed. **Do not read this tree as forbidding `tools/`** — it
+> predates it.
 
 The root directory listing is itself the map. A reader who has read nothing can see that there
 is a life cycle, that there are two variants, and that decisions and research are working
@@ -164,7 +153,7 @@ That imbalance existed before this record and was **invisible while the life cyc
 file**. Naming it per stage converts it from an absence into a work list. Same principle as
 ADR-0012 part 3: a missing thing must be as visible as a present one.
 
-### 5. Committed state, unchanged from ADR-0001
+### 5. Committed state, carried forward
 
 Durable project state is committed to the repository. Claude Code's per-project memory
 directory is machine-local scratch and is not relied on for anything that matters, because the
@@ -178,9 +167,8 @@ ASDLC design shifted in this move should find that it did not.
 
 ## Consequences
 
-- **`docs/` no longer exists.** Every path in it moved. Historical prose inside ADR-0001 and
-  ADR-0012 still describes the old layout, and is deliberately **not** edited — an ADR records
-  what was decided when it was decided. Only their links were retargeted so they resolve.
+- **`docs/` no longer exists.** Every path in it moved. ADR-0012 still describes the old
+  layout in places, deliberately — an ADR records what was decided when it was decided.
 - **The design's thinness is now legible**, and it is not small: seven "Not yet specified"
   sections. Filling them is the next body of work and needs research sessions, not assembly —
   the research-before-content rule applies in full.

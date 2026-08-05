@@ -1,15 +1,11 @@
 # Research note — the agent runner, its containment, and what it costs
 
-- **Date of session:** 2026-07-27 (second session this day; the
-  [implementation survey](2026-07-27-asdlc-implementation-survey.md) and the
-  [gate-placement note](2026-07-27-gate-placement-and-tiering.md) came first)
 - **All sources fetched/checked:** 2026-07-27
 - **Questions asked:** [OQ-4](../open-questions.md) — the self-hosted agent-runner stack and its
   cost; [OQ-8](../open-questions.md) — provenance, secrets and policy-enforcement controls.
-- **Method:** started from the survey's collected leads rather than re-searching. 10 sources
-  fetched, 8 of them first-party vendor or standards documentation. The OWASP framework was
-  extracted from the published PDF locally after the HTML page proved to carry only a cover
-  image.
+- **Method:** 10 sources fetched, 8 of them first-party vendor or standards documentation. The
+  OWASP framework was extracted from the published PDF locally after the HTML page proved to
+  carry only a cover image.
 - **Closes:** [OQ-8](../open-questions.md) → [ADR-0008](../decisions/0008-agent-write-scope-and-enforcement.md).
   Closes the runner, sandbox, credential and cost parts of [OQ-4](../open-questions.md) →
   [ADR-0007](../decisions/0007-agent-runner-and-containment.md); the code-host half is split out as

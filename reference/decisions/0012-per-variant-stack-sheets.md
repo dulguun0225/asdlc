@@ -1,18 +1,10 @@
 # ADR-0012 — Per-variant stack sheets, and why the layout is not split by variant
 
-- **Status:** accepted. **Part 4 amended and part 2 partly reversed by
-  [ADR-0013](0013-layout-by-subject.md)** — the two sheets moved to `variants/`, and the
-  per-host configuration sections moved into them. Parts 1 and 3 stand unchanged, and so does
-  part 4's *reason*: the shared ~70% of the design is still stated once, not duplicated.
+- **Status:** accepted; part 4 amended and part 2 partly reversed by
+  [ADR-0013](0013-layout-by-subject.md) — the sheets live in `variants/`. Parts 1 and 3 stand.
 - **Date:** 2026-07-27
-- **Note:** the directory paths in this record describe the layout as it was on 2026-07-27.
-  They are left as written; only their links were retargeted so they resolve.
-- **Closes:** nothing. **Opens** [OQ-14](../open-questions.md), [OQ-15](../open-questions.md),
-  [OQ-16](../open-questions.md), [OQ-17](../open-questions.md) — four component gaps that were
-  present but not visible before the sheets were assembled.
-- **Amends:** [ADR-0001](0001-documentation-layout.md) — adds two documents to `docs/design/`
-  and states why the directory is *not* split by variant.
-- **Environment:** [target environment](../context.md)
+- **Note:** directory paths in this record describe the 2026-07-27 layout; only their links
+  were retargeted so they resolve.
 
 ## Context
 

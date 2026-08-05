@@ -3,8 +3,8 @@
 - **Question:** [OQ-18](../open-questions.md) — how is a post-merge defect attributed to a tier?
 - **Outcome:** closed → [ADR-0022](../decisions/0022-defect-attribution.md).
 - **Sources fetched first-party 2026-07-28** except where marked.
-- **Short session, and the reason is worth recording:** the useful prior art turned out to answer a
-  *different* question, and the decisive input was a decision this project made three hours earlier.
+- **Note:** the useful prior art answers a *different* question (deployment-keyed metrics); the
+  decisive input was [ADR-0021](../decisions/0021-units-of-work.md)'s recorded batch change list.
 
 ---
 

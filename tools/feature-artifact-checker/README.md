@@ -8,13 +8,11 @@ part 7's blocking checks plus the requirements trace, specified in full at
 items OI-001…OI-003 block parts of it and are owned by the platform owner
 ([rollout/open-parameters.md](../../rollout/open-parameters.md)).
 
-What the directory holds today is the **fork seed**: `check_specs.py`,
-harvested on 2026-08-05 from `tools/spec-kit-checker/`, which was then deleted
-([ADR-0036](../../reference/decisions/0036-checker-harvested-fork-seed.md)).
-That record also closed the fork-vs-extend question: **fork**. The seed
-enforces the **predecessor** spec-kit convention — EARS requirements under
-stable `FR-nnn` ids, traced through `plan.md` and `tasks.md` — which no
-product repo ever adopted and no repository follows any more.
+What the directory holds today is the **fork seed**: `check_specs.py`, the
+retired predecessor spec-kit convention's checker — EARS requirements under
+stable `FR-nnn` ids, traced through `plan.md` and `tasks.md`. No repository
+follows that convention; the design's checker is built by rewriting the seed
+to the spec (fork, decided 2026-08-05).
 
 | Path | What it is |
 | ---- | ---------- |

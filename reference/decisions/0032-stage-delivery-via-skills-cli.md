@@ -1,20 +1,11 @@
 # ADR-0032 — Stage procedures are delivered as Agent Skills by the `skills` CLI, and spec-kit is not the delivery mechanism
 
-- **Status:** accepted, 2026-08-05
+- **Status:** accepted; picks the mechanism for the architecture
+  [ADR-0031](0031-heterogeneous-runners.md) part 5 fixed (canonical source → per-runner
+  delivery, never hand-maintained, CI byte-equality). The owner's one stated requirement: the
+  mechanism must support **local development** — edit a procedure, try it in a project
+  immediately, no release cycle.
 - **Date:** 2026-08-05
-- **Closes:** [OQ-19](../open-questions.md#oq-19--runner-neutral-stage-procedure-delivery),
-  opened the same day by [ADR-0031](0031-heterogeneous-runners.md). The architecture ADR-0031
-  part 5 fixed (canonical source → per-runner delivery, never hand-maintained, CI byte-equality)
-  is unchanged; this record picks the mechanism.
-- **Requested by:** the owner, 2026-08-05 — *"Let's decide on the delivery mechanism"*, with one
-  stated requirement: the mechanism must support **local development** (edit a procedure, try it
-  in a project immediately, no release cycle).
-- **Restores:** the hyphenated command names [ADR-0020](0020-agent-instruction-layers.md) part 2
-  originally chose and [ADR-0024](0024-stage-skill-distribution.md) §2 withdrew. The withdrawal
-  existed only because plugin skills are colon-namespaced, and the plugin is gone.
-- **Consequence for the bundle:** `tools/spec-kit-bundle/` loses the renderer-candidate status
-  [ADR-0031](0031-heterogeneous-runners.md) part 6 gave it. Its fate question returns, smaller —
-  prior art or retirement — and is no longer coupled to delivery.
 
 ## Context
 
@@ -68,7 +59,7 @@ ADR-0020's original hyphenated names return; on Claude Code they surface as `/as
 shared `.agents/skills/` directory. Two frontmatter consequences for the four `SKILL.md` files:
 
 - **Each gains a `name:` field.** The Agent Skills standard requires `name` and `description` in
-  frontmatter. The deliberate omission of `name` was ADR-0024-era (a plugin-runner bug made it
+  frontmatter. The deliberate omission of `name` was plugin-era (a plugin-runner bug made it
   dangerous) and is withdrawn with the plugin.
 - `disable-model-invocation: true` stays — a stage is entered by the engineer. Whether every
   *other* agent honours it is that runner's admission question
@@ -96,15 +87,6 @@ owner sets is bring-up detail; the check itself is not optional.
    an identity ([ADR-0017](0017-artifact-registry.md)'s rule). The CI equality check is what
    makes an unreviewed update fail loudly; confirm it does.
 
-### 5. What this does to the bundle
-
-`tools/spec-kit-bundle/` is not the delivery vehicle and is no longer a candidate. What remains
-of its fate: it is prior art with working CI for the predecessor convention, its unreleased
-`bundle-v0.1.0` catalogs still 404, and the gate-model reconciliation (top row of
-[open-parameters.md](../../rollout/open-parameters.md)) still needs its own record — now
-uncoupled from delivery. Whether the bundle is kept as prior art or retired is decided there,
-on its own merits.
-
 ## Variant answers
 
 **Converges.** Delivery is above the code-host line: the same CLI, the same committed files, the
@@ -116,13 +98,8 @@ adds no licence cost.
 - **The pilot's delivery blocker is closed.** The `name:` frontmatter was added to the four
   files in the same change as this record. What remains is bring-up, not research: wire the
   delivery into a product repo, write the CI equality check, run the three verifications above.
-- **Four command names change again** — `/asdlc:spec` → `/asdlc-spec` and siblings, in the four
-  stage files, the skills README, templates README and `04-implementation.md`. Second rename
-  before anyone learned the first; free now, and this one restores the original.
-- **The stage procedures and the engineering-decision skills now share a delivery mechanism**,
-  which strengthens the pending move of the owner's skills repository into this monorepo
-  ([open-parameters.md](../../rollout/open-parameters.md)): one mechanism, one origin. The
-  repository layout that `skills add` discovers is settled at move time.
+- **The stage procedures and the engineering-decision skills share a delivery mechanism** —
+  one mechanism, one origin ([ADR-0033](0033-skills-move-into-the-monorepo.md)).
 - **A third-party CLI is now load-bearing** for instruction delivery: MIT, vendor-backed,
   installed per repo as a dev dependency and pinnable like any package. The exit is option 3 —
   the format is a standard and the files are plain markdown, so replacing the CLI does not

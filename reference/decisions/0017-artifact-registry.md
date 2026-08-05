@@ -2,14 +2,6 @@
 
 - **Status:** accepted
 - **Date:** 2026-07-28
-- **Closes:** [OQ-17](../open-questions.md), and **removes its stated dependency on the owner-held
-  deployment target** rather than waiting for it.
-- **Depends on:** [ADR-0008](0008-agent-write-scope-and-enforcement.md) part 8 — the attestation
-  requirement that needs somewhere to attach; [ADR-0007](0007-agent-runner-and-containment.md)
-  part 5 — registry tokens are on the credential deny list, which decides who pushes;
-  [ADR-0009](0009-code-host.md) — the hosts these registries sit beside.
-- **Unblocks:** [OQ-15](../open-questions.md) — self-hosted provenance assembly, which could not
-  close without a store to attach to.
 - **Research:** [2026-07-28 — where deployable artifacts live](../research/2026-07-28-artifact-registry.md)
 
 ## Context

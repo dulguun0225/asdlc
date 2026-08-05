@@ -1,10 +1,9 @@
 # Rollout plan
 
-- **Status of this document:** assembled 2026-07-27 from the ADRs and
-  [context.md](../reference/context.md). It sequences decided things; where it decides something new —
-  pilot size, phase durations, the widening rate, the pilot's abort criteria, and the
-  go/no-go sign-off assignment — the choice is marked in place as a **default the owner can
-  move**, because appetite is the owner's to set.
+- **What this is:** a sequencing of decided things. Where it decides something new — pilot
+  size, phase durations, the widening rate, the pilot's abort criteria, and the go/no-go
+  sign-off assignment — the choice is marked in place as a **default the owner can move**,
+  because appetite is the owner's to set.
 - **One owner decision this plan cannot make:** which variant to *run*. Both are designed
   ([variants/](../variants/README.md)). They are not free to run simultaneously — every
   phase below exists twice if both are stood up. §1 states the decision and a

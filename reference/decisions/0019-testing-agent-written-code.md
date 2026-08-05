@@ -1,20 +1,9 @@
 # ADR-0019 — Testing agent-written code: the oracle comes from the signed spec, and coverage is never a gate
 
-- **Status:** accepted
+- **Status:** accepted; part 1's oracle rule is guidance, not enforcement
+  ([ADR-0020](0020-agent-instruction-layers.md) part 5) — read the note inside part 1 before
+  citing it as a control
 - **Date:** 2026-07-28
-- **Closes:** the "Not yet specified" testing gap in
-  [04-implementation.md](../../asdlc/04-implementation.md) — the largest hole in the
-  engineer-facing layer.
-- **Depends on:** [ADR-0014](0014-feature-artifacts-and-the-traceability-chain.md) — the signed,
-  hash-pinned spec that turns out to be the mechanism this record needs;
-  [ADR-0006](0006-tier-function-and-greenfield-cold-start.md) — the tier that decides how much of
-  this applies; [ADR-0015](0015-observability-backend.md) — where the new metrics go.
-- **Part 1's strength is qualified by [ADR-0020](0020-agent-instruction-layers.md) part 5**
-  (2026-07-28): the oracle rule is **guidance, not enforcement.** Read the note inside part 1
-  before citing it as a control.
-- **Corrects:** [05-merge.md](../../asdlc/05-merge.md) and
-  [asdlc/templates/README.md](../../asdlc/templates/README.md) — an unsourced characterisation of
-  agent-written tests (part 7).
 - **Research:** [2026-07-28 — how agent-written code is tested](../research/2026-07-28-testing-agent-written-code.md)
 
 ## Context

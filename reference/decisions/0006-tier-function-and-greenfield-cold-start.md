@@ -2,12 +2,6 @@
 
 - **Status:** accepted
 - **Date:** 2026-07-27
-- **Closes:** [OQ-9](../open-questions.md)
-- **Refines:** [ADR-0003](0003-graduated-gating-machine-derived-tier.md) — which fixed that
-  the tier is computed from machine-observable facts, and deliberately left the inputs,
-  their precedence, and the map unspecified
-- **Depends on:** [ADR-0005](0005-roles-gate-signers-and-the-reviewer-ring.md) — who signs
-- **Environment:** [target environment](../context.md)
 
 ## Context
 

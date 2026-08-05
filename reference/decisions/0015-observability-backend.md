@@ -2,15 +2,6 @@
 
 - **Status:** accepted
 - **Date:** 2026-07-28
-- **Closes:** [OQ-14](../open-questions.md) — the last of the four gaps the stack sheets exposed
-  that blocks **phase-0 prerequisite 6** ([rollout plan](../../rollout/plan.md) §2).
-- **Depends on:** [ADR-0003](0003-graduated-gating-machine-derived-tier.md) and
-  [ADR-0008](0008-agent-write-scope-and-enforcement.md) part 9 — the records this store has to
-  hold; [ADR-0011](0011-progressive-rollout.md) part 2 — whose metric source this record makes
-  real; [ADR-0014](0014-feature-artifacts-and-the-traceability-chain.md) — the fourth record
-  family.
-- **Amends:** [reference/artifacts.md](../artifacts.md) §5 — managed settings gain a telemetry
-  block (part 6 below).
 - **Research:** [2026-07-28 — the observability backend](../research/2026-07-28-observability-backend.md)
 
 ## Context

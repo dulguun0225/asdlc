@@ -1,17 +1,9 @@
 # ADR-0016 — TLS termination is a setting on the proxy we already have, not a product to select
 
-- **Status:** accepted. **Scoped per runner by [ADR-0031](0031-heterogeneous-runners.md)** —
-  the masking mechanism here is Claude Code's; under heterogeneous runners the *rule* (no
-  plaintext credential inside the sandbox) is an admission-contract clause every runner must
-  meet, and this record is how the one admitted runner meets it.
+- **Status:** accepted; scoped per runner by [ADR-0031](0031-heterogeneous-runners.md) — the
+  rule (no plaintext credential inside the sandbox) binds every runner; the mechanism here is
+  how the one admitted runner meets it
 - **Date:** 2026-07-28
-- **Closes:** [OQ-16](../open-questions.md), and with it the internal contradiction between
-  [ADR-0007](0007-agent-runner-and-containment.md) parts 4 and 5.
-- **Depends on:** [ADR-0007](0007-agent-runner-and-containment.md) — the containment layer this
-  completes; [ADR-0008](0008-agent-write-scope-and-enforcement.md) — the rule that no plaintext
-  credential is ever inside the sandbox, which is what makes masking mandatory.
-- **Amends:** [reference/artifacts.md](../artifacts.md) §5 — the managed-settings artifact is
-  restated with the documented key names and gains four settings.
 - **Research:** [2026-07-28 — TLS termination at the egress proxy, and what credential masking
   actually needs](../research/2026-07-28-egress-tls-and-credential-masking.md)
 

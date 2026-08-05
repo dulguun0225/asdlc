@@ -1,7 +1,5 @@
 # Research note — code-host enforcement surfaces: bypass, recording, and approval constraints
 
-- **Date of session:** 2026-07-27 (follows the
-  [stack-and-guardrails session](2026-07-27-stack-and-guardrails.md) the same day)
 - **All sources fetched/checked:** 2026-07-27
 - **Question asked:** [OQ-12](../open-questions.md) — can a required review or CI check be
   bypassed, and is the bypass recorded? Asked per candidate host, with plan/edition gating
@@ -11,11 +9,9 @@
   first-party documentation only. Every decisive claim was then re-checked by an independent
   adversarial verifier that re-fetched the cited page and tried to refute or narrow the claim.
   Verifier corrections are merged into the findings below and listed in
-  [Refuted and corrected](#refuted-and-corrected--do-not-reintroduce). Forgejo was first
-  researched directly in-session (the delegated agent hung twice); a later full re-run of the
-  delegated workflow then completed, independently re-derived the same six Forgejo answers, and
-  its verifier confirmed all of them — the re-run's better-sourced details are merged into
-  Finding 4. Two Gitea claims, one GitHub absence claim, and several Forgejo enforcement claims
+  [Refuted and corrected](#refuted-and-corrected--do-not-reintroduce). The six Forgejo answers
+  were derived twice independently and verifier-confirmed both times; the better-sourced
+  details are merged into Finding 4. Two Gitea claims, one GitHub absence claim, and several Forgejo enforcement claims
   rest on source code or the product's own UI strings rather than rendered documentation —
   Forgejo's docs show most settings only as screenshots — and are flagged where they appear.
 - **Closes:** OQ-12 → [ADR-0009](../decisions/0009-code-host.md).

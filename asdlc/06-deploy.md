@@ -126,11 +126,6 @@ Gate record with `gate: "deploy"`, the signer, the **batch's tier breakdown**, a
 
 *(nothing — this stage is fully specified.)*
 
-Three gaps were listed here until 2026-07-28: the artifact registry
-([ADR-0017](../reference/decisions/0017-artifact-registry.md)), the self-hosted provenance chain
-([ADR-0018](../reference/decisions/0018-self-hosted-provenance.md)), and what a deploy batch is
-scoped to ([ADR-0021](../reference/decisions/0021-units-of-work.md)).
-
 **One limitation is decided rather than missing:** there is no cross-service deploy orchestration
 (§2). If coordinated multi-service releases turn out to be routine rather than rare, this design
 needs a mechanism it does not have.

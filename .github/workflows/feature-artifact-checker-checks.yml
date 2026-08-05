@@ -5,21 +5,13 @@
 # so the checker keeps no copy of this file. THIS IS THE ONLY COPY. Delete it
 # and the checker silently loses its CI.
 #
-# Split out of bundle-checks.yml on 2026-08-05 (ADR-0029) as
-# spec-kit-checker-checks.yml; renamed with its directory the same day
-# (ADR-0036), when the seed was harvested and tools/spec-kit-checker/ deleted.
-# The three negative probes below were RELOCATED both times, not rewritten and
-# not weakened — the rule that a probe must go red for the right reason holds
-# here in full. The rewrite to the design's spec replaces them with probes
-# asserting the new failure modes; replacement lands with the behavior change
-# it tests, never as a bare deletion.
+# A probe must go red for the right reason. The rewrite to the design's spec
+# replaces the probes below with ones asserting the new failure modes;
+# replacement lands with the behavior change it tests, never as a bare
+# deletion.
 #
 # It installs nothing. check_specs.py is stdlib-only by rule, so the runner's
 # python3 is the whole toolchain.
-#
-# First ran on Actions 2026-08-05 (the rename commit itself): green, run
-# 30994545573. Its predecessor spec-kit-checker-checks also ran green once,
-# on the bundle-deletion push earlier the same day.
 
 name: feature-artifact-checker-checks
 

@@ -6,9 +6,10 @@
   session."* It is listed in
   [rollout/open-parameters.md](../../rollout/open-parameters.md) as one of three phase-0 checks
   that **can genuinely fail**.
-- **Outcome:** closed → [ADR-0024](../decisions/0024-stage-skill-distribution.md). **The assumed
-  mechanism does not exist.** A different documented mechanism does, and it is stronger in one
-  respect and weaker in another.
+- **Outcome:** **the assumed mechanism does not exist.** The plugin record this produced
+  (ADR-0024) was superseded by [ADR-0031](../decisions/0031-heterogeneous-runners.md) and
+  deleted; the current delivery mechanism is
+  [ADR-0032](../decisions/0032-stage-delivery-via-skills-cli.md). The negative finding stands.
 - **Sources**, all fetched first-party 2026-07-28:
   [skills](https://code.claude.com/docs/en/skills),
   [settings](https://code.claude.com/docs/en/settings),

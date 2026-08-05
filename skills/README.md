@@ -19,9 +19,8 @@ it holds **two families**:
 The QA toolchain — discovery check, gates, token reports, firing harness —
 lives at [`tools/skills-harness/`](../tools/skills-harness/)
 ([ADR-0033](../reference/decisions/0033-skills-move-into-the-monorepo.md)):
-this directory holds only what `skills add` delivers, the same rule the
-spec-kit bundle follows
-([ADR-0029](../reference/decisions/0029-bundle-holds-only-installable-components.md)).
+this directory holds only what `skills add` delivers
+([tools/README.md](../tools/README.md)'s companion-program rule).
 
 ## Why this exists
 
@@ -156,9 +155,8 @@ to make from it.
 **It runs on any machine with the `claude` CLI logged in, but a firing rate
 does not travel between machines.** A rate is a property of one model reading
 one description under one CLI version — headless sessions default to a
-different model than the one you are working in, which is a mistake this
-project has already made once. Every run stamps its model and CLI version on
-the report and in `--json`, and `--model` pins one. The one setup difference
+different model than the one you are working in. Every run stamps its model
+and CLI version on the report and in `--json`, and `--model` pins one. The one setup difference
 worth knowing about: sessions run under an isolated `CLAUDE_CONFIG_DIR` so that
 globally installed skills cannot compete, and a machine that authenticates
 through an OS keychain rather than `~/.claude/.credentials.json` may need

@@ -193,6 +193,3 @@ outcomes.
   the chosen components all carry alerting, so no further selection is needed
   ([ADR-0015](../reference/decisions/0015-observability-backend.md)).
 - **The ingress controller**, if the target is Kubernetes — left open as a platform choice.
-
-The observability backend was here until 2026-07-28 and is now specified by
-[ADR-0015](../reference/decisions/0015-observability-backend.md).

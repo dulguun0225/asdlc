@@ -1,16 +1,12 @@
 # Research note — how to implement an ASDLC: survey of the evidence base
 
-- **Date of session:** 2026-07-27
 - **All sources fetched/checked:** 2026-07-27 (re-verify anything volatile before it lands in an ADR)
 - **Question asked:** best ways to implement an ASDLC — process models and gate
   placement, tooling stacks, governance/security/audit controls, and empirical
   outcomes — evaluated for both the self-hosted and cloud variants.
-- **Method:** 5 search angles → 24 sources fetched → 120 candidate claims extracted →
-  top 25 put through three-vote adversarial verification (a claim needs 2 of 3
-  independent refutation attempts to fail) → 13 confirmed, 12 refuted → synthesized
-  to 10 findings.
-- **Closes:** nothing. Partial progress on [OQ-3](../open-questions.md); spawned
-  OQ-4 through OQ-8.
+- **Method:** 24 sources fetched; the top 25 candidate claims put through three-vote
+  adversarial verification (a claim needs 2 of 3 independent refutation attempts to fail) —
+  13 confirmed, 12 refuted.
 
 ## Read this first
 

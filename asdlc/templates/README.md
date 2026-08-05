@@ -55,24 +55,13 @@ second trigger list ([tiers.md](../tiers.md)).
   advisory ones; writing the program is a phase-0 bring-up task
   ([open-parameters.md](../../rollout/open-parameters.md)), and it goes in
   [`tools/feature-artifact-checker/`](../../tools/feature-artifact-checker/README.md), which
-  already holds its fork seed: `check_specs.py`, the predecessor convention's checker — **in
-  this repository since [ADR-0025](../../reference/decisions/0025-monorepo.md)**, split out of
-  the bundle on 2026-08-05
-  ([ADR-0029](../../reference/decisions/0029-bundle-holds-only-installable-components.md)),
-  harvested into that directory the same day
-  ([ADR-0036](../../reference/decisions/0036-checker-harvested-fork-seed.md)), and the only
-  place left to read it, because the standalone repository it came from has been deleted
-  ([ADR-0028](../../reference/decisions/0028-bundle-rename-and-reset.md)) — plus
-  `sdd-standard`, which is private and was read from a local clone. **Prior art, with a warning:**
-  the convention required a typed `Status: Approved` line until its 2026-08-05 reset dropped it,
-  so it no longer contradicts what these templates forbid. What it still is not, is a gate: it
-  checks traceability after the fact and enforces no approval, while
+  already holds its fork seed, `check_specs.py`. **Prior art, with a warning:** the seed checks
+  traceability after the fact and enforces no approval, while
   [ADR-0014](../../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md) part 3
   requires a gate record per tier. Reconciling the two is the top row of
   [open-parameters.md](../../rollout/open-parameters.md), and which side has to move is settled by
   [ADR-0030](../../reference/decisions/0030-design-states-the-rules-tools-implement-them.md).
-- ~~**The text of the four stage skills** that drive these templates.~~ **Written 2026-07-28** —
-  [../skills/](../skills/README.md). `/asdlc-spec`, `/asdlc-plan`, `/asdlc-tasks`,
-  `/asdlc-implement`, all unrun.
+- **The four stage skills** that drive these templates exist —
+  [../skills/](../skills/README.md), `/asdlc-spec` … `/asdlc-implement` — and are unrun.
 - **The authoring language** is English by default, unconfirmed — see
   [context.md](../../reference/context.md).

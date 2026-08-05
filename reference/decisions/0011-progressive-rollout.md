@@ -1,19 +1,10 @@
 # ADR-0011 — Progressive rollout and automated rollback: achievable off the shelf, conditional on the deployment target
 
-- **Status:** accepted
+- **Status:** accepted; part 2's decision (Prometheus) stands, but its "no new component"
+  reasoning was circular — [ADR-0015](0015-observability-backend.md) is the record that chose
+  it. Do not cite part 2's reasoning as precedent.
 - **Date:** 2026-07-27
-- **Closes:** [OQ-11](../open-questions.md) — the prerequisite for the T3 automatic deploy exit
-  condition in [ADR-0005](0005-roles-gate-signers-and-the-reviewer-ring.md) part 6.
-- **Depends on:** [ADR-0005](0005-roles-gate-signers-and-the-reviewer-ring.md) part 6 — the exit
-  condition this record makes meetable; [ADR-0006](0006-tier-function-and-greenfield-cold-start.md)
-  — the `reversibility` declaration this record leaves in charge.
-- **Environment:** [target environment](../context.md) — the deployment target of the greenfield
-  projects is an owner-held unknown, which shapes this record's conditional form.
 - **Research:** [2026-07-27 — progressive rollout and automated rollback](../research/2026-07-27-progressive-rollout.md)
-- **Part 2's justification is corrected by [ADR-0015](0015-observability-backend.md)** (2026-07-28).
-  The decision — Prometheus as the metric source — stands and is confirmed there. The *reasoning*
-  given below, that it introduces *"no new component"* because ADR-0003/0008 already mandate it,
-  was circular: no ADR had chosen it. Do not cite that reasoning as precedent.
 
 ## Context
 

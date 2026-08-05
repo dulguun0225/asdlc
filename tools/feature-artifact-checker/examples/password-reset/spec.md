@@ -7,8 +7,7 @@
 **Input**: User description: "Let users who forgot their password reset it by email."
 
 <!--
-  A worked example of the predecessor convention's EARS spec template (from
-  the spec-kit-bundle preset, deleted 2026-08-05 — ADR-0035).
+  A worked example of the retired predecessor convention's EARS spec template.
   It shows all five EARS patterns, stable FR-nnn IDs, unwanted-behavior
   coverage, and measurable success criteria. It is a reference, not a template
   — start real specs from the spec template.

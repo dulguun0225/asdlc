@@ -9,12 +9,9 @@ improved on.
 
 - [`dulguun0225/sdd-standard`](https://github.com/dulguun0225/sdd-standard), local working copy
   at commit `65dc49e`. Private on GitHub; read from disk.
-- `dulguun0225/spec-kit-bundle-nc`, `master`. **Unreachable since 2026-08-05** — the repository was
-  deleted ([ADR-0028](../decisions/0028-bundle-rename-and-reset.md)). The copy taken on 2026-07-28
-  lived at `tools/spec-kit-bundle/`, renamed and reset, until that too was deleted
-  ([ADR-0035](../decisions/0035-bundle-retired-and-deleted.md)); its final tree is in git history
-  at commit `786fd3b`. The checker survives it, harvested into `tools/feature-artifact-checker/`
-  ([ADR-0036](../decisions/0036-checker-harvested-fork-seed.md)).
+- `dulguun0225/spec-kit-bundle-nc`, `master`. **Deleted, with its in-tree copy** — final tree
+  in git history at `786fd3b`; its checker survives as the fork seed in
+  `tools/feature-artifact-checker/`.
 - Published sources listed per finding below, each with the date checked.
 
 **Outcome:** closed as [ADR-0014](../decisions/0014-feature-artifacts-and-the-traceability-chain.md).

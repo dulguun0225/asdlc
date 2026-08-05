@@ -269,14 +269,9 @@ cost.
   ([ADR-0020](../reference/decisions/0020-agent-instruction-layers.md) option 4) and which one, if
   any, should back a stage rule is a bring-up design task. The clearest candidate is named in
   [skills/README.md](skills/README.md).
-*(Prompt injection from repository content was listed here until 2026-07-28. It is decided rather
-than open — [ADR-0023](../reference/decisions/0023-adversarial-repository-content.md) inventories
-the controls that bound the **effect** of the agent doing the wrong thing, whether induced or
-merely mistaken, closes the one hole it found, and names what would reopen it. Two residuals are
+*(Prompt injection from repository content is decided rather than open —
+[ADR-0023](../reference/decisions/0023-adversarial-repository-content.md) inventories the
+controls that bound the **effect** of the agent doing the wrong thing, whether induced or merely
+mistaken, closes the one hole it found, and names what would reopen it. Two residuals are
 accepted in writing: source code can leave through domain fronting, and one human reads a T2
 change.)*
-
-Three gaps were listed here until 2026-07-28 and are now specified: how agent-written code is
-tested ([ADR-0019](../reference/decisions/0019-testing-agent-written-code.md), §6), how the agent is
-prompted at each stage ([ADR-0020](../reference/decisions/0020-agent-instruction-layers.md), §7),
-and session boundaries ([ADR-0021](../reference/decisions/0021-units-of-work.md), §8).

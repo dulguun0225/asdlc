@@ -1,7 +1,5 @@
 # Research note — where gates go, and who assigns the tier
 
-- **Date of session:** 2026-07-27 (second session this date; the first is
-  [the implementation survey](2026-07-27-asdlc-implementation-survey.md))
 - **All sources fetched/checked:** 2026-07-27
 - **Questions asked:** (a) which human gates the target life cycle needs downstream of
   implementation — [OQ-3](../open-questions.md); (b) whether graduated gating beats

@@ -14,24 +14,16 @@ cross-referenced, so building one variant needs exactly one document open
 
 ## A third shape is out of scope
 
-**Self-operated is not the same as licence-cost-free**, and the difference has already caused
-a wrong answer in this project.
-
-A licensed product running on your own infrastructure — a paid tier of a self-managed code
-host with an agent add-on, say — is a **third deployment shape**. The two-variant axis has no
-place for it, and it is **out of scope as written**. Widening the axis to three is a change to
-[CLAUDE.md](../CLAUDE.md) and the owner's call. Do not assume it.
+**Self-operated is not the same as licence-cost-free.** A licensed product running on your own
+infrastructure — a paid tier of a self-managed code host with an agent add-on, say — is a
+**third deployment shape**. The two-variant axis has no place for it, and it is **out of scope
+as written**. Widening the axis to three is a change to [CLAUDE.md](../CLAUDE.md) and the
+owner's call. Do not assume it.
 
 ## What converges, and why that is a finding
 
-**Most of the design is identical across both variants**, and the list below has grown with every
-session — it is one of the project's actual results, and it reversed the early survey's picture that
-the self-hosted side had nothing
-([ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) variant answers).
-
-*(An earlier version of this page put a figure on it — "roughly 70%". That number was never
-measured against anything, and it is removed rather than revised upward. **The list is the claim.**
-What diverges is below it, and that list is short and named.)*
+**Most of the design is identical across both variants.** The list is the claim — no percentage
+is put on it. What diverges is below it, and that list is short and named.
 
 Identical in both, at identical cost:
 
@@ -45,9 +37,8 @@ Identical in both, at identical cost:
   collector → Prometheus + Loki → Grafana, with the same record schema, PromQL, LogQL and
   dashboard JSON on both sides
   ([ADR-0015](../reference/decisions/0015-observability-backend.md)). **The architecture
-  converges; the cost does not** — self-hosted runs it at $0 licence, cloud buys the same shapes
-  as Grafana Cloud Pro. Earlier records said this layer "converges at zero licence cost"; that
-  was true of the protocol only.
+  converges; the cost does not** — self-hosted runs it at $0 licence, cloud buys the same
+  shapes as Grafana Cloud Pro.
 - **The deployment layer — if the target is Kubernetes.** Flagger, Apache 2.0, both sides.
 - **TLS termination and credential masking** — the runner's built-in proxy does it on both sides,
   through one setting. No product is procured
@@ -63,10 +54,8 @@ Identical in both, at identical cost:
 - **The stage procedures and their delivery** — one canonical source
   ([skills/asdlc-*](../skills/), rules at [asdlc/skills/](../asdlc/skills/README.md)), shipped as **Agent Skills via the `skills` CLI**
   as project-scope committed copies, CI-verified byte-identical
-  ([ADR-0032](../reference/decisions/0032-stage-delivery-via-skills-cli.md), replacing
-  [ADR-0024](../reference/decisions/0024-stage-skill-distribution.md)'s plugin after
-  [ADR-0031](../reference/decisions/0031-heterogeneous-runners.md)). Delivery is above the
-  code-host line, so the variants converge here.
+  ([ADR-0032](../reference/decisions/0032-stage-delivery-via-skills-cli.md)). Delivery is above
+  the code-host line, so the variants converge here.
 - **The units of work** — session, change, deploy batch
   ([ADR-0021](../reference/decisions/0021-units-of-work.md)).
 

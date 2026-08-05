@@ -32,7 +32,7 @@ and each additional runner re-answers this table clause by clause before admissi
 | Agent runner | **Claude Code** CLI, Console API key | Proprietary; **no per-seat licence** on the API-key path | Model tokens only | [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §1, [ADR-0010](../reference/decisions/0010-runner-licensing-token-spend-only.md) | decided | [session](../asdlc/04-implementation.md) |
 | OS sandbox | **Seatbelt** (macOS) / **bubblewrap** (Linux, WSL2), via the runner's sandbox (also standalone as `@anthropic-ai/sandbox-runtime`) | ships with the runner | $0 | [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §2 | decided | [session](../asdlc/04-implementation.md) |
 | Policy enforcement | Managed settings, platform-owner controlled | ships with the runner | $0 | [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §2 | decided | [schema](../reference/artifacts.md) |
-| Stage-procedure delivery | **Agent Skills via the `skills` CLI** (`vercel-labs/skills`): project-scope committed copies from the canonical source ([skills/asdlc-*](../skills/), rules at [asdlc/skills/](../asdlc/skills/README.md)), CI-verified byte-identical | MIT | $0 | [ADR-0032](../reference/decisions/0032-stage-delivery-via-skills-cli.md), replacing [ADR-0024](../reference/decisions/0024-stage-skill-distribution.md)'s plugin | decided — verified first-party at v1.5.21, 2026-08-05; three one-command bring-up checks in the ADR's §4 | [skills](../asdlc/skills/README.md) |
+| Stage-procedure delivery | **Agent Skills via the `skills` CLI** (`vercel-labs/skills`): project-scope committed copies from the canonical source ([skills/asdlc-*](../skills/), rules at [asdlc/skills/](../asdlc/skills/README.md)), CI-verified byte-identical | MIT | $0 | [ADR-0032](../reference/decisions/0032-stage-delivery-via-skills-cli.md) | decided — verified first-party at v1.5.21, 2026-08-05; three one-command bring-up checks in the ADR's §4 | [skills](../asdlc/skills/README.md) |
 | Egress control | Built-in sandbox proxy, deny-by-default allowlist | ships with the runner | $0 | [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §4 | decided — **blast-radius control only, not anti-exfiltration** | [session](../asdlc/04-implementation.md) |
 | TLS termination | **the built-in proxy**, via `sandbox.network.tlsTerminate` | ships with the runner | $0 | [ADR-0016](../reference/decisions/0016-tls-terminating-proxy-and-credential-masking.md) §1 | decided — **no third-party proxy; none needed.** Vendor-marked **experimental**, which is the named reopen trigger. **Adds no content filtering** — the egress row's limit is unchanged | [session](../asdlc/04-implementation.md) |
 | Credential masking | `sandbox.credentials.envVars` with `mode: mask` + `injectHosts` | ships with the runner | $0 | [ADR-0016](../reference/decisions/0016-tls-terminating-proxy-and-credential-masking.md) §2, §4 | decided — **fails closed and the runner reports it at startup.** Constraint: the GitHub token must be delivered as an **environment variable**; a file credential cannot be masked | [schema](../reference/artifacts.md) §5 |
@@ -99,11 +99,10 @@ documentation: *"The retention period changes are not retroactive … data alrea
 retention period will not be recovered."* Turning it up in month four loses months one to three —
 the earliest and most valuable pilot data.
 
-**Why this layer mattered more than the other gaps:** standing up observability is phase-0
-prerequisite 6, and it precedes the pilot because the pilot's entire output is measurements
-([rollout plan](../rollout/plan.md) §2). **It is now specified.** Correcting a claim earlier
-records carried: this layer converges across variants in *architecture*, not in *cost* — here the
-backends are paid managed components.
+**Why this layer matters:** standing up observability is phase-0 prerequisite 6, and it
+precedes the pilot because the pilot's entire output is measurements
+([rollout plan](../rollout/plan.md) §2). This layer converges across variants in
+*architecture*, not in *cost* — here the backends are paid managed components.
 
 ### Optional, and never gate-bearing
 
@@ -141,12 +140,8 @@ measurement of ours**. Use it to size a pilot budget, not to compare variants.
 | [open parameters](../rollout/open-parameters.md) | T1 pre-run CI gate mechanism; private-repo fork-approval verification | before the first T1 change |
 | [ADR-0022](../reference/decisions/0022-defect-attribution.md) part 6 | The **volume** of T3 changes needed before "T3 is not leaking defects" means anything. The attribution *rule* is decided ([07-operate.md](../asdlc/07-operate.md) §6); no threshold is set, deliberately, because it depends on an unmeasured base rate | not for bring-up — until pilot data sets it, no service flips to T3 automatic deploy |
 
-**Every stack-sheet gap for this variant is now closed.** Observability
-([ADR-0015](../reference/decisions/0015-observability-backend.md)), the TLS-terminating proxy
-([ADR-0016](../reference/decisions/0016-tls-terminating-proxy-and-credential-masking.md) — no
-separate product was ever needed), and the artifact registry
-([ADR-0017](../reference/decisions/0017-artifact-registry.md)). What remains here is bring-up work
-and owner-held facts, not research.
+**No stack-sheet gaps remain for this variant.** What remains here is bring-up work and
+owner-held facts, not research.
 
 **One new bring-up verification, with a real chance of failing:** with `tlsTerminate` on, confirm
 that `gh`, `git`, `npm` and the projects' language toolchains still work against the allowed hosts,
@@ -163,10 +158,9 @@ here.**
 GitHub is the only cloud host that answers all six of [OQ-12](../reference/open-questions.md)'s
 enforcement questions with a documented mechanism — including a named audit event for a protection
 override (`protected_branch.policy_override`), rulesets that bind admins when the bypass list is
-empty, and a hardcoded block on approving your own pull request. GitLab.com Premium was the
-runner-up and was rejected on three findings: no bypass-flagged audit event, no same-project
-pre-run CI gate at any tier, and $29/user/month against GitHub's promotional $4
-([ADR-0009](../reference/decisions/0009-code-host.md)). The provenance floor is native here and
+empty, and a hardcoded block on approving your own pull request
+([ADR-0009](../reference/decisions/0009-code-host.md), which also records the rejected
+runner-up). The provenance floor is native here and
 assembled on the other side. **Recommended as the pilot variant**
 ([rollout plan](../rollout/plan.md) §1) — not because it is better, but because the pilot's
 purpose is measurement and this stack has the least bring-up work.

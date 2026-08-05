@@ -26,8 +26,7 @@ makes the check below mechanical rather than aspirational.
 
 A task list asserts almost nothing the plan gate did not already assert. Putting a human
 signature on it would cost review attention and buy close to nothing
-([ADR-0004](../reference/decisions/0004-gate-placement.md), carried forward by
-[ADR-0005](../reference/decisions/0005-roles-gate-signers-and-the-reviewer-ring.md)).
+([ADR-0005](../reference/decisions/0005-roles-gate-signers-and-the-reviewer-ring.md)).
 
 This is the one stage where the design deliberately declines to add a gate, and it is worth
 noticing: the gate scheme is not "a human at every step."

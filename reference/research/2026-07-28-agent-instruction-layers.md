@@ -10,7 +10,7 @@
   [skills documentation](https://code.claude.com/docs/en/skills), both fetched first-party
   2026-07-28. All quotations below are from those two pages.
 - **Headline:** the mechanisms are all documented and adequate. **Two defects in this design's
-  existing records were found on the way**, and they are the reason this session mattered.
+  existing records were found on the way.**
 
 ---
 

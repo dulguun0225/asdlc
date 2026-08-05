@@ -26,16 +26,10 @@ notation always fits.
 - **Not the checker's specification of record** in the sense of binding anyone. ADR-0014 part 7 is
   the decision; this restates it in the design's own notation, and **where the two disagree the ADR
   wins** — the disagreements are listed in the example's §7.
-- **Not code, but the code has a home now.** `asdlc/` holds documents and no build system
-  ([CLAUDE.md](../../CLAUDE.md) scopes that rule to the four design directories, not to the
-  repository). The program goes in
-  [`tools/feature-artifact-checker/`](../../tools/feature-artifact-checker/README.md), in
-  **this** repository — [ADR-0025](../../reference/decisions/0025-monorepo.md) lifted the
-  documents-only restriction on 2026-07-28 and brought the nearest prior art in with it:
-  `check_specs.py`, stdlib-only Python run as merge-blocking CI, since harvested into that
-  directory as the **fork seed**
-  ([ADR-0036](../../reference/decisions/0036-checker-harvested-fork-seed.md), which closed the
-  fork-vs-extend question: fork). It is a seed, not a start on the program: it checks
-  traceability after the fact and enforces **no gate at all**. It required a typed
-  `Status: Approved` line — the model ADR-0014 part 3 superseded — until the 2026-08-05 reset
-  dropped it ([ADR-0028](../../reference/decisions/0028-bundle-rename-and-reset.md)).
+- **Not code.** `asdlc/` holds documents and no build system ([CLAUDE.md](../../CLAUDE.md)
+  scopes that rule to the four design directories). The program goes in
+  [`tools/feature-artifact-checker/`](../../tools/feature-artifact-checker/README.md), which
+  holds its fork seed `check_specs.py` — stdlib-only Python run as merge-blocking CI. It is a
+  seed, not a start on the program: it checks traceability after the fact and enforces **no
+  gate at all**, the model [ADR-0014](../../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md)
+  part 3 superseded.

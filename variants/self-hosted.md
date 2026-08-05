@@ -24,9 +24,8 @@ in the record).
 
 ### Agent layer — identical to the cloud variant
 
-This is the finding that reversed the early picture that the self-hosted side had nothing
-([ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) variant answers). Every
-row below is the same component the cloud variant uses, at the same cost.
+Every row below is the same component the cloud variant uses, at the same cost
+([ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) variant answers).
 
 **Runners are heterogeneous, and this table describes the one admitted runner**
 ([ADR-0031](../reference/decisions/0031-heterogeneous-runners.md)). Engineers may run different
@@ -40,7 +39,7 @@ variant's licence test, which applies **per runner**.
 | Agent runner | **Claude Code** CLI, Console API key | Proprietary; **no per-seat licence** on the API-key path — this is what keeps it inside the variant definition | Model tokens only | [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §1, [ADR-0010](../reference/decisions/0010-runner-licensing-token-spend-only.md) | decided | [session](../asdlc/04-implementation.md) |
 | OS sandbox | **Seatbelt** (macOS) / **bubblewrap** (Linux, WSL2), via the runner's sandbox (also standalone as `@anthropic-ai/sandbox-runtime`) | ships with the runner | $0 | [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §2 | decided | [session](../asdlc/04-implementation.md) |
 | Policy enforcement | Managed settings, platform-owner controlled | ships with the runner | $0 | [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §2 | decided | [schema](../reference/artifacts.md) |
-| Stage-procedure delivery | **Agent Skills via the `skills` CLI** (`vercel-labs/skills`): project-scope committed copies from the canonical source ([skills/asdlc-*](../skills/), rules at [asdlc/skills/](../asdlc/skills/README.md)), CI-verified byte-identical | MIT — passes this variant's licence test | $0 | [ADR-0032](../reference/decisions/0032-stage-delivery-via-skills-cli.md), replacing [ADR-0024](../reference/decisions/0024-stage-skill-distribution.md)'s plugin (and with it this variant's unverified marketplace-shape step) | decided — verified first-party at v1.5.21, 2026-08-05; three one-command bring-up checks in the ADR's §4 | [skills](../asdlc/skills/README.md) |
+| Stage-procedure delivery | **Agent Skills via the `skills` CLI** (`vercel-labs/skills`): project-scope committed copies from the canonical source ([skills/asdlc-*](../skills/), rules at [asdlc/skills/](../asdlc/skills/README.md)), CI-verified byte-identical | MIT — passes this variant's licence test | $0 | [ADR-0032](../reference/decisions/0032-stage-delivery-via-skills-cli.md) | decided — verified first-party at v1.5.21, 2026-08-05; three one-command bring-up checks in the ADR's §4 | [skills](../asdlc/skills/README.md) |
 | Egress control | Built-in sandbox proxy, deny-by-default allowlist | ships with the runner | $0 | [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §4 | decided — **blast-radius control only, not anti-exfiltration** | [session](../asdlc/04-implementation.md) |
 | TLS termination | **the built-in proxy**, via `sandbox.network.tlsTerminate` | ships with the runner | $0 | [ADR-0016](../reference/decisions/0016-tls-terminating-proxy-and-credential-masking.md) §1 | decided — **no third-party proxy; none needed.** Vendor-marked **experimental**, which is the named reopen trigger. **Adds no content filtering** — the egress row's limit is unchanged | [session](../asdlc/04-implementation.md) |
 | Credential masking | `sandbox.credentials.envVars` with `mode: mask` + `injectHosts` | ships with the runner | $0 | [ADR-0016](../reference/decisions/0016-tls-terminating-proxy-and-credential-masking.md) §2, §4 | decided — **fails closed and the runner reports it at startup.** Constraint: only **environment variables** can be masked, never files | [schema](../reference/artifacts.md) §5 |
@@ -128,11 +127,10 @@ first-party 2026-07-28.
   snapshot backup of its volume is a phase-0 task, in the same class as backing up Gerrit's meta
   refs (§5).
 
-**Why this layer mattered more than the other gaps:** standing up observability is phase-0
-prerequisite 6, and it precedes the pilot because the pilot's entire output is measurements
-([rollout plan](../rollout/plan.md) §2). **It is now specified.** The claim earlier sessions
-carried — that this layer "converges across variants at zero licence cost" — was true of the
-protocol and is true of *this* variant; on the cloud side these are paid managed components.
+**Why this layer matters:** standing up observability is phase-0 prerequisite 6, and it
+precedes the pilot because the pilot's entire output is measurements
+([rollout plan](../rollout/plan.md) §2). The layer converges across variants in architecture;
+this variant runs it at $0 licence, the cloud side buys it managed.
 
 ### Explicitly out of scope
 
@@ -191,14 +189,7 @@ enforcement grounds and did not record their licences.
 | — | Deployment target is Kubernetes or not (owner-held) | yes — off Kubernetes this variant has **no** rollout answer |
 | [ADR-0022](../reference/decisions/0022-defect-attribution.md) part 6 | The **volume** of T3 changes needed before "T3 is not leaking defects" means anything. The attribution *rule* is decided ([07-operate.md](../asdlc/07-operate.md) §6); no threshold is set, deliberately, because it depends on an unmeasured base rate | not for bring-up — until pilot data sets it, no service flips to T3 automatic deploy |
 
-**All four gaps the stack sheets exposed closed on 2026-07-28.** Observability
-([ADR-0015](../reference/decisions/0015-observability-backend.md)), which added four components to
-this variant's operating load; the **TLS-terminating proxy**
-([ADR-0016](../reference/decisions/0016-tls-terminating-proxy-and-credential-masking.md)), which
-added none, because the built-in proxy does it; the **artifact registry**
-([ADR-0017](../reference/decisions/0017-artifact-registry.md)), which added one; and **provenance**
-([ADR-0018](../reference/decisions/0018-self-hosted-provenance.md)), which added a CLI and a key.
-This sheet is now a complete bill of materials. What is left is bring-up, verification, and the
+**This sheet is a complete bill of materials.** What is left is bring-up, verification, and the
 owner-held deployment target.
 
 **Two new bring-up verifications, both with a real chance of failing:**
@@ -285,9 +276,6 @@ unverified syntax here would violate the repository's research-before-content ru
   ([open-parameters.md](../rollout/open-parameters.md)). **Losing the key makes every retained
   artifact undeployable for its whole five-year retention**, which puts it in the same backup
   class as the meta refs above and a higher one than the Prometheus snapshot.
-  *(This bullet said "tooling unresearched, carried as a named gap" until 2026-07-28. That was
-  true when ADR-0008 wrote it and stopped being true when ADR-0018 landed; §1 had been correct
-  for a day while this section still sent an implementer looking for a product.)*
 - **Fallback (abort trigger, ADR-0009 part 5):** Forgejo with compensating controls —
   admin role confined to a break-glass account, "Enforce this rule for repository admins"
   on every rule, external logging of what webhooks can see, the recording gap accepted in

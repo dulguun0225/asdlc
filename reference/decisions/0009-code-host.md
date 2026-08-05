@@ -2,14 +2,6 @@
 
 - **Status:** accepted
 - **Date:** 2026-07-27
-- **Closes:** [OQ-12](../open-questions.md), and with it the code-host half of
-  [OQ-4](../open-questions.md) — the last undecided layer of the stack.
-- **Depends on:** [ADR-0005](0005-roles-gate-signers-and-the-reviewer-ring.md) — the gates the
-  host must enforce; [ADR-0006](0006-tier-function-and-greenfield-cold-start.md) — the tier
-  function that runs as a required check; [ADR-0007](0007-agent-runner-and-containment.md) — the
-  runner this host serves; [ADR-0008](0008-agent-write-scope-and-enforcement.md) — parts 6 and 7,
-  which this record implements on a concrete host.
-- **Environment:** [target environment](../context.md)
 - **Research:** [2026-07-27 — code-host enforcement surfaces](../research/2026-07-27-code-host-enforcement.md)
 
 ## Context

@@ -164,10 +164,7 @@ Distributed to every engineer machine; owner: platform owner; change tier: T1
 
 **This schema is Claude Code's and governs that runner only**
 ([ADR-0031](decisions/0031-heterogeneous-runners.md)): under heterogeneous runners it is how the
-one admitted runner meets the admission contract, not a design-wide artifact. The
-`extraKnownMarketplaces` / `enabledPlugins` / `strictKnownMarketplaces` / `disableSideloadFlags`
-keys below carry [ADR-0024](decisions/0024-stage-skill-distribution.md)'s **superseded** plugin
-mechanism and are retired with it; the sandbox and credential keys stand.
+one admitted runner meets the admission contract, not a design-wide artifact.
 
 Key names below are the vendor's documented ones, checked 2026-07-28. `<...>` marks a value the
 platform owner fills.
@@ -228,44 +225,19 @@ which is the property this block relies on.
 }
 ```
 
-Plus a plugin block, set by [ADR-0024](decisions/0024-stage-skill-distribution.md). This is how the
-four stage procedures reach every engineer, and how nothing else does.
+Plus one skill-policy key:
 
 ```json
 {
-  "extraKnownMarketplaces": {
-    "asdlc": {
-      "source": { "source": "github", "repo": "<org>/asdlc-plugins" },
-      "autoUpdate": true
-    }
-  },
-  "enabledPlugins": { "asdlc@asdlc": true },
-  "strictKnownMarketplaces": [
-    { "source": "github", "repo": "<org>/asdlc-plugins" }
-  ],
-  "disableSideloadFlags": true,
   "disableSkillShellExecution": true
 }
 ```
 
-- **The `github`/`repo` source form is the cloud variant's, quoted first-party.** The self-hosted
-  variant points the same key at Gerrit through a `url` source; **that entry shape was not verified**
-  and is ADR-0024 part 8's bring-up check.
-- **`enabledPlugins` at managed scope is what makes the skills unremovable.** Managed-scope plugins
-  *"can't be modified"*, and `--plugin-dir` *"cannot override those."*
-- **`strictKnownMarketplaces` names exactly one source**, so the official Anthropic marketplace is
-  refused too. A wanted third-party plugin is mirrored into the org marketplace and pinned by the
-  platform owner at T1 — not exempted.
-- **`disableSideloadFlags` closes the per-run bypass** of the line above. Managed settings only.
 - **`disableSkillShellExecution` closes a hole in
   [ADR-0023](decisions/0023-adversarial-repository-content.md)'s inventory:** a project
   `.claude/skills/` file may contain `` !`command` `` blocks that run when the skill loads, without
   the agent deciding to call Bash. The four stage skills use no inline shell, so this setting costs
   us nothing.
-- **The plugin is pinned by `sha` inside the marketplace's `marketplace.json`, never by branch.**
-  A marketplace source accepts `ref` only; a plugin entry accepts `ref` and `sha`, and the `sha`
-  wins. Same rule as *deploy by digest, never by tag*
-  ([ADR-0017](decisions/0017-artifact-registry.md)).
 
 Three of the telemetry settings are decisions rather than defaults, and the ADR carries the
 reasoning:

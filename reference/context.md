@@ -5,10 +5,6 @@ Decisions that follow from these facts live in ADRs and are linked below.
 
 - **Recorded:** 2026-07-27
 - **Source:** the project owner, directly.
-- **Why this file exists:** the project is developed from more than one computer, and
-  Claude Code's memory directory does not travel. Anything that must survive a machine
-  switch has to be committed ([ADR-0001](decisions/0001-documentation-layout.md)). These facts
-  are load-bearing for every gate and staffing decision, so they are committed here.
 
 ---
 

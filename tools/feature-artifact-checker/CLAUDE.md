@@ -2,16 +2,13 @@
 
 This directory is the home of the design's checker (**not built** — spec at
 [asdlc/examples/001-feature-artifact-checker/spec.md](../../asdlc/examples/001-feature-artifact-checker/spec.md)).
-`check_specs.py` is the **fork seed**, harvested from the deleted
-`tools/spec-kit-checker/`
-([ADR-0036](../../reference/decisions/0036-checker-harvested-fork-seed.md)).
-It still enforces the **predecessor** spec-kit convention — `specs/*/spec.md`,
-`plan.md`, `tasks.md` with EARS requirements, FR-nnn traceability and a
-decision trace — and no repository follows that convention any more. Building
-the real checker means rewriting this file to the spec, replacing the
-fixtures with design-convention ones, and rewriting the CI probes against the
-new failure modes; until then the seed stays runnable and its probes stay
-red-for-the-right-reason.
+`check_specs.py` is the **fork seed**. It still enforces the retired
+predecessor spec-kit convention — `specs/*/spec.md`, `plan.md`, `tasks.md`
+with EARS requirements, FR-nnn traceability and a decision trace — and no
+repository follows that convention. Building the real checker means rewriting
+this file to the spec, replacing the fixtures with design-convention ones, and
+rewriting the CI probes against the new failure modes; until then the seed
+stays runnable and its probes stay red-for-the-right-reason.
 
 ## Invariants
 
@@ -106,7 +103,3 @@ and would look live. The checker's CI is one workflow at the repository root:
   negative probes. It needs no uv: stdlib Python on the runner is the whole
   toolchain.
 
-The probes have moved twice — out of `bundle-checks.yml` when the checker
-left the bundle (ADR-0029), and here when the directory was renamed
-(ADR-0036). Relocated both times, never deleted — the rule above holds in
-full.

@@ -1,25 +1,10 @@
 # ADR-0020 — Four instruction layers, and the agent may not write any of them
 
-- **Status:** accepted. **Part 2's distribution mechanism and its four command names are amended
-  by [ADR-0024](0024-stage-skill-distribution.md)** — the "enterprise scope" this record relies on
-  is not a skills mechanism, and the commands are now `/asdlc:spec`, `/asdlc:plan`, `/asdlc:tasks`,
-  `/asdlc:implement`. Everything else here stands. **ADR-0024 is itself superseded by
-  [ADR-0031](0031-heterogeneous-runners.md)** — runners are heterogeneous, so part 2's vehicle
-  and the command names are per-runner renderings pending
-  [OQ-19](../open-questions.md#oq-19--runner-neutral-stage-procedure-delivery); the four layers,
-  part 4's never-write rule and part 5's enforcement placement stand and are what ADR-0031
-  builds on.
+- **Status:** accepted; part 2's delivery vehicle was re-decided —
+  [ADR-0032](0032-stage-delivery-via-skills-cli.md), after
+  [ADR-0031](0031-heterogeneous-runners.md) made runners heterogeneous. The four layers, part
+  4's never-write rule and part 5's enforcement placement stand.
 - **Date:** 2026-07-28
-- **Closes:** the "Not yet specified" gap in
-  [04-implementation.md](../../asdlc/04-implementation.md) — how the agent is prompted at each
-  stage, and what per-repository agent configuration exists.
-- **Fixes a defect in:** [ADR-0008](0008-agent-write-scope-and-enforcement.md) part 2 — the
-  never-write list omits the agent's own instruction files (part 4 below).
-- **Qualifies:** [ADR-0019](0019-testing-agent-written-code.md) part 1 — a prompting rule is not an
-  enforcement mechanism, and ADR-0019 read as though it were (part 5).
-- **Depends on:** [ADR-0014](0014-feature-artifacts-and-the-traceability-chain.md) — the stage
-  artifacts these instructions produce; [ADR-0007](0007-agent-runner-and-containment.md) — managed
-  settings, the only enforcement channel the platform owner controls.
 - **Research:** [2026-07-28 — where agent instructions live](../research/2026-07-28-agent-instruction-layers.md)
 
 ## Context
@@ -87,13 +72,10 @@ The bottom layer is for facts about the codebase, and it is treated as helpful, 
 One skill per stage, distributed so a repository cannot edit them, with three properties that are
 decisions rather than defaults:
 
-> **Amended by [ADR-0024](0024-stage-skill-distribution.md).** This part originally named the
-> commands `/asdlc-spec`, `/asdlc-plan`, `/asdlc-tasks` and `/asdlc-implement`, distributed at
-> "enterprise scope". The verification demanded below was run, and **the mechanism does not exist
-> as assumed** — the skills documentation's Enterprise row points at managed settings, and managed
-> settings defines no skills key and no skills directory. The skills now ship as one force-enabled
-> **plugin**, which namespaces them, so the reachable commands are **`/asdlc:spec`, `/asdlc:plan`,
-> `/asdlc:tasks`, `/asdlc:implement`**. The three properties below are unchanged and still apply.
+> **Delivery re-decided:** the procedures ship as Agent Skills via the `skills` CLI, commands
+> `/asdlc-spec`, `/asdlc-plan`, `/asdlc-tasks`, `/asdlc-implement`
+> ([ADR-0032](0032-stage-delivery-via-skills-cli.md), after
+> [ADR-0031](0031-heterogeneous-runners.md)). The three properties below stand.
 
 - **`disable-model-invocation: true`.** The engineer enters a stage deliberately; the model does not
   decide it has moved from planning to implementing. A life cycle whose stage boundaries the model
@@ -120,13 +102,9 @@ and id stability for spec, the tier-map entries and NFR enforcement table for pl
 for tasks, and ADR-0019's oracle rule for implement. **The skill texts are bring-up work**, drafted
 against [asdlc/templates/](../../asdlc/templates/README.md), not written here.
 
-~~**Verify the enterprise-scope distribution mechanism at bring-up.**~~ **Done, and it failed as
-posed** — [ADR-0024](0024-stage-skill-distribution.md). The skills documentation lists an
-Enterprise scope reaching *"All users in your organization"* via managed settings, and managed
-settings defines nothing of the kind. The replacement is a force-enabled plugin, which reaches the
-same goal with a stronger override guarantee and different command names. The fallback named here
-— committing the stage skills to each repository under part 4's protection — survives as ADR-0024
-part 8's last resort and is still **weaker, and still not the plan**.
+Verified 2026-07-28: the enterprise-scope mechanism does not exist as documented — the skills
+documentation's Enterprise row points at managed settings, which define no skills key. Delivery
+is [ADR-0032](0032-stage-delivery-via-skills-cli.md)'s.
 
 ### 3. The managed CLAUDE.md carries only what must survive a hostile repository
 
@@ -247,10 +225,10 @@ not a new job.
 - **A useful feature is switched off deliberately**, with the trade stated. Anyone who turns auto
   memory back on should read part 6 first, because the reproducibility argument survives even if
   the governance one is waved away.
-- **Two bring-up tasks**, both real: write the four stage skills against the existing templates, and
-  verify that enterprise-scope skill distribution does what part 2 needs. **The second was done on
-  2026-07-28 and came back negative** — [ADR-0024](0024-stage-skill-distribution.md) replaces the
-  mechanism. Recording it as a bring-up task rather than assuming it is what caught this.
+- **Two bring-up tasks**, both real: write the four stage skills against the existing templates,
+  and verify the distribution mechanism does what part 2 needs. The verification came back
+  negative and the mechanism was re-decided ([ADR-0032](0032-stage-delivery-via-skills-cli.md)).
+  Recording it as a bring-up task rather than assuming it is what caught this.
 - **Prompt injection from repository content is not addressed and is not pretended to be.** The
   agent reads the repository, and repository content can contain instructions. That is a different
   problem from instruction-file custody, and it is flagged in the research note rather than quietly

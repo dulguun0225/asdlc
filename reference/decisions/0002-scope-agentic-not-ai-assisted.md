@@ -2,8 +2,6 @@
 
 - **Status:** accepted
 - **Date:** 2026-07-26
-- **Closes:** [OQ-1](../open-questions.md)
-- **Opens:** [OQ-3](../open-questions.md)
 
 ## Context
 

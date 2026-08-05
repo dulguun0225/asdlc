@@ -1,0 +1,23 @@
+{
+  "name": "skills-harness",
+  "private": true,
+  "description": "QA harness for the skills/ tree at the repository root: discovery check, the two wired gates, token reports, and the firing harness.",
+  "engines": {
+    "node": ">=26.5.1 <27"
+  },
+  "scripts": {
+    "check": "skills add ../.. --list",
+    "check:evidence-order": "node scripts/evidence-order.mjs",
+    "check:pointers": "node scripts/dangling-pointer.mjs",
+    "tokens": "node scripts/token-count.mjs",
+    "tokens:frontmatter": "node scripts/frontmatter-tokens.mjs",
+    "tokens:sections": "node scripts/token-sections.mjs",
+    "firing": "node scripts/firing-harness.mjs",
+    "gates": "npm run check:evidence-order && npm run check:pointers",
+    "try": "skills use ../../ --agent claude-code --skill"
+  },
+  "devDependencies": {
+    "gpt-tokenizer": "^3.4.0",
+    "skills": "1.5.21"
+  }
+}

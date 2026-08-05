@@ -19,6 +19,8 @@ asdlc/        the life cycle — what happens at each stage, who signs what
 variants/     the two stacks — what to install, what it costs, what is missing
 rollout/      the order to build and adopt it in
 reference/    the working record — decisions, research, open questions, schemas
+skills/       what `skills add` delivers — the four stage procedures and the
+              researched engineering-decision skills
 tools/        the code — programs and packages the life cycle needs
 ```
 
@@ -28,7 +30,8 @@ tools/        the code — programs and packages the life cycle needs
 |---|---|
 | **Understand the life cycle** | [asdlc/README.md](asdlc/README.md) — includes the flow diagram |
 | **Write a spec, a plan, or a task list** | [asdlc/templates/](asdlc/templates/README.md) |
-| **See what the agent is actually told at each stage** | [asdlc/skills/](asdlc/skills/README.md) |
+| **See what the agent is actually told at each stage** | [asdlc/skills/](asdlc/skills/README.md) — the rules; the files are in [skills/](skills/README.md) |
+| **Install the skills into a repository** | [skills/](skills/README.md) — `npx skills add dulguun0225/asdlc` |
 | **Build one variant** | [variants/cloud.md](variants/cloud.md) or [variants/self-hosted.md](variants/self-hosted.md) — each is self-contained |
 | **Know what to do first** | [rollout/plan.md](rollout/plan.md) |
 | **Know why something was decided** | [reference/decisions/](reference/decisions/README.md) |

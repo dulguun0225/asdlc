@@ -1,7 +1,7 @@
 ---
 name: asdlc-plan
 description: Draft a feature plan for the ASDLC plan/design stage — architecture, contracts, requirements traceability, tier-map entries for every new path, and non-functional enforcement. Use after the spec is signed. Produces specs/<NNN>-<slug>/plan.md for a ring reviewer to sign. This is the heaviest gate in the life cycle.
-argument-hint: [NNN-kebab-slug]
+argument-hint: "[NNN-kebab-slug]"
 disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Edit(specs/**), Bash(git log *), Bash(git show *), Bash(sha256sum *), Bash(shasum *), AskUserQuestion
 disallowed-tools: PowerShell, NotebookEdit

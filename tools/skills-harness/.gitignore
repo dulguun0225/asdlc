@@ -1,0 +1,6 @@
+# Machine-local or regenerable. Nothing listed here belongs to the repo.
+node_modules/
+npm-debug.log*
+
+# Machine-local config, deliberately not shared: mise.toml is the shared one.
+mise.local.toml

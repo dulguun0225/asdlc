@@ -199,7 +199,7 @@ but are not a hard enforcement layer."* So anything mandatory needs a mechanism 
 |---|---|---|---|
 | **Enforcement** | managed settings, hooks, CI checks | platform owner | **no** |
 | **Standing instructions** | managed-policy `CLAUDE.md`, or the `claudeMd` managed-settings key | platform owner | **no** — *"cannot be excluded"* |
-| **Stage procedures** | Agent Skills from [asdlc/skills/](skills/README.md), delivered by the `skills` CLI, committed copies CI-verified ([ADR-0032](../reference/decisions/0032-stage-delivery-via-skills-cli.md)) | platform owner | **no** — tamper is caught at merge |
+| **Stage procedures** | Agent Skills from the repository's [skills/](../skills/) tree (rules: [asdlc/skills/](skills/README.md)), delivered by the `skills` CLI, committed copies CI-verified ([ADR-0032](../reference/decisions/0032-stage-delivery-via-skills-cli.md)) | platform owner | **no** — tamper is caught at merge |
 | **Repository facts** | project `CLAUDE.md`, `.claude/rules/` | the team, at T1 | yes, by design |
 
 **No gate-bearing rule lives in a repository file.** If a rule touches a gate, a tier, a signature

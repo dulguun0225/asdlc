@@ -1,0 +1,4 @@
+[tools]
+# Exact, not the "26" major: two machines resolving a major differently is the
+# kind of difference that shows up as a behaviour change in the toolchain.
+node = "26.5.1"

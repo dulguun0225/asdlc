@@ -84,7 +84,7 @@ Build and verify the shared artifacts before any team touches the system:
   ([04-implementation.md](../asdlc/04-implementation.md)).
 - **Stage-procedure delivery**
   ([ADR-0032](../reference/decisions/0032-stage-delivery-via-skills-cli.md)): install the four
-  skills from [asdlc/skills/](../asdlc/skills/README.md) into the pilot repo with the `skills`
+  skills from the repository's [skills/](../skills/) tree into the pilot repo with the `skills`
   CLI (project scope, `--copy`), add the CI byte-equality check against the pinned canonical
   version, and run the ADR's three one-command verifications. The canonical source is T1 with
   the agent identity denied write access. Verified: `/asdlc-spec` resolves in the pilot repo

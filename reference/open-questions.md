@@ -148,26 +148,21 @@ appended sections or an FR reference, and **nothing enforces that the two stay i
 - **The same rule is written in five places, and two copies have drifted.** The six EARS patterns,
   stable `FR-nnn`, WITHDRAWN and one-behaviour-per-requirement appear in
   [`asdlc/templates/spec.md`](../asdlc/templates/spec.md),
-  [`asdlc/skills/spec/SKILL.md`](../asdlc/skills/spec/SKILL.md), and three files under
+  [`skills/asdlc-spec/SKILL.md`](../skills/asdlc-spec/SKILL.md), and three files under
   `tools/spec-kit-bundle/presets/asdlc/`. Nothing keeps them in step. The known drift: a
   requirement matching no EARS pattern gets a **counted** `[form: table]` / `[form: prose]` escape
   tag in the design and an **uncounted** one-line note in the bundle's wrapped `speckit.specify`.
   Under ADR-0030 that is the bundle's bug. Generating the bundle's texts from the design's was
   rejected for now and is that record's first reopen condition — if the copies drift again after
   being reconciled, generate them.
-- **The skills-tree reference is resolved, and the repository it names is at risk.** The bundle
-  README's *"this repository's `skills/` tree"* meant the owner's separate skills repository —
-  identified 2026-08-05, ~20 engineering-decision skills (money, caching, primary-keys,
-  async-handoff, …) delivered by the `skills` CLI, and visibly the
-  [ADR-0028](decisions/0028-bundle-rename-and-reset.md) scratch repository (its log carries the
-  rename-and-reset commit). Both stale sentences in the bundle's docs are repaired. That
-  repository has no git remote; the owner states a backup exists elsewhere (2026-08-05).
-  **Moving the skills into this monorepo is decided in intent and pending execution** — the
-  owner confirmed publication is intended (the repo is public), and the move itself is a row in
-  [open-parameters.md](../rollout/open-parameters.md) with the four things to settle at move
-  time. It is also where the chosen delivery mechanism
-  ([ADR-0032](decisions/0032-stage-delivery-via-skills-cli.md), the `skills` CLI) is already
-  exercised daily.
+- **The skills live here now.** The owner's skills repository moved in on 2026-08-05
+  ([ADR-0033](decisions/0033-skills-move-into-the-monorepo.md)): the engineering-decision skills
+  and the four stage procedures at top-level [`skills/`](../skills/README.md), the QA harness at
+  `tools/skills-harness/`, one `skills add dulguun0225/asdlc` delivering all of it. The bundle
+  README's dangling *"this repository's `skills/` tree"* is finally true. `skills-checks.yml`
+  has **never run on Actions** — every step passes locally; the first push touching `skills/`
+  or the harness is the proof. The source repository (no remote; owner holds a backup) is no
+  longer load-bearing.
 
 ### Standing rules that bind every session
 

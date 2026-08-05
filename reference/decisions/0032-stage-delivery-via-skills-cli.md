@@ -52,7 +52,10 @@ choice does not read as having turned on it.
 
 ### 1. The four stage procedures ship as Agent Skills, delivered by the `skills` CLI
 
-The canonical source stays [asdlc/skills/](../../asdlc/skills/README.md). Product repositories
+The canonical source stays [asdlc/skills/](../../asdlc/skills/README.md). **Amended the same day
+by [ADR-0033](0033-skills-move-into-the-monorepo.md): the canonical files moved to
+`skills/asdlc-<stage>/` so one `skills add` delivers them; the rules stay at
+`asdlc/skills/README.md`.** Product repositories
 receive the four skills at **project scope, in copy mode** (`--copy` — a symlink does not commit
 portably, and a committed copy is what the CI check verifies), so the procedures are ordinary
 committed files reviewed like anything else, and arrive with the repository rather than with a

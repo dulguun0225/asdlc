@@ -1,7 +1,7 @@
 ---
 name: asdlc-implement
 description: Implement tasks from a checked task list for the ASDLC implementation stage — write the code and the tests, with every test's expected behaviour derived from the signed requirement rather than from the implementation. Use after the tasks check passes. This is the only stage where the agent acts rather than drafts, and the only one the containment design exists for.
-argument-hint: [NNN-kebab-slug] [T-nnn ...]
+argument-hint: "[NNN-kebab-slug] [T-nnn ...]"
 disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Edit, Bash, TodoWrite
 disallowed-tools: PowerShell

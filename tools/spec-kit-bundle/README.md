@@ -199,9 +199,11 @@ decision (`NEW — proposed`), or records a divergence in one line.
 
 The bundle ships that **mechanism** and no content: what a project's records
 say is the project's own. Seed a repo's `Repo principles` by writing them, not
-by copying them from here. Pre-researched engineering rules live in a separate
-skills repository and are installed by a different mechanism — they are not
-part of the bundle, and this repository does not carry them.
+by copying them from here. Pre-researched engineering rules live in this
+repository's top-level
+[`skills/`](https://github.com/dulguun0225/asdlc/tree/master/skills) tree and
+are installed by a different mechanism (the `skills` CLI) — they are not part
+of the bundle.
 
 ## What is deliberately NOT enforced by machine
 

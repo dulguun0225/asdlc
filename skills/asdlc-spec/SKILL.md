@@ -1,7 +1,7 @@
 ---
 name: asdlc-spec
 description: Draft a feature spec for the ASDLC spec stage — EARS functional requirements with stable ids, non-functional requirements that name an enforcement point, success criteria, open items and assumptions. Use at the start of a T1 or T2 feature. Produces specs/<NNN>-<slug>/spec.md for the domain owner to sign.
-argument-hint: [NNN-kebab-slug]
+argument-hint: "[NNN-kebab-slug]"
 disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Edit(specs/**), AskUserQuestion
 disallowed-tools: Bash, PowerShell, NotebookEdit, WebFetch, WebSearch

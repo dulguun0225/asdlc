@@ -3,12 +3,19 @@
 One skill per life-cycle stage. These four files **are** the procedures — a rule that is not in
 them is not in force, however plausible it looks in a repository file.
 
+**The files live in the repository's [`skills/`](../../skills/) tree** — the directory the
+`skills` CLI discovers and delivers from
+([ADR-0033](../../reference/decisions/0033-skills-move-into-the-monorepo.md), which moved them
+out of this directory so one `skills add` delivers the stage procedures and the
+engineering-decision skills together). This page is the design's description of them, and it is
+where their conventions are stated.
+
 | Skill | Command | Stage | Produces |
 |---|---|---|---|
-| [spec/SKILL.md](spec/SKILL.md) | `/asdlc-spec` | [1. Spec](../01-spec.md) | `specs/<NNN>-<slug>/spec.md` |
-| [plan/SKILL.md](plan/SKILL.md) | `/asdlc-plan` | [2. Plan / design](../02-plan.md) | `specs/<NNN>-<slug>/plan.md` + a diff to the tier map |
-| [tasks/SKILL.md](tasks/SKILL.md) | `/asdlc-tasks` | [3. Tasks](../03-tasks.md) | `specs/<NNN>-<slug>/tasks.md` |
-| [implement/SKILL.md](implement/SKILL.md) | `/asdlc-implement` | [4. Implementation](../04-implementation.md) | the code change and its tests |
+| [asdlc-spec](../../skills/asdlc-spec/SKILL.md) | `/asdlc-spec` | [1. Spec](../01-spec.md) | `specs/<NNN>-<slug>/spec.md` |
+| [asdlc-plan](../../skills/asdlc-plan/SKILL.md) | `/asdlc-plan` | [2. Plan / design](../02-plan.md) | `specs/<NNN>-<slug>/plan.md` + a diff to the tier map |
+| [asdlc-tasks](../../skills/asdlc-tasks/SKILL.md) | `/asdlc-tasks` | [3. Tasks](../03-tasks.md) | `specs/<NNN>-<slug>/tasks.md` |
+| [asdlc-implement](../../skills/asdlc-implement/SKILL.md) | `/asdlc-implement` | [4. Implementation](../04-implementation.md) | the code change and its tests |
 
 Rules: [ADR-0020](../../reference/decisions/0020-agent-instruction-layers.md) (the four instruction
 layers, and why a procedure lives in a skill),

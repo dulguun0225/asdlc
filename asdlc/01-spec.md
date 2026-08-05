@@ -63,7 +63,7 @@ the code host.
 Named here rather than left as an absence:
 
 - ~~**The text of the `/asdlc-spec` stage skill.**~~ **Written 2026-07-28** —
-  [skills/spec/SKILL.md](skills/spec/SKILL.md). Unrun: no engineer has walked it, and the first
+  [skills/asdlc-spec/SKILL.md](../skills/asdlc-spec/SKILL.md). Unrun: no engineer has walked it, and the first
   pilot week should be expected to rewrite it.
 - **What makes a definition of done acceptable to a domain owner** is a review question with no
   written standard — the template's success-criteria and unwanted-behaviour rules are the

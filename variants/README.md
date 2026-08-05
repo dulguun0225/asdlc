@@ -61,7 +61,7 @@ Identical in both, at identical cost:
   ([ADR-0019](../reference/decisions/0019-testing-agent-written-code.md),
   [ADR-0020](../reference/decisions/0020-agent-instruction-layers.md)).
 - **The stage procedures and their delivery** — one canonical source
-  ([asdlc/skills/](../asdlc/skills/README.md)), shipped as **Agent Skills via the `skills` CLI**
+  ([skills/asdlc-*](../skills/), rules at [asdlc/skills/](../asdlc/skills/README.md)), shipped as **Agent Skills via the `skills` CLI**
   as project-scope committed copies, CI-verified byte-identical
   ([ADR-0032](../reference/decisions/0032-stage-delivery-via-skills-cli.md), replacing
   [ADR-0024](../reference/decisions/0024-stage-skill-distribution.md)'s plugin after

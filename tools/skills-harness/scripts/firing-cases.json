@@ -1,0 +1,296 @@
+{
+  "$comment": [
+    "Prompt corpus for scripts/firing-harness.mjs. One entry = one headless session.",
+    "",
+    "RULE FOR WRITING A PROMPT: it must read like something an engineer would type,",
+    "using the vocabulary that engineer would use — never the skill's own words. A",
+    "prompt lifted from a `description` tests nothing but string matching, and a",
+    "corpus written that way will pass forever while the descriptions rot. When a",
+    "case fails, the fix is usually the description, not the prompt.",
+    "",
+    "`skill` is the skill under test: the case passes when that skill fires. Other",
+    "skills firing is recorded, never scored — a Java money prompt firing `money`,",
+    "`money-java` and `money-storage` together is the set working, not noise.",
+    "`forbid` is scored: those must not fire. `fixture` picks the sandbox the",
+    "session runs in, because a skill that says `Load in a Java repo` is entitled",
+    "to see one.",
+    "",
+    "SECOND RULE, added 2026-08-03: a prompt may only point at something its",
+    "fixture contains. Prompts here named a TaxService, a GET /customers, an ADR",
+    "and a report query that no fixture held; the model looked, found nothing,",
+    "asked for it and stopped, and every one of those sessions was scored as a",
+    "miss although no relevance judgment ever happened. That was most of the miss",
+    "list in both modes. Either add the referent to FIXTURES in the harness, or",
+    "write the context into the prompt the way an engineer would state it."
+  ],
+  "cases": [
+    {
+      "id": "money-1",
+      "skill": "money",
+      "fixture": "bare",
+      "prompt": "Our invoice total comes out a cent off sometimes. The line items are doubles and we round at the end. Fix the calculation."
+    },
+    {
+      "id": "money-2",
+      "skill": "money",
+      "fixture": "bare",
+      "prompt": "Add a loyalty points balance to the user profile. Points are earned at 2% of spend and can be redeemed at checkout."
+    },
+    {
+      "id": "money-api-1",
+      "skill": "money-api",
+      "fixture": "bare",
+      "prompt": "Design the JSON response for GET /orders/{id}. It needs the subtotal, tax, shipping and grand total, plus the currency."
+    },
+    {
+      "id": "money-api-2",
+      "skill": "money-api",
+      "fixture": "bare",
+      "prompt": "We get a daily settlement CSV from the payment provider with an amount column. Write the importer."
+    },
+    {
+      "id": "money-storage-1",
+      "skill": "money-storage",
+      "fixture": "bare",
+      "prompt": "Write the migration for a payments table. It needs the charged amount and a running account balance."
+    },
+    {
+      "id": "money-storage-2",
+      "skill": "money-storage",
+      "fixture": "sql",
+      "prompt": "This report query sums the order totals per customer per month and it's slow. Rewrite it."
+    },
+    {
+      "id": "money-java-1",
+      "skill": "money-java",
+      "fixture": "java",
+      "prompt": "Add a Price field to the Order entity and a method that applies a percentage discount to it."
+    },
+    {
+      "id": "money-java-2",
+      "skill": "money-java",
+      "fixture": "java",
+      "prompt": "We need to charge VAT at 20% on the order subtotal and store what we charged. Implement it."
+    },
+    {
+      "id": "caching-1",
+      "skill": "caching",
+      "fixture": "bare",
+      "prompt": "The pricing lookup hits the database on every request and the endpoint is slow. Can we hold the result in memory for a bit?"
+    },
+    {
+      "id": "caching-2",
+      "skill": "caching",
+      "fixture": "bare",
+      "prompt": "Put Cloudflare in front of the product detail pages so we stop serving them from origin every time."
+    },
+    {
+      "id": "caching-java-1",
+      "skill": "caching-java",
+      "fixture": "java",
+      "prompt": "Memoize the tax-rate lookup in TaxService. It changes maybe once a quarter."
+    },
+    {
+      "id": "caching-java-2",
+      "skill": "caching-java",
+      "fixture": "java",
+      "prompt": "Slap @Cacheable on the country lookup service so we stop round-tripping for it."
+    },
+    {
+      "id": "async-handoff-1",
+      "skill": "async-handoff",
+      "fixture": "bare",
+      "prompt": "When an order is placed we should email the customer. Don't make the request wait for the mail server."
+    },
+    {
+      "id": "async-handoff-2",
+      "skill": "async-handoff",
+      "fixture": "bare",
+      "prompt": "Add a nightly job that scans the pending_exports table and pushes each row to the partner's endpoint."
+    },
+    {
+      "id": "async-handoff-java-1",
+      "skill": "async-handoff-java",
+      "fixture": "java",
+      "prompt": "Kick the receipt generation off the request thread — an @Async method on ReceiptService should do it."
+    },
+    {
+      "id": "async-handoff-java-2",
+      "skill": "async-handoff-java",
+      "fixture": "java",
+      "prompt": "Publish an OrderPlaced event to Kafka when the order is confirmed. Wire the producer."
+    },
+    {
+      "id": "async-handoff-shapes-1",
+      "skill": "async-handoff-shapes",
+      "fixture": "bare",
+      "prompt": "Booking a trip reserves the flight, then the hotel, then charges the card. If the charge fails we have to unwind the first two. Design it."
+    },
+    {
+      "id": "async-handoff-shapes-2",
+      "skill": "async-handoff-shapes",
+      "fixture": "bare",
+      "prompt": "An unpaid invoice should auto-cancel after 14 days. How do we hold that deadline?"
+    },
+    {
+      "id": "primary-keys-1",
+      "skill": "primary-keys",
+      "fixture": "bare",
+      "prompt": "New table for support tickets. What should the id column be — auto-increment or a UUID?"
+    },
+    {
+      "id": "primary-keys-2",
+      "skill": "primary-keys",
+      "fixture": "bare",
+      "prompt": "The mobile team wants the newest comments first. Just ORDER BY id DESC on the comments table, right?"
+    },
+    {
+      "id": "business-numbering-1",
+      "skill": "business-numbering",
+      "fixture": "bare",
+      "prompt": "Customers need an invoice number they can quote to support. Something like INV-2026-000123. Implement the generator."
+    },
+    {
+      "id": "business-numbering-2",
+      "skill": "business-numbering",
+      "fixture": "bare",
+      "prompt": "Finance says our receipt numbers can't have holes in them. Make sure every number in the sequence gets used."
+    },
+    {
+      "id": "java-backend-rules-1",
+      "skill": "java-backend-rules",
+      "fixture": "java",
+      "prompt": "Add a Flyway migration for a customer_notes table and a repository method that loads notes for a customer."
+    },
+    {
+      "id": "java-backend-rules-2",
+      "skill": "java-backend-rules",
+      "fixture": "java",
+      "prompt": "This endpoint loads an order then loops over its lines fetching each product. Speed it up."
+    },
+    {
+      "id": "java-backend-api-1",
+      "skill": "java-backend-api",
+      "fixture": "java",
+      "prompt": "Add pagination to GET /customers. It returns everything right now."
+    },
+    {
+      "id": "java-backend-api-2",
+      "skill": "java-backend-api",
+      "fixture": "java",
+      "prompt": "Our 400 responses are just a string. Give the API a proper error body."
+    },
+    {
+      "id": "java-backend-observability-1",
+      "skill": "java-backend-observability",
+      "fixture": "java",
+      "prompt": "I can't tell why checkout is failing in prod. Add logging around the payment call."
+    },
+    {
+      "id": "java-backend-observability-2",
+      "skill": "java-backend-observability",
+      "fixture": "java",
+      "prompt": "Page someone when the order queue backs up. Add the metric and the alert."
+    },
+    {
+      "id": "backend-stack-1",
+      "skill": "backend-stack",
+      "fixture": "bare",
+      "prompt": "Greenfield service, small team, mostly CRUD over Postgres with a few integrations. What should we build it in?"
+    },
+    {
+      "id": "backend-stack-2",
+      "skill": "backend-stack",
+      "fixture": "java",
+      "prompt": "Two of the devs want to write the new reporting module in Go and keep it in this repo. Thoughts?"
+    },
+    {
+      "id": "guardrails-toolchain-1",
+      "skill": "guardrails-toolchain",
+      "fixture": "java",
+      "prompt": "Set up CI for this repo. I want it to actually catch things, not just run tests."
+    },
+    {
+      "id": "guardrails-toolchain-2",
+      "skill": "guardrails-toolchain",
+      "fixture": "java",
+      "prompt": "SpotBugs is failing the build on 40 pre-existing findings. Can I baseline them and move on?"
+    },
+    {
+      "id": "llm-default-traps-1",
+      "skill": "llm-default-traps",
+      "fixture": "java",
+      "prompt": "Add a library for working with public holidays and bump our dependencies while you're in there."
+    },
+    {
+      "id": "llm-default-traps-2",
+      "skill": "llm-default-traps",
+      "fixture": "ci",
+      "prompt": "The build broke last week because something we depend on changed under us without us touching anything. Go through the Dockerfile and the workflow and make our builds reproducible."
+    },
+    {
+      "id": "ai-maintainer-principles-1",
+      "skill": "ai-maintainer-principles",
+      "fixture": "bare",
+      "prompt": "Our orders service has grown to about 40k lines — billing, notifications and reporting all live in it. Should I split it into two, and where's the seam?"
+    },
+    {
+      "id": "ai-maintainer-principles-2",
+      "skill": "ai-maintainer-principles",
+      "fixture": "bare",
+      "prompt": "The partner API times out a lot. Add retries with backoff around the client."
+    },
+    {
+      "id": "enforceable-rules-1",
+      "skill": "enforceable-rules",
+      "fixture": "bare",
+      "prompt": "Write a CLAUDE.md for this repo laying out how we want code written here."
+    },
+    {
+      "id": "enforceable-rules-2",
+      "skill": "enforceable-rules",
+      "fixture": "bare",
+      "prompt": "Turn our style guide bullets into rules that the build can actually enforce."
+    },
+    {
+      "id": "tech-decision-research-1",
+      "skill": "tech-decision-research",
+      "fixture": "bare",
+      "prompt": "We need a message broker. Compare the options properly and tell me which one, with reasons I can defend."
+    },
+    {
+      "id": "tech-decision-research-2",
+      "skill": "tech-decision-research",
+      "fixture": "docs",
+      "prompt": "This ADR is from two years ago and nobody's checked it since. Is it still right?"
+    },
+    {
+      "id": "negative-1",
+      "skill": null,
+      "fixture": "bare",
+      "forbid": ["money", "caching", "async-handoff", "primary-keys", "business-numbering"],
+      "prompt": "Rename the variable `tmp2` in this snippet to something readable: `int tmp2 = a + b;`"
+    },
+    {
+      "id": "negative-2",
+      "skill": null,
+      "fixture": "bare",
+      "forbid": ["money", "money-api", "money-storage", "caching", "primary-keys"],
+      "prompt": "What's the difference between `git rebase` and `git merge`?"
+    },
+    {
+      "id": "negative-3",
+      "skill": null,
+      "fixture": "java",
+      "forbid": ["async-handoff", "async-handoff-java", "caching", "caching-java", "money", "money-java"],
+      "prompt": "Fix the typo in this Javadoc comment: `/** Retuns the customer name. */`"
+    },
+    {
+      "id": "negative-4",
+      "skill": null,
+      "fixture": "bare",
+      "forbid": ["backend-stack", "tech-decision-research", "guardrails-toolchain", "enforceable-rules"],
+      "prompt": "Write a regex that matches a UK postcode."
+    }
+  ]
+}

@@ -158,8 +158,11 @@ is subordinate.
 **The code:**
 
 - [`tools/`](tools/README.md) — the programs and packages the life cycle needs.
-  `spec-kit-bundle/` is the predecessor convention, built but never released;
-  `feature-artifact-checker/` and the `asdlc` plugin are specified and not yet built.
+  `spec-kit-bundle/` and `spec-kit-checker/` are the predecessor convention, built but never
+  released; `feature-artifact-checker/` and the `asdlc` plugin are specified and not yet built.
+  The bundle directory holds **only components `specify` can install**
+  ([ADR-0029](reference/decisions/0029-bundle-holds-only-installable-components.md)) — a companion
+  program that travels any other way gets its own `tools/` directory.
   **`tools/` earns its name only while it holds programs and packages** — a `tools/` that holds
   anything is a `misc/`.
 

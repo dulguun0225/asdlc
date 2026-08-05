@@ -8,28 +8,47 @@ three practices into one installable unit:
    behavior, under a stable `FR-nnn` ID.
 2. **Traceability** — the plan maps every `FR-nnn` to the design element that
    satisfies it; every task cites the `FR-nnn` it implements; a stdlib-only CI
-   script enforces both.
+   script in the product repo enforces both.
 3. **Decision records** — technology choices trace to the project's decision
    records instead of the agent's training-data default; a choice no record
    covers becomes a visible `NEW — proposed` row in the plan's Decision
    Trace.
 
 **The bundle gates nothing.** It ships no extension and no hook, so nothing
-stops `speckit.implement`. The `ci/check_specs.py` merge gate is the only
-enforcement, and it runs in the product repo's CI, after the fact.
+stops `speckit.implement`. The `check_specs.py` merge gate is the only
+enforcement, it is **not part of this bundle** (see below), and it runs in the
+product repo's CI, after the fact.
 
 Bundle id: `asdlc` · requires Spec Kit `>=0.14.2,<1.0.0` · integration-agnostic.
 
 ## Components
+
+**This directory holds only what `specify` can install.** Everything below
+reaches a project through a spec-kit mechanism —
+`specify preset add`, `specify workflow add`, `specify bundle install`, or a
+catalog. Anything that travels another way lives elsewhere in the repository
+([ADR-0029](https://github.com/dulguun0225/asdlc/blob/master/reference/decisions/0029-bundle-holds-only-installable-components.md)).
 
 | Path | What it is |
 | ---- | ---------- |
 | `bundle.yml` | The bundle manifest (`specify bundle install` reads only this) |
 | `presets/asdlc/` | Preset: EARS spec template, default constitution, and wrapped `speckit.specify` / `speckit.plan` / `speckit.tasks` / `speckit.constitution` commands |
 | `workflows/asdlc/` | Workflow: the orchestrated cycle for `specify workflow run` — the stock `speckit` pipeline with review gates after specify and after plan |
-| `ci/check_specs.py` | Merge gate for product repos: structure, FR uniqueness, two-way task↔FR coverage, plan traceability and decision-trace sections, contract links |
 | `catalogs/` | Preset/workflow/bundle catalog JSONs for org-hosted distribution |
-| `examples/password-reset/` | Worked example spec and plan: all five EARS patterns, unwanted-behavior coverage, the two appended plan sections; kept well-formed by `ci/check_specs.py --self` |
+
+### The merge gate is not in this bundle
+
+`check_specs.py` — structure, FR uniqueness, two-way task↔FR coverage, plan
+traceability and decision-trace sections, contract links — enforces this
+bundle's conventions but is **not installable by `specify`**: a product repo
+adopts it by copying the file. It lives at
+[`tools/spec-kit-checker/`](https://github.com/dulguun0225/asdlc/tree/master/tools/spec-kit-checker),
+with its own README, its own CI, and the worked `password-reset` example that
+keeps it honest.
+
+The two are coupled by promise: the wrapped plan and tasks commands tell the
+agent that the checker will fail an artifact missing the appended sections or
+an FR reference. Change one, re-read the other.
 
 ## The workflow after install
 
@@ -157,29 +176,16 @@ Traps verified against Spec Kit v0.14.2 source:
 
 ### CI for a product repo
 
-Copy `ci/check_specs.py` into the product repo (one file, stdlib-only,
-version it like any other file), then:
+The merge gate is not installed by `specify` — copy the one file in:
 
 ```yaml
 - run: python3 ci/check_specs.py --repo .
 ```
 
-It fails the merge on: a feature folder without `spec.md`; a spec that
-defines no `FR-nnn` at all (the spec template ships five placeholder FR
-bullets, so this fires only once they are deleted rather than filled —
-unfilled placeholder wording in a requirement is the reviewer's job, not the
-checker's); `tasks.md` without `plan.md`; duplicate FR-ids or
-task ids; a plan missing the `## Requirements Traceability` or `## Decision
-Trace` section, or whose traceability table rows miss or
-over-claim FR-ids, or whose decision trace has no data rows or still holds
-an angle-bracket placeholder token; a task
-without `[FR-nnn]` and without an explicit `[FR: n/a]` (the reason after
-`n/a` is convention, not machine-checked); a task citing an FR the spec does
-not define; a `tasks.md` with no recognizable `- [ ] Tnnn …` items, or a
-checkbox line that does not parse as one; a `contracts/…` file link that does
-not exist; non-kebab-case filenames; CRLF. HTML comments are stripped before
-scanning, so template guidance comments never count. Vague requirement
-wording ("quickly", "appropriate", …) is a warning, never blocking.
+`check_specs.py` and the full list of what it blocks on are at
+[`tools/spec-kit-checker/`](https://github.com/dulguun0225/asdlc/tree/master/tools/spec-kit-checker).
+`ci/check_specs.py` is the path the wrapped plan and tasks commands name to
+the agent; put it elsewhere in your repo and update them.
 
 ## Decision records
 
@@ -201,7 +207,7 @@ not part of the bundle.
 
 - **That implementation waited for anything** — the bundle ships no extension
   and no hook, so nothing inspects the artifacts before `speckit.implement`
-  runs. `ci/check_specs.py` is the only enforcement, and it runs in the
+  runs. `check_specs.py` is the only enforcement, and it runs in the
   product repo's CI after the work is done.
 - **EARS phrasing** — the checker keys only on the `- **FR-nnn**` bullet
   shape; phrasing is the agent's job at authoring time and the reviewer's at

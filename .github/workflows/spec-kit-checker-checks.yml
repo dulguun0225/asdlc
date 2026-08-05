@@ -1,0 +1,85 @@
+# CI for the merge-gate checker in tools/spec-kit-checker/.
+#
+# WHY THIS FILE EXISTS AT THE ROOT: GitHub runs workflows only from the
+# repository root `.github/workflows/`. A workflow under tools/ would be inert,
+# so the checker keeps no copy of this file. THIS IS THE ONLY COPY. Delete it
+# and the checker silently loses its CI.
+#
+# Split out of bundle-checks.yml on 2026-08-05 (ADR-0029), when the checker
+# left tools/spec-kit-bundle/. The three negative probes below were RELOCATED
+# from that workflow, not rewritten and not weakened — the rule that a probe
+# must go red for the right reason holds here in full.
+#
+# It installs nothing. check_specs.py is stdlib-only by rule, so the runner's
+# python3 is the whole toolchain; the spec-kit CLI this used to sit beside is
+# not needed to check the checker.
+#
+# NOT YET RUN ON ACTIONS. Every step below passes locally; the first push that
+# touches tools/spec-kit-checker/ is the proof.
+
+name: spec-kit-checker-checks
+
+on:
+  push:
+    paths:
+      - 'tools/spec-kit-checker/**'
+      - '.github/workflows/spec-kit-checker-checks.yml'
+  pull_request:
+    paths:
+      - 'tools/spec-kit-checker/**'
+      - '.github/workflows/spec-kit-checker-checks.yml'
+
+defaults:
+  run:
+    working-directory: tools/spec-kit-checker
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Examples stay well-formed
+        run: python3 check_specs.py --self
+
+      # Negative probes: the checker must go red on a violation, and red for
+      # the right reason. A green gate that cannot fail proves nothing.
+      # Never delete one to make CI pass.
+      #
+      # Each builds a throwaway product repo from the worked example's spec.md
+      # plus a hand-written plan/tasks, then asserts BOTH the non-zero exit and
+      # the message text.
+      - name: Negative probe — task without an FR reference turns the gate red
+        run: |
+          mkdir -p /tmp/bad-repo/specs/001-bad
+          cp examples/password-reset/spec.md /tmp/bad-repo/specs/001-bad/spec.md
+          printf '## Requirements Traceability\n\n| Requirement | Satisfied by |\n| --- | --- |\n| FR-001 | x |\n| FR-002 | x |\n| FR-003 | x |\n| FR-004 | x |\n| FR-005 | x |\n| FR-006 | x |\n| FR-007 | x |\n| FR-008 | x |\n| FR-009 | x |\n| FR-010 | x |\n\n## Decision Trace\n\n| Technical Context entry | Decision |\n| --- | --- |\n| Language | decisions/0001-language.md |\n' > /tmp/bad-repo/specs/001-bad/plan.md
+          printf -- '- [ ] T001 Implement something in src/x.py\n' > /tmp/bad-repo/specs/001-bad/tasks.md
+          if python3 check_specs.py --repo /tmp/bad-repo > /tmp/out.txt 2>&1; then
+            echo 'checker passed a task with no [FR-nnn] reference'; cat /tmp/out.txt; exit 1
+          fi
+          grep -q 'carries no \[FR-nnn\] reference' /tmp/out.txt
+
+      # `## Approval` was a required section until the 2026-08-05 reset removed
+      # the bundle's gate; the checker no longer looks for it and this probe no
+      # longer asserts it. The two sections below are the ones that remain.
+      - name: Negative probe — plan without the appended sections turns the gate red
+        run: |
+          mkdir -p /tmp/bad-repo2/specs/001-bad
+          cp examples/password-reset/spec.md /tmp/bad-repo2/specs/001-bad/spec.md
+          printf '# Plan\n\nno sections here\n' > /tmp/bad-repo2/specs/001-bad/plan.md
+          if python3 check_specs.py --repo /tmp/bad-repo2 > /tmp/out2.txt 2>&1; then
+            echo 'checker passed a plan without the required sections'; cat /tmp/out2.txt; exit 1
+          fi
+          grep -q '## Requirements Traceability' /tmp/out2.txt
+          grep -q '## Decision Trace' /tmp/out2.txt
+
+      - name: Negative probe — a Decision Trace placeholder row turns the gate red
+        run: |
+          mkdir -p /tmp/bad-repo3/specs/001-bad
+          cp examples/password-reset/spec.md /tmp/bad-repo3/specs/001-bad/spec.md
+          printf '## Requirements Traceability\n\n| Requirement | Satisfied by |\n| --- | --- |\n| FR-001 | x |\n| FR-002 | x |\n| FR-003 | x |\n| FR-004 | x |\n| FR-005 | x |\n| FR-006 | x |\n| FR-007 | x |\n| FR-008 | x |\n| FR-009 | x |\n| FR-010 | x |\n\n## Decision Trace\n\n| Technical Context entry | Decision |\n| --- | --- |\n| Testing | <component, contract file, or plan section> |\n' > /tmp/bad-repo3/specs/001-bad/plan.md
+          if python3 check_specs.py --repo /tmp/bad-repo3 > /tmp/out3.txt 2>&1; then
+            echo 'checker passed a Decision Trace row with a placeholder'; cat /tmp/out3.txt; exit 1
+          fi
+          grep -q 'angle-bracket placeholder' /tmp/out3.txt

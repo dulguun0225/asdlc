@@ -27,11 +27,9 @@ component directories here are the source of truth; they reach projects via
 | Path | What it is | A change also touches |
 | ---- | ---------- | --------------------- |
 | `bundle.yml` | Manifest; pins component versions | `catalogs/bundles.json`, the release workflow's asserts |
-| `presets/asdlc/` | Spec + constitution templates (replace-only), wrapped specify/plan/tasks/constitution commands | `catalogs/presets.json` |
+| `presets/asdlc/` | Spec + constitution templates (replace-only), wrapped specify/plan/tasks/constitution commands | `catalogs/presets.json`, and any claim they make about the checker |
 | `workflows/asdlc/` | Orchestrated cycle for `specify workflow run` | `bundle.yml` pin, `catalogs/workflows.json` (version AND url tag) |
-| `ci/check_specs.py` | Stdlib-only merge gate; `--repo` for product repos, `--self` for `examples/` | README checker list |
 | `catalogs/*.json` | Org distribution; keys == ids; versions/URLs must match the manifests | the release workflow's asserts |
-| `examples/password-reset/` | Worked example (spec + plan); kept green by `--self` | — |
 | `README.md` | User docs; "Behavior this repo is built around" is the pin-forward contract | — |
 
 ## Rules that exist because something broke
@@ -46,7 +44,8 @@ repo is built around").
 2. **The bundle ships no extension and gates nothing.** It started with one —
    a `before_implement` approval gate and an `after_implement` review — and
    both were removed to keep the first release minimal. Nothing now inspects
-   the artifacts before `speckit.implement`; `ci/check_specs.py` is the only
+   the artifacts before `speckit.implement`; `check_specs.py` in
+   [`../spec-kit-checker/`](../spec-kit-checker/README.md) is the only
    enforcement, and it runs after the fact. Adding an extension back means
    restoring rule 8's `extension.yml` obligation and the
    `speckit.<extension-id>.<command>` naming constraint.
@@ -61,7 +60,7 @@ repo is built around").
    step type fails validation at `workflow add`.
 6. LF for every text file (this directory's own `.gitattributes` catch-all,
    duplicated at the repository root); kebab-case filenames.
-   `ci/check_specs.py` enforces both in product repos.
+   `check_specs.py` enforces both in product repos.
 7. Never put maintainer files (CLAUDE.md, notes) inside `presets/asdlc/`:
    a preset install copies the WHOLE source directory into consumer projects
    (verified — a stray file lands in their `.specify/`). That is why that
@@ -75,6 +74,17 @@ repo is built around").
    day after an earlier move, because the catalogs were repointed and this
    file is not a catalog. **When a component moves, its published identity
    does not move with it, and it is not in the files you edit.**
+9. **Nothing lives here that `specify` cannot install.** Every path in the map
+   above reaches a project through a spec-kit mechanism — `preset add`,
+   `workflow add`, `bundle install`, or a catalog. A file that travels any
+   other way goes in its own `tools/` directory, however tightly it is coupled
+   to the bundle: `ci/check_specs.py` sat here reading as part of the
+   installable unit while product repos were in fact copy-pasting it, and it
+   is now [`../spec-kit-checker/`](../spec-kit-checker/README.md)
+   ([ADR-0029](../../reference/decisions/0029-bundle-holds-only-installable-components.md)).
+   The directory's own metadata — `README.md` (which `specify bundle build`
+   requires), `CLAUDE.md`, `LICENSE`, `mise.toml`, the dotfiles — is not a
+   deliverable and is exempt.
 
 ## presets/asdlc — component invariants
 
@@ -106,22 +116,26 @@ repo is built around").
 
 ```sh
 specify bundle validate --path . --offline   # 0 errors; exactly 2 warnings (offline component refs)
-python ci/check_specs.py --self              # examples stay green
 ```
 
-**Neither binary is on every machine.** Both run through `uv` with nothing
+**The binary is not on every machine.** It runs through `uv` with nothing
 installed permanently, and `uvx` gets you the pinned CLI rather than whatever
 is on PATH:
 
 ```sh
 uvx --from git+https://github.com/github/spec-kit.git@v0.14.2 specify bundle validate --path . --offline
-uv run --no-project python ci/check_specs.py --self
 ```
 
 `uv` itself is pinned in this directory's own `mise.toml` — `mise trust && mise
-install`, once per machine, run from here. That file is this project's whole
-toolchain: uv supplies the Python interpreter, so nothing pins one, and
-`ci/check_specs.py` is stdlib-only by rule.
+install`, once per machine, run from here. That file is this directory's whole
+toolchain: uv supplies the Python interpreter the CLI needs, so nothing pins
+one.
+
+**A change to the wrapped plan or tasks command may also need
+`../spec-kit-checker/`.** Those commands promise the agent that the checker
+fails a plan without the appended sections and a task without an FR reference;
+that program is not in this directory and has its own CI
+(rule 9).
 
 Keep the `uvx` tag equal to the spec-kit pin below — an unpinned
 `uvx specify` validates against a version nothing here was verified at.
@@ -139,17 +153,20 @@ inert and would look live. The bundle's CI is two workflows at the repository
 root, and those are the only copies:
 
 - `.github/workflows/bundle-checks.yml` — path-filtered to
-  `tools/spec-kit-bundle/**`; runs the two verify commands above plus the e2e
-  smoke, and carries three negative probes. A probe must go red for the right
-  reason, so never delete one to make CI pass.
+  `tools/spec-kit-bundle/**`; runs the validation above plus the e2e smoke.
+  Its three `check_specs.py` negative probes moved to
+  `spec-kit-checker-checks.yml` with the checker; the probe that remains here
+  asserts that the bundle installs **no** extension. A probe must go red for
+  the right reason, so never delete one to make CI pass.
 - `.github/workflows/bundle-release.yml` — triggered by `bundle-v*`;
   re-validates, asserts tag/version/URL consistency and `preset.yml`'s
   `repository` field of rule 8, builds the zips, and publishes.
 
-**Neither has ever run against this bundle.** Both were written for the
-pre-rename layout and retargeted on 2026-08-05 without a live run; the
-catalog URLs in `catalogs/*.json` still point at a release that does not
-exist. The first `bundle-v*` tag is the proof.
+**`bundle-checks` is green; `bundle-release` has never run.** Both were
+written for the pre-rename layout and retargeted on 2026-08-05 — checks
+failed once on a stale assert and passed on the second push, release has no
+proof but a local dry-run. The catalog URLs in `catalogs/*.json` still point
+at a release that does not exist; the first `bundle-v*` tag is the proof.
 
 Spec-kit is pinned at **v0.14.2**, and every behavior claim was verified at
 that version. A pin-forward means: bump the pin and the `speckit_version`

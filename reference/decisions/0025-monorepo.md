@@ -11,6 +11,11 @@
   arriving in-tree is **not** adoption of it; option 1 there rejected that and still does.
 - **Requested by:** the owner, 2026-07-28 — *"I think I want to copy that spec-kit-bundle-nc
   project into this repo and make this one a monorepo."*
+- **Later:** the bundle directory was renamed and reset
+  ([ADR-0028](0028-bundle-rename-and-reset.md)), then narrowed to installable spec-kit components
+  only ([ADR-0029](0029-bundle-holds-only-installable-components.md)) — every `ci/check_specs.py`
+  path below now reads `tools/spec-kit-checker/check_specs.py`, and
+  `tools/spec-kit-bundle/examples/` reads `tools/spec-kit-checker/examples/`.
 
 ## Context
 

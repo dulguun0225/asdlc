@@ -11,7 +11,7 @@
   repo they point at files under docs/decisions/ or at the constitution's
   Repo principles. It is a reference, not a template.
 
-  ci/check_specs.py --self keeps this example well-formed.
+  check_specs.py --self keeps this example well-formed.
 -->
 
 ## Summary

@@ -24,6 +24,11 @@
 # its zip step went with it. The asserts that remain were NOT re-dry-run after
 # the retarget.
 #
+# Narrowed the same day (ADR-0029): `check_specs.py --self` no longer runs
+# here. That program is not a bundle component and is not in the zips; it has
+# its own path-filtered workflow, spec-kit-checker-checks.yml. A release does
+# not need it green — nothing it checks ships.
+#
 # The asserts check that the tag is pinned CONSISTENTLY across the catalogs,
 # never that the resulting URLs RESOLVE — they cannot, until this workflow
 # creates the release they point at. Check all three by hand after the first
@@ -59,9 +64,7 @@ jobs:
       # A tag can point at any commit, so re-run the gates here: a release
       # publishes to the org's distribution channel and must not skip them.
       - name: Validate before packaging
-        run: |
-          specify bundle validate --path . --offline
-          python3 ci/check_specs.py --self
+        run: specify bundle validate --path . --offline
 
       - name: Tag must match the bundle version
         run: |

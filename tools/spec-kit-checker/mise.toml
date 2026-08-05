@@ -1,0 +1,13 @@
+[tools]
+# Exact, not a range: two machines resolving a version differently is the kind
+# of difference that shows up as a behaviour change in the toolchain.
+#
+# uv is the whole toolchain here, and only for convenience: check_specs.py is
+# stdlib-only and runs on any Python 3. `uv run --no-project python
+# check_specs.py --self` works on a machine with no Python on PATH, because uv
+# supplies the interpreter — which is why nothing here pins a Python version.
+#
+# tools/spec-kit-bundle/ pins the same version separately. The duplication is
+# deliberate: each directory stays runnable on its own, and the bundle's copy
+# also has to serve the spec-kit CLI, which this one does not need.
+uv = "0.12.1"

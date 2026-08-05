@@ -8,7 +8,7 @@
 > ([ADR-0028](../../../reference/decisions/0028-bundle-rename-and-reset.md)) dropped the gate
 > entirely; it now checks traceability after the fact and enforces no approval at all. Its worked
 > example is
-> [`tools/spec-kit-bundle/examples/password-reset/`](../../../tools/spec-kit-bundle/examples/password-reset/spec.md),
+> [`tools/spec-kit-checker/examples/password-reset/`](../../../tools/spec-kit-checker/examples/password-reset/spec.md),
 > whose plan still carries the now-unchecked `## Approval` section. The two artifact sets are
 > **not** interchangeable; reconciling the two gate models is an open item
 > ([`rollout/open-parameters.md`](../../../rollout/open-parameters.md)).
@@ -225,7 +225,7 @@ covered at all is a plan-gate review question and this program cannot see it.
 | OI-002 | **How the checker learns CI status and gate-record hashes at merge time.** FR-013, FR-034 and FR-035 all depend on inputs no current record says how it receives. | `merge` mode entirely | platform owner | before implementation |
 | OI-003 | **What marks a test as quarantined** (FR-035). ADR-0019 requires quarantine and names no mechanism, and the mechanism is per language. | FR-035 | platform owner + each team | before the first T1 change |
 | OI-004 | **How the pinned hashes get rewritten** — checker flag, hook, or manual. Already an open parameter; it surfaces here because FR-012 makes a stale hash a hard failure and every plan edit produces one. | nothing — a manual step works | platform owner | bring-up |
-| OI-005 | **Implementation language, and whether to fork or extend.** The *repository* half was answered on 2026-07-28 — [ADR-0025](../../../reference/decisions/0025-monorepo.md) puts it in `tools/feature-artifact-checker/`. What remains: the language (prior art is stdlib-only Python, `tools/spec-kit-bundle/ci/check_specs.py`), and whether this program forks that one or extends it in place — **not free, because that one enforces the superseded gate model** | nothing until implementation | platform owner | before implementation |
+| OI-005 | **Implementation language, and whether to fork or extend.** The *repository* half was answered on 2026-07-28 — [ADR-0025](../../../reference/decisions/0025-monorepo.md) puts it in `tools/feature-artifact-checker/`. What remains: the language (prior art is stdlib-only Python, `tools/spec-kit-checker/check_specs.py`), and whether this program forks that one or extends it in place — **not free, because that one enforces the superseded gate model** | nothing until implementation | platform owner | before implementation |
 
 ## 8. Assumptions
 

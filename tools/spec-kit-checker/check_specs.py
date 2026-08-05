@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Merge gate: spec folders exist and are well-formed.
 
-    python ci/check_specs.py --repo <product-repo-path>
-    python ci/check_specs.py --self
+    python check_specs.py --repo <product-repo-path>
+    python check_specs.py --self
 
-Checks every feature folder (`specs/*/`; with --self the bundle repo's
-`examples/*/`). HTML comments (`<!-- ... -->`) are stripped from every
+Checks every feature folder (`specs/*/`; with --self the `examples/*/`
+beside this file). HTML comments (`<!-- ... -->`) are stripped from every
 artifact before scanning, so template guidance comments never count.
 
   * spec.md exists in every feature folder and defines at least one FR-nnn
@@ -353,11 +353,13 @@ def main() -> None:
     mode.add_argument("--repo", metavar="PATH",
                       help="product repo to check (its specs/ folders)")
     mode.add_argument("--self", dest="self_mode", action="store_true",
-                      help="check this bundle repo (its examples/)")
+                      help="check this directory's own examples/")
     args = parser.parse_args()
 
     if args.self_mode:
-        base = Path(__file__).resolve().parent.parent
+        # This file's own directory: the checker and its fixtures are one
+        # component, so --self works from any working directory.
+        base = Path(__file__).resolve().parent
         roots = [base / "specs", base / "examples"]
     else:
         base = Path(args.repo)

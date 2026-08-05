@@ -7,12 +7,13 @@
 **Input**: User description: "Let users who forgot their password reset it by email."
 
 <!--
-  A worked example of the EARS spec-template. It shows all five EARS patterns,
-  stable FR-nnn IDs, unwanted-behavior coverage, and measurable success
-  criteria. It is a reference, not a template — start real specs from the spec
-  template.
+  A worked example of the EARS spec-template shipped by the spec-kit-bundle
+  preset. It shows all five EARS patterns, stable FR-nnn IDs, unwanted-behavior
+  coverage, and measurable success criteria. It is a reference, not a template
+  — start real specs from the spec template.
 
-  ci/check_specs.py --self keeps this example well-formed.
+  check_specs.py --self keeps this example well-formed, and the negative probes
+  copy it as their fixture.
 -->
 
 ## User Scenarios & Testing

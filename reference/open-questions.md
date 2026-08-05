@@ -76,12 +76,24 @@ enterprise-scope skill distribution failed and produced
 mechanism that turns out not to exist, or to exist differently — and expect it as a correction to a
 record rather than a new `OQ-N`.
 
-### The bundle in `tools/spec-kit-bundle/`
+### The bundle in `tools/spec-kit-bundle/`, and the checker beside it
 
 Renamed from `spec-kit-bundle-nc/` and reset to `0.1.0` on 2026-08-05
 ([ADR-0028](decisions/0028-bundle-rename-and-reset.md)): every component id is `asdlc`, and the
 extension, `DECISIONS.md` and `CHANGELOG.md` are deleted.
 
+**It is now two directories** ([ADR-0029](decisions/0029-bundle-holds-only-installable-components.md),
+2026-08-05). `tools/spec-kit-bundle/` holds only what `specify` can install — the manifest, the
+preset, the workflow, the catalogs. `check_specs.py` and the `password-reset` example moved to
+`tools/spec-kit-checker/`, because a product repo adopts the checker by **copying the file** and
+nothing in the install path ever touched it. The two are coupled by promise, not packaging: the
+wrapped plan and tasks commands tell the agent the checker will fail an artifact missing the
+appended sections or an FR reference, and **nothing enforces that the two stay in step**.
+
+- **`spec-kit-checker-checks.yml` has never run on Actions.** New root workflow, path-filtered to
+  `tools/spec-kit-checker/**`, holding `--self` and the three negative probes moved out of
+  `bundle-checks`. All four steps pass locally; the first push touching that directory is the
+  proof.
 - **`bundle-checks` is green on GitHub.** It failed on its first push after the reset — it asserted
   a scaffolded spec carries `**Status**: Draft`, which the reset deleted from the spec template —
   and passed on the second. That was the second stale assert about the removed gate; the first
@@ -97,9 +109,9 @@ extension, `DECISIONS.md` and `CHANGELOG.md` are deleted.
   `Status: Approved` line and a `before_implement` hook — the convention
   [ADR-0014](decisions/0014-feature-artifacts-and-the-traceability-chain.md) part 3 replaced
   *precisely so an approval cannot be forged by typing one*. The reset dropped both, so the
-  forgeable convention no longer runs anywhere. What remains is a coverage gap: the bundle checks
-  traceability after the fact and gates nothing, the design requires a gate record per tier and has
-  no tooling for one. **"No gate" is not "the design's gate."**
+  forgeable convention no longer runs anywhere. What remains is a coverage gap:
+  `spec-kit-checker` checks traceability after the fact and gates nothing, the design requires a
+  gate record per tier and has no tooling for one. **"No gate" is not "the design's gate."**
 
 ### Standing rules that bind every session
 

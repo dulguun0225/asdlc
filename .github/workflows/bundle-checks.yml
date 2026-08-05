@@ -14,9 +14,13 @@
 #
 # Retargeted on 2026-08-05 (ADR-0028) from the pre-rename layout: the bundle
 # directory, both component ids, and the component count all changed, and the
-# extension the bundle used to ship is gone. NOT RE-RUN SINCE — every assert
-# below is dry-run reasoning against the working tree, and the first push that
-# touches tools/spec-kit-bundle/ is the proof.
+# extension the bundle used to ship is gone.
+#
+# Narrowed the same day (ADR-0029): check_specs.py and its examples/ left the
+# bundle, so the --self step and the three negative probes MOVED to
+# spec-kit-checker-checks.yml. They were relocated, not deleted — the rule
+# below against deleting a probe holds in full, and that workflow is where
+# they now hold it.
 
 name: bundle-checks
 
@@ -53,18 +57,17 @@ jobs:
       # component; the bundle ships no extension.
       - name: Validate bundle manifest
         run: specify bundle validate --path . --offline
-      - name: Check examples stay well-formed
-        run: python3 ci/check_specs.py --self
 
-      # This job held five more steps until 2026-07-30 — a failing `Pack
+      # This job held six more steps until 2026-07-30 — a failing `Pack
       # structure` gate over `packs/`, its three negative probes, and an
       # advisory freshness tripwire. `packs/` was deleted that day and
       # `ci/check_packs.py` with it, so all five went too. They are NOT an
       # example of the "never delete a probe to make CI pass" rule being
       # broken: that rule protects a probe whose checker still exists. There is
-      # no checker and nothing to check. The probes for `check_specs.py`, whose
-      # checker does still exist, are in the smoke job below and the rule holds
-      # there in full.
+      # no checker and nothing to check.
+      #
+      # The sixth, `check_specs.py --self`, went to spec-kit-checker-checks.yml
+      # on 2026-08-05 with the program it runs.
 
   smoke:
     runs-on: ubuntu-latest
@@ -146,40 +149,7 @@ jobs:
           # replaced it: the template has no status line at all now, so there
           # is nothing here to assert in its place.
 
-      # Negative probes: the checker must go red on a violation, and red for
-      # the right reason. A green gate that cannot fail proves nothing.
-      # Never delete one to make CI pass.
-      - name: Negative probe — task without an FR reference turns the gate red
-        run: |
-          mkdir -p /tmp/bad-repo/specs/001-bad
-          cp "$BUNDLE_DIR/examples/password-reset/spec.md" /tmp/bad-repo/specs/001-bad/spec.md
-          printf '## Requirements Traceability\n\n| Requirement | Satisfied by |\n| --- | --- |\n| FR-001 | x |\n| FR-002 | x |\n| FR-003 | x |\n| FR-004 | x |\n| FR-005 | x |\n| FR-006 | x |\n| FR-007 | x |\n| FR-008 | x |\n| FR-009 | x |\n| FR-010 | x |\n\n## Decision Trace\n\n| Technical Context entry | Decision |\n| --- | --- |\n| Language | decisions/0001-language.md |\n\n## Approval\n\nStatus: Pending review\n' > /tmp/bad-repo/specs/001-bad/plan.md
-          printf -- '- [ ] T001 Implement something in src/x.py\n' > /tmp/bad-repo/specs/001-bad/tasks.md
-          if python3 ci/check_specs.py --repo /tmp/bad-repo > /tmp/out.txt 2>&1; then
-            echo 'checker passed a task with no [FR-nnn] reference'; cat /tmp/out.txt; exit 1
-          fi
-          grep -q 'carries no \[FR-nnn\] reference' /tmp/out.txt
-
-      # `## Approval` was a required section until the 2026-08-05 reset removed
-      # the bundle's gate; the checker no longer looks for it and this probe no
-      # longer asserts it. The two sections below are the ones that remain.
-      - name: Negative probe — plan without the appended sections turns the gate red
-        run: |
-          mkdir -p /tmp/bad-repo2/specs/001-bad
-          cp "$BUNDLE_DIR/examples/password-reset/spec.md" /tmp/bad-repo2/specs/001-bad/spec.md
-          printf '# Plan\n\nno sections here\n' > /tmp/bad-repo2/specs/001-bad/plan.md
-          if python3 ci/check_specs.py --repo /tmp/bad-repo2 > /tmp/out2.txt 2>&1; then
-            echo 'checker passed a plan without the required sections'; cat /tmp/out2.txt; exit 1
-          fi
-          grep -q '## Requirements Traceability' /tmp/out2.txt
-          grep -q '## Decision Trace' /tmp/out2.txt
-
-      - name: Negative probe — a Decision Trace placeholder row turns the gate red
-        run: |
-          mkdir -p /tmp/bad-repo3/specs/001-bad
-          cp "$BUNDLE_DIR/examples/password-reset/spec.md" /tmp/bad-repo3/specs/001-bad/spec.md
-          printf '## Requirements Traceability\n\n| Requirement | Satisfied by |\n| --- | --- |\n| FR-001 | x |\n| FR-002 | x |\n| FR-003 | x |\n| FR-004 | x |\n| FR-005 | x |\n| FR-006 | x |\n| FR-007 | x |\n| FR-008 | x |\n| FR-009 | x |\n| FR-010 | x |\n\n## Decision Trace\n\n| Technical Context entry | Decision |\n| --- | --- |\n| Testing | <component, contract file, or plan section> |\n\n## Approval\n\nStatus: Pending review\n' > /tmp/bad-repo3/specs/001-bad/plan.md
-          if python3 ci/check_specs.py --repo /tmp/bad-repo3 > /tmp/out3.txt 2>&1; then
-            echo 'checker passed a Decision Trace row with a placeholder'; cat /tmp/out3.txt; exit 1
-          fi
-          grep -q 'angle-bracket placeholder' /tmp/out3.txt
+      # Three negative probes for `check_specs.py` sat here until 2026-08-05.
+      # They moved to spec-kit-checker-checks.yml with the checker (ADR-0029),
+      # where they run against the same fixture with no spec-kit CLI to
+      # install. This workflow no longer references that program at all.

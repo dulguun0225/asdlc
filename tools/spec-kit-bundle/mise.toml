@@ -2,9 +2,11 @@
 # Exact, not a range: two machines resolving a version differently is the kind
 # of difference that shows up as a behaviour change in the toolchain.
 #
-# uv is the whole toolchain here. Both verify commands run through it with
-# nothing installed permanently — `uvx --from git+…@v0.14.2 specify` for the
-# bundle validation, `uv run --no-project python` for ci/check_specs.py — and
-# uv supplies the interpreter itself, so no python pin is needed. The spec-kit
-# pin is the `uvx` tag in CLAUDE.md, not a tool here.
+# uv is the whole toolchain here: `uvx --from git+…@v0.14.2 specify` runs the
+# bundle validation with nothing installed permanently, and uv supplies the
+# interpreter it needs, so no python pin belongs here. The spec-kit pin is the
+# `uvx` tag in CLAUDE.md, not a tool here.
+#
+# tools/spec-kit-checker/ pins the same version separately, so each directory
+# stays runnable on its own.
 uv = "0.12.1"

@@ -31,7 +31,7 @@ notation always fits.
   repository). The program goes in [`tools/feature-artifact-checker/`](../../tools/README.md), in
   **this** repository — [ADR-0025](../../reference/decisions/0025-monorepo.md) lifted the
   documents-only restriction on 2026-07-28 and brought the nearest prior art in with it:
-  [`tools/spec-kit-bundle/ci/check_specs.py`](../../tools/spec-kit-bundle/ci/check_specs.py),
+  [`tools/spec-kit-checker/check_specs.py`](../../tools/spec-kit-checker/check_specs.py),
   stdlib-only Python run as merge-blocking CI. **Whether the checker forks it or extends it in
   place is still open** ([open-parameters.md](../../rollout/open-parameters.md)) — and it is not a
   free choice, because that program checks traceability after the fact and enforces **no gate at

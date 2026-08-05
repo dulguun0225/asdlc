@@ -89,10 +89,11 @@ One line each; the ADR is the record.
   (p < 10⁻⁶) across 400 OSS reviewers. If that reproduces on a small enterprise team, a human
   gate silently decays into a rubber stamp.
 - **Known limit:** our reviewer pool is 18, so the published +6.7pp effect is undetectable at
-  our scale. What in-house measurement *can* do: detect a gross collapse in scrutiny, and
-  measure whether ring rotation ([ADR-0005](decisions/0005-roles-gate-signers-and-the-reviewer-ring.md)
-  part 4) changes per-reviewer approval rate across rotations. **Do not present in-house drift
-  numbers as validating or refuting the 400-reviewer result.**
+  our scale. What in-house measurement *can* do: detect a gross collapse in scrutiny under the
+  fixed ring. Scheduled rotation is deferred
+  ([ADR-0036](decisions/0036-constraint-audit-cuts.md) part 3) — measured drift appearing here
+  is what reintroduces it. **Do not present in-house drift numbers as validating or refuting
+  the 400-reviewer result.**
 - **What would close it:** instrumented approval rate, change-request rate, and per-tier
   post-merge defect attribution, plus which countermeasures arrest drift.
 

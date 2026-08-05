@@ -116,14 +116,12 @@ platform owner signs it at T1. You do not do it inside a session.
 
 ## Session boundaries
 
-**One session, one requester, one change.** The gate record names the producing session and the
-session trace carries its spend and tool invocations, so a session that produces two independently
-reviewable changes makes both records ambiguous.
+**A session is the engineer's to run — it may span changes.** The gate record names the producing
+session either way.
 
 - **Stage boundaries are not session boundaries.** Continue one session across spec → plan → tasks
   → implementation.
-- **Start a new session** when the change is done, when the requester changes, or when the spend
-  ceiling is reached.
+- **The spend ceiling ends a session**; do not continue past it silently.
 - **Rework after a rejected gate continues the same session** — same change, same producer.
 
 Nothing enforces this. Getting it wrong produces a muddled record, not a failed gate.

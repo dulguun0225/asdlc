@@ -48,7 +48,7 @@ flowchart TD
     IMPL["4. Implementation — the agent session<br/>own identity, OS sandbox, no plaintext secrets,<br/>egress deny-by-default, spend ceiling, full tool trace"]
     TIER{{"Tier computed on the final diff — binding<br/>6 ordered rules, first match wins, fail-safe to T1"}}
     MG(["5. Merge gate<br/>T1: platform owner + ring reviewer<br/>T2: ring reviewer<br/>T3: automated checks only"])
-    DG(["6. Deploy gate — team leader<br/>human at every tier"])
+    DG(["6. Deploy gate — team leader<br/>human at T1/T2; proven-preserving T3 unsigned"])
     OPS["7. Operate<br/>progressive rollout, canary analysis,<br/>automated rollback on SLO breach"]
     METRICS[("per-tier metrics<br/>gate records<br/>session traces")]
 
@@ -77,15 +77,17 @@ agent output volume ([ADR-0005](../reference/decisions/0005-roles-gate-signers-a
 | 3 | [03-tasks.md](03-tasks.md) | Decomposition — an artifact, not a gate |
 | 4 | [04-implementation.md](04-implementation.md) | The agent session and everything that contains it |
 | 5 | [05-merge.md](05-merge.md) | Computing the binding tier and taking the merge signatures |
-| 6 | [06-deploy.md](06-deploy.md) | The one gate that is human at every tier |
+| 6 | [06-deploy.md](06-deploy.md) | Human wherever behaviour can change; proven-preserving T3 batches ship unsigned |
 | 7 | [07-operate.md](07-operate.md) | Rollout, rollback, and the measurements the whole design depends on |
 
 Read `roles.md` and `tiers.md` first. Every stage file refers to both.
 
 ## What is deliberately not automated
 
-- **Deploy** — human at every tier until [07-operate.md](07-operate.md)'s exit condition is
-  met, because the prerequisites were unmet, not because of preference.
+- **Deploy** — human wherever behaviour can change; a batch of mechanically proven
+  behavior-preserving T3 changes ships unsigned
+  ([ADR-0036](../reference/decisions/0036-constraint-audit-cuts.md) part 4), and lockfile
+  bumps automate only at [07-operate.md](07-operate.md)'s exit condition.
 - **Tier assignment by judgment** — no human rates changes; no agent classifies its own work.
   Agents may argue, not decide.
 - **Per-action in-session policy evaluation** — not adopted; every source describing it is
@@ -102,8 +104,8 @@ Standing reopen triggers, headline set — each ADR carries its own full conditi
 - A non-Kubernetes deployment target reopens the self-hosted rollout answer.
 - A per-seat fee on the Console path, or API-key authentication ceasing to be a supported
   mode, reopens the runner licensing.
-- Ring reviewers demonstrably unable to operate Gerrit after a rotation quarter triggers the
-  Forgejo fallback.
+- Ring reviewers demonstrably unable to operate Gerrit after a quarter of reviewing triggers
+  the Forgejo fallback.
 - Flagger's rollback semantics or licence changing, or drill evidence showing the abort path
   failing, reopens the deployment layer.
 - Incident history at volume enables the learned-risk-score upgrade.

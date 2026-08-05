@@ -200,7 +200,7 @@ but are not a hard enforcement layer."* So anything mandatory needs a mechanism 
 | **Enforcement** | managed settings, hooks, CI checks | platform owner | **no** |
 | **Standing instructions** | managed-policy `CLAUDE.md`, or the `claudeMd` managed-settings key | platform owner | **no** — *"cannot be excluded"* |
 | **Stage procedures** | Agent Skills from the repository's [skills/](../skills/) tree (rules: [asdlc/skills/](skills/README.md)), delivered by the `skills` CLI, committed copies CI-verified ([ADR-0032](../reference/decisions/0032-stage-delivery-via-skills-cli.md)) | platform owner | **no** — tamper is caught at merge |
-| **Repository facts** | project `CLAUDE.md`, `.claude/rules/` | the team, at T1 | yes, by design |
+| **Repository facts** | project `CLAUDE.md`, `.claude/rules/` | the team, at the diff's tier ([ADR-0036](../reference/decisions/0036-constraint-audit-cuts.md) part 1) | yes, by design |
 
 **No gate-bearing rule lives in a repository file.** If a rule touches a gate, a tier, a signature
 or a credential, it lives in one of the top three. The bottom layer holds facts about the codebase
@@ -225,9 +225,10 @@ caught at merge rather than prevented at load, backed by the never-write rule an
 ### The agent may never rewrite its own instructions
 
 `CLAUDE.md`, `.claude/CLAUDE.md`, `CLAUDE.local.md`, `AGENTS.md`, `.claude/rules/**`,
-`.claude/skills/**` and `.claude/commands/**` are on the **never-write list** and are **T1**,
-explicitly excluded from the T3 documentation allowlist ([tiers.md](tiers.md) §4). The sandbox's
-automatic protection covers `settings.json` and **not** these.
+`.claude/skills/**` and `.claude/commands/**` are on the **never-write list** — for the agent.
+A human edit takes the tier the diff computes, documentation-class like any other doc
+([tiers.md](tiers.md) §4, [ADR-0036](../reference/decisions/0036-constraint-audit-cuts.md)
+part 1). The sandbox's automatic protection covers `settings.json` and **not** these.
 
 **Auto memory is off** (`autoMemoryEnabled: false`, `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`). It is
 unreviewed agent-written instruction loaded into every session, and it is machine-local — two
@@ -241,21 +242,12 @@ can check it was *derived from* one rather than from the code. The backstops tha
 
 ## 8. Where a session starts and stops
 
-**One session, one requester, one change** ([ADR-0021](../reference/decisions/0021-units-of-work.md)
-part 6). The reason is the audit trail: the gate record names the producing session, and session
-traces carry that session's spend and tool invocations. A session that produces two independently
-reviewable changes makes both records ambiguous — spend cannot be attributed, and each change's
-trace contains the other's tool calls.
-
-- **Continue one session across the stages of a change** — spec, plan, tasks, implementation — by
-  invoking each stage skill in turn. **Stage boundaries are not session boundaries.**
-- **Start a new session** when the change is done, when the requester changes, or when the session's
-  spend ceiling is reached.
-- **Rework after a rejected gate continues the same session.** Same change, same producer.
-
-**Nothing enforces this.** Getting it wrong produces a muddled record, not a failed gate. The metric
-that makes it visible is **changes per session**, which falls out of the session trace at no extra
-cost.
+**A session is the engineer's to run** ([ADR-0036](../reference/decisions/0036-constraint-audit-cuts.md)
+part 2): it may span changes, and stage boundaries are not session boundaries — invoke each stage
+skill in turn. The gate record still names the producing session; the session still ends at its
+spend ceiling; rework after a rejected gate continues the same session. **Changes per session** is
+a metric read from the session trace — if multi-change sessions ever muddy spend attribution in a
+way OQ-7 needs, that data is where it shows up.
 
 ## Not yet specified
 

@@ -5,16 +5,25 @@
 | | |
 |---|---|
 | **Who signs** | team leader |
-| **Gate** | human at T1, T2 and T3 |
+| **Gate** | human at T1 and T2; T3 splits by kind (§1) |
 | **The assertion** | *I accept this reaching users now.* |
 
-## 1. Human at every tier
+## 1. Human wherever behaviour can change
 
-Including T3 — which is otherwise fully automated through merge. This is not a preference. It
-holds because the exit conditions for automating it are **unmet**, and it lifts the moment
-they are met, per service ([07-operate.md](07-operate.md) §4).
+T1 and T2 batches are always signed. A **T3 batch splits by kind**
+([ADR-0036](../reference/decisions/0036-constraint-audit-cuts.md) part 4):
 
-The gate is a **fast sign-off by one person with context**, not a release meeting.
+- **Every change is a mechanically proven behavior-preserving kind** — documentation,
+  comments-only, formatting-only, tests-only — the batch **deploys unsigned**. The assertion
+  would be vacuous: each change is proven not to alter behaviour, and the pipeline (digest,
+  attestation, canary policy) runs identically.
+- **The batch contains a lockfile bump** — the one T3 kind with runtime effect — it keeps the
+  signature, and [ADR-0011](../reference/decisions/0011-progressive-rollout.md)'s exit
+  conditions still govern when *that* automates, per service
+  ([07-operate.md](07-operate.md) §4).
+
+The gate, where it fires, is a **fast sign-off by one person with context**, not a release
+meeting.
 
 ## 2. What a batch is, and it must be legible
 

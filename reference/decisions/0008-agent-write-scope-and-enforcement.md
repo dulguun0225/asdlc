@@ -1,6 +1,7 @@
 # ADR-0008 — What the agent may touch, and where that is enforced
 
-- **Status:** accepted
+- **Status:** accepted; part 2's outright rejection no longer covers tier-map entry additions
+  drafted in a plan — [ADR-0036](0036-constraint-audit-cuts.md) part 5
 - **Date:** 2026-07-27
 - **Research:** [2026-07-27 — the agent runner, its containment, and what it costs](../research/2026-07-27-stack-and-guardrails.md)
 

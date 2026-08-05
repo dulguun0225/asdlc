@@ -42,11 +42,11 @@ team `i + k (mod 18)`, with `k` coprime to 18.
 
 - Valid offsets: **1, 5, 7, 11, 13, 17**. Coprimality makes the map one 18-cycle, so **no
   pairing is ever mutual** — reciprocity is eliminated structurally, not by policy.
-- `k` rotates **quarterly** through those six offsets. 18 months pass before any pairing
-  repeats.
-- Rotation is a **prophylactic** countermeasure to measured reviewer drift, **not a tested
-  one**. Our 18-reviewer pool is underpowered to confirm or refute the published 400-reviewer
-  effect ([OQ-6](../reference/open-questions.md)).
+- `k` is **fixed**, chosen from those six at bring-up. Scheduled rotation is deferred
+  ([ADR-0036](../reference/decisions/0036-constraint-audit-cuts.md) part 3): the drift it
+  guarded is undetectable at 18 reviewers, and per-reviewer approval-rate and
+  change-request-rate are day-one metrics — measured drift appearing is what reintroduces
+  rotation ([OQ-6](../reference/open-questions.md)).
 
 The ring is a committed configuration file owned by the platform owner and changed at T1 —
 schema in [reference/artifacts.md](../reference/artifacts.md) §4.

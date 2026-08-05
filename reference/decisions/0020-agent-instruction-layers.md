@@ -3,7 +3,9 @@
 - **Status:** accepted; part 2's delivery vehicle was re-decided —
   [ADR-0032](0032-stage-delivery-via-skills-cli.md), after
   [ADR-0031](0031-heterogeneous-runners.md) made runners heterogeneous. The four layers, part
-  4's never-write rule and part 5's enforcement placement stand.
+  4's never-write rule and part 5's enforcement placement stand. Part 4's **human-edit tier**
+  (instruction files at T1) is deferred by [ADR-0036](0036-constraint-audit-cuts.md) part 1 —
+  the agent lockout is untouched.
 - **Date:** 2026-07-28
 - **Research:** [2026-07-28 — where agent instructions live](../research/2026-07-28-agent-instruction-layers.md)
 

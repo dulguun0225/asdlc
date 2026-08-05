@@ -44,7 +44,10 @@ Templates: [../templates/](../templates/README.md).
   `skills use ./ --agent claude-code` to try a procedure without installing.
 
 *An agent may never rewrite its own instructions* is unchanged: the agent identity has no write
-access to this directory or to the committed copies, and a change to them is T1.
+access to this directory or to the committed copies. A human edit to a committed copy fails the
+byte-equality check instead ([ADR-0032](../../reference/decisions/0032-stage-delivery-via-skills-cli.md));
+canonical changes happen here, at whatever tier the diff computes
+([ADR-0036](../../reference/decisions/0036-constraint-audit-cuts.md) part 1).
 
 ## Three things these files cannot do, stated so nobody relies on them
 

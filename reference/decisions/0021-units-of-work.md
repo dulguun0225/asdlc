@@ -1,6 +1,7 @@
 # ADR-0021 — The three units of work: session, change, and deploy batch
 
-- **Status:** accepted
+- **Status:** accepted; part 6's one-session-one-change rule is cut by
+  [ADR-0036](0036-constraint-audit-cuts.md) part 2 — the changes-per-session metric stands
 - **Date:** 2026-07-28
 - **Research:** none — forced by consistency with decisions already made; where it sets a number
   it says it is arbitrary and instruments it.

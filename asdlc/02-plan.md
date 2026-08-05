@@ -68,17 +68,15 @@ this is the heaviest gate in the design:
 | NFR enforcement | [ADR-0011](../reference/decisions/0011-progressive-rollout.md), [06-deploy.md](06-deploy.md) | per-service SLO values **proposed** here; the platform owner sets them at T1 |
 
 The map entries go in as a **diff to the repository's map file**, not as a block of text the plan
-alone holds. The map file is T1 by tier-function rule 1, so the platform owner reviews that diff
-even though the plan itself is not T1 — which is the point: the agent can never widen its own
-permissions through a plan.
-
-**A human applies that diff, and the agent never touches the map file.** This was implicit until
-2026-07-28 and is now stated, because it is where two rules meet: this stage requires a map diff,
-and [ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) part 2 rejects a
-never-write class 1 change authored by the agent identity **outright, not by escalating it**. The
-agent drafts the YAML block in plan §7; the engineer or the platform owner applies it. If the agent
-edited the map file, the change would simply fail — which is the mechanism working, but it is
-cheaper to know than to discover.
+alone holds, and **the agent commits that diff itself**
+([ADR-0036](../reference/decisions/0036-constraint-audit-cuts.md) part 5): the map file is T1 by
+tier-function rule 1, so the platform owner reviews the diff at the gate whoever's keystrokes
+committed it, and a map entry affects only future changes — the change carrying it is already at
+the top tier. The agent still cannot widen its own permissions through a plan: the widening is
+what the T1 signature reviews. Everything else in never-write class 1 — gate policy, ring
+configuration, managed settings — keeps
+[ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) part 2's outright
+rejection.
 
 ## Records
 

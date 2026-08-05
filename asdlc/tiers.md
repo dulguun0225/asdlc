@@ -49,8 +49,11 @@ the **final diff at merge time is binding**, and plan-time runs are advisory
 
 Three behaviours that are rules, not implementation detail:
 
-- **Rule 1 + agent author = reject, not escalate.** A rule-1 change authored by the agent
-  identity **fails outright**. It is not routed to a stricter gate
+- **Rule 1 + agent author = reject, not escalate — with one carve-out.** A rule-1 change
+  authored by the agent identity **fails outright**. It is not routed to a stricter gate.
+  The carve-out ([ADR-0036](../reference/decisions/0036-constraint-audit-cuts.md) part 5):
+  **tier-map entry additions declared in the change's plan §7** may be agent-committed — the
+  change is T1 by this same rule, so the platform owner reviews the identical diff
   ([ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) part 2).
 - **Escalation forces re-signing.** If the binding tier exceeds the tier the plan gate was
   signed at, the job fails until the plan is re-signed
@@ -85,9 +88,11 @@ either condition takes the tier its paths carry, normally T2. **Still not caught
 weakened *inside* a test that keeps its citation — a mutation-testing question, and mutation testing
 does not run at T3.
 
-**The agent's instruction files are never T3, whatever their extension.** `CLAUDE.md`,
-`.claude/CLAUDE.md`, `CLAUDE.local.md`, `AGENTS.md`, `.claude/rules/**`, `.claude/skills/**` and
-`.claude/commands/**` are **T1** and are excluded from the documentation kind above
+**The agent's instruction files are ordinary documentation for a human author**
+([ADR-0036](../reference/decisions/0036-constraint-audit-cuts.md) part 1): a human edit to
+`CLAUDE.md`, `.claude/rules/**`, `.claude/skills/**` or `.claude/commands/**` takes the
+documentation kind above. The **agent** still cannot author one at all — they stay on the
+never-write list with outright rejection
 ([ADR-0020](../reference/decisions/0020-agent-instruction-layers.md) part 4). They are markdown, so
 a docs glob would otherwise route a change to how every future change gets made straight to
 automatic merge. They are also on the never-write list, so the agent cannot author such a change in

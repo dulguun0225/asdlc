@@ -70,11 +70,12 @@ paths:
     sensitivity: auth | secret | iam              # omit unless one applies
 ```
 
-**You do not edit the map file itself. Ever.** The map file is tier configuration, it is on the
-never-write list, and **a change to it authored by the agent identity is rejected outright, not
-escalated.** You draft the block here; a human applies it to the map file in this same change, and
-the platform owner reviews that diff at T1 even though this plan is not T1. That is the mechanism
-by which an agent can never widen its own permissions through a plan.
+**Apply the block to the repository's map file in this same change** — entries declared here and
+nowhere else. The map file is tier configuration, so any change touching it is T1: the platform
+owner reviews your map diff at the gate even though this plan is not otherwise T1. That review is
+the mechanism by which an agent never widens its own permissions through a plan — an entry you
+add binds only future changes, never this one. **Add entries; never retier or remove an existing
+entry** — that is gate policy and stays rejected outright for the agent identity.
 
 **No new paths?** State that explicitly in §7 rather than deleting the section.
 
@@ -130,8 +131,9 @@ Do not present the advisory tier as the tier. Do not choose it.
 
 ## Hard rules
 
-- **Write nothing outside `specs/<NNN>-<slug>/`.** Not the tier map, not CI configuration, not
-  `CLAUDE.md`, not `.claude/` anything, not source. This stage designs; it does not build.
+- **Write nothing outside `specs/<NNN>-<slug>/` — except the §7 map entries**, applied to the
+  repository's map file in this same change. Not CI configuration, not `CLAUDE.md`, not
+  `.claude/` anything, not source. This stage designs; it does not build.
 - **Add no `Status:` or approval line.** The approval is the gate record carrying this file's
   sha256.
 - **Do not sign, rate, or approve.** You drafted it, so you are the producer and are excluded.
@@ -141,7 +143,7 @@ Do not present the advisory tier as the tier. Do not choose it.
 ## When you are done
 
 Report: the path, the spec hash prefix you recorded, the advisory tier and which rule produced it,
-every new path declared in §7 and **the fact that a human must apply them to the map file**, every
+every new path declared in §7 with its map entry applied, every
 `NEW — proposed` and `Diverges from` row in §9, and the faults your critique pass found. Then say that a **ring
 reviewer** signs this — or a team leader recorded as review-competent — and that at T2 this signer
 asserts the problem as well as the approach.

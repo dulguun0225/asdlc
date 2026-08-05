@@ -1,7 +1,9 @@
 # ADR-0005 — Who signs each gate, and how the reviewer pool works
 
 - **Status:** accepted; supersedes the first gate-placement record (ADR-0004, deleted — its
-  gate table is restated here in full and its research content is preserved here)
+  gate table is restated here in full and its research content is preserved here). Part 4's
+  quarterly rotation is deferred and part 6's deploy signature is narrowed for
+  proven-behavior-preserving T3 batches by [ADR-0036](0036-constraint-audit-cuts.md)
 - **Date:** 2026-07-27
 - **Research:** [2026-07-27 — where gates go, and who assigns the tier](../research/2026-07-27-gate-placement-and-tiering.md),
   [2026-07-27 — implementation survey](../research/2026-07-27-asdlc-implementation-survey.md)

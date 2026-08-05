@@ -141,10 +141,8 @@ Committed file, owned by the platform owner, changed at T1
 ```yaml
 version: 1
 teams: [team-01, team-02, ..., team-18]   # index order is the ring order
-offset: 1                                  # k; must be coprime to 18
-rotation:
-  sequence: [1, 5, 7, 11, 13, 17]
-  cadence: quarterly
+offset: 1                                  # k; must be coprime to 18; fixed — scheduled
+                                           # rotation is deferred (ADR-0036 part 3)
 review_competency:                         # who may sign plan gates besides the ring
   - {person: "user:tl-04", scope: plan}
 sla:

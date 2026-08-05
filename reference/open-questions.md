@@ -101,7 +101,8 @@ to leading candidate for [OQ-19](#oq-19--runner-neutral-stage-procedure-delivery
 **The bundle is not the delivery vehicle, and its fate question is back, smaller and uncoupled
 from delivery**: prior art with working CI for the predecessor convention, or retirement —
 decided in the gate-model reconciliation record (the top row of
-[open-parameters.md](../rollout/open-parameters.md)) or its own. Its divergences from the design
+[open-parameters.md](../rollout/open-parameters.md)) or its own. **The owner said on 2026-08-05:
+do not retire it yet** — it stays until that record decides. Its divergences from the design
 remain bugs filed against it
 ([ADR-0030](decisions/0030-design-states-the-rules-tools-implement-them.md)).
 

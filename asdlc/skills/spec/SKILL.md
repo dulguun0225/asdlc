@@ -1,4 +1,5 @@
 ---
+name: asdlc-spec
 description: Draft a feature spec for the ASDLC spec stage — EARS functional requirements with stable ids, non-functional requirements that name an enforcement point, success criteria, open items and assumptions. Use at the start of a T1 or T2 feature. Produces specs/<NNN>-<slug>/spec.md for the domain owner to sign.
 argument-hint: [NNN-kebab-slug]
 disable-model-invocation: true
@@ -115,4 +116,4 @@ unwanted-behaviour patterns, every `[form: …]` escape and its reason, and ever
 owner. Then say that the **domain owner** signs this, and that at T2 the plan signer asserts it
 instead.
 
-Do not start the plan. The engineer invokes `/asdlc:plan` when the spec is signed.
+Do not start the plan. The engineer invokes `/asdlc-plan` when the spec is signed.

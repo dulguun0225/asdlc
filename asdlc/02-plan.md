@@ -94,7 +94,7 @@ host — see [05-merge.md](05-merge.md) §3.
 
 ## Not yet specified
 
-- ~~**The text of the `/asdlc:plan` stage skill**, including how the critique pass above is
+- ~~**The text of the `/asdlc-plan` stage skill**, including how the critique pass above is
   invoked.~~ **Written 2026-07-28** — [skills/plan/SKILL.md](skills/plan/SKILL.md). Unrun.
 - **The contract table shapes are generic.** They fit an HTTP-and-messaging service; a feature of
   another shape (a batch job, a library) has no worked example to follow.

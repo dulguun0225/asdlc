@@ -69,7 +69,7 @@ second trigger list ([tiers.md](../tiers.md)).
   [open-parameters.md](../../rollout/open-parameters.md), and which side has to move is settled by
   [ADR-0030](../../reference/decisions/0030-design-states-the-rules-tools-implement-them.md).
 - ~~**The text of the four stage skills** that drive these templates.~~ **Written 2026-07-28** —
-  [../skills/](../skills/README.md). `/asdlc:spec`, `/asdlc:plan`, `/asdlc:tasks`,
-  `/asdlc:implement`, all unrun.
+  [../skills/](../skills/README.md). `/asdlc-spec`, `/asdlc-plan`, `/asdlc-tasks`,
+  `/asdlc-implement`, all unrun.
 - **The authoring language** is English by default, unconfirmed — see
   [context.md](../../reference/context.md).

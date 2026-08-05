@@ -1,4 +1,5 @@
 ---
+name: asdlc-plan
 description: Draft a feature plan for the ASDLC plan/design stage — architecture, contracts, requirements traceability, tier-map entries for every new path, and non-functional enforcement. Use after the spec is signed. Produces specs/<NNN>-<slug>/plan.md for a ring reviewer to sign. This is the heaviest gate in the life cycle.
 argument-hint: [NNN-kebab-slug]
 disable-model-invocation: true
@@ -136,4 +137,4 @@ every new path declared in §7 and **the fact that a human must apply them to th
 reviewer** signs this — or a team leader recorded as review-competent — and that at T2 this signer
 asserts the problem as well as the approach.
 
-Do not start the tasks stage. The engineer invokes `/asdlc:tasks` when the plan is signed.
+Do not start the tasks stage. The engineer invokes `/asdlc-tasks` when the plan is signed.

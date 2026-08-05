@@ -60,13 +60,13 @@ Identical in both, at identical cost:
   the runner and of CI checks we write
   ([ADR-0019](../reference/decisions/0019-testing-agent-written-code.md),
   [ADR-0020](../reference/decisions/0020-agent-instruction-layers.md)).
-- **The stage procedures, and the shape of their delivery** — one canonical source
-  ([asdlc/skills/](../asdlc/skills/README.md)), rendered per runner, CI-verified byte-identical.
-  The mechanism is open and blocks the pilot
-  ([OQ-19](../reference/open-questions.md#oq-19--runner-neutral-stage-procedure-delivery));
-  [ADR-0024](../reference/decisions/0024-stage-skill-distribution.md)'s plugin was superseded by
-  [ADR-0031](../reference/decisions/0031-heterogeneous-runners.md). Delivery is above the
-  code-host line, so the variants still converge here.
+- **The stage procedures and their delivery** — one canonical source
+  ([asdlc/skills/](../asdlc/skills/README.md)), shipped as **Agent Skills via the `skills` CLI**
+  as project-scope committed copies, CI-verified byte-identical
+  ([ADR-0032](../reference/decisions/0032-stage-delivery-via-skills-cli.md), replacing
+  [ADR-0024](../reference/decisions/0024-stage-skill-distribution.md)'s plugin after
+  [ADR-0031](../reference/decisions/0031-heterogeneous-runners.md)). Delivery is above the
+  code-host line, so the variants converge here.
 - **The units of work** — session, change, deploy batch
   ([ADR-0021](../reference/decisions/0021-units-of-work.md)).
 

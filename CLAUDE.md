@@ -159,9 +159,9 @@ is subordinate.
 
 - [`tools/`](tools/README.md) — the programs and packages the life cycle needs.
   `spec-kit-bundle/` and `spec-kit-checker/` carry the predecessor convention, built but never
-  released — and the bundle is also the leading candidate renderer for
-  [OQ-19](reference/open-questions.md)'s runner-neutral stage delivery
-  ([ADR-0031](reference/decisions/0031-heterogeneous-runners.md));
+  released; the bundle is **not** the stage-delivery vehicle — that is the `skills` CLI
+  ([ADR-0032](reference/decisions/0032-stage-delivery-via-skills-cli.md)) — and its fate is
+  decided with the gate-model reconciliation;
   `feature-artifact-checker/` is specified and not yet built.
   The bundle directory holds **only components `specify` can install**
   ([ADR-0029](reference/decisions/0029-bundle-holds-only-installable-components.md)) — a companion

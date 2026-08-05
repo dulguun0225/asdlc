@@ -3,9 +3,9 @@
 - **Status:** superseded by [ADR-0031](0031-heterogeneous-runners.md), 2026-08-05 — the owner made
   runner heterogeneity a hard requirement, and this record's mechanism is one runner's feature
   set end to end. The *goal* (procedures arrive identically, a repository cannot alter them)
-  survives as a clause of ADR-0031's admission contract; the replacement mechanism is
-  [OQ-19](../open-questions.md#oq-19--runner-neutral-stage-procedure-delivery), shaped as part 8's
-  fallback promoted: generated from the canonical source, never hand-maintained, verified
+  survives as a clause of ADR-0031's admission contract; the replacement mechanism was decided
+  the same day — [ADR-0032](0032-stage-delivery-via-skills-cli.md), Agent Skills via the
+  `skills` CLI: canonical source, committed copies never hand-maintained, verified
   byte-identical in CI. Was: accepted
 - **Date:** 2026-07-28
 - **Closes:** the bring-up verification *"Enterprise-scope skill distribution verified"*

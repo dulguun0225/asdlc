@@ -1,4 +1,5 @@
 ---
+name: asdlc-tasks
 description: Decompose a signed plan into tasks for the ASDLC tasks stage — stable task ids, requirement citations both ways, the verifying test named per task, and the sha256 pins that make the decomposition checkable against the bytes that were signed. Use after the plan is signed. Produces specs/<NNN>-<slug>/tasks.md, which has no human gate and one blocking automated check.
 argument-hint: [NNN-kebab-slug]
 disable-model-invocation: true
@@ -107,4 +108,4 @@ every requirement and which tasks cite it, every `[FR: n/a]` and its reason, and
 you could not cover and why. Then run the feature-artifact checker if it is available in this
 repository, and report its output verbatim.
 
-Do not start implementing. The engineer invokes `/asdlc:implement`.
+Do not start implementing. The engineer invokes `/asdlc-implement`.

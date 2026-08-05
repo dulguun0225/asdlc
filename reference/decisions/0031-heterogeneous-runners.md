@@ -119,7 +119,9 @@ What replaces ADR-0024 must have this shape, which is its part 8 fallback promot
 
 The namespace guarantee — *"nothing a repository can write is reachable as `asdlc:spec`"* — is
 **lost**, and the command names ADR-0024 fixed are provisional per-runner renderings until OQ-19
-decides naming. Choosing the generator, the per-runner targets and the CI check is OQ-19.
+decides naming. Choosing the generator, the per-runner targets and the CI check is OQ-19 —
+**closed the same day by [ADR-0032](0032-stage-delivery-via-skills-cli.md)**, which also fixed
+the names.
 
 ### 6. The bundle inverts
 
@@ -128,10 +130,10 @@ record it holds the only integration-agnostic delivery machinery in the tree: sp
 commands per integration (claude, copilot, gemini, opencode — the workflow's own compatibility
 list) and its command texts reference other commands through per-integration tokens. That makes
 it the **leading candidate implementation for OQ-19's renderer**, and takes deletion off the
-table. *(Same day: a second candidate surfaced — the `skills` CLI the owner already uses, with a
-far larger agent surface. The live comparison is in
-[OQ-19](../open-questions.md#oq-19--runner-neutral-stage-procedure-delivery); "leading" here
-describes what was in the tree when this record landed.)* Its gate-model and template divergences remain bugs under
+table. *(Same day, twice over: a second candidate surfaced — the `skills` CLI the owner already
+uses — and [ADR-0032](0032-stage-delivery-via-skills-cli.md) chose it. The bundle is **not** the
+delivery vehicle; "leading candidate" describes what was in the tree when this record landed,
+and the bundle's fate question returned with ADR-0032 part 5.)* Its gate-model and template divergences remain bugs under
 [ADR-0030](0030-design-states-the-rules-tools-implement-them.md); the reconciliation row at the
 top of [open-parameters.md](../../rollout/open-parameters.md) now includes whether the bundle
 becomes the design's delivery vehicle.

@@ -31,16 +31,19 @@ is stale rather than appending to it.
 
 ### Where the project is
 
-**Two research questions are open again, both opened on 2026-08-05 by
-[ADR-0031](decisions/0031-heterogeneous-runners.md):** the owner made runner heterogeneity a
-hard requirement — engineers may run different agent runners side by side — which superseded
-[ADR-0024](decisions/0024-stage-skill-distribution.md)'s Claude-only plugin and demoted every
-Claude-specific guarantee to one runner's implementation detail.
-[OQ-19](#oq-19--runner-neutral-stage-procedure-delivery) (runner-neutral stage delivery)
-**blocks the pilot**; [OQ-20](#oq-20--the-runner-admission-contract) (the admission contract)
-blocks only a second runner. Every other ADR is accepted and landed, and both
+**One research question is open, and it blocks nothing that phase 0 needs.** On 2026-08-05 the
+owner made runner heterogeneity a hard requirement
+([ADR-0031](decisions/0031-heterogeneous-runners.md): engineers may run different agent runners
+side by side), which superseded [ADR-0024](decisions/0024-stage-skill-distribution.md)'s
+Claude-only plugin and demoted every Claude-specific guarantee to one runner's implementation
+detail. The delivery question that opened
+([OQ-19](#oq-19--runner-neutral-stage-procedure-delivery)) **closed the same day** —
+[ADR-0032](decisions/0032-stage-delivery-via-skills-cli.md): the stage procedures ship as Agent
+Skills via the `skills` CLI, and the `/asdlc-*` command names returned. What stays open is
+[OQ-20](#oq-20--the-runner-admission-contract) (the admission contract), which blocks only a
+second runner. Every other ADR is accepted and landed, and both
 [stack sheets](../variants/README.md) are complete bills of materials **whose seven runner-side
-rows are now marked as verified for Claude Code only**.
+rows are marked as verified for Claude Code only**.
 
 **The honest caveat, and it does not shrink with time.** Eleven ADRs landed on 2026-07-28, most
 resting on sources dated the same day and several on unreviewed preprints — and **nobody has run
@@ -55,10 +58,9 @@ would set it.
 
 ### What is left
 
-1. **[OQ-19](#oq-19--runner-neutral-stage-procedure-delivery) — runner-neutral stage delivery.**
-   The one open research question that blocks the pilot. Its leading candidate (spec-kit's
-   integration layer) overlaps the gate-model reconciliation below — take them together or
-   split deliberately.
+1. **Delivery bring-up** — wire the `skills` CLI delivery into a product repo, write the CI
+   byte-equality check, run [ADR-0032](decisions/0032-stage-delivery-via-skills-cli.md) §4's
+   three one-command verifications. Work, not research.
 2. **Staffing — [OQ-10](#oq-10--who-fills-the-platform-owner-role).** The platform owner and a
    backup: the single largest dependency in the design and the only blocking item the owner must
    supply. Now also owns [ADR-0031](decisions/0031-heterogeneous-runners.md)'s admission
@@ -92,12 +94,16 @@ record rather than a new `OQ-N`.
 
 ### The bundle in `tools/spec-kit-bundle/`, and the checker beside it
 
-**Its status inverted on 2026-08-05** ([ADR-0031](decisions/0031-heterogeneous-runners.md)
-part 6): it was the predecessor convention and a deletion candidate; it is now the leading
-candidate implementation for [OQ-19](#oq-19--runner-neutral-stage-procedure-delivery)'s
-renderer, because spec-kit's integration layer is the only runner-agnostic delivery machinery
-in the tree. Deletion is off the table. Its divergences from the design are still bugs filed
-against it ([ADR-0030](decisions/0030-design-states-the-rules-tools-implement-them.md)).
+**Its status moved twice on 2026-08-05.**
+[ADR-0031](decisions/0031-heterogeneous-runners.md) part 6 promoted it from deletion candidate
+to leading candidate for [OQ-19](#oq-19--runner-neutral-stage-procedure-delivery)'s renderer;
+[ADR-0032](decisions/0032-stage-delivery-via-skills-cli.md) then chose the `skills` CLI instead.
+**The bundle is not the delivery vehicle, and its fate question is back, smaller and uncoupled
+from delivery**: prior art with working CI for the predecessor convention, or retirement —
+decided in the gate-model reconciliation record (the top row of
+[open-parameters.md](../rollout/open-parameters.md)) or its own. Its divergences from the design
+remain bugs filed against it
+([ADR-0030](decisions/0030-design-states-the-rules-tools-implement-them.md)).
 
 Renamed from `spec-kit-bundle-nc/` and reset to `0.1.0` on 2026-08-05
 ([ADR-0028](decisions/0028-bundle-rename-and-reset.md)): every component id is `asdlc`, and the
@@ -158,7 +164,9 @@ appended sections or an FR reference, and **nothing enforces that the two stay i
   **Moving the skills into this monorepo is decided in intent and pending execution** — the
   owner confirmed publication is intended (the repo is public), and the move itself is a row in
   [open-parameters.md](../rollout/open-parameters.md) with the four things to settle at move
-  time. It is OQ-19 candidate 1's home until then.
+  time. It is also where the chosen delivery mechanism
+  ([ADR-0032](decisions/0032-stage-delivery-via-skills-cli.md), the `skills` CLI) is already
+  exercised daily.
 
 ### Standing rules that bind every session
 
@@ -920,46 +928,20 @@ appended sections or an FR reference, and **nothing enforces that the two stay i
 
 ## OQ-19 — Runner-neutral stage-procedure delivery
 
-- **Status:** open — opened by [ADR-0031](decisions/0031-heterogeneous-runners.md) (2026-08-05),
-  which superseded [ADR-0024](decisions/0024-stage-skill-distribution.md)'s Claude-only plugin.
-- **Blocks:** the pilot — the four stage procedures have nowhere to ship from, which is the same
-  blocker the plugin repositories were.
-- **The question:** the architecture is decided (ADR-0031 part 5): one canonical source
-  ([asdlc/skills/](../asdlc/skills/README.md)) → rendered per runner by a generator, never
-  hand-maintained → CI verifies the copies byte-identical to the pinned rendering. What is open
-  is the mechanism: the renderer, the per-runner target formats, the command naming per runner
-  (ADR-0024's `/asdlc:*` names are now provisional Claude renderings), and the CI check.
-- **Two candidates for the renderer, and they are not equal in what they drag in:**
-  1. **The `skills` CLI** (`vercel-labs/skills`), which the owner already uses for the
-     engineering-rule skills in their separate skills repository. Checked first-party from the
-     installed v1.5.21 on 2026-08-05: installs to **~20 agents** (Claude Code, Copilot, Cursor,
-     Codex, Gemini, OpenCode, Windsurf, Amp, Goose, Cline, Aider, Zed, …), **project-scope by
-     default** — files land in the repo per an agent-directory table (`.claude/skills/`,
-     `.agents/skills/`), which is exactly the shape ADR-0031 part 5 requires for the CI
-     byte-equality check — symlink or copy mode. **Unverified, one session against its source:**
-     whether each agent's install preserves deliberate invocation (`disable-model-invocation` —
-     a stage must be entered, not model-loaded), and pinning (`skills update` targets "latest",
-     and a mutable latest is not an identity — [ADR-0017](decisions/0017-artifact-registry.md)'s
-     rule applies).
-  2. **Spec-kit's integration layer** — [`tools/spec-kit-bundle/`](../tools/spec-kit-bundle/README.md)
-     renders commands per integration, but only four integrations, and adopting it means
-     rewriting the self-contained stage procedures as wraps around GitHub's stock commands
-     (inheriting the pin-forward anchor tax the bundle's own `CLAUDE.md` documents) and
-     reconciling the bundle's content to the design first
-     ([ADR-0030](decisions/0030-design-states-the-rules-tools-implement-them.md); the top row of
-     [open-parameters.md](../rollout/open-parameters.md)).
-
-  Spec-kit's other roles are not needed: templates ride inside the skill bodies
-  ([ADR-0020](decisions/0020-agent-instruction-layers.md)), the stock command bodies are
-  replaced by the design's own complete procedures, and `specify workflow run`'s terminal gates
-  are the predecessor gate model. **If candidate 1 closes this question, the bundle loses its
-  renderer-candidate status and its fate question returns, smaller: keep as unrelated prior art,
-  or retire.**
-- **What would close it:** a decided renderer; each admitted runner's target format verified
-  against dated first-party sources (no format asserted from memory); the CI equality check
-  specified; command naming decided; landed as an ADR superseding this shape into a mechanism.
-- **Variant answers:** expected to converge — delivery is above the code-host line; say so
-  explicitly in the closing ADR.
+- **Status:** closed → [ADR-0032](decisions/0032-stage-delivery-via-skills-cli.md) (2026-08-05,
+  the same day it was opened).
+- **Answer:** the four stage procedures ship as **Agent Skills, delivered by the `skills` CLI**
+  (`vercel-labs/skills`, verified first-party at v1.5.21): 74 agents, project-scope committed
+  copies, verbatim content, `skills-lock.json` provenance, local development via
+  `skills add ./`. Skill names `asdlc-spec` … `asdlc-implement`; commands surface hyphenated
+  (`/asdlc-spec`), restoring ADR-0020's original names. Spec-kit was rejected as delivery — 4
+  integrations, wrap coupling to stock commands, `.specify/` state and the predecessor gate
+  model — so the bundle's fate question returns, uncoupled from delivery. Three one-command
+  bring-up verifications live in the ADR's §4.
+- ~~**Blocks:** the pilot~~ — no longer; what remains is bring-up work
+  ([open-parameters.md](../rollout/open-parameters.md)).
+- **Variant answers:** converges — delivery is above the code-host line; the closing ADR says
+  so explicitly.
 
 ## OQ-20 — The runner admission contract
 

@@ -199,7 +199,7 @@ but are not a hard enforcement layer."* So anything mandatory needs a mechanism 
 |---|---|---|---|
 | **Enforcement** | managed settings, hooks, CI checks | platform owner | **no** |
 | **Standing instructions** | managed-policy `CLAUDE.md`, or the `claudeMd` managed-settings key | platform owner | **no** — *"cannot be excluded"* |
-| **Stage procedures** | rendered per runner from [asdlc/skills/](skills/README.md), CI-verified — mechanism open ([OQ-19](../reference/open-questions.md)) | platform owner | **no** — tamper is caught at merge |
+| **Stage procedures** | Agent Skills from [asdlc/skills/](skills/README.md), delivered by the `skills` CLI, committed copies CI-verified ([ADR-0032](../reference/decisions/0032-stage-delivery-via-skills-cli.md)) | platform owner | **no** — tamper is caught at merge |
 | **Repository facts** | project `CLAUDE.md`, `.claude/rules/` | the team, at T1 | yes, by design |
 
 **No gate-bearing rule lives in a repository file.** If a rule touches a gate, a tier, a signature
@@ -208,22 +208,19 @@ and is treated as helpful, not trusted — and it may not import anything from o
 
 ### A stage is entered deliberately
 
-One skill per stage — `/asdlc:spec`, `/asdlc:plan`, `/asdlc:tasks`, `/asdlc:implement` — each with
+One skill per stage — `/asdlc-spec`, `/asdlc-plan`, `/asdlc-tasks`, `/asdlc-implement` — each with
 `disable-model-invocation: true`, so **the engineer enters a stage and the model does not decide it
 has moved on**. Per-stage `allowed-tools` and `disallowed-tools` scope the tools to the stage; the
 spec stage does not need to write source files. Skill bodies load only when invoked, so the
 procedures can carry the full template guidance without costing context in unrelated sessions.
 
-**How they get there is open again**
-([OQ-19](../reference/open-questions.md#oq-19--runner-neutral-stage-procedure-delivery), and it
-blocks the pilot). [ADR-0024](../reference/decisions/0024-stage-skill-distribution.md)'s
-force-enabled plugin was superseded by
-[ADR-0031](../reference/decisions/0031-heterogeneous-runners.md) — runners are heterogeneous, and
-a plugin is one runner's feature set. The `/asdlc:*` names above are the Claude Code rendering,
-provisional until OQ-19 decides naming per runner. What replaces the plugin is decided in shape:
-one canonical source, rendered per runner by a generator, the copies verified byte-identical in
-CI — tamper caught at merge rather than prevented at load, backed by the never-write rule and the
-gates.
+**How they get there is settled twice over**
+([ADR-0032](../reference/decisions/0032-stage-delivery-via-skills-cli.md), which closed the
+question [ADR-0031](../reference/decisions/0031-heterogeneous-runners.md) opened when it
+superseded the Claude-only plugin). The four procedures ship as **Agent Skills, delivered by the
+`skills` CLI** at project scope in copy mode: ordinary committed files, identical bytes on every
+agent the CLI supports, verified byte-identical to the pinned canonical version in CI — tamper
+caught at merge rather than prevented at load, backed by the never-write rule and the gates.
 
 ### The agent may never rewrite its own instructions
 

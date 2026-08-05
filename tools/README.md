@@ -60,13 +60,13 @@ placed anywhere under `tools/` is inert, so `tools/spec-kit-bundle/` deliberatel
   ([ADR-0027](../reference/decisions/0027-design-is-public.md), which also sets what may never be
   committed to a public tree).
 
-**Neither workflow has ever run.** Both were retargeted on 2026-08-05 for the renamed and reset
-bundle ([ADR-0028](../reference/decisions/0028-bundle-rename-and-reset.md)). Every release assert
-passes in a local dry-run at `GITHUB_REF_NAME=bundle-v0.1.0`, and all three of `bundle-checks`'
-negative probes were run against the checker directly — but GitHub Actions cannot be exercised
-from a workstation, so the first push that touches `tools/spec-kit-bundle/` is the proof for one
-and the first `bundle-v*` tag is the proof for the other. **Cutting that tag is the owner's call
-and has not been done.**
+Both were retargeted on 2026-08-05 for the renamed and reset bundle
+([ADR-0028](../reference/decisions/0028-bundle-rename-and-reset.md)). **`bundle-checks` is green**
+— it failed on its first push, on an assert the reset had made stale, and passed on the second.
+**`bundle-release` has never run.** Every release assert passes in a local dry-run at
+`GITHUB_REF_NAME=bundle-v0.1.0`, but GitHub Actions cannot be exercised from a workstation, so the
+first `bundle-v*` tag is its only proof. **Cutting that tag is the owner's call and has not been
+done.**
 
 Each file's header comment records exactly how it differs from a workflow living inside the
 bundle. Copies were kept in the subtree until 2026-07-28 and are **deleted** — two inert files that

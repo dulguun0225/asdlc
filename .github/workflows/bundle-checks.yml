@@ -141,7 +141,10 @@ jobs:
             echo 'unexpanded {CORE_TEMPLATE} in a scaffolded artifact'; exit 1
           fi
           grep -q 'EARS' specs/001-smoke-test-feature/spec.md
-          grep -q 'Status.*: Draft' specs/001-smoke-test-feature/spec.md
+          # The scaffolded spec carried `**Status**: Draft` until the
+          # 2026-08-05 reset removed it with the rest of the gate. Nothing
+          # replaced it: the template has no status line at all now, so there
+          # is nothing here to assert in its place.
 
       # Negative probes: the checker must go red on a violation, and red for
       # the right reason. A green gate that cannot fail proves nothing.

@@ -65,15 +65,16 @@ root) and the three claims in it that were false rather than misplaced.
 text on purpose. `CLAUDE.md` now names one decision registry, not two — amending
 [ADR-0025](decisions/0025-monorepo.md) part 6.
 
-**The first action is a check, not a task: push, then watch CI.** Both root workflows were
-retargeted and **neither has ever run on GitHub**. Everything about them is dry-run reasoning:
-`bundle validate --offline` exits 0 with two warnings, `check_specs.py --self` is green, all three
-negative probes fail for the right reason, and every release assert passes at
-`GITHUB_REF_NAME=bundle-v0.1.0` — all verified locally on 2026-08-05, none verified on Actions. The
-first push touching `tools/spec-kit-bundle/**` triggers `bundle-checks`; **read that run before
-doing anything else with the bundle.** One inherited probe had already gone stale (it asserted the
-checker requires `## Approval`, which the reset checker no longer does), which is the reason to
-distrust the rest until a run says otherwise.
+**CI state: `bundle-checks` green, `bundle-release` never run.** Both were retargeted on
+2026-08-05. `bundle-checks` **failed on its first push** — it asserted a scaffolded spec carries
+`**Status**: Draft`, which the reset deleted from the spec template — and passed on the second.
+That was the *second* stale assert about the removed gate; the first (the checker requires
+`## Approval`) was caught by reading. **The one that survived review was the one only CI could
+reach**, because the smoke job scaffolds a project with the real spec-kit CLI.
+
+`bundle-release` is still entirely dry-run reasoning: every assert passes at
+`GITHUB_REF_NAME=bundle-v0.1.0` locally, none on Actions. **Cutting `bundle-v0.1.0` is the next
+real action on the bundle, and it is the owner's call** — see the prerequisites further down.
 
 **The finding, and it is the one to carry forward.** `dulguun0225/spec-kit-bundle-nc` **has been
 deleted** — 404 from the authenticated GitHub API, absent from the owner's repository list

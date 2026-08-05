@@ -108,10 +108,18 @@ present`, not 3), and the gate assertions (**two** gates, after specify and afte
 gates `implement`). Every extension step and assert was removed, and the extension's zip step with
 it.
 
-**One inherited probe would have failed.** `bundle-checks` asserted that a plan missing
-`## Approval` turns the checker red. The reset checker does not look for `## Approval` at all — it
-requires `## Requirements Traceability` and `## Decision Trace` and nothing else. The assert was
-dropped, not the probe.
+**Two inherited asserts had gone stale, and both were about the removed gate.** `bundle-checks`
+asserted that a plan missing `## Approval` turns the checker red — the reset checker does not look
+for `## Approval` at all, requiring `## Requirements Traceability` and `## Decision Trace` and
+nothing else. It also asserted that a scaffolded spec carries `**Status**: Draft` — the reset
+deleted that line from the spec template, and nothing replaced it. Both asserts were dropped; the
+probes around them were not.
+
+**The second one was caught by CI, not by review, and that is the point.** The first was found by
+reading the checker. The second lives in the smoke job, which scaffolds a project with the real
+spec-kit CLI, so no local check reaches it — it failed on the first push and was fixed in the
+next commit. **Everything a reset touches has to be re-read against what it removed, and the parts
+that only CI can reach are found only by pushing.**
 
 **A probe was added rather than only removed.** `bundle-checks` now asserts positively that no
 hook is registered and no extension command skill is installed. The absence of a gate is now a
@@ -121,9 +129,9 @@ release-time validation, because those asserts are the ones this change deleted.
 **Verified locally, 2026-08-05:** `specify bundle validate --path . --offline` exits 0 with
 exactly the two expected offline component warnings; `check_specs.py --self` is green; all three
 negative probes fail for the stated reason; every release assert passes a dry-run at
-`GITHUB_REF_NAME=bundle-v0.1.0`. **Neither workflow has run on GitHub.** That cannot be done from a
-workstation. The first push touching `tools/spec-kit-bundle/` proves one and the first `bundle-v*`
-tag proves the other.
+`GITHUB_REF_NAME=bundle-v0.1.0`. **`bundle-checks` is green on GitHub** as of the second push of
+2026-08-05 — the first failed on the stale `Status: Draft` assert above. **`bundle-release` has
+never run**, and cannot be exercised from a workstation; the first `bundle-v*` tag is its proof.
 
 ### 4. The standalone repository is gone, and "do not delete it" is what failed
 

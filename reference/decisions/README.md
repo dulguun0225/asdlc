@@ -48,3 +48,4 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0027](0027-design-is-public.md) | The design is published: this repository is public by decision | accepted | 2026-07-28 |
 | [0028](0028-bundle-rename-and-reset.md) | The bundle is renamed to `spec-kit-bundle` and reset to 0.1.0, and its history is gone | accepted; amends 0025 part 6 — the `B-n` registry is deleted | 2026-08-05 |
 | [0029](0029-bundle-holds-only-installable-components.md) | `tools/spec-kit-bundle/` holds only what `specify` can install; the merge gate moves to `tools/spec-kit-checker/` | accepted; narrows the directory 0025 created | 2026-08-05 |
+| [0030](0030-design-states-the-rules-tools-implement-them.md) | The design states the rules; `tools/` implements them | accepted; narrows 0028's source-of-truth consequence to runtime facts | 2026-08-05 |

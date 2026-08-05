@@ -162,7 +162,9 @@ cannot happen now, because it does not run.
 - **Documents that describe the bundle's behaviour are now a maintenance surface.** Five files
   outside `tools/` asserted facts about its gate model, and all five were wrong within one day of
   a change nobody flagged as behavioural. The bundle's README and `CLAUDE.md` are the source of
-  truth; the design documents quote it.
+  truth; the design documents quote it. **Scoped by
+  [ADR-0030](0030-design-states-the-rules-tools-implement-them.md) part 2 to the bundle's own
+  runtime behaviour** — it is not authority over what a requirement, a plan or an approval is.
 
 ### What would reopen this
 

@@ -4,6 +4,18 @@ The code. Everything else in this repository is documents
 ([CLAUDE.md](../CLAUDE.md)); this is the one directory where a build command is a reasonable thing
 to look for. Set by [ADR-0025](../reference/decisions/0025-monorepo.md).
 
+**Nothing here is authority for anything the design decides**
+([ADR-0030](../reference/decisions/0030-design-states-the-rules-tools-implement-them.md)). Every
+rule a file under `tools/` states about specs, plans, tasks, requirements, traceability, tiers or
+gates traces to an ADR or to a file under [`asdlc/`](../asdlc/README.md). **Where the two differ,
+the design wins and the tool has a bug** — repair the tool, or write an ADR changing the design;
+never edit a design document to match what the code happens to do.
+
+**A tool is authority over its own runtime**, and the design quotes it: what `specify` can
+install, how spec-kit v0.14.2 behaves, what `check_specs.py` blocks on. Unsure which side a
+statement falls on? Ask whether it would still be true if the program were rewritten in another
+language against another CLI. If yes, it is a design rule.
+
 | Directory | What it is | State |
 |---|---|---|
 | [spec-kit-bundle/](spec-kit-bundle/README.md) | A [GitHub Spec Kit](https://github.com/github/spec-kit) bundle: EARS requirements, requirement traceability, decision-record discipline | **Built, never released.** Reset to `0.1.0` on 2026-08-05 ([ADR-0028](../reference/decisions/0028-bundle-rename-and-reset.md)); no `bundle-v*` tag exists, so the catalog install path 404s and only the `--dev` path works |

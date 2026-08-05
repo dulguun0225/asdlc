@@ -19,8 +19,11 @@ Paths in this file are relative to this directory unless they say otherwise.
 A spec-kit bundle is a pointer list, not a payload container:
 `specify bundle install` reads only `bundle.yml` and resolves each component
 from what is already installed, spec-kit's own assets, or catalogs. The
-component directories here are the source of truth; they reach projects via
-`--dev` installs or via `catalogs/`.
+component directories here are the source of truth **for what gets installed** —
+they reach projects via `--dev` installs or via `catalogs/`, and no zip or
+catalog entry is edited instead of them. That is a statement about packaging.
+**It is not authority over what a spec, a plan or an approval is** — see rule
+10.
 
 ## Map — and what a change ripples to
 
@@ -85,6 +88,28 @@ repo is built around").
    The directory's own metadata — `README.md` (which `specify bundle build`
    requires), `CLAUDE.md`, `LICENSE`, `mise.toml`, the dotfiles — is not a
    deliverable and is exempt.
+10. **This directory is the implementation, not the source of truth.** Every
+    rule its files state about specs, plans, tasks, requirements,
+    traceability, tiers or gates — EARS patterns, stable `FR-nnn`, WITHDRAWN,
+    one behaviour per requirement, what the plan must trace — belongs to an
+    ADR or to a file under `../../asdlc/`. **Where the two differ, the design
+    wins and this directory has a bug**: repair it here, or write an ADR
+    changing the design. Never edit a design document to match what a wrapped
+    command happens to say
+    ([ADR-0030](../../reference/decisions/0030-design-states-the-rules-tools-implement-them.md)).
+    The carve-out is this directory's own runtime — what `specify` can
+    install, how spec-kit v0.14.2 behaves, what lands in a consumer's
+    `.specify/`. Those are facts about a program, they are stated here and
+    dated, and the design quotes them.
+
+    **Two live divergences, filed against this directory and not fixed:** the
+    workflow's two terminal gates against the design's per-tier gate records
+    ([ADR-0030](../../reference/decisions/0030-design-states-the-rules-tools-implement-them.md)
+    part 3 — the fix is the platform owner's and needs its own record), and
+    the escape hatch for a requirement matching no EARS pattern, which
+    `asdlc/templates/spec.md` gives a counted `[form: …]` tag and
+    `presets/asdlc/commands/speckit.specify.md` gives an uncounted one-line
+    note.
 
 ## presets/asdlc — component invariants
 

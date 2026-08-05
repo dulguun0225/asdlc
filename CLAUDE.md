@@ -166,6 +166,21 @@ is subordinate.
   **`tools/` earns its name only while it holds programs and packages** — a `tools/` that holds
   anything is a `misc/`.
 
+**The design states the rules; `tools/` implements them**
+([ADR-0030](reference/decisions/0030-design-states-the-rules-tools-implement-them.md)):
+
+- **No directory under `tools/` is authority for anything the design decides.** Every rule a file
+  under `tools/` states about specs, plans, tasks, requirements, traceability, tiers or gates
+  traces to an ADR or to a file under `asdlc/`. **Where the two differ, the design wins and the
+  tool has a bug.** Repair the tool, or write an ADR changing the design — never edit a design
+  document to match what the code happens to do.
+- **A tool is authority over its own runtime, and the design quotes it.** What `specify` can
+  install, how spec-kit v0.14.2 behaves, what `check_specs.py` blocks on — those are facts about
+  a program. `tools/` states them and dates them.
+- **The test, when it is unclear which side a statement falls on:** would it still be true if the
+  program were rewritten in another language against another CLI? If yes it is a design rule; if
+  no it is a runtime fact.
+
 `CLAUDE.md` — standing instructions and conventions. Not a state log, and **not the entry
 point for a human**.
 

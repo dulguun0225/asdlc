@@ -17,6 +17,18 @@ is a change to what those commands promise** — check
 
 ## Invariants
 
+- **This directory is the implementation, not the source of truth.** What this
+  program blocks on about specs, plans, tasks, requirements, traceability,
+  tiers or gates traces to an ADR or to a file under `../../asdlc/`. **Where
+  the two differ, the design wins and this program has a bug** — fix it here,
+  or write an ADR changing the design; never edit a design document to match
+  what the code happens to check
+  ([ADR-0030](../../reference/decisions/0030-design-states-the-rules-tools-implement-them.md)).
+  The carve-out is this program's own behaviour: what it checks, what it
+  skips, and how it is adopted are facts about a program, stated here, and the
+  design quotes them. The live divergence, filed here and not fixed: this
+  program gates nothing and never sees a gate record, while the design
+  requires one binding the artifact's sha256, per tier.
 - **One file, stdlib only.** Product repos adopt it by copying `check_specs.py`
   alone, so it must run on any Python 3 with no installs. If a second checker
   is ever added here, say in its first line whether it travels the same way.

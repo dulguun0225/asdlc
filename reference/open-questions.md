@@ -112,6 +112,28 @@ appended sections or an FR reference, and **nothing enforces that the two stay i
   forgeable convention no longer runs anywhere. What remains is a coverage gap:
   `spec-kit-checker` checks traceability after the fact and gates nothing, the design requires a
   gate record per tier and has no tooling for one. **"No gate" is not "the design's gate."**
+  **Which side has to move is now settled** —
+  [ADR-0030](decisions/0030-design-states-the-rules-tools-implement-them.md): the design states
+  the rules, `tools/` implements them, so this is a bug filed against the tools. *How* it moves is
+  still the top row of [open-parameters.md](../rollout/open-parameters.md) and still needs its own
+  record.
+- **The same rule is written in five places, and two copies have drifted.** The six EARS patterns,
+  stable `FR-nnn`, WITHDRAWN and one-behaviour-per-requirement appear in
+  [`asdlc/templates/spec.md`](../asdlc/templates/spec.md),
+  [`asdlc/skills/spec/SKILL.md`](../asdlc/skills/spec/SKILL.md), and three files under
+  `tools/spec-kit-bundle/presets/asdlc/`. Nothing keeps them in step. The known drift: a
+  requirement matching no EARS pattern gets a **counted** `[form: table]` / `[form: prose]` escape
+  tag in the design and an **uncounted** one-line note in the bundle's wrapped `speckit.specify`.
+  Under ADR-0030 that is the bundle's bug. Generating the bundle's texts from the design's was
+  rejected for now and is that record's first reopen condition — if the copies drift again after
+  being reconciled, generate them.
+- **One factual error left in place, deliberately.** `tools/spec-kit-bundle/README.md` says
+  pre-researched engineering rules *"live in this repository's `skills/` tree"*. There is no
+  top-level `skills/` here — the nearest thing is [`asdlc/skills/`](../asdlc/skills/README.md),
+  which holds the four **stage** procedures, not engineering rules. The sentence was authored in
+  the owner's separate `skills` repository and carried its assumptions in, the same failure
+  [ADR-0028](decisions/0028-bundle-rename-and-reset.md) part 1 records. Fixing it needs to know
+  what that tree is meant to be; it is the owner's to say.
 
 ### Standing rules that bind every session
 

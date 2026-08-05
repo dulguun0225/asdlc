@@ -377,15 +377,3 @@ Context windows: 1M tokens for Fable 5, Opus 5 and Sonnet 5; 200k for Haiku 4.5.
 - **Progressive rollout and automated rollback.** Still nothing citable —
   [OQ-11](../open-questions.md).
 - **SLSA Build Level 3** and what it costs to reach via reusable workflows.
-
-### Leads for the next session
-
-| Lead | Angle |
-|---|---|
-| Claude Code authentication / credential-management docs | resolve the license-vs-token-spend question above |
-| Branch-protection and required-review bypass docs, per candidate host | OQ-12 |
-| `@anthropic-ai/sandbox-runtime` repository | wrapping a non-Claude runner in the same primitives |
-| `https://gist.github.com/wincent/2752d8d97727577050c043e4ff9e386e` (~70-entry sandbox inventory) | alternatives to bubblewrap/Seatbelt; still unfetched |
-| `https://github.com/bureado/awesome-agent-runtime-security` | still unfetched |
-| Anthropic pricing page (batch, caching) | complete the token-spend model |
-| OWASP ASI10 (Rogue Agents) mitigations | only ASI03 was extracted in full |

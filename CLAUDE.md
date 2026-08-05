@@ -45,9 +45,12 @@ Two obligations follow, and neither is optional:
    → "What to pick up next" is the handover note. That section, this file, and the design and
    reference directories are the *only* session state that exists.
 2. **Write the state before finishing.** Any session that changes something ends by updating that
-   same section: what landed, what it closed or opened, and what the next session should pick up
-   and why. A finding, a rejected option, or a half-answered question is state too — if it exists
-   only in the conversation, it is lost at the end of it.
+   same section: what is true now, and what the next session should pick up and why. A finding, a
+   rejected option, or a half-answered question is state too — if it exists only in the
+   conversation, it is lost at the end of it.
+3. **Replace, do not append.** That section records the **current state, not a log of sessions**.
+   Rewrite what is stale; do not add a dated entry beneath it. It grew to 2,600 lines that way and
+   was cut back on 2026-08-05. Git history is the log.
 
 **Uncommitted work does not travel either.** When a session produces something that matters, say
 so and offer to commit it. "Don't commit unless asked" means do not commit silently; it does not
@@ -165,7 +168,10 @@ point for a human**.
 
 ## Conventions
 
-- **Decisions go in ADRs.** Anything that closes a choice (tool selection, boundary, process rule) is a numbered decision record with context, options considered, decision, and consequences — not a bullet buried in a larger doc.
+- **No historical baggage until the design is demonstrated and released.** Owner's instruction, 2026-08-05: an account of how the project reached its current state slows every reader down, and git history already holds it. Write what is true now. This governs the four conventions below and was applied on 2026-08-05 — the session log, the ADR execution narratives and the research notes' session tails were all cut.
+- **Decisions go in ADRs.** Anything that closes a choice (tool selection, boundary, process rule) is a numbered decision record with context, options considered, decision, and consequences — not a bullet buried in a larger doc. **One line per rejected option**: what it was, why not. The argument is not the record.
+- **An ADR states what is true now, plus what would reverse it.** No "what was actually done" narrative, no expired deadlines, no lessons about the session that wrote it. When a later record changes an earlier one, the earlier one gets a **one-line pointer** — without it the earlier ADR reads as still true, which is worse than the baggage.
+- **Research notes keep findings, sources and the "do not reintroduce" list.** Not what was searched, not what the session recommended doing next. The evidence is the point; the session is not.
 - **Open questions are first-class.** Keep them named and listed so a research session can be pointed at one. A question that only exists inside a paragraph will not get closed.
 - **Date-stamp volatile content.** Tables of vendor capabilities or prices carry the date they were checked.
 - **Closing an open question touches three places:** the ADR, the ADR index, and the `OQ-N` entry's status line.

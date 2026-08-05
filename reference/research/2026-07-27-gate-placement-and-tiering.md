@@ -406,24 +406,3 @@ period. It does not establish that agents slow work down today.
 - **Self-hosted variant specifics** remain thin, as in the previous session. Nothing
   here is cloud-only in principle: a path-based tier rule is CI configuration. But no
   self-hosted implementation was examined.
-
-## Verification status at end of session
-
-| Source | Status |
-|---|---|
-| dora.dev change approval | **Verified first-party** on the sixth attempt. Two sentences confirmed verbatim. |
-| dora.dev balancing AI tensions | **Verified first-party** on the third attempt. |
-| METR uplift update | **Verified first-party** on re-fetch; sign conventions resolved. |
-| *Computers & Security* CVSS fragmentation | **Not verified** — HTTP 403 paywall, permanent. Corroborated by a first-party arXiv source. |
-| Accelerate 2019 PDF | **Not extracted** — downloaded, but PDF text extraction is unavailable in this environment. Not a source problem. |
-| The 2.6× low-performer figure | **Failed verification.** Absent from the primary page. Dropped from all records. |
-
-## Recommended next steps
-
-1. **[OQ-9](../open-questions.md) is now the blocking question** — the tier function and
-   the path→tier map. [ADR-0004](../decisions/0004-gate-placement.md) specifies a gate table
-   that nothing can evaluate until the tier function exists.
-2. **Then OQ-4** (self-hosted runner stack), still the largest hole, leads already
-   collected in the previous session.
-3. When OQ-8 is picked up, note the residual handed to it from OQ-3: gate placement does
-   not bound what an agent may touch *between* gates.

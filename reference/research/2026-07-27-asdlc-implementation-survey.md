@@ -356,35 +356,3 @@ The self-hosted side has **zero verified content beyond the observability layer.
 Also note that the claim "self-hosted cost reduces to raw model-API token spend with
 no included allowance" is a *reasoned inference* from the verified cloud facts, not
 itself a verified measurement.
-
-### Leads already identified (fetched but their claims didn't make the verification cut)
-
-Worth starting the next session from these rather than re-searching:
-
-| Lead | Angle |
-|---|---|
-| <https://gist.github.com/wincent/2752d8d97727577050c043e4ff9e386e> — ~70-entry coding-agent sandbox inventory, taxonomised by isolation primitive (Landlock, seccomp, bubblewrap, Firejail, nsjail; gVisor et al.); updated 2026-05, last active 2026-07-23 | self-hosted sandboxing |
-| <https://github.com/bureado/awesome-agent-runtime-security> | self-hosted runtime security |
-| <https://www.openhands.dev/blog/open-source-ai-coding-agents> | open-source agent runners |
-| <https://grigio.org/ai-agent-sandbox-technologies-a-complete-2026-comparison/> (blog, verify independently) | sandbox comparison |
-| <https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/> | governance/security controls |
-| <https://docs.github.com/en/actions/concepts/security/artifact-attestations> | provenance |
-| <https://code.claude.com/docs/en/security> | permissions model |
-| <https://docs.github.com/en/copilot/concepts/agents/cloud-agent/risks-and-mitigations> | cloud agent risk controls |
-| <https://metr.org/blog/2026-02-24-uplift-update/> and <https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/> | empirical outcomes, skeptical |
-| <https://dora.dev/insights/balancing-ai-tensions/> | empirical outcomes |
-| <https://arxiv.org/html/2607.12428v1> | empirical outcomes |
-| <https://claude.com/pricing>, <https://devin.ai/pricing> | cloud runner pricing (not yet verified) |
-
-## Recommended next steps
-
-1. **Do not close OQ-3 yet.** This session answers the "where do gates go" half with
-   patterns; the "what can tooling actually enforce" half and the whole self-hosted
-   side are missing.
-2. **Run [OQ-4](../open-questions.md) next** — the self-hosted stack is the largest
-   hole and the leads above are already collected.
-3. **Then draft a gate-placement ADR** citing Findings 1-3 as patterns and Finding 4
-   as the reason to instrument approval rate per tier from day one.
-4. Anything volatile here (Copilot pricing, Langfuse versions) must be **re-checked
-   at ADR-writing time** — it was accurate on 2026-07-27 and the Copilot billing model
-   is only ~8 weeks old.

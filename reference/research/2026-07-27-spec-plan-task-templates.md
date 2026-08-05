@@ -111,7 +111,8 @@ points the same direction:
 So EARS remains a **bet**: a small, bounded English keyword surface that removes some classes of
 ambiguity and that a checker can classify. The bet is cheap, it has a fifteen-year industrial
 track record, the owner has already run it twice, and it is falsifiable by instrumentation we can
-build (§5).
+build — see [ADR-0014](../decisions/0014-feature-artifacts-and-the-traceability-chain.md), which
+records the five departures this note argues for.
 
 ## 3. Where the trace should end: the verification link
 
@@ -195,28 +196,7 @@ The limit is sharp, and the literature marks exactly where it falls.
 So: **parse the pattern and block; check the wording and warn.** And measure the escape hatch,
 because a notation that has to be escaped often is a notation that does not fit.
 
-## 5. What this session decided, in one place
-
-Full record in [ADR-0014](../decisions/0014-feature-artifacts-and-the-traceability-chain.md). The
-five departures from the two in-house conventions:
-
-1. **The trace ends at a passing test, not at a task.** Every active functional requirement must
-   be cited by ≥1 test; checked at merge, on the final diff.
-2. **Approval binds to a content hash, not to a typed line.** This design already requires
-   hash-bound gate records ([artifacts.md](../artifacts.md) §3), which makes the templates'
-   status lines redundant and removes the unenforceable "only a human types this" convention.
-3. **Non-functional requirements get their own class, and the operational ones become the canary
-   thresholds** Flagger reads ([ADR-0011](../decisions/0011-progressive-rollout.md)). The trace
-   runs into production.
-4. **The tasks-stage consistency check is defined** — closing a gap
-   [open-questions.md](../open-questions.md) flags as a design defect rather than missing
-   documentation — as hash-pinning plus two-way coverage plus pattern parse.
-5. **The pressure valve is the tier function**, not a second author-judged trigger list.
-   `sdd-standard` §6.1 asks the author to decide whether a change "creates a new capability" or
-   is "hard to reverse"; D-16 admits both remain author-judged before a diff exists. We already
-   compute that from the diff.
-
-## 6. Do not reintroduce
+## 5. Do not reintroduce
 
 Claims encountered while researching this, which failed verification. Each will otherwise be
 re-derived from memory in a later session and treated as fact.
@@ -235,7 +215,7 @@ re-derived from memory in a later session and treated as fact.
 - **EARS improves LLM code generation.** Still no study isolating it, as of 2026-07-27. The
   adjacent, real finding is that ambiguity degrades code generation (§2). Say that instead.
 
-## 7. What stayed open
+## 6. What stayed open
 
 - **Requirement-level defect attribution is enabled, not defined.** The chain gives an incident a
   requirement to name; how a post-merge defect is attributed to a *tier* is still undefined in

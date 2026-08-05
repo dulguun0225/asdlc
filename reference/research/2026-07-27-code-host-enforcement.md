@@ -513,11 +513,3 @@ Three cross-host conclusions, all load-bearing for the ADR:
   ci-gated-on-human answer for Gerrit rests on Zuul only.
 - **All hosts:** these are documented *capabilities*, not measured outcomes. No source measures
   whether any of these controls changes review quality or incident rates.
-
-### Leads for the next session
-
-| Lead | Angle |
-|---|---|
-| Claude Code authentication / credential-management docs | OQ-13 — token-spend-only or per-seat |
-| GitHub audit-log export options below Enterprise Cloud | close the 180-day retention gap |
-| Zuul project licence and CI-layer gating on non-Gerrit hosts | portability of the pre-run human gate |

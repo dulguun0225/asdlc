@@ -1,0 +1,15 @@
+stateDiagram-v2
+    state "Partially paid" as Partiallypaid
+    [*] --> Draft
+    Draft --> Issued : issue [customer account is active] / FR-002
+    Issued --> Paid : payment received [covers open balance] / FR-004
+    Issued --> Partiallypaid : payment received [below open balance] / FR-005
+    Partiallypaid --> Paid : payment received [covers open balance] / FR-005
+    Issued --> Overdue : due date passed / FR-007
+    Partiallypaid --> Overdue : due date passed / FR-007
+    Overdue --> Paid : payment received [covers open balance] / FR-008
+    Overdue --> Overdue : payment received [below open balance] / FR-008
+    Issued --> Cancelled : cancel [no payment recorded] / FR-009
+    Overdue --> Cancelled : cancel [no payment recorded] / FR-009
+    Paid --> [*]
+    Cancelled --> [*]

@@ -18,8 +18,7 @@ language against another CLI. If yes, it is a design rule.
 
 | Directory | What it is | State |
 |---|---|---|
-| [spec-kit-checker/](spec-kit-checker/README.md) | `check_specs.py` — a stdlib-only merge-blocking checker for the predecessor convention, plus the worked `password-reset` example it keeps well-formed | **Built and in use as its own CI's subject.** No product repo has adopted it |
-| `feature-artifact-checker/` | [ADR-0014](../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md) part 7's blocking checks plus the requirements trace | **Not built.** Specified at [asdlc/examples/001-feature-artifact-checker/spec.md](../asdlc/examples/001-feature-artifact-checker/spec.md) |
+| [feature-artifact-checker/](feature-artifact-checker/README.md) | The design's checker — [ADR-0014](../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md) part 7's blocking checks plus the requirements trace | **Not built.** Specified at [asdlc/examples/001-feature-artifact-checker/spec.md](../asdlc/examples/001-feature-artifact-checker/spec.md). Holds its **fork seed**: `check_specs.py`, the predecessor convention's stdlib-only merge gate, harvested from the deleted `spec-kit-checker/` ([ADR-0036](../reference/decisions/0036-checker-harvested-fork-seed.md)) — runnable, green as its own CI's subject, never adopted by any product repo |
 | *(stage-procedure delivery)* | Not a `tools/` program at all: the four stage procedures ship as Agent Skills from the repository's [skills/](../skills/README.md) tree via the **`skills` CLI** (`vercel-labs/skills`, MIT, external) | **Decided** — [ADR-0032](../reference/decisions/0032-stage-delivery-via-skills-cli.md), which rejected both a home-built renderer and the spec-kit bundle for the role. Row kept so nobody re-invents it here |
 | [skills-harness/](skills-harness/) | QA harness for the top-level [`skills/`](../skills/README.md) tree: the CLI discovery check, the two wired gates (evidence order, dangling pointers), token reports, and the firing harness | **Built and green.** Moved in with the skills ([ADR-0033](../reference/decisions/0033-skills-move-into-the-monorepo.md)); CI is `.github/workflows/skills-checks.yml` at the root, never run on Actions yet |
 
@@ -38,9 +37,9 @@ defending the name — that is one of ADR-0025's named reopen conditions.
 
 ## The thing to know before you build on any of this
 
-**The checker implements the gate model this design replaced.** It checks the predecessor
-convention's artifacts — EARS requirements under stable `FR-nnn` ids, traced through `plan.md`
-and `tasks.md` — but it checks traceability **after the fact and enforces no gate at all**, while
+**The fork seed implements the gate model this design replaced.** `check_specs.py` checks the
+predecessor convention's artifacts — EARS requirements under stable `FR-nnn` ids, traced through
+`plan.md` and `tasks.md` — but it checks traceability **after the fact and enforces no gate at all**, while
 the design requires a **gate record binding the artifact's sha256, per tier**
 ([artifacts.md](../reference/artifacts.md) §3,
 [tiers.md](../asdlc/tiers.md)). Its trace ends at the task list; the design's ends at a passing
@@ -49,7 +48,7 @@ test. It knows nothing of the tier map or NFR enforcement.
 replaced the convention's typed approval line **precisely so an approval cannot be forged by
 typing one**, and its option 1 rejected adopting the convention unchanged.
 
-So the checker is **prior art, not the design's gate**: the design's own gate tooling does not
+So the seed is **prior art, not the design's gate**: the design's own gate tooling does not
 exist yet, and building it is the top row of
 [rollout/open-parameters.md](../rollout/open-parameters.md), which needs its own decision
 record.
@@ -61,10 +60,11 @@ placed anywhere under `tools/` is inert, so no directory here has a `.github/` d
 none may get one. Two workflows cover this tree, each `paths`-filtered to its own subtree so a
 design-document change runs nothing:
 
-- **[`.github/workflows/spec-kit-checker-checks.yml`](../.github/workflows/spec-kit-checker-checks.yml)**
+- **[`.github/workflows/feature-artifact-checker-checks.yml`](../.github/workflows/feature-artifact-checker-checks.yml)**
   — runs `check_specs.py --self` and its three negative probes. Installs nothing: the checker is
   stdlib-only, so the runner's `python3` is the whole toolchain. **Never run on Actions** —
-  every step passes locally, and the first push touching `tools/spec-kit-checker/` is its proof.
+  every step passes locally (re-verified after the 2026-08-05 rename), and the first push
+  touching `tools/feature-artifact-checker/` is its proof.
 - **[`.github/workflows/skills-checks.yml`](../.github/workflows/skills-checks.yml)** — the
   skills harness's discovery check and gates, filtered to `skills/` and `tools/skills-harness/`.
   **Never run on Actions either**, same proof condition.
@@ -78,14 +78,16 @@ subtree it covers. Copies were kept in the subtree until 2026-07-28 and are **de
 looked like live CI, kept in sync only by comments, and edited once in that state. See
 [ADR-0025](../reference/decisions/0025-monorepo.md) *"What was actually done"* item 6.
 
-## Provenance of `spec-kit-checker`
+## Provenance of the fork seed
 
-It began as the `ci/` and `examples/` of the bundle, copied from
+`check_specs.py` and its fixtures began as the `ci/` and `examples/` of the bundle, copied from
 `dulguun0225/spec-kit-bundle-nc` at `master` = **`47173eb`** on 2026-07-28, verified
 byte-identical to that tree; renamed and reset on 2026-08-05
-([ADR-0028](../reference/decisions/0028-bundle-rename-and-reset.md)), split into its own
-directory the same day
-([ADR-0029](../reference/decisions/0029-bundle-holds-only-installable-components.md)). The bundle
+([ADR-0028](../reference/decisions/0028-bundle-rename-and-reset.md)), split into their own
+directory `tools/spec-kit-checker/` the same day
+([ADR-0029](../reference/decisions/0029-bundle-holds-only-installable-components.md)), and
+harvested into `tools/feature-artifact-checker/` the same day again
+([ADR-0036](../reference/decisions/0036-checker-harvested-fork-seed.md)). The bundle
 itself was deleted on 2026-08-05
 ([ADR-0035](../reference/decisions/0035-bundle-retired-and-deleted.md)); its final tree is in
 this repository's git history at `786fd3b`.

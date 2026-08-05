@@ -1,37 +1,40 @@
-# CI for the merge-gate checker in tools/spec-kit-checker/.
+# CI for tools/feature-artifact-checker/ — today, the fork seed check_specs.py.
 #
 # WHY THIS FILE EXISTS AT THE ROOT: GitHub runs workflows only from the
 # repository root `.github/workflows/`. A workflow under tools/ would be inert,
 # so the checker keeps no copy of this file. THIS IS THE ONLY COPY. Delete it
 # and the checker silently loses its CI.
 #
-# Split out of bundle-checks.yml on 2026-08-05 (ADR-0029), when the checker
-# left tools/spec-kit-bundle/. The three negative probes below were RELOCATED
-# from that workflow, not rewritten and not weakened — the rule that a probe
-# must go red for the right reason holds here in full.
+# Split out of bundle-checks.yml on 2026-08-05 (ADR-0029) as
+# spec-kit-checker-checks.yml; renamed with its directory the same day
+# (ADR-0036), when the seed was harvested and tools/spec-kit-checker/ deleted.
+# The three negative probes below were RELOCATED both times, not rewritten and
+# not weakened — the rule that a probe must go red for the right reason holds
+# here in full. The rewrite to the design's spec replaces them with probes
+# asserting the new failure modes; replacement lands with the behavior change
+# it tests, never as a bare deletion.
 #
 # It installs nothing. check_specs.py is stdlib-only by rule, so the runner's
-# python3 is the whole toolchain; the spec-kit CLI this used to sit beside is
-# not needed to check the checker.
+# python3 is the whole toolchain.
 #
 # NOT YET RUN ON ACTIONS. Every step below passes locally; the first push that
-# touches tools/spec-kit-checker/ is the proof.
+# touches tools/feature-artifact-checker/ is the proof.
 
-name: spec-kit-checker-checks
+name: feature-artifact-checker-checks
 
 on:
   push:
     paths:
-      - 'tools/spec-kit-checker/**'
-      - '.github/workflows/spec-kit-checker-checks.yml'
+      - 'tools/feature-artifact-checker/**'
+      - '.github/workflows/feature-artifact-checker-checks.yml'
   pull_request:
     paths:
-      - 'tools/spec-kit-checker/**'
-      - '.github/workflows/spec-kit-checker-checks.yml'
+      - 'tools/feature-artifact-checker/**'
+      - '.github/workflows/feature-artifact-checker-checks.yml'
 
 defaults:
   run:
-    working-directory: tools/spec-kit-checker
+    working-directory: tools/feature-artifact-checker
 
 jobs:
   check:

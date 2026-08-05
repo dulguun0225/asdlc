@@ -5,8 +5,8 @@
 # invalidates a gate signature. A repository that normalises per-platform
 # cannot carry hash-bound approvals.
 #
-# tools/spec-kit-checker/check_specs.py enforces the same rule on product
-# repos.
+# tools/feature-artifact-checker/check_specs.py enforces the same rule on
+# product repos.
 #
 # Set 2026-07-28 by ADR-0025 part 5, before anything in this repository pins a
 # hash. Doing it later would be a migration.

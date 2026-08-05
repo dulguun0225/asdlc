@@ -122,7 +122,7 @@ Four places, because the rule is only useful where someone is about to edit a fi
 | [`CLAUDE.md`](../../CLAUDE.md) → *Where things live* | The rule itself. The binding statement |
 | [`tools/README.md`](../../tools/README.md) | The rule, restated at the top of the directory it binds |
 | `tools/spec-kit-bundle/CLAUDE.md` | Rule 10, in the list a maintainer reads before changing a component — deleted with the bundle ([ADR-0035](0035-bundle-retired-and-deleted.md)) |
-| [`tools/spec-kit-checker/CLAUDE.md`](../../tools/spec-kit-checker/CLAUDE.md) | The same, under its invariants |
+| [`tools/feature-artifact-checker/CLAUDE.md`](../../tools/feature-artifact-checker/CLAUDE.md) | The same, under its invariants — the directory was `tools/spec-kit-checker/` until [ADR-0036](0036-checker-harvested-fork-seed.md) |
 
 **No file under `tools/` gets a copy of a design rule as part of carrying this one.** Each carries
 a pointer to where the rule lives, which is the opposite of what created the problem.

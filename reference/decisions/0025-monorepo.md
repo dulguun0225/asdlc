@@ -13,9 +13,11 @@
   project into this repo and make this one a monorepo."*
 - **Later:** the bundle directory was renamed and reset
   ([ADR-0028](0028-bundle-rename-and-reset.md)), then narrowed to installable spec-kit components
-  only ([ADR-0029](0029-bundle-holds-only-installable-components.md)) — every `ci/check_specs.py`
-  path below now reads `tools/spec-kit-checker/check_specs.py`, and
-  `tools/spec-kit-bundle/examples/` reads `tools/spec-kit-checker/examples/`.
+  only ([ADR-0029](0029-bundle-holds-only-installable-components.md)), and the split-out checker
+  was harvested into `tools/feature-artifact-checker/`
+  ([ADR-0036](0036-checker-harvested-fork-seed.md)) — every `ci/check_specs.py` path below now
+  reads `tools/feature-artifact-checker/check_specs.py`, and `tools/spec-kit-bundle/examples/`
+  reads `tools/feature-artifact-checker/examples/`.
 
 ## Context
 

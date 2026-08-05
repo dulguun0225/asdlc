@@ -28,13 +28,14 @@ notation always fits.
   wins** — the disagreements are listed in the example's §7.
 - **Not code, but the code has a home now.** `asdlc/` holds documents and no build system
   ([CLAUDE.md](../../CLAUDE.md) scopes that rule to the four design directories, not to the
-  repository). The program goes in [`tools/feature-artifact-checker/`](../../tools/README.md), in
+  repository). The program goes in
+  [`tools/feature-artifact-checker/`](../../tools/feature-artifact-checker/README.md), in
   **this** repository — [ADR-0025](../../reference/decisions/0025-monorepo.md) lifted the
   documents-only restriction on 2026-07-28 and brought the nearest prior art in with it:
-  [`tools/spec-kit-checker/check_specs.py`](../../tools/spec-kit-checker/check_specs.py),
-  stdlib-only Python run as merge-blocking CI. **Whether the checker forks it or extends it in
-  place is still open** ([open-parameters.md](../../rollout/open-parameters.md)) — and it is not a
-  free choice, because that program checks traceability after the fact and enforces **no gate at
-  all**. It required a typed `Status: Approved` line — the model ADR-0014 part 3 superseded — until
-  the 2026-08-05 reset dropped it
-  ([ADR-0028](../../reference/decisions/0028-bundle-rename-and-reset.md)).
+  `check_specs.py`, stdlib-only Python run as merge-blocking CI, since harvested into that
+  directory as the **fork seed**
+  ([ADR-0036](../../reference/decisions/0036-checker-harvested-fork-seed.md), which closed the
+  fork-vs-extend question: fork). It is a seed, not a start on the program: it checks
+  traceability after the fact and enforces **no gate at all**. It required a typed
+  `Status: Approved` line — the model ADR-0014 part 3 superseded — until the 2026-08-05 reset
+  dropped it ([ADR-0028](../../reference/decisions/0028-bundle-rename-and-reset.md)).

@@ -95,7 +95,7 @@ enterprise-scope skill distribution failed and produced
 mechanism that turns out not to exist, or to exist differently — and expect it as a correction to a
 record rather than a new `OQ-N`.
 
-### The predecessor convention: `tools/spec-kit-checker/`
+### The predecessor convention: harvested and gone
 
 **The bundle is gone.** `tools/spec-kit-bundle/` was retired and deleted on 2026-08-05
 ([ADR-0035](decisions/0035-bundle-retired-and-deleted.md)), reversing the owner's same-day "do
@@ -108,15 +108,21 @@ fired) were deleted with it; the final tree is in git history at commit `786fd3b
 deletion costs is named in the ADR: the predecessor convention's only working CI, and the
 spec-kit v0.14.2 runtime facts.
 
-What remains is `tools/spec-kit-checker/` — `check_specs.py` and the `password-reset` example —
-kept as prior art for the feature-artifact checker
-([open-parameters.md](../rollout/open-parameters.md)):
+**The checker followed the same day.** The owner applied the same rule to what ADR-0035 had
+kept — *"If it's needed, harvest. Then delete."* —
+[ADR-0036](decisions/0036-checker-harvested-fork-seed.md): the fork-vs-extend open parameter
+closed as **fork**, `check_specs.py` and the `password-reset` fixtures were harvested by
+`git mv` into [`tools/feature-artifact-checker/`](../tools/feature-artifact-checker/README.md)
+as the **fork seed** of the design's own (unbuilt) checker, and `tools/spec-kit-checker/` was
+deleted. No file content was lost; only the predecessor-convention identity went.
 
-- **`spec-kit-checker-checks.yml` has never run on Actions.** Root workflow, path-filtered to
-  `tools/spec-kit-checker/**`, holding `--self` and the three negative probes. All four steps
-  pass locally; the first push touching that directory is the proof.
-- **The gate-tooling gap survives the bundle.** The checker checks traceability after the fact
-  and gates nothing; the design requires a gate record per tier and has no tooling for one.
+- **`feature-artifact-checker-checks.yml` has never run on Actions.** Root workflow,
+  path-filtered to `tools/feature-artifact-checker/**`, holding `--self` and the three negative
+  probes — relocated with the rename, not weakened. All four steps re-verified locally after
+  the move (2026-08-05: `--self` green, all three probes red for the right reason); the first
+  push touching that directory is the proof.
+- **The gate-tooling gap survives the bundle.** The fork seed checks traceability after the
+  fact and gates nothing; the design requires a gate record per tier and has no tooling for one.
   **"No gate" is not "the design's gate."** That is the top row of
   [open-parameters.md](../rollout/open-parameters.md) and still needs its own record — which
   also decides where a plan-ratified `NEW — proposed` decision accumulates

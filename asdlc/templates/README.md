@@ -54,12 +54,15 @@ second trigger list ([tiers.md](../tiers.md)).
 - **The checker does not exist yet.** ADR-0014 part 7 defines the seven blocking checks and the
   advisory ones; writing the program is a phase-0 bring-up task
   ([open-parameters.md](../../rollout/open-parameters.md)), and it goes in
-  [`tools/feature-artifact-checker/`](../../tools/README.md). Prior art is
-  [`tools/spec-kit-checker/`](../../tools/spec-kit-checker/README.md) — **in this repository
-  since [ADR-0025](../../reference/decisions/0025-monorepo.md)**, split out of the bundle on
-  2026-08-05 ([ADR-0029](../../reference/decisions/0029-bundle-holds-only-installable-components.md)),
-  and the only place left to read it, because the standalone repository it came from has been
-  deleted ([ADR-0028](../../reference/decisions/0028-bundle-rename-and-reset.md)) — plus
+  [`tools/feature-artifact-checker/`](../../tools/feature-artifact-checker/README.md), which
+  already holds its fork seed: `check_specs.py`, the predecessor convention's checker — **in
+  this repository since [ADR-0025](../../reference/decisions/0025-monorepo.md)**, split out of
+  the bundle on 2026-08-05
+  ([ADR-0029](../../reference/decisions/0029-bundle-holds-only-installable-components.md)),
+  harvested into that directory the same day
+  ([ADR-0036](../../reference/decisions/0036-checker-harvested-fork-seed.md)), and the only
+  place left to read it, because the standalone repository it came from has been deleted
+  ([ADR-0028](../../reference/decisions/0028-bundle-rename-and-reset.md)) — plus
   `sdd-standard`, which is private and was read from a local clone. **Prior art, with a warning:**
   the convention required a typed `Status: Approved` line until its 2026-08-05 reset dropped it,
   so it no longer contradicts what these templates forbid. What it still is not, is a gate: it

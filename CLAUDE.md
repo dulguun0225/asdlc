@@ -166,11 +166,12 @@ is subordinate.
 **The code:**
 
 - [`tools/`](tools/README.md) — the programs and packages the life cycle needs.
-  `spec-kit-checker/` carries the predecessor convention's merge gate, built but never released —
-  the rest of that convention, `spec-kit-bundle/`, was retired and deleted on 2026-08-05
+  `feature-artifact-checker/` is specified and not yet built; it holds the fork seed harvested
+  from the predecessor convention's merge gate
+  ([ADR-0036](reference/decisions/0036-checker-harvested-fork-seed.md)). The rest of that
+  convention, `spec-kit-bundle/`, was retired and deleted on 2026-08-05
   ([ADR-0035](reference/decisions/0035-bundle-retired-and-deleted.md)); stage delivery is the
-  `skills` CLI ([ADR-0032](reference/decisions/0032-stage-delivery-via-skills-cli.md));
-  `feature-artifact-checker/` is specified and not yet built.
+  `skills` CLI ([ADR-0032](reference/decisions/0032-stage-delivery-via-skills-cli.md)).
   A companion program that travels a different way than the component it serves gets its own
   `tools/` directory ([ADR-0029](reference/decisions/0029-bundle-holds-only-installable-components.md)).
   **`tools/` earns its name only while it holds programs and packages** — a `tools/` that holds

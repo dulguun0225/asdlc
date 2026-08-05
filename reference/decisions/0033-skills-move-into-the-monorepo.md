@@ -128,7 +128,8 @@ component either variant installs differently.
   entire skill set is `github.com`, no org names, no credentials, no emails.
 - **`skills-checks.yml` has never run on Actions.** Every step passes locally; the first push
   touching `skills/` or the harness is the proof — the same standing state as
-  `spec-kit-checker-checks.yml`.
+  `feature-artifact-checker-checks.yml` (named `spec-kit-checker-checks.yml` until
+  [ADR-0036](0036-checker-harvested-fork-seed.md)).
 
 ### What would reopen this
 

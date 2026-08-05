@@ -9,6 +9,9 @@
   gate models") — it no longer decides the bundle's fate; and
   [ADR-0030](0030-design-states-the-rules-tools-implement-them.md) part 3, whose live
   divergences are moot.
+- **Part 2 amended by [ADR-0036](0036-checker-harvested-fork-seed.md), later the same day:** the
+  kept checker was harvested into `tools/feature-artifact-checker/` as the fork seed and
+  `tools/spec-kit-checker/` deleted.
 - **Decided by:** the owner, 2026-08-05 — after
   [ADR-0034](0034-plan-decision-trace.md) ported the decision-trace discipline: *"If you got
   everything you need from it, it is no longer needed. Delete it."* This reverses the owner's

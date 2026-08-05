@@ -13,7 +13,8 @@ improved on.
   deleted ([ADR-0028](../decisions/0028-bundle-rename-and-reset.md)). The copy taken on 2026-07-28
   lived at `tools/spec-kit-bundle/`, renamed and reset, until that too was deleted
   ([ADR-0035](../decisions/0035-bundle-retired-and-deleted.md)); its final tree is in git history
-  at commit `786fd3b`. `tools/spec-kit-checker/` survives it.
+  at commit `786fd3b`. The checker survives it, harvested into `tools/feature-artifact-checker/`
+  ([ADR-0036](../decisions/0036-checker-harvested-fork-seed.md)).
 - Published sources listed per finding below, each with the date checked.
 
 **Outcome:** closed as [ADR-0014](../decisions/0014-feature-artifacts-and-the-traceability-chain.md).

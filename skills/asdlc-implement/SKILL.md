@@ -16,6 +16,20 @@ them.
 If specific task ids were given, implement those and nothing else. If none were given, take the
 next unblocked task and confirm the scope before starting.
 
+## Resuming a feature that is partly built
+
+When work on this feature precedes you — an earlier session, another engineer's session — do not
+trust the checkboxes. Before building on a ticked task, verify it against its stated evidence
+and its named test. A tick whose evidence does not exist is a false entry in the requirements
+trace: untick it and say so.
+
+Classify what you find against the signed artifacts, in four kinds: **missing** (obligation with
+nothing behind it), **partial** (started, evidence incomplete), **contradicts** (code that
+conflicts with the plan or a requirement), **unrequested** (code no task and no requirement
+calls for — scope creep, and this is the only rule that surfaces it). Report the classification.
+Work that needs new tasks gets them by the engineer re-entering `/asdlc-tasks`, which appends
+under that stage's id and citation rules — you do not restructure `tasks.md` from here.
+
 ## The one rule that makes any of this evidence
 
 **A test's expected behaviour comes from the signed requirement. Never from the implementation.**

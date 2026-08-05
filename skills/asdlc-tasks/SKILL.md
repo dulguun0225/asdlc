@@ -67,6 +67,22 @@ Withdrawn requirements are exempt. Requirements the plan recorded as out-of-scop
 **not** exempt — if the plan says a requirement is deferred, it is still active in the spec, and
 the mismatch belongs back at the plan, not papered over here.
 
+## Step 4 — read the chain for what the checker cannot see
+
+This is the first stage at which spec, plan and tasks all exist. Read the three as one document
+and hunt for faults the structural checks below cannot reach:
+
+- two requirements that contradict each other;
+- two `FR`s that are the same behaviour under different ids;
+- a term used with different meanings across the artifacts — the spec's §2 is canonical;
+- an entity in the spec's §6 that the plan's §5 never stores, or the reverse;
+- a vague adjective ("fast", "robust") standing where a threshold should be.
+
+Findings go **in your report, ungraded** — you list faults, the humans triage. Never fix one
+silently: a fault in the spec or plan is a defect in a signed artifact, and the fix is a
+re-signed artifact, not a quiet task edit. Frame the pass as finding faults, never as
+confirming consistency — an agent asked *"are these consistent?"* produces agreement.
+
 ## The seven blocking checks, so you can predict the failure
 
 One deterministic program, standard library only, no network and no model call. It runs on every
@@ -104,8 +120,9 @@ covered at all was a plan-gate review question and is now behind you.
 ## When you are done
 
 Report: the path, both full hashes and the files they were taken over, the task count per phase,
-every requirement and which tasks cite it, every `[FR: n/a]` and its reason, and any requirement
-you could not cover and why. Then run the feature-artifact checker if it is available in this
-repository, and report its output verbatim.
+every requirement and which tasks cite it, every `[FR: n/a]` and its reason, any requirement
+you could not cover and why, and every fault the step-4 read found (or that it found none).
+Then run the feature-artifact checker if it is available in this repository, and report its
+output verbatim.
 
 Do not start implementing. The engineer invokes `/asdlc-implement`.

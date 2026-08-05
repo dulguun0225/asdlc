@@ -19,8 +19,10 @@ page is the design's description of them, and it is where their conventions are 
 Rules: [ADR-0020](../../reference/decisions/0020-agent-instruction-layers.md) (the four instruction
 layers, and why a procedure lives in a skill),
 [ADR-0031](../../reference/decisions/0031-heterogeneous-runners.md) (runners are heterogeneous)
-and [ADR-0032](../../reference/decisions/0032-stage-delivery-via-skills-cli.md) (how these reach
-an engineer: as Agent Skills, delivered by the `skills` CLI).
+[ADR-0032](../../reference/decisions/0032-stage-delivery-via-skills-cli.md) (how these reach
+an engineer: as Agent Skills, delivered by the `skills` CLI) and
+[ADR-0037](../../reference/decisions/0037-spec-kit-command-harvest.md) (what spec-kit's other
+commands contributed to these procedures, and which were rejected).
 Artifact rules:
 [ADR-0014](../../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md).
 Templates: [../templates/](../templates/README.md).

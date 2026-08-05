@@ -30,6 +30,27 @@ problem and from this repository, and nothing about drafting one executes code.
    requirement set. A stated unknown recorded in §7 beats a plausible guess written as a
    requirement.
 
+## The clarification pass
+
+Before reporting the draft done, scan it for ambiguity and interrogate the requester — ambiguity
+in the input is the one defect with measured effect on generated code, and this is the last
+cheap point to remove it. Scan against the spec's own parts: the §1 scope boundary (what is
+*out*), the state model (states missing, transitions the requester would dispute), unwanted
+behaviour (failures with no IF/THEN), NFR thresholds (a property named with no number), §2
+terminology (two words for one thing), and §5 measurability (an SC nobody could observe).
+
+Rules for the questions:
+
+- **At most five.** Ask the ones that change the requirement set most; a sixth ambiguity goes to
+  §7 as an `OI-nnn`.
+- **Each answerable as a choice of 2–5 options or a short phrase.** A question needing an essay
+  is not yet a question.
+- **No plan-level questions.** Technology, architecture and implementation belong to the plan
+  stage; ask only what changes *what the system shall do*.
+- **Answers become spec content** — a requirement, an §8 assumption, or an §7 open item. Never
+  record a Q&A transcript or a `Clarifications` section; the spec states what is true, not how
+  it was learned.
+
 ## The sections, in order
 
 `1. Purpose and scope` · `2. Definitions` · `3. Functional requirements` ·

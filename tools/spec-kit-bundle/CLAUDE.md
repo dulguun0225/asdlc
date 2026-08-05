@@ -206,7 +206,8 @@ built around" and the wrapped commands' stock anchors, and diff the upstream
    `bundle.yml` pins, and `catalogs/*.json` (including `bundles.json`
    provides counts and the workflow url tag).
 2. Tag `bundle-v<bundle.yml version>` and push the tag. **The `bundle-`
-   prefix is not decoration: this repository also holds the skills set, so a
-   bare `v*` tag must not trigger a bundle release.**
+   prefix is not decoration: this repository also releases the ASDLC design,
+   so a bare `v*` tag must not trigger a bundle release**
+   ([ADR-0025](../../reference/decisions/0025-monorepo.md) part 4).
 3. Consumers fetch `catalogs/*.json` from `master`, so master must hold the
    final catalog JSONs when the tag is cut.

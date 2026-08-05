@@ -148,13 +148,15 @@ appended sections or an FR reference, and **nothing enforces that the two stay i
   Under ADR-0030 that is the bundle's bug. Generating the bundle's texts from the design's was
   rejected for now and is that record's first reopen condition — if the copies drift again after
   being reconciled, generate them.
-- **One factual error left in place, deliberately.** `tools/spec-kit-bundle/README.md` says
-  pre-researched engineering rules *"live in this repository's `skills/` tree"*. There is no
-  top-level `skills/` here — the nearest thing is [`asdlc/skills/`](../asdlc/skills/README.md),
-  which holds the four **stage** procedures, not engineering rules. The sentence was authored in
-  the owner's separate `skills` repository and carried its assumptions in, the same failure
-  [ADR-0028](decisions/0028-bundle-rename-and-reset.md) part 1 records. Fixing it needs to know
-  what that tree is meant to be; it is the owner's to say.
+- **The skills-tree reference is resolved, and the repository it names is at risk.** The bundle
+  README's *"this repository's `skills/` tree"* meant the owner's separate skills repository —
+  identified 2026-08-05, ~20 engineering-decision skills (money, caching, primary-keys,
+  async-handoff, …) delivered by the `skills` CLI, and visibly the
+  [ADR-0028](decisions/0028-bundle-rename-and-reset.md) scratch repository (its log carries the
+  rename-and-reset commit). Both stale sentences in the bundle's docs are repaired. **That
+  repository has no git remote** — three commits, twenty researched skills, no copy anywhere.
+  This is exactly the shape ADR-0028 part 4 warns about, and pushing it somewhere is the owner's
+  cheapest insurance this week. It is also OQ-19 candidate 1's home.
 
 ### Standing rules that bind every session
 
@@ -925,12 +927,32 @@ appended sections or an FR reference, and **nothing enforces that the two stay i
   hand-maintained → CI verifies the copies byte-identical to the pinned rendering. What is open
   is the mechanism: the renderer, the per-runner target formats, the command naming per runner
   (ADR-0024's `/asdlc:*` names are now provisional Claude renderings), and the CI check.
-- **The leading candidate for the renderer:** spec-kit's integration layer —
-  [`tools/spec-kit-bundle/`](../tools/spec-kit-bundle/README.md) already renders commands per
-  integration (claude, copilot, gemini, opencode). Adopting it means reconciling the bundle's
-  content to the design first ([ADR-0030](decisions/0030-design-states-the-rules-tools-implement-them.md);
-  the top row of [open-parameters.md](../rollout/open-parameters.md)) — the two questions may be
-  one question.
+- **Two candidates for the renderer, and they are not equal in what they drag in:**
+  1. **The `skills` CLI** (`vercel-labs/skills`), which the owner already uses for the
+     engineering-rule skills in their separate skills repository. Checked first-party from the
+     installed v1.5.21 on 2026-08-05: installs to **~20 agents** (Claude Code, Copilot, Cursor,
+     Codex, Gemini, OpenCode, Windsurf, Amp, Goose, Cline, Aider, Zed, …), **project-scope by
+     default** — files land in the repo per an agent-directory table (`.claude/skills/`,
+     `.agents/skills/`), which is exactly the shape ADR-0031 part 5 requires for the CI
+     byte-equality check — symlink or copy mode. **Unverified, one session against its source:**
+     whether each agent's install preserves deliberate invocation (`disable-model-invocation` —
+     a stage must be entered, not model-loaded), and pinning (`skills update` targets "latest",
+     and a mutable latest is not an identity — [ADR-0017](decisions/0017-artifact-registry.md)'s
+     rule applies).
+  2. **Spec-kit's integration layer** — [`tools/spec-kit-bundle/`](../tools/spec-kit-bundle/README.md)
+     renders commands per integration, but only four integrations, and adopting it means
+     rewriting the self-contained stage procedures as wraps around GitHub's stock commands
+     (inheriting the pin-forward anchor tax the bundle's own `CLAUDE.md` documents) and
+     reconciling the bundle's content to the design first
+     ([ADR-0030](decisions/0030-design-states-the-rules-tools-implement-them.md); the top row of
+     [open-parameters.md](../rollout/open-parameters.md)).
+
+  Spec-kit's other roles are not needed: templates ride inside the skill bodies
+  ([ADR-0020](decisions/0020-agent-instruction-layers.md)), the stock command bodies are
+  replaced by the design's own complete procedures, and `specify workflow run`'s terminal gates
+  are the predecessor gate model. **If candidate 1 closes this question, the bundle loses its
+  renderer-candidate status and its fate question returns, smaller: keep as unrelated prior art,
+  or retire.**
 - **What would close it:** a decided renderer; each admitted runner's target format verified
   against dated first-party sources (no format asserted from memory); the CI equality check
   specified; command naming decided; landed as an ADR superseding this shape into a mechanism.

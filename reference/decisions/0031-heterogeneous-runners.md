@@ -128,7 +128,10 @@ record it holds the only integration-agnostic delivery machinery in the tree: sp
 commands per integration (claude, copilot, gemini, opencode — the workflow's own compatibility
 list) and its command texts reference other commands through per-integration tokens. That makes
 it the **leading candidate implementation for OQ-19's renderer**, and takes deletion off the
-table. Its gate-model and template divergences remain bugs under
+table. *(Same day: a second candidate surfaced — the `skills` CLI the owner already uses, with a
+far larger agent surface. The live comparison is in
+[OQ-19](../open-questions.md#oq-19--runner-neutral-stage-procedure-delivery); "leading" here
+describes what was in the tree when this record landed.)* Its gate-model and template divergences remain bugs under
 [ADR-0030](0030-design-states-the-rules-tools-implement-them.md); the reconciliation row at the
 top of [open-parameters.md](../../rollout/open-parameters.md) now includes whether the bundle
 becomes the design's delivery vehicle.

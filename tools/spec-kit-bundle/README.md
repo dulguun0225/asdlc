@@ -199,9 +199,9 @@ decision (`NEW — proposed`), or records a divergence in one line.
 
 The bundle ships that **mechanism** and no content: what a project's records
 say is the project's own. Seed a repo's `Repo principles` by writing them, not
-by copying them from here. Pre-researched engineering rules live in this
-repository's `skills/` tree instead, and are installed separately — they are
-not part of the bundle.
+by copying them from here. Pre-researched engineering rules live in a separate
+skills repository and are installed by a different mechanism — they are not
+part of the bundle, and this repository does not carry them.
 
 ## What is deliberately NOT enforced by machine
 

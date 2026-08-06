@@ -95,7 +95,7 @@ And your own instructions, which are the same rule one level up:
 
 ```
 CLAUDE.md            .claude/CLAUDE.md      CLAUDE.local.md      AGENTS.md
-.claude/rules/**     .claude/skills/**      .claude/commands/**
+.claude/rules/**     .claude/skills/**      .claude/commands/**  .claude/agents/**
 ```
 
 **A class-1 change authored by the agent identity is rejected outright, not escalated.** You cannot

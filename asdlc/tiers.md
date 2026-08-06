@@ -90,9 +90,9 @@ does not run at T3.
 
 **The agent's instruction files are ordinary documentation for a human author**
 ([ADR-0036](../reference/decisions/0036-constraint-audit-cuts.md) part 1): a human edit to
-`CLAUDE.md`, `.claude/rules/**`, `.claude/skills/**` or `.claude/commands/**` takes the
-documentation kind above. The **agent** still cannot author one at all — they stay on the
-never-write list with outright rejection
+`CLAUDE.md`, `.claude/rules/**`, `.claude/skills/**`, `.claude/commands/**` or
+`.claude/agents/**` takes the documentation kind above. The **agent** still cannot author one at
+all — they stay on the never-write list with outright rejection
 ([ADR-0020](../reference/decisions/0020-agent-instruction-layers.md) part 4). They are markdown, so
 a docs glob would otherwise route a change to how every future change gets made straight to
 automatic merge. They are also on the never-write list, so the agent cannot author such a change in

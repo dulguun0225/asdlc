@@ -35,7 +35,12 @@ number back into this repository. Three shipping comparables (factory.ai, lee-to
 Kandev) are mapped onto the design's layers in
 [research/2026-08-06-comparable-systems.md](research/2026-08-06-comparable-systems.md); Kandev
 is a watched candidate on the [self-hosted sheet](../variants/self-hosted.md) — do not re-derive
-these from their websites.
+these from their websites. lee-to/ai-factory was additionally **read in full at source level**
+([research/2026-08-06-ai-factory-deep-mine.md](research/2026-08-06-ai-factory-deep-mine.md)):
+six harvest candidates parked with named homes, and one applied fix —
+**`.claude/agents/**` (subagent definitions) joined ADR-0020 part 4's never-write list**
+(also artifacts.md §5, tiers.md §4, 04-implementation.md, the implement skill), verified
+against vendor subagent docs 2026-08-06.
 
 **What is left, in order:**
 

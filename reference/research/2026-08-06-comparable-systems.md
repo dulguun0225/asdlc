@@ -52,6 +52,11 @@ way).
 
 ## 3. lee-to/ai-factory — the stage-procedure layer, spec-kit family
 
+> **Read in full at source level later the same day** — harvest verdicts, one applied fix and
+> the strengthened refusal are in
+> [2026-08-06-ai-factory-deep-mine.md](2026-08-06-ai-factory-deep-mine.md); this section is the
+> website-level map and stands.
+
 CLI kit (MIT; 1.1k stars, 513 commits on GitHub 2026-08-06) that installs a spec-driven
 slash-command workflow into 15+ agents (Claude Code, Cursor, Copilot, Gemini CLI, …), plus MCP
 servers and a skills marketplace ([skills.sh](https://www.skills.sh)). The workflow:

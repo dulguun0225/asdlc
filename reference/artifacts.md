@@ -288,8 +288,13 @@ Rules that go with the sandbox block, fixed by
 
   ```
   CLAUDE.md            .claude/CLAUDE.md      CLAUDE.local.md      AGENTS.md
-  .claude/rules/**     .claude/skills/**      .claude/commands/**
+  .claude/rules/**     .claude/skills/**      .claude/commands/**  .claude/agents/**
   ```
+
+  `.claude/agents/**` (subagent definitions — instruction files the model delegates to on
+  their `description` alone) joined the list 2026-08-06; `~/.claude/agents/**` joins the
+  sandbox deny here too, being machine-local standing instruction
+  ([ADR-0020](decisions/0020-agent-instruction-layers.md) part 4, addition noted in place).
 
   These paths are also **T1 in the tier map and excluded from the T3 documentation allowlist** —
   they are markdown, and a docs glob would otherwise let the agent merge a change to its own

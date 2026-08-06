@@ -129,8 +129,16 @@ Short by construction, because adherence falls with length. The candidates, and 
 
 ```
 CLAUDE.md            .claude/CLAUDE.md      CLAUDE.local.md      AGENTS.md
-.claude/rules/**     .claude/skills/**      .claude/commands/**
+.claude/rules/**     .claude/skills/**      .claude/commands/**  .claude/agents/**
 ```
+
+> **`.claude/agents/**` added 2026-08-06.** Project-level subagent definitions are ordinary
+> repository markdown, load automatically, and the model delegates to one on its `description`
+> alone (vendor subagent docs, fetched 2026-08-06) — an instruction file by the same test as
+> skills and commands, so it takes the same four moves: sandbox deny, CI rejection, T1, named
+> T3 exclusion. The user-scope directory `~/.claude/agents/` is machine-local instruction
+> outside the repository and the tier map — part 6's reproducibility argument applies; it
+> belongs on the sandbox `denyWrite` list when the managed settings are authored.
 
 And in the tier map ([ADR-0006](0006-tier-function-and-greenfield-cold-start.md)):
 

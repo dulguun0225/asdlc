@@ -225,7 +225,8 @@ caught at merge rather than prevented at load, backed by the never-write rule an
 ### The agent may never rewrite its own instructions
 
 `CLAUDE.md`, `.claude/CLAUDE.md`, `CLAUDE.local.md`, `AGENTS.md`, `.claude/rules/**`,
-`.claude/skills/**` and `.claude/commands/**` are on the **never-write list** — for the agent.
+`.claude/skills/**`, `.claude/commands/**` and `.claude/agents/**` are on the **never-write
+list** — for the agent.
 A human edit takes the tier the diff computes, documentation-class like any other doc
 ([tiers.md](tiers.md) §4, [ADR-0036](../reference/decisions/0036-constraint-audit-cuts.md)
 part 1). The sandbox's automatic protection covers `settings.json` and **not** these.

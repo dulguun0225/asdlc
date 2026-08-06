@@ -9,14 +9,15 @@ documents — no build, no test suite, no package manifest. The code lives in
 [`tools/`](tools/README.md) ([ADR-0025](reference/decisions/0025-monorepo.md)).
 
 It is designed for a specific organisation — 18 cross-functional teams of three, greenfield
-projects only, SaaS permitted — and answered for **two deployment variants**, cloud and
-self-hosted. See [reference/context.md](reference/context.md).
+projects only, SaaS permitted — and answered for **three deployment variants**: cloud,
+self-hosted assembled, and self-hosted integrated
+([variants/](variants/README.md)). See [reference/context.md](reference/context.md).
 
 ## Where things are
 
 ```
 asdlc/        the life cycle — what happens at each stage, who signs what
-variants/     the two stacks — what to install, what it costs, what is missing
+variants/     the three stacks — what to install, what it costs, what is missing
 rollout/      the order to build and adopt it in
 reference/    the working record — decisions, research, open questions, schemas
 skills/       what `skills add` delivers — the four stage procedures and the
@@ -32,7 +33,7 @@ tools/        the code — programs and packages the life cycle needs
 | **Write a spec, a plan, or a task list** | [asdlc/templates/](asdlc/templates/README.md) |
 | **See what the agent is actually told at each stage** | [asdlc/skills/](asdlc/skills/README.md) — the rules; the files are in [skills/](skills/README.md) |
 | **Install the skills into a repository** | [skills/](skills/README.md) — `npx skills add dulguun0225/asdlc` |
-| **Build one variant** | [variants/cloud.md](variants/cloud.md) or [variants/self-hosted.md](variants/self-hosted.md) — each is self-contained |
+| **Build one variant** | [variants/cloud.md](variants/cloud.md), [variants/self-hosted.md](variants/self-hosted.md) or [variants/self-hosted-integrated.md](variants/self-hosted-integrated.md) — each is self-contained |
 | **Know what to do first** | [rollout/plan.md](rollout/plan.md) |
 | **Know why something was decided** | [reference/decisions/](reference/decisions/README.md) |
 | **Know what is still unanswered** | [reference/open-questions.md](reference/open-questions.md) |
@@ -43,10 +44,13 @@ decision record. On any conflict, the ADR wins and the design document has a bug
 
 ## Status
 
-**The design is decided; nothing has been run.** Every layer of both stacks is chosen and
-recorded: gates and signers, the tier system, the runner and its containment, the code host,
-rollout, artifacts and traceability, observability, egress and masking, registry, provenance,
-testing, instruction layers, units of work, defect attribution. Stage procedures ship as Agent
+**The design is decided; nothing has been run.** Every layer of the cloud and self-hosted
+assembled stacks is chosen and recorded: gates and signers, the tier system, the runner and its
+containment, the code host, rollout, artifacts and traceability, observability, egress and
+masking, registry, provenance, testing, instruction layers, units of work, defect attribution.
+The self-hosted integrated stack carries named gaps — provenance
+([OQ-22](reference/open-questions.md)) and gate-record retention — that close before its
+production use. Stage procedures ship as Agent
 Skills via the `skills` CLI ([ADR-0032](reference/decisions/0032-stage-delivery-via-skills-cli.md));
 runners are heterogeneous by requirement
 ([ADR-0031](reference/decisions/0031-heterogeneous-runners.md)), Claude Code the only admitted

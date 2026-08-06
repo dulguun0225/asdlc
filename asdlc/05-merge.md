@@ -56,23 +56,24 @@ T1 work between signature and merge
 
 ## 3. How each variant enforces this
 
-The two hosts reach the same rules by different mechanisms. This is the sharpest divergence in
+The hosts reach the same rules by different mechanisms. This is the sharpest divergence in
 the design after provenance.
 
-| Control | Cloud — GitHub | Self-hosted — Gerrit + Zuul |
-|---|---|---|
-| Blocking review, named signer | Rulesets: require PR + approvals | Submit requirements on labels |
-| **Producer cannot approve** | Hardcoded: authors cannot approve own PRs | `user=non_contributor` (excludes author, committer, uploader in one rule) |
-| **Requester cannot approve** | **Not native for our runner** — enforced by a CI check we write, against the session record | **Native by construction**: agent is a Service User, change is owned by the requester, `users=human_reviewers` ignores both |
-| Platform owner on T1 paths | CODEOWNERS + require code-owner review (owner + backup only) | code-owners plugin, blocking submit rule, implicit self-approval off |
-| Bypass surface | Empty ruleset bypass list binds admins | Nobody granted Push on `refs/heads/*`; overrides are recorded votes |
-| Bypass recording | Audit log: `protected_branch.policy_override`, ruleset events; 180-day UI, streaming at Enterprise Cloud | NoteDb in-repo (default-logged, **not guaranteed append-only**); ACLs versioned on `refs/meta/config` |
-| **CI gated on a human (T1)** | Agent identity holds no write access → fork-PR approval gates. Public-repo caveat; pipeline-level gate until verified | Zuul pipeline `require` on a human vote — **unconditional, pre-enqueue**. The only such gate found on any stack |
-| Signature bound to artifact | Last-pusher approval rule (an approximation) | **Native**: votes attach to patch sets |
-| Tier function + never-write check | Required status checks | Zuul jobs + submit requirement |
+| Control | Cloud — GitHub | Self-hosted assembled — Gerrit + Zuul | Self-hosted integrated — Forgejo |
+|---|---|---|---|
+| Blocking review, named signer | Rulesets: require PR + approvals | Submit requirements on labels | Branch protection: blocking reviews |
+| **Producer cannot approve** | Hardcoded: authors cannot approve own PRs | `user=non_contributor` (excludes author, committer, uploader in one rule) | Hardcoded author block |
+| **Requester cannot approve** | **Not native for our runner** — enforced by a CI check we write, against the session record | **Native by construction**: agent is a Service User, change is owned by the requester, `users=human_reviewers` ignores both | As cloud: the CI check we write |
+| Platform owner on T1 paths | CODEOWNERS + require code-owner review (owner + backup only) | code-owners plugin, blocking submit rule, implicit self-approval off | code-owners mechanism — **verify** ([sheet](../variants/self-hosted-integrated.md) §3) |
+| Bypass surface | Empty ruleset bypass list binds admins | Nobody granted Push on `refs/heads/*`; overrides are recorded votes | Break-glass admin only; `enforce_on_admins` everywhere |
+| Bypass recording | Audit log: `protected_branch.policy_override`, ruleset events; 180-day UI, streaming at Enterprise Cloud | NoteDb in-repo (default-logged, **not guaranteed append-only**); ACLs versioned on `refs/meta/config` | **None native — the variant's accepted loss.** External logging of webhook-visible events |
+| **CI gated on a human (T1)** | Agent identity holds no write access → fork-PR approval gates. Public-repo caveat; pipeline-level gate until verified | Zuul pipeline `require` on a human vote — **unconditional, pre-enqueue**. The only such gate found on any stack | Pipeline-constructed gating job — **the variant's other accepted loss** |
+| Signature bound to artifact | Last-pusher approval rule (an approximation) | **Native**: votes attach to patch sets | Stale-approval dismissal — **verify** |
+| Tier function + never-write check | Required status checks | Zuul jobs + submit requirement | Required status checks |
 
 Host configuration detail is in the variant sheets:
-[cloud](../variants/cloud.md) §5, [self-hosted](../variants/self-hosted.md) §5.
+[cloud](../variants/cloud.md) §5, [self-hosted assembled](../variants/self-hosted.md) §5,
+[self-hosted integrated](../variants/self-hosted-integrated.md) §4.
 
 ## 4. The requester-check job
 
@@ -81,7 +82,7 @@ requester block covers only its own hosted agent.
 
 So we build one: a small CI job that reads the session record attached to the change and
 **fails if any approving reviewer matches the requester**. Specified once, deployed on the
-cloud side only — Gerrit provides the exclusion by construction (§3).
+PR-model hosts (cloud and integrated) — Gerrit provides the exclusion by construction (§3).
 
 ## Records
 
@@ -95,5 +96,5 @@ Gate record with `gate: "merge"`, the tier, the rule that fired, the signer and 
   bring-up design task ([rollout/open-parameters.md](../rollout/open-parameters.md)).
 - **Private-repository fork-approval behaviour on GitHub is unverified** — the documentation
   covers public repositories. The pipeline-level T1 gate covers the interim.
-- **What "the session record attached to the change" looks like** on either host — the
+- **What "the session record attached to the change" looks like** on any host — the
   requester-check job needs it, and no format is defined.

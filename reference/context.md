@@ -41,6 +41,20 @@ Consequence: the **cloud variant is a live option**, not an academic exercise. T
 not retire the self-hosted variant — `CLAUDE.md` requires both variants to be answered,
 and a cost or capability comparison needs both sides to exist.
 
+## Appetite
+
+**Ready-made over assembled, and free** (owner, 2026-08-06). Standing up many servers and
+wiring them together is the cost the owner most wants to avoid; integrated products are
+preferred over best-of-breed component assemblies, and for the self-hosted variant they must
+still be licence-cost-free. Setup and operations time weighs heavier than component-level
+capability optimality.
+
+Consequence: the appetite is embodied as its own deployment variant rather than a rewrite of
+the enforcement-first stack — the self-hosted variant forks on the assembly axis
+([ADR-0039](decisions/0039-self-hosted-forks-on-the-assembly-axis.md)). An enforcement
+capability lost by choosing an integrated product is still never absorbed silently: it is
+priced in a research note and stated on the variant's sheet as an accepted loss.
+
 ## Teams
 
 **18 cross-functional teams (CFT).** Each team has three people:

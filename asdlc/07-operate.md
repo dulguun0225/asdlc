@@ -87,16 +87,21 @@ Dashboards to stand up before the pilot: per-tier gate metrics (feeds the relaxa
 ### Where the records go
 
 Settled by [ADR-0015](../reference/decisions/0015-observability-backend.md) on 2026-07-28. One
-architecture in both variants — only the operator differs. Components and prices are in the
-[cloud](../variants/cloud.md) and [self-hosted](../variants/self-hosted.md) stack sheets.
+architecture in every variant — collector, record schema and retention rules are shared; the
+backend products and the operator differ per sheet. Components and prices are in the
+[cloud](../variants/cloud.md), [self-hosted assembled](../variants/self-hosted.md) and
+[self-hosted integrated](../variants/self-hosted-integrated.md) stack sheets.
 
 - **Everything exports OTLP to a collector**, never direct to a backend. The collector is the
-  redaction point.
-- **Metrics → Prometheus** (Grafana Cloud Metrics in the cloud variant). This confirms the
-  component ADR-0011 had only assumed.
+  redaction point. This holds in all three variants.
+- **Metrics → Prometheus** (Grafana Cloud Metrics in the cloud variant; SigNoz carries the
+  signal in the integrated variant). This confirms the component ADR-0011 had only assumed.
 - **Events, gate records and requirements traces → Loki** (Grafana Cloud Logs), with the two
-  long-lived families on their own streams.
-- **Dashboards → Grafana.** The same dashboard JSON runs on both variants.
+  long-lived families on their own streams. The integrated variant's backend has no per-stream
+  retention — its compensation is chosen at bring-up
+  ([sheet](../variants/self-hosted-integrated.md) §1).
+- **Dashboards → Grafana.** The same dashboard JSON runs on the cloud and assembled variants;
+  the integrated variant rebuilds them in SigNoz.
 
 Three rules that come out of that record and change what has to happen at bring-up:
 
@@ -106,7 +111,7 @@ Three rules that come out of that record and change what has to happen at bring-
    response, tool-content and raw-API-body logging stay off
    ([reference/artifacts.md](../reference/artifacts.md) §5).
 2. **Retention is configured before the first record is written.** It is not retroactive in
-   either variant, and both product defaults are far too short. Gate records and requirements
+   any variant, and every product default is far too short. Gate records and requirements
    traces are kept **5 years**, per-tier metrics 400 days, session events 90 days.
 3. **The trace signal is beta and is not adopted.** Record family 1 is carried by the events
    signal. Adopting traces later is a named trigger, not a plan item.

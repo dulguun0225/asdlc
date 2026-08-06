@@ -19,7 +19,7 @@
 Status values: **decided** · **build** (ours to write) · **GAP** (undecided, open question) ·
 **conditional** (depends on an owner-held fact).
 
-### Agent layer — converges with the self-hosted variant
+### Agent layer — converges with both self-hosted variants
 
 **Runners are heterogeneous, and this table describes the one admitted runner**
 ([ADR-0031](../reference/decisions/0031-heterogeneous-runners.md)). Engineers may run different
@@ -77,7 +77,7 @@ is a phase-0 blocker.
 
 ### Observability — mandatory from day one, and bought rather than operated
 
-Same architecture as the self-hosted variant; the vendor runs the backends. **Prices and retention
+Same architecture as the self-hosted assembled variant; the vendor runs the backends. **Prices and retention
 terms checked 2026-07-28** — re-verify at procurement.
 
 | Layer | Component | Licence / plan | Cost | Decided by | Status | Rules |
@@ -108,7 +108,7 @@ precedes the pilot because the pilot's entire output is measurements
 
 | Layer | Component | Licence / plan | Cost | Decided by | Status |
 |---|---|---|---|---|---|
-| Hosted async agent | **Copilot cloud agent**, for low-tier asynchronous work | Business **$19/seat/month**, Enterprise **$39/seat/month**, plus metered credits (1 credit = $0.01) | per seat + metered | [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §7 | optional — **no gate may depend on it**, or the self-hosted variant loses that gate |
+| Hosted async agent | **Copilot cloud agent**, for low-tier asynchronous work | Business **$19/seat/month**, Enterprise **$39/seat/month**, plus metered credits (1 credit = $0.01) | per seat + metered | [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §7 | optional — **no gate may depend on it**, or the self-hosted variants lose that gate |
 
 ## 2. Cost shape
 

@@ -36,19 +36,22 @@ next" before working; update it when you change something** (replace what is sta
 current state, not a log); **offer to commit work that matters, and a session that commits also
 pushes** (check `git status -sb` before declaring a session finished).
 
-## Two variants, tracked in parallel
+## Three variants, tracked in parallel
 
-Every part of the design must be answered for **both** deployment variants; a section that
-addresses one is incomplete.
+Every part of the design must be answered for **every** deployment variant; a section that
+addresses fewer is incomplete ([ADR-0039](reference/decisions/0039-self-hosted-forks-on-the-assembly-axis.md)).
 
-1. **Self-hosted** — the stack is free to use (open source, runnable on infrastructure the team
-   controls). Paid *models* are in scope; paid platform/SaaS components are not. A licensed
-   product on your own infrastructure is a third shape this axis has no place for — out of
-   scope as written; widening the axis is the owner's call.
-2. **Cloud** — managed/SaaS components allowed; optimize for capability and time-to-value.
+1. **Self-hosted assembled** — the stack is free to use (open source, runnable on
+   infrastructure the team controls); best-of-breed per layer, enforcement first. Paid
+   *models* are in scope; paid platform/SaaS components are not.
+2. **Self-hosted integrated** — the same licence constraint, but integrated products first:
+   the fewest self-operated systems, at two named enforcement losses accepted by construction
+   ([variants/self-hosted-integrated.md](variants/self-hosted-integrated.md)).
+3. **Cloud** — managed/SaaS components allowed; optimize for capability and time-to-value.
 
-Where the variants converge, say so explicitly; where they diverge, the divergence and its cost
-is itself a finding.
+A licensed product on your own infrastructure is a shape this axis has no place for — out of
+scope as written; widening the axis to it is the owner's call. Where the variants converge,
+say so explicitly; where they diverge, the divergence and its cost is itself a finding.
 
 ## Decision authority: there is no in-house expertise to defer to
 

@@ -24,7 +24,7 @@ that humans sign at defined gates
 ([ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md),
 [ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md)).
 
-The life cycle is **identical in both deployment variants**. The variants differ in what
+The life cycle is **identical in all three deployment variants**. The variants differ in what
 enforces it, not in what it is — see [`variants/`](../variants/README.md).
 
 ## The honest footing

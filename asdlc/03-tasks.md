@@ -70,9 +70,9 @@ is a plan-gate review question, not a parse.
 
 ## Variants
 
-No difference in the check. It runs as a required status check on GitHub and as a Zuul job with a
-submit requirement on the self-hosted side — the same divergence every other check in this design
-has ([05-merge.md](05-merge.md) §3).
+No difference in the check. It runs as a required status check on GitHub and on Forgejo, and as
+a Zuul job with a submit requirement on the assembled self-hosted side — the same divergence
+every other check in this design has ([05-merge.md](05-merge.md) §3).
 
 ## Not yet specified
 

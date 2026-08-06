@@ -6,8 +6,9 @@ filled-in table or a numbered ADR.
 **Status values:** `open` · `researching` · `closed → ADR-NNNN`
 
 Add new questions at the bottom with the next free number. Never renumber; a closed question
-keeps its ID and its pointer to what closed it. Every question must be answerable for **both**
-deployment variants; if an answer only covers one, the question stays open. Read
+keeps its ID and its pointer to what closed it. Every question must be answerable for **every**
+deployment variant ([ADR-0039](decisions/0039-self-hosted-forks-on-the-assembly-axis.md));
+if an answer covers only some, the question stays open. Read
 [`context.md`](context.md) before answering any question here.
 
 ---
@@ -17,11 +18,17 @@ deployment variants; if an answer only covers one, the question stays open. Read
 **This is the handover note between sessions** — the state lives here, not in a memory file.
 Update it when a session changes something; replace what is stale.
 
-**Where the project is:** every ADR is accepted and landed; both
-[stack sheets](../variants/README.md) are complete bills of materials, their seven runner-side
-rows verified for Claude Code only. Two research questions are open —
-[OQ-6](#oq-6--does-approval-drift-reproduce-with-a-small-fixed-reviewer-pool) and
-[OQ-7](#oq-7--what-are-the-per-unit-of-agent-work-economics) close only from pilot measurement,
+**Where the project is:** every ADR is accepted and landed. **There are three variants**
+([ADR-0039](decisions/0039-self-hosted-forks-on-the-assembly-axis.md), owner-directed): the
+self-hosted variant forked on the assembly axis — the assembled sheet (Gerrit + Zuul,
+enforcement-first) and the new integrated sheet (Forgejo + SigNoz, fewest systems, two
+accepted enforcement losses). Cloud and assembled are complete bills of materials, their seven
+runner-side rows verified for Claude Code only; **the integrated sheet carries named gaps** —
+[OQ-22](#oq-22--provenance-on-the-integrated-self-hosted-variant) (provenance — the freshest
+research thread) and gate-record retention, plus the §3 verification items. Two research
+questions close only from pilot measurement
+([OQ-6](#oq-6--does-approval-drift-reproduce-with-a-small-fixed-reviewer-pool),
+[OQ-7](#oq-7--what-are-the-per-unit-of-agent-work-economics)),
 [OQ-20](#oq-20--the-runner-admission-contract) blocks only a second runner. Nothing decided has
 been run; research notes carry **"do not reintroduce"** lists — read them before quoting any
 number back into this repository. Three shipping comparables (factory.ai, lee-to/ai-factory,
@@ -53,7 +60,12 @@ these from their websites.
    needs its own decision record. The design requires a gate record per tier and has no tooling
    for one; the record that closes it also decides where a plan-ratified `NEW — proposed`
    decision accumulates ([ADR-0034](decisions/0034-plan-decision-trace.md)).
-5. **The engineer-facing layer** — the "Not yet specified" sections in
+5. **The integrated variant's open items** —
+   [OQ-22](#oq-22--provenance-on-the-integrated-self-hosted-variant) (a research session), the
+   gate-record retention compensation, and the
+   [sheet's §3 verification items](../variants/self-hosted-integrated.md) (need a running
+   Forgejo/SigNoz). Block that variant's use, nothing else.
+6. **The engineer-facing layer** — the "Not yet specified" sections in
    [`asdlc/`](../asdlc/README.md). Blocks nobody; needs research sessions, not assembly.
 
 **Do not reopen as research questions:** prompt injection from repository content
@@ -90,6 +102,7 @@ One line each; the ADR is the record.
 - **OQ-17 — Where deployable artifacts live.** closed → [ADR-0017](decisions/0017-artifact-registry.md): every deployable is an OCI artifact; GHCR / Harbor.
 - **OQ-18 — Attributing a post-merge defect to a tier.** closed → [ADR-0022](decisions/0022-defect-attribution.md): attribute to one change; `unattributed` is a first-class outcome.
 - **OQ-19 — Runner-neutral stage-procedure delivery.** closed → [ADR-0032](decisions/0032-stage-delivery-via-skills-cli.md): Agent Skills via the `skills` CLI.
+- **OQ-21 — The ready-made re-weigh of the self-hosted stack.** closed → [ADR-0039](decisions/0039-self-hosted-forks-on-the-assembly-axis.md): the self-hosted variant forks on the assembly axis instead of choosing; the integrated shape is its own sheet.
 
 ## OQ-6 — Does approval drift reproduce with a small, fixed reviewer pool?
 
@@ -166,3 +179,21 @@ One line each; the ADR is the record.
   admissible in the cloud variant and inadmissible self-hosted
   ([ADR-0010](decisions/0010-runner-licensing-token-spend-only.md)'s test, applied per runner).
   Every other clause converges.
+
+## OQ-22 — Provenance on the integrated self-hosted variant
+
+- **Status:** open — opened by [ADR-0039](decisions/0039-self-hosted-forks-on-the-assembly-axis.md).
+- **Blocks:** the integrated variant's first **production deploy** — not its pilot, and no
+  other variant.
+- **The question:** the assembled variant's provenance chain rests on Zuul's config-project
+  trust boundary — the signing key lives where proposed changes structurally cannot execute
+  ([ADR-0018](decisions/0018-self-hosted-provenance.md) §5). Forgejo Actions has no equivalent
+  in this design's record, and the cloud answer (host-native attestations) does not exist on
+  Forgejo. Open: where the cosign key lives, what protects it from a proposed workflow change,
+  and whether the result still meets SLSA Build L2's "a key the platform alone holds".
+- **What would close it:** a decision record naming the trusted execution context (or
+  concluding none exists and pricing the alternatives: an external signer service, or
+  accepting a weaker binding in writing), verified first-party against Forgejo Actions'
+  secrets and trigger semantics.
+- **Variant answers:** integrated-only by construction; assembled is ADR-0018, cloud is
+  host-native ([ADR-0008](decisions/0008-agent-write-scope-and-enforcement.md) part 8).

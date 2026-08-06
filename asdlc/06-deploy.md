@@ -62,7 +62,7 @@ Level 2** as the floor — binding it to source commit, workflow, and trigger
 **Attestation answers *where did this come from*. It never answers *is this safe*.** Nobody
 may cite an attestation as a security guarantee.
 
-### Two verification rules, and they bind both variants
+### Two verification rules, and they bind every variant
 
 These are the ones an implementer is most likely to get wrong, and neither is the default behaviour
 of a naive script ([ADR-0018](../reference/decisions/0018-self-hosted-provenance.md) part 4):
@@ -80,23 +80,25 @@ resolve digests and never tags (§4).
 
 ### How each variant produces it
 
-| | Cloud — GitHub | Self-hosted — Gerrit + Zuul |
-|---|---|---|
-| Signer | **Native**: GitHub artifact attestations, Sigstore-signed | **cosign**, key-based, in a **Zuul config-project post-playbook** |
-| Key custody | the platform's | Zuul config-project secret — **unreachable from a proposed change**, so the agent structurally cannot sign |
-| Predicate source | the build platform | **Zuul job variables only**, never a file in the repository |
-| Verification | `gh attestation verify oci://…` | `cosign verify-attestation` + a policy pinning `builder.id` |
-| Transparency log | the platform's | **none** — not required at Build L2; the cost is recorded |
-| Cost | $0, included | **$0** licence; one playbook, one key, one verify step |
+| | Cloud — GitHub | Self-hosted assembled — Gerrit + Zuul | Self-hosted integrated — Forgejo |
+|---|---|---|---|
+| Signer | **Native**: GitHub artifact attestations, Sigstore-signed | **cosign**, key-based, in a **Zuul config-project post-playbook** | cosign as mechanism — the rest is **GAP** ([OQ-22](../reference/open-questions.md#oq-22--provenance-on-the-integrated-self-hosted-variant)) |
+| Key custody | the platform's | Zuul config-project secret — **unreachable from a proposed change**, so the agent structurally cannot sign | **undecided** — Forgejo Actions has no identified equivalent of the trusted execution context; this is OQ-22's core |
+| Predicate source | the build platform | **Zuul job variables only**, never a file in the repository | undecided (OQ-22) |
+| Verification | `gh attestation verify oci://…` | `cosign verify-attestation` + a policy pinning `builder.id` | same rules as assembled once OQ-22 closes |
+| Transparency log | the platform's | **none** — not required at Build L2; the cost is recorded | none, as assembled |
+| Cost | $0, included | **$0** licence; one playbook, one key, one verify step | $0 licence; effort unknown until OQ-22 closes |
 
-**The effort divergence was overstated in earlier records.** Build L2 asks only for a hosted build
-platform and a signature from a key the platform alone holds; Zuul's trusted execution context
-supplies the second. What genuinely remains asymmetric is **maintenance** — the cloud chain is the
-host's to keep working, the self-hosted chain is ours.
+**The effort divergence was overstated in earlier records — for the assembled variant.** Build
+L2 asks only for a hosted build platform and a signature from a key the platform alone holds;
+Zuul's trusted execution context supplies the second. What genuinely remains asymmetric is
+**maintenance** — the cloud chain is the host's to keep working, the self-hosted chains are
+ours. The integrated variant has no answer yet: OQ-22 blocks its first production deploy, not
+its pilot.
 
-**Neither variant claims Build L3**, which additionally requires an ephemeral environment per
-build. And the spec's own limit applies to both: L2 *"does NOT protect against tampering during the
-build."*
+**No variant claims Build L3**, which additionally requires an ephemeral environment per
+build. And the spec's own limit applies to all of them: L2 *"does NOT protect against tampering
+during the build."*
 
 ## 4. Where deployable artifacts live
 

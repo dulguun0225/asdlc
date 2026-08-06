@@ -1,20 +1,26 @@
-# Self-hosted variant — stack sheet
+# Self-hosted assembled variant — stack sheet
 
-- **What this is:** the complete bill of materials for the **self-hosted** variant — every
-  component, its licence, its cost, and whether it is decided — plus the host configuration that
-  goes with it. Self-contained by design
+- **What this is:** the complete bill of materials for the **self-hosted assembled** variant —
+  every component, its licence, its cost, and whether it is decided — plus the host
+  configuration that goes with it. Self-contained by design
   ([ADR-0012](../reference/decisions/0012-per-variant-stack-sheets.md)): layers shared with the
-  cloud variant are restated here rather than cross-referenced.
+  other variants are restated here rather than cross-referenced.
 - **Adds no decisions.** On conflict with an ADR, the ADR wins and this sheet has a bug. The
   life-cycle rules live in [`asdlc/`](../asdlc/README.md); this sheet says *what to install*, and
   points there for *why*.
-- **Variant definition** ([CLAUDE.md](../CLAUDE.md)): the stack itself must be
-  **licence-cost-free** — open source, runnable on infrastructure the team controls. **Paid models
+- **Variant definition** ([CLAUDE.md](../CLAUDE.md),
+  [ADR-0039](../reference/decisions/0039-self-hosted-forks-on-the-assembly-axis.md)): the stack
+  itself must be **licence-cost-free** — open source, runnable on infrastructure the team
+  controls — and within that constraint this variant chooses **best-of-breed per layer,
+  enforcement first**: it is the only stack with an unconditional pre-enqueue human gate and a
+  native, unlimited bypass record, at the price of six-plus self-operated systems. **Paid models
   are allowed**; calling a commercial model API from a self-hosted stack is in scope. Paid
-  *platform* components are not. A licensed product on your own infrastructure is a **third shape
-  and is out of scope as written** ([variants/README.md](README.md)).
+  *platform* components are not. A licensed product on your own infrastructure is a shape this
+  axis excludes ([variants/README.md](README.md)).
 - **Checked 2026-07-27.** Re-verify before procurement.
-- **Companion:** [cloud stack sheet](cloud.md) — the same layers, priced the other way.
+- **Companions:** [self-hosted integrated sheet](self-hosted-integrated.md) — the same licence
+  constraint, fewest-systems-first, priced at two named enforcement losses;
+  [cloud stack sheet](cloud.md) — the same layers, priced the other way.
 
 ## 1. Bill of materials
 
@@ -63,7 +69,7 @@ a phase-0 blocker.
 | Never-write check | ours | — | engineering | [ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) §2 | build | [tiers](../asdlc/tiers.md) |
 | T1 pre-run CI gate | **Zuul pipeline `require` on a human vote** — no job runs until a human has looked | part of Zuul | $0 | [ADR-0009](../reference/decisions/0009-code-host.md) §2 | decided — **the only unconditional pre-run human gate found on any stack** | §5 below |
 | Signature bound to artifact | **native** — votes attach to patch sets | part of Gerrit | $0 | [ADR-0009](../reference/decisions/0009-code-host.md) §2 | decided — no extra machinery, unlike the cloud variant's approximation | §5 below |
-| Ring + reassignment job | ours — **must speak Gerrit's API as well as GitHub's** if both variants ever run | — | engineering | [ADR-0005](../reference/decisions/0005-roles-gate-signers-and-the-reviewer-ring.md) §4–5 | build | [roles](../asdlc/roles.md) §3 |
+| Ring + reassignment job | ours — **must speak Gerrit's API as well as the PR-model hosts'** if more than one variant ever runs | — | engineering | [ADR-0005](../reference/decisions/0005-roles-gate-signers-and-the-reviewer-ring.md) §4–5 | build | [roles](../asdlc/roles.md) §3 |
 | Fallback host | **Forgejo** with compensating controls | **GPL v3+**, no paid edition, Codeberg e.V. | $0 | [ADR-0009](../reference/decisions/0009-code-host.md) §5 | contingency — two named triggers (§4) | §5 below |
 
 ### Build, provenance and artifacts
@@ -120,7 +126,7 @@ first-party 2026-07-28.
 **Two bring-up rules that are easy to get wrong:**
 
 - **Retention is configured before the first gate record is written.** It is not retroactive in
-  either variant. Turning it up later loses whatever already aged out — including the earliest
+  any variant. Turning it up later loses whatever already aged out — including the earliest
   pilot data, which is the most valuable data [OQ-6](../reference/open-questions.md) will ever
   have.
 - **Prometheus local storage is a single-node database** — *"not clustered or replicated"* — so

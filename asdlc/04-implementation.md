@@ -126,12 +126,12 @@ Recorded rather than papered over
 ## 5. Variants
 
 **No difference.** The runner, the sandbox, the credential broker, and the trace export are
-identical in both variants at identical cost. This convergence is one of the project's actual
-findings — it reversed the early picture that the self-hosted side had nothing
+identical in all three variants at identical cost. This convergence is one of the project's
+actual findings — it reversed the early picture that the self-hosted side had nothing
 ([ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) variant answers).
 
 One cloud-only option: a hosted async agent may be added for low-tier asynchronous work, but
-**no gate may depend on it** — if one did, the self-hosted variant would lose that gate
+**no gate may depend on it** — if one did, both self-hosted variants would lose that gate
 ([ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) part 7).
 
 ## 6. How the code is tested

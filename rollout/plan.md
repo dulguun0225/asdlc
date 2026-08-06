@@ -4,30 +4,40 @@
   size, phase durations, the widening rate, the pilot's abort criteria, and the go/no-go
   sign-off assignment — the choice is marked in place as a **default the owner can move**,
   because appetite is the owner's to set.
-- **One owner decision this plan cannot make:** which variant to *run*. Both are designed
-  ([variants/](../variants/README.md)). They are not free to run simultaneously — every
-  phase below exists twice if both are stood up. §1 states the decision and a
-  recommendation.
+- **One owner decision this plan cannot make:** which variant to *run*. All three are
+  designed ([variants/](../variants/README.md),
+  [ADR-0039](../reference/decisions/0039-self-hosted-forks-on-the-assembly-axis.md)). They
+  are not free to run simultaneously — every phase below exists once per stack stood up. §1
+  states the decision and a recommendation.
 
 ## 1. The variant decision
 
-**Recommendation: pilot on the cloud variant (GitHub), and treat the self-hosted build-out
+**Recommendation: pilot on the cloud variant (GitHub), and treat any self-hosted build-out
 as a separate, later decision.** Grounds, all from the record: time-to-value is the cloud
 variant's stated optimisation target (CLAUDE.md); the pilot's purpose is measurement
 ([OQ-6](../reference/open-questions.md), [OQ-7](../reference/open-questions.md)), which favours the stack with
-the least bring-up work; and the self-hosted variant's host (Gerrit + Zuul) adopts an
-unfamiliar review model and adds a second system to operate
-([ADR-0009](../reference/decisions/0009-code-host.md) consequences) — the wrong costs to pay
-while also validating the gate design itself. The self-hosted design loses nothing by
-waiting: it is fully specified, its costs are licence-free, and its reopen trigger (Forgejo
-audit log, forgejo#6982) may yet lower its cost.
+the least bring-up work; and both self-hosted stacks add systems to operate before the gate
+design itself is validated — the wrong costs to pay simultaneously. The self-hosted designs
+lose nothing by waiting: the assembled sheet is fully specified at licence cost $0, and the
+integrated sheet's open items ([OQ-22](../reference/open-questions.md#oq-22--provenance-on-the-integrated-self-hosted-variant),
+its §3 verifications) can close in parallel with a cloud pilot.
+
+**Among the self-hosted pair,** the integrated variant
+([sheet](../variants/self-hosted-integrated.md)) is the one aligned with the owner's recorded
+appetite ([context.md](../reference/context.md) §Appetite: ready-made over assembled); the
+assembled variant is the one to pick when the two enforcement losses stated on the integrated
+sheet are unacceptable.
 
 This is a recommendation, not a decision. What would reverse it: a data-boundary change
 (SaaS permission withdrawn — [context.md](../reference/context.md) currently permits it), or the owner
 valuing self-hosted operational experience above pilot speed.
 
-The plan below is written for the cloud variant; §7 lists what changes if the owner picks
-self-hosted first.
+The plan below is written for the cloud variant; §7 lists what changes if the owner picks the
+self-hosted assembled variant first. **If the owner picks the integrated variant first:** §7's
+shape applies with its sheet's substitutions (Forgejo for Gerrit + Zuul + Harbor, SigNoz for
+the Grafana stack), and its named gaps become phase blockers — OQ-22 before the first
+production deploy, the [sheet's §3 verifications](../variants/self-hosted-integrated.md)
+before the pilot.
 
 ## 2. Phase 0 — prerequisites (blockers, in dependency order)
 
@@ -58,7 +68,7 @@ Nothing in phase 1 starts until all six exist. Items 1–3 are owner-held facts
    [ADR-0015](../reference/decisions/0015-observability-backend.md), and the bill of materials is
    in each [stack sheet](../variants/README.md). Six steps, and the order of the first two
    matters:
-   1. **Set retention before anything is written.** It is not retroactive in either variant, and
+   1. **Set retention before anything is written.** It is not retroactive in any variant, and
       both product defaults are far too short. Gate records and requirements traces 5 years,
       per-tier metrics 400 days, session events 90 days. Doing this late loses the earliest
       pilot data permanently.
@@ -189,7 +199,7 @@ Nothing in this phase is scheduled. Each step fires only on its recorded conditi
   upgrade path ([ADR-0003](../reference/decisions/0003-graduated-gating-machine-derived-tier.md)), not a
   plan item.
 
-## 7. If the owner picks self-hosted first
+## 7. If the owner picks the self-hosted assembled variant first
 
 Phases keep their shape; these items change:
 

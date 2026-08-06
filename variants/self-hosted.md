@@ -291,7 +291,38 @@ unverified syntax here would violate the repository's research-before-content ru
   on every rule, external logging of what webhooks can see, the recording gap accepted in
   writing.
 
-## 6. Why this variant, in one paragraph
+## 6. Local test rig — what to prepare
+
+One machine with Docker proves the core of this stack before any procurement: the code host and
+gates, the registry, the observability layer, and both §4 bring-up verifications (the Harbor
+referrers path and the toolchain under `tlsTerminate`), plus the T1 pre-run human gate — the
+variant's headline claim. Figures checked 2026-08-06; re-verify before buying hardware.
+
+| Layer | Local form | Sourced requirement (checked 2026-08-06) |
+|---|---|---|
+| Gerrit + Zuul + ZooKeeper | The [official Zuul quickstart](https://zuul-ci.org/docs/zuul/latest/tutorials/quick-start.html) — one docker-compose running ZooKeeper, Gerrit, scheduler, web, executor, launcher and a static test node | Stated: *"a network connection, the ability to run containers, and at least 2GiB of RAM."* Gerrit runs small sites at ~2 GiB heap ([scaling notes](https://www.gerritcodereview.com/scaling.html)); budget 4 GB for the compose |
+| Harbor | Its own docker-compose (offline installer), ~10 containers | **2 CPU / 4 GB RAM / 40 GB disk minimum**, 4 CPU / 8 GB / 160 GB recommended ([installation prerequisites](https://goharbor.io/docs/2.13.0/install-config/installation-prereqs/)) |
+| OTel Collector + Prometheus + Loki (monolithic) + Grafana | One compose file | Grafana states **512 MB / 1 core minimum** ([installation docs](https://grafana.com/docs/grafana/latest/setup-grafana/installation/)); the other three publish no minimum — budget ~2 GB total at test volume |
+| Flagger + Kubernetes | kind or k3d cluster, +2–4 GB | Optional — conditional on the deployment target being Kubernetes (§1); leave out of the first pass |
+| Claude Code runner | **On the host, not in Docker** | macOS, Linux or WSL2 only — the sandbox refuses native Windows (§1) |
+
+**Hardware to prepare:**
+
+- **Linux: 4 cores, 16 GB RAM, 80 GB free disk** proves the core stack. 8 cores / 32 GB is
+  comfortable and leaves room for kind + Flagger.
+- **Windows needs more than Linux for the same containers**: they all run inside the WSL2 VM
+  (Docker Desktop's backend) while Windows 11 and desktop applications need ~6–8 GB beside it.
+  16 GB total works only by bringing layers up one at a time; **24 GB runs the full core stack
+  at once** (allot WSL2 ~12 GB via `.wslconfig`); 32 GB adds headroom and room for
+  kind + Flagger. Harbor's installer is tested on Linux hosts only — it runs under WSL2, but a
+  Linux box is the lower-friction path.
+- RAM is the constraint, not CPU; no GPU is needed.
+
+**What the rig does not prove:** progressive rollout unless kind + Flagger is added; operations
+at scale (backup, retention, multi-user load); anything about token economics
+([OQ-7](../reference/open-questions.md)).
+
+## 7. Why this variant, in one paragraph
 
 Gerrit is the only licence-cost-free candidate in which **every bypass path is an explicit,
 versioned permission** and the review record is repository data. GitLab CE cannot block a merge on

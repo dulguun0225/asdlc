@@ -55,7 +55,9 @@ these from their websites.
    state-model checks of [ADR-0035](decisions/0035-spec-state-model.md) joined its scope
    2026-08-05, with their own seed `statemodel_to_mermaid.py` beside the fork seed), the CI
    emitters for gate records and requirements traces, and two verifications that need hardware —
-   Harbor's OCI referrers path, and the toolchain under TLS termination.
+   Harbor's OCI referrers path, and the toolchain under TLS termination (the local Docker rig
+   that covers both is sized, with sources, in the
+   [self-hosted sheet](../variants/self-hosted.md) §6).
 4. **Gate-record tooling** — the top row of [open-parameters.md](../rollout/open-parameters.md);
    needs its own decision record. The design requires a gate record per tier and has no tooling
    for one; the record that closes it also decides where a plan-ratified `NEW — proposed`

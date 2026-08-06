@@ -60,12 +60,16 @@ for its actual purpose — handing to someone to implement.
    a variant-first split duplicates that 70% into two copies that drift apart on the first
    edit. It would also hide the convergence, which is one of this project's actual findings.
 4. **A folder per life-cycle stage**, each containing its description, template and variant
-   notes. Rejected for now: the templates do not exist yet, so several folders would start
-   half-empty and read as more complete than they are. Revisit when part 4's gap closes.
+   notes. Rejected: the co-location it was after happened on the delivery side instead — each
+   template ships inside its stage skill ([ADR-0040](0040-templates-ship-inside-the-stage-skills.md))
+   — which leaves a per-stage folder holding one description file, and four of the seven stages
+   have no template at all.
 
 ## Decision
 
 ### 1. The layout
+
+One directory per subject, at the root:
 
 ```
 README.md              what this is, and where to start
@@ -75,10 +79,14 @@ asdlc/                 THE LIFE CYCLE
   roles.md             who exists, who signs what, the reviewer ring
   tiers.md             the tier system, the tier function, the gate table
   01-spec.md … 07-operate.md      one file per stage
-variants/              THE TWO STACKS
+  templates/           the rules the three feature artifacts encode
+  examples/            one feature carried through the artifacts
+  skills/              the design's statement of the four stage procedures
+variants/              THE STACKS
   README.md            the axis; what converges and what diverges
   cloud.md             bill of materials + host configuration, self-contained
-  self-hosted.md       the same, priced the other way
+  self-hosted.md       the same, priced the other way — assembled
+  self-hosted-integrated.md   the same licence constraint, integrated products first
 rollout/
   plan.md              phase 0 → pilot → widen → relax
   open-parameters.md   values to be filled, and who fills them
@@ -88,18 +96,22 @@ reference/             THE WORKING RECORD
   open-questions.md    numbered OQ-N entries
   decisions/           the ADRs and their index
   research/            dated research notes
+skills/                WHAT `skills add` DELIVERS
+  asdlc-*/             the four stage procedures; the first three carry their template
+  <topic>/             the engineering-decision skills
+tools/                 THE CODE
 ```
 
-> **A fifth subject is missing from that tree.** [ADR-0025](0025-monorepo.md) added
-> `tools/` — the code — and **scoped** the documents-only rule rather than deleting it:
-> `asdlc/`, `variants/`, `rollout/` and `reference/` still hold no code, no build system and no
-> package manifest. The by-subject principle is unchanged; `tools/` is one more subject, which
-> is why no new layout record was needed. **Do not read this tree as forbidding `tools/`** — it
-> predates it.
+**The subject list is open.** A new subject is a new root directory and needs no layout
+record — `skills/` ([ADR-0033](0033-skills-move-into-the-monorepo.md)) and `tools/`
+([ADR-0025](0025-monorepo.md)) were both added this way. What ADR-0025 **scoped** rather than
+deleted is the documents-only rule: `asdlc/`, `variants/`, `rollout/` and `reference/` hold no
+code, no build system and no package manifest. `skills/` holds documents too — its toolchain
+is in `tools/skills-harness/`.
 
 The root directory listing is itself the map. A reader who has read nothing can see that there
-is a life cycle, that there are two variants, and that decisions and research are working
-material rather than the product.
+is a life cycle, that there are variants of it, that something is installable, and that
+decisions and research are working material rather than the product.
 
 ### 2. The design is the entry point; the working record is subordinate
 
@@ -180,5 +192,8 @@ ASDLC design shifted in this move should find that it did not.
 - **Cost:** cross-references multiplied. One 300-line life-cycle file became ten, and every
   stage file links to `roles.md`, `tiers.md`, and its ADRs. Accepted — the alternative is the
   monolith that hid the shape.
-- **Deferred:** a folder per life-cycle stage (option 4) is the natural next layout if
-  templates and per-repository agent configuration land. Not now, and not without them.
+- **Option 4 is closed, not deferred.** The two things it was waiting on — the templates and
+  per-repository agent configuration — both landed in `skills/` rather than in the design
+  ([ADR-0032](0032-stage-delivery-via-skills-cli.md),
+  [ADR-0040](0040-templates-ship-inside-the-stage-skills.md)), so a per-stage folder would hold
+  one description file each.

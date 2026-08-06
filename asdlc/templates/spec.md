@@ -9,6 +9,10 @@
   record, which carries the sha256 of this file's bytes at the commit that was signed
   (reference/artifacts.md §3). Editing this file after signature invalidates the signature
   mechanically. Do not add one back.
+
+  No secrets and no production personal data anywhere in this file — example records, sample
+  requests and entity walkthroughs use fabricated values (ADR-0038). This file is read into
+  every agent session on the feature.
 -->
 
 | | |

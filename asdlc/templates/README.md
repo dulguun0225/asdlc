@@ -17,7 +17,7 @@ Copy them into the repository whose code they govern, at `specs/<NNN>-<kebab-slu
 **A filled-in example is in [../examples/](../examples/README.md).** These templates state the
 rules; the example applies them, and records in its own §7 the places where the notation resisted.
 
-## Four things to know before filling one in
+## Five things to know before filling one in
 
 **Requirements are EARS sentences with stable ids.** One testable behaviour each; six patterns;
 ids never renumbered or reused; a dropped requirement stays as `WITHDRAWN`. A sentence matching
@@ -43,6 +43,14 @@ the implementation cannot disagree with it — the measured behaviour is that a 
 code follows the implementation and encodes the bug as expected. Grounding the test in the
 requirement is what makes it evidence
 ([ADR-0019](../../reference/decisions/0019-testing-agent-written-code.md)).
+
+**Nothing in them is secret.** No credentials, no internal hostnames, no production personal
+data — example records and sample values are fabricated. The artifacts are committed files:
+they travel in every clone and are read into every agent session on the feature, so their
+content inherits the repository's classification. Human-checked at the gates — the spec and
+plan at signing, the unsigned task list in the merge diff; secret scanning catches the
+credential class where the repository runs it, nothing catches personal data
+([ADR-0038](../../reference/decisions/0038-feature-artifact-content-hygiene.md)).
 
 **T3 changes need none of this.** A documentation, comments-only, formatting-only, tests-only or
 qualifying lockfile change carries no feature artifacts. T1 and T2 changes must reference a

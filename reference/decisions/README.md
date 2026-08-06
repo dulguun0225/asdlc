@@ -50,3 +50,5 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0034](0034-plan-decision-trace.md) | The plan's decision trace: four row kinds and the visible-decision format | accepted | 2026-08-05 |
 | [0035](0035-spec-state-model.md) | The spec owns its states: a checked state model complements EARS | accepted | 2026-08-05 |
 | [0036](0036-constraint-audit-cuts.md) | The constraint audit's cuts: five rules removed, narrowed, or deferred | accepted | 2026-08-05 |
+| [0037](0037-spec-kit-command-harvest.md) | Spec-kit's non-stage commands: three harvested as amendments, three rejected | accepted | 2026-08-06 |
+| [0038](0038-feature-artifact-content-hygiene.md) | Feature artifacts carry no secrets and no production personal data | accepted | 2026-08-06 |

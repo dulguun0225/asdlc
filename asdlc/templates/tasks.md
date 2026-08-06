@@ -6,6 +6,10 @@
 
   This artifact has no human gate — only the automated consistency check (03-tasks.md). That
   makes the two mechanical parts below load-bearing: the hashes and the citations.
+
+  No secrets and no production personal data anywhere in this file (ADR-0038) — and no human
+  signs this artifact, so nobody reviews its content on the way in. Task text and evidence
+  notes use placeholder values only.
 -->
 
 | | |

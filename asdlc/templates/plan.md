@@ -11,6 +11,10 @@
   reason the plan gate is the heaviest gate in the design: §6 traceability, §7 tier-map
   entries (ADR-0006 part 1), §8 NFR enforcement (ADR-0011, 06-deploy.md). A plan missing any
   of them fails the check.
+
+  No secrets and no production personal data anywhere in this file — endpoints, contracts and
+  sample configuration use placeholder values, never live credentials or internal hostnames
+  (ADR-0038).
 -->
 
 | | |

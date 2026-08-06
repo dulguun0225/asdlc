@@ -141,7 +141,11 @@ this variant runs it at $0 licence, the cloud side buys it managed.
 | **Gitea OSS** | Enforces blocking reviews but sells its audit log in a paid edition — the one capability [OQ-12](../reference/open-questions.md) most needs is the one held back. ([ADR-0009](../reference/decisions/0009-code-host.md)) |
 | **Hosted async agent** | Cloud-variant only, by construction. No gate may depend on it. ([ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §7) |
 
-## 2. Cost shape
+### Watched, not adopted
+
+| Component | What it is | Why it is not in the bill |
+|---|---|---|
+| **Kandev** | Open-source (AGPL-3.0) control plane that runs coding agents from task board to pull request: parallel sessions in isolated worktrees, plan-approval gates, local/Docker/SSH executors, agent-neutral over ACP (runs Claude Code) | The layer it fills — session orchestration above the runner — is not in this design: sessions are engineer-launched, and the enforced gates are merge-level (Gerrit + Zuul, [ADR-0009](../reference/decisions/0009-code-host.md)). It passes this variant's licence test, which GitLab Duo above fails. Adopting it is a design change, not a row to fill: it wraps the runner, so every "ships with the runner" row and the admission contract ([OQ-20](../reference/open-questions.md#oq-20--the-runner-admission-contract)) re-answer under it, and its org-level controls (roles, approvals, budgets — "Office Mode") were feature-flagged and undocumented at 2026-08-06. Re-look triggers and the full read: [research note](../reference/research/2026-08-06-comparable-systems.md) §4, §6 |
 
 | Line | Amount | Confidence |
 |---|---|---|

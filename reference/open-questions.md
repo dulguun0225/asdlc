@@ -24,7 +24,11 @@ rows verified for Claude Code only. Two research questions are open —
 [OQ-7](#oq-7--what-are-the-per-unit-of-agent-work-economics) close only from pilot measurement,
 [OQ-20](#oq-20--the-runner-admission-contract) blocks only a second runner. Nothing decided has
 been run; research notes carry **"do not reintroduce"** lists — read them before quoting any
-number back into this repository.
+number back into this repository. Three shipping comparables (factory.ai, lee-to/ai-factory,
+Kandev) are mapped onto the design's layers in
+[research/2026-08-06-comparable-systems.md](research/2026-08-06-comparable-systems.md); Kandev
+is a watched candidate on the [self-hosted sheet](../variants/self-hosted.md) — do not re-derive
+these from their websites.
 
 **What is left, in order:**
 

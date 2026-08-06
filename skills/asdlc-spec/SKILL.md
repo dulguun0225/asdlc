@@ -117,7 +117,7 @@ Rules, all of which the checker enforces:
   non-terminal state with an exit, and no two rows sharing a `(From, Trigger)` pair with
   identical guards.
 - **Never hand-write a state diagram — render it.** Where the repository carries the
-  state-model generator (`statemodel_to_mermaid.py`, wherever the checker is adopted), run it
+  state-model generator (`statemodel-to-mermaid.mjs`, wherever the checker is adopted), run it
   on the drafted spec and show the engineer its output — this is the one shell command this
   stage runs. Commit its output **verbatim or not at all**: an edited copy fails the
   regenerate-and-diff gate. Where the repository carries no generator, write only the table

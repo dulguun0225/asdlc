@@ -12,7 +12,7 @@
   coverage, and measurable success criteria. It is a reference, not a template
   — start real specs from the spec template.
 
-  check_specs.py --self keeps this example well-formed, and the negative probes
+  check-specs.mjs --self keeps this example well-formed, and the negative probes
   copy it as their fixture.
 -->
 

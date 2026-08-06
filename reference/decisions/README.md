@@ -54,3 +54,4 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0038](0038-feature-artifact-content-hygiene.md) | Feature artifacts carry no secrets and no production personal data | accepted | 2026-08-06 |
 | [0039](0039-self-hosted-forks-on-the-assembly-axis.md) | The self-hosted variant forks on the assembly axis: three variants | accepted | 2026-08-06 |
 | [0040](0040-templates-ship-inside-the-stage-skills.md) | The three artifact templates ship inside the stage skills, as `template.md` | accepted | 2026-08-06 |
+| [0041](0041-one-toolchain-node.md) | One toolchain: Node; the checker seeds are ported and Python retires | accepted | 2026-08-07 |

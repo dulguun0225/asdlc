@@ -1,5 +1,5 @@
-# CI for tools/feature-artifact-checker/ — today, the fork seed check_specs.py
-# and the ADR-0035 state-model seed statemodel_to_mermaid.py.
+# CI for tools/feature-artifact-checker/ — today, the fork seed check-specs.mjs
+# and the ADR-0035 state-model seed statemodel-to-mermaid.mjs.
 #
 # WHY THIS FILE EXISTS AT THE ROOT: GitHub runs workflows only from the
 # repository root `.github/workflows/`. A workflow under tools/ would be inert,
@@ -11,8 +11,9 @@
 # replacement lands with the behavior change it tests, never as a bare
 # deletion.
 #
-# It installs nothing. check_specs.py is stdlib-only by rule, so the runner's
-# python3 is the whole toolchain.
+# The only install is node itself, pinned to the exact version
+# tools/feature-artifact-checker/mise.toml pins (ADR-0041): both scripts are
+# built-ins-only by rule, so the interpreter is the whole toolchain.
 
 name: feature-artifact-checker-checks
 
@@ -36,16 +37,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          # The exact pin from tools/feature-artifact-checker/mise.toml, for
+          # the reason recorded there: two machines resolving a version
+          # differently shows up as a toolchain behaviour change.
+          node-version: '26.5.1'
+
       - name: Examples stay well-formed
-        run: python3 check_specs.py --self
+        run: node check-specs.mjs --self
 
       - name: State-model seed stays green
-        run: python3 statemodel_to_mermaid.py --self
+        run: node statemodel-to-mermaid.mjs --self
 
       - name: Negative probe — a dead-end state and a malformed FR id turn the state-model seed red
         run: |
           printf '### State model\n\n*States:* A, B, C. *Initial:* A. *Terminal:* B.\n\n| From | Trigger | Guard | To | FR ids |\n|---|---|---|---|---|\n| A | go | — | B | FR-001 |\n| A | stray | — | C | FR-1 |\n' > /tmp/bad-model.md
-          if python3 statemodel_to_mermaid.py --check-only /tmp/bad-model.md > /tmp/sm-out.txt 2>&1; then
+          if node statemodel-to-mermaid.mjs --check-only /tmp/bad-model.md > /tmp/sm-out.txt 2>&1; then
             echo 'seed passed a dead-end state and a malformed FR id'; cat /tmp/sm-out.txt; exit 1
           fi
           grep -q 'dead end' /tmp/sm-out.txt
@@ -64,7 +72,7 @@ jobs:
           cp examples/password-reset/spec.md /tmp/bad-repo/specs/001-bad/spec.md
           printf '## Requirements Traceability\n\n| Requirement | Satisfied by |\n| --- | --- |\n| FR-001 | x |\n| FR-002 | x |\n| FR-003 | x |\n| FR-004 | x |\n| FR-005 | x |\n| FR-006 | x |\n| FR-007 | x |\n| FR-008 | x |\n| FR-009 | x |\n| FR-010 | x |\n\n## Decision Trace\n\n| Technical Context entry | Decision |\n| --- | --- |\n| Language | decisions/0001-language.md |\n' > /tmp/bad-repo/specs/001-bad/plan.md
           printf -- '- [ ] T001 Implement something in src/x.py\n' > /tmp/bad-repo/specs/001-bad/tasks.md
-          if python3 check_specs.py --repo /tmp/bad-repo > /tmp/out.txt 2>&1; then
+          if node check-specs.mjs --repo /tmp/bad-repo > /tmp/out.txt 2>&1; then
             echo 'checker passed a task with no [FR-nnn] reference'; cat /tmp/out.txt; exit 1
           fi
           grep -q 'carries no \[FR-nnn\] reference' /tmp/out.txt
@@ -77,7 +85,7 @@ jobs:
           mkdir -p /tmp/bad-repo2/specs/001-bad
           cp examples/password-reset/spec.md /tmp/bad-repo2/specs/001-bad/spec.md
           printf '# Plan\n\nno sections here\n' > /tmp/bad-repo2/specs/001-bad/plan.md
-          if python3 check_specs.py --repo /tmp/bad-repo2 > /tmp/out2.txt 2>&1; then
+          if node check-specs.mjs --repo /tmp/bad-repo2 > /tmp/out2.txt 2>&1; then
             echo 'checker passed a plan without the required sections'; cat /tmp/out2.txt; exit 1
           fi
           grep -q '## Requirements Traceability' /tmp/out2.txt
@@ -88,7 +96,7 @@ jobs:
           mkdir -p /tmp/bad-repo3/specs/001-bad
           cp examples/password-reset/spec.md /tmp/bad-repo3/specs/001-bad/spec.md
           printf '## Requirements Traceability\n\n| Requirement | Satisfied by |\n| --- | --- |\n| FR-001 | x |\n| FR-002 | x |\n| FR-003 | x |\n| FR-004 | x |\n| FR-005 | x |\n| FR-006 | x |\n| FR-007 | x |\n| FR-008 | x |\n| FR-009 | x |\n| FR-010 | x |\n\n## Decision Trace\n\n| Technical Context entry | Decision |\n| --- | --- |\n| Testing | <component, contract file, or plan section> |\n' > /tmp/bad-repo3/specs/001-bad/plan.md
-          if python3 check_specs.py --repo /tmp/bad-repo3 > /tmp/out3.txt 2>&1; then
+          if node check-specs.mjs --repo /tmp/bad-repo3 > /tmp/out3.txt 2>&1; then
             echo 'checker passed a Decision Trace row with a placeholder'; cat /tmp/out3.txt; exit 1
           fi
           grep -q 'angle-bracket placeholder' /tmp/out3.txt

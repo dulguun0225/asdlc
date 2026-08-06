@@ -29,7 +29,7 @@ notation always fits.
 - **Not code.** `asdlc/` holds documents and no build system ([CLAUDE.md](../../CLAUDE.md)
   scopes that rule to the four design directories). The program goes in
   [`tools/feature-artifact-checker/`](../../tools/feature-artifact-checker/README.md), which
-  holds its fork seed `check_specs.py` — stdlib-only Python run as merge-blocking CI. It is a
+  holds its fork seed `check-specs.mjs` — built-ins-only Node run as merge-blocking CI. It is a
   seed, not a start on the program: it checks traceability after the fact and enforces **no
   gate at all**, the model [ADR-0014](../../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md)
   part 3 superseded.

@@ -8,26 +8,27 @@ part 7's blocking checks plus the requirements trace, specified in full at
 items OI-001…OI-003 block parts of it and are owned by the platform owner
 ([rollout/open-parameters.md](../../rollout/open-parameters.md)).
 
-What the directory holds today is the **fork seed**: `check_specs.py`, the
+What the directory holds today is the **fork seed**: `check-specs.mjs`, the
 retired predecessor spec-kit convention's checker — EARS requirements under
 stable `FR-nnn` ids, traced through `plan.md` and `tasks.md`. No repository
 follows that convention; the design's checker is built by rewriting the seed
-to the spec (fork, decided 2026-08-05). Beside it sits the **state-model
-seed**, `statemodel_to_mermaid.py` —
+to the spec (fork, decided 2026-08-05; ported from the Python original to
+Node by [ADR-0041](../../reference/decisions/0041-one-toolchain-node.md)).
+Beside it sits the **state-model seed**, `statemodel-to-mermaid.mjs` —
 [ADR-0035](../../reference/decisions/0035-spec-state-model.md)'s model-local
 checks and diagram generator, written against the design rather than the
 predecessor, folded into the rewrite when it lands.
 
 | Path | What it is |
 | ---- | ---------- |
-| `check_specs.py` | The fork seed. One file, no dependencies, any Python 3. Runnable and green: `python3 check_specs.py --self` |
-| `statemodel_to_mermaid.py` | The state-model seed ([ADR-0035](../../reference/decisions/0035-spec-state-model.md)): parses a spec's State model subsection, validates the model-local rules, deterministically emits the Mermaid view. Green: `python3 statemodel_to_mermaid.py --self`. Does not travel with `check_specs.py` |
+| `check-specs.mjs` | The fork seed. One file, no dependencies, any maintained Node. Runnable and green: `node check-specs.mjs --self` |
+| `statemodel-to-mermaid.mjs` | The state-model seed ([ADR-0035](../../reference/decisions/0035-spec-state-model.md)): parses a spec's State model subsection, validates the model-local rules, deterministically emits the Mermaid view. Green: `node statemodel-to-mermaid.mjs --self`. Does not travel with `check-specs.mjs` |
 | `examples/password-reset/` | Predecessor-convention fixtures. They keep `--self` green and feed the CI's negative probes; they are replaced, not extended, when the seed is rewritten to the spec |
-| `mise.toml` | Pins `uv`, for a machine with no Python on PATH |
+| `mise.toml` | Pins `node` ([ADR-0041](../../reference/decisions/0041-one-toolchain-node.md)), for a machine with no Node on PATH |
 
 ## What carries over from the seed, and what must change
 
-**Carries over:** the one-file stdlib-only adoption model; HTML-comment
+**Carries over:** the one-file built-ins-only adoption model; HTML-comment
 stripping before scanning (the spec's FR-005 states the same rule); the
 parsing core — FR/task-id chunking, table-row shape checks, contract-link
 resolution, kebab/LF enforcement; and the negative-probe CI discipline

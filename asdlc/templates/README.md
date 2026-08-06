@@ -71,7 +71,7 @@ second trigger list ([tiers.md](../tiers.md)).
   advisory ones; writing the program is a phase-0 bring-up task
   ([open-parameters.md](../../rollout/open-parameters.md)), and it goes in
   [`tools/feature-artifact-checker/`](../../tools/feature-artifact-checker/README.md), which
-  already holds its fork seed, `check_specs.py`. **Prior art, with a warning:** the seed checks
+  already holds its fork seed, `check-specs.mjs`. **Prior art, with a warning:** the seed checks
   traceability after the fact and enforces no approval, while
   [ADR-0014](../../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md) part 3
   requires a gate record per tier. Reconciling the two is the top row of

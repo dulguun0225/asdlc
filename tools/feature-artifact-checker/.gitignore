@@ -1,4 +1,2 @@
 # Machine-local config, deliberately not shared: mise.toml is the shared one.
 mise.local.toml
-
-__pycache__/

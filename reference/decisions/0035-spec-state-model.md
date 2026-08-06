@@ -136,7 +136,7 @@ never the contract.
 - The checker grows: a state-model parser, the checks above, and the diagram generator —
   added to the fork's scope ([open-parameters.md](../../rollout/open-parameters.md)). A
   working seed for the model-local rules and the generator sits beside the fork seed:
-  [`tools/feature-artifact-checker/statemodel_to_mermaid.py`](../../tools/feature-artifact-checker/statemodel_to_mermaid.py),
+  [`tools/feature-artifact-checker/statemodel-to-mermaid.mjs`](../../tools/feature-artifact-checker/statemodel-to-mermaid.mjs),
   deterministic, self-tested, in CI.
 - The spec template, stage doc, stage skill and worked example gain the subsection; every spec
   drafted from the template now answers the state question explicitly.

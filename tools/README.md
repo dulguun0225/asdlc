@@ -25,13 +25,13 @@ defending the name — one of ADR-0025's reopen conditions.
 
 | Directory | What it is | State |
 |---|---|---|
-| [feature-artifact-checker/](feature-artifact-checker/README.md) | The design's checker — [ADR-0014](../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md) part 7's blocking checks plus the requirements trace | **Not built.** Specified at [asdlc/examples/001-feature-artifact-checker/spec.md](../asdlc/examples/001-feature-artifact-checker/spec.md). Holds its **fork seed**: `check_specs.py`, the predecessor convention's stdlib-only merge gate — runnable, green as its own CI's subject, never adopted by any product repo — and the **state-model seed** `statemodel_to_mermaid.py`, [ADR-0035](../reference/decisions/0035-spec-state-model.md)'s validator and diagram generator, self-tested in the same CI |
+| [feature-artifact-checker/](feature-artifact-checker/README.md) | The design's checker — [ADR-0014](../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md) part 7's blocking checks plus the requirements trace | **Not built.** Specified at [asdlc/examples/001-feature-artifact-checker/spec.md](../asdlc/examples/001-feature-artifact-checker/spec.md). Holds its **fork seed**: `check-specs.mjs`, the predecessor convention's built-ins-only merge gate — runnable, green as its own CI's subject, never adopted by any product repo — and the **state-model seed** `statemodel-to-mermaid.mjs`, [ADR-0035](../reference/decisions/0035-spec-state-model.md)'s validator and diagram generator, self-tested in the same CI. Node, like everything under `tools/` ([ADR-0041](../reference/decisions/0041-one-toolchain-node.md)) |
 | *(stage-procedure delivery)* | Not a `tools/` program: the four stage procedures ship as Agent Skills from [skills/](../skills/README.md) via the **`skills` CLI** (`vercel-labs/skills`, MIT, external) | **Decided** — [ADR-0032](../reference/decisions/0032-stage-delivery-via-skills-cli.md). Row kept so nobody re-invents it here |
 | [skills-harness/](skills-harness/) | QA harness for the top-level [`skills/`](../skills/README.md) tree: the CLI discovery check, the two wired gates (evidence order, dangling pointers), token reports, and the firing harness | **Built and green** ([ADR-0033](../reference/decisions/0033-skills-move-into-the-monorepo.md)); CI is `.github/workflows/skills-checks.yml` |
 
 ## The thing to know before you build on any of this
 
-**The fork seed implements the gate model this design replaced.** `check_specs.py` checks
+**The fork seed implements the gate model this design replaced.** `check-specs.mjs` checks
 traceability **after the fact and enforces no gate at all**, while the design requires a **gate
 record binding the artifact's sha256, per tier** ([artifacts.md](../reference/artifacts.md) §3,
 [tiers.md](../asdlc/tiers.md)). Its trace ends at the task list; the design's ends at a passing
@@ -48,8 +48,10 @@ none may get one. Two workflows cover this tree, each `paths`-filtered to its ow
 design-document change runs nothing:
 
 - **[`.github/workflows/feature-artifact-checker-checks.yml`](../.github/workflows/feature-artifact-checker-checks.yml)**
-  — runs `check_specs.py --self` and its three negative probes. Installs nothing: the checker is
-  stdlib-only, so the runner's `python3` is the whole toolchain.
+  — runs both seeds' `--self` and the negative probes. Installs only `node`, pinned to the
+  exact version the checker's `mise.toml` pins
+  ([ADR-0041](../reference/decisions/0041-one-toolchain-node.md)); the scripts themselves are
+  built-ins-only.
 - **[`.github/workflows/skills-checks.yml`](../.github/workflows/skills-checks.yml)** — the
   skills harness's discovery check and gates, filtered to `skills/` and `tools/skills-harness/`.
 

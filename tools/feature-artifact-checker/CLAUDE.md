@@ -2,7 +2,9 @@
 
 This directory is the home of the design's checker (**not built** — spec at
 [asdlc/examples/001-feature-artifact-checker/spec.md](../../asdlc/examples/001-feature-artifact-checker/spec.md)).
-`check_specs.py` is the **fork seed**. It still enforces the retired
+`check-specs.mjs` is the **fork seed** (ported from the retired Python
+original by [ADR-0041](../../reference/decisions/0041-one-toolchain-node.md) —
+one toolchain, Node). It still enforces the retired
 predecessor spec-kit convention — `specs/*/spec.md`, `plan.md`, `tasks.md`
 with EARS requirements, FR-nnn traceability and a decision trace — and no
 repository follows that convention. Building the real checker means rewriting
@@ -25,10 +27,10 @@ stays runnable and its probes stay red-for-the-right-reason.
   the seed's whole gap: this program gates nothing and never sees a gate
   record, while the design requires one binding the artifact's sha256, per
   tier. Closing it *is* building the checker.
-- **One file, stdlib only.** The design's checker keeps the seed's adoption
-  model: a product repo takes `check_specs.py` alone, so it must run on any
-  Python 3 with no installs. If a second file is ever added here, say in its
-  first line whether it travels the same way.
+- **One file, Node built-ins only.** The design's checker keeps the seed's
+  adoption model: a product repo takes `check-specs.mjs` alone, so it must run
+  on any maintained Node with no installs. If a second file is ever added
+  here, say in its first line whether it travels the same way.
 - **Two modes today:** `--repo <path>` checks `specs/*/` in a product repo;
   `--self` checks `examples/*/` beside this file. `--self` resolves against
   the script's own directory, so it does not care where it is run from. The
@@ -41,8 +43,9 @@ stays runnable and its probes stay red-for-the-right-reason.
   must never count as definitions. The spec keeps this rule as FR-005.
 - **LF for every text file; kebab-case filenames** — the checker enforces both
   in product repos, and the repository root's `.gitattributes` enforces the
-  first here. `check_specs.py` keeps its snake_case name because it is a
-  Python module a product repo imports by path.
+  first here. Both scripts follow the kebab rule themselves; the snake_case
+  exception died with the Python originals
+  ([ADR-0041](../../reference/decisions/0041-one-toolchain-node.md)).
 
 ## Any behavior change needs a negative test
 
@@ -78,20 +81,20 @@ rewrite):
 ## Verify before you commit
 
 ```sh
-python check_specs.py --self             # examples/ stays green
-python statemodel_to_mermaid.py --self   # the state-model seed stays green
+node check-specs.mjs --self             # examples/ stays green
+node statemodel-to-mermaid.mjs --self   # the state-model seed stays green
 ```
 
-`uv` is pinned in this directory's own `mise.toml` — `mise trust && mise
-install`, once per machine, run from here — so the same thing works on a
-machine with no Python on PATH:
+`node` is pinned in this directory's own `mise.toml` (the same exact version
+as `tools/skills-harness/`) — `mise trust && mise install`, once per machine,
+run from here — so the same thing works on a machine with no Node on PATH:
 
 ```sh
-uv run --no-project python check_specs.py --self
+mise exec -- node check-specs.mjs --self
 ```
 
-uv supplies the interpreter, which is why nothing here pins a Python version
-and why `check_specs.py` is stdlib-only by rule.
+The pin serves this repository's determinism; the script itself is
+built-ins-only by rule and runs on any maintained Node.
 
 ## CI
 
@@ -100,7 +103,7 @@ workflows only from the repository root, so anything added here would be inert
 and would look live. The checker's CI is one workflow at the repository root:
 
 - `.github/workflows/feature-artifact-checker-checks.yml` — path-filtered to
-  `tools/feature-artifact-checker/**`; runs `--self` and carries the three
-  negative probes. It needs no uv: stdlib Python on the runner is the whole
-  toolchain.
+  `tools/feature-artifact-checker/**`; runs `--self` and carries the negative
+  probes. Its only install is node itself, `setup-node` pinned to the exact
+  version this directory's `mise.toml` pins.
 

@@ -317,7 +317,9 @@ Known residual holes, compensated rather than closed, are listed in
 Three markdown files per feature, in the repository whose code they govern, at
 `specs/<NNN>-<kebab-slug>/`. Schema fixed by
 [ADR-0014](decisions/0014-feature-artifacts-and-the-traceability-chain.md); the templates
-themselves are the specification and live in [asdlc/templates/](../asdlc/templates/README.md).
+themselves are the specification, and each ships inside its stage skill as `template.md`
+([ADR-0040](decisions/0040-templates-ship-inside-the-stage-skills.md)). The rules they encode
+are stated at [asdlc/templates/](../asdlc/templates/README.md).
 
 | File | Carries |
 |---|---|

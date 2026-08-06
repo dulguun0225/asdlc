@@ -106,8 +106,9 @@ Build and verify the shared artifacts before any team touches the system:
 - **The feature-artifact checker** — seven blocking checks plus the merge-time requirement→test
   pass, emitting the requirements trace
   ([03-tasks.md](../asdlc/03-tasks.md), [ADR-0014](../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md)).
-  Wired as a required status check, with the templates copied into the phase-1 repository
-  template.
+  Wired as a required status check. The three artifact templates need no copying — each ships
+  inside its stage skill and arrives with `skills add`
+  ([ADR-0040](../reference/decisions/0040-templates-ship-inside-the-stage-skills.md)).
 - Ruleset template, CODEOWNERS template, agent machine account (no write access), fork-PR
   flow verified — including the **private-repository fork-approval check** flagged in
   [open-parameters.md](open-parameters.md); until it verifies, the pipeline-level T1 gate — a per-push human

@@ -21,6 +21,9 @@ This is a **mechanical decomposition of an already-approved plan**. It is not a 
 the design. If the plan is wrong, say so and stop — the fix is a re-signed plan, not a clever task
 list.
 
+The file's structure is [template.md](template.md), beside this file. Copy it into the feature
+folder and fill it in.
+
 ## Step 1 — pin the hashes, first
 
 Compute `sha256` over the **committed bytes** of `spec.md` and `plan.md` and write both, in full

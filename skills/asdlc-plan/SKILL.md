@@ -18,8 +18,9 @@ non-functional enforcement. A plan missing any of the three fails the automated 
 
 ## Before writing anything
 
-1. **Read the signed spec** at `specs/<NNN>-<slug>/spec.md` and the template at
-   `asdlc/templates/plan.md`.
+1. **Read the signed spec** at `specs/<NNN>-<slug>/spec.md` and [template.md](template.md),
+   beside this file. The template is the structure — copy it into the feature folder and fill
+   it in.
 2. **Record the spec's hash.** `sha256sum` (Linux, WSL2) or `shasum -a 256` (macOS) over the
    committed bytes of `spec.md`. Put the prefix in the header table. The tasks stage will pin the
    full 64 characters.
@@ -55,7 +56,7 @@ Silence is not an answer.
 The plan that creates a path classifies it. This is the whole answer to the greenfield cold start:
 the map cannot be written up front because the code does not exist.
 
-Write the entries as a YAML block inside §7, using the schema in `reference/artifacts.md` §1:
+Write the entries as a YAML block inside §7, using this schema:
 
 ```yaml
 services:

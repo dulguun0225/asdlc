@@ -42,6 +42,14 @@ six harvest candidates parked with named homes, and one applied fix —
 (also artifacts.md §5, tiers.md §4, 04-implementation.md, the implement skill), verified
 against vendor subagent docs 2026-08-06.
 
+**The three feature-artifact templates now ship inside their stage skills** as `template.md`
+beside each `SKILL.md` ([ADR-0040](decisions/0040-templates-ship-inside-the-stage-skills.md)) —
+verified 2026-08-06 by installing locally and diffing the copies. They cite no record of this
+design, because a consumer installs skills and not the design;
+[asdlc/templates/README.md](../asdlc/templates/README.md) is now the rules page with no files
+under it. **Consequence for authoring: do not re-add an `ADR-NNNN` or a `reference/…` path to a
+shipped template** — the gate does not catch prose citations.
+
 **What is left, in order:**
 
 0. **The constraint audit's remainder** — 21 smaller findings awaiting the owner's

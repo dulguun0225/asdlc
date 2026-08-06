@@ -54,7 +54,8 @@ That framing is the rule. An agent asked "is this plan good?" is not performing 
 
 ## The artifact
 
-`specs/<NNN>-<kebab-slug>/plan.md` — template: [templates/plan.md](templates/plan.md), rules:
+`specs/<NNN>-<kebab-slug>/plan.md` — template:
+[asdlc-plan/template.md](../skills/asdlc-plan/template.md), rules:
 [ADR-0014](../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md). No
 approval line; the approval is the gate record.
 

@@ -69,7 +69,7 @@ agent output volume ([ADR-0005](../reference/decisions/0005-roles-gate-signers-a
 |---|---|---|
 | — | [roles.md](roles.md) | Who exists, who may sign what, and the reviewer ring |
 | — | [tiers.md](tiers.md) | How a change's tier is computed, and which gates each tier gets |
-| — | [templates/](templates/README.md) | The three artifacts a feature produces, and the traceability chain through them |
+| — | [templates/](templates/README.md) | The three artifacts a feature produces, the traceability chain through them, and where the blanks ship |
 | — | [skills/](skills/README.md) | The four stage procedures the agent is given, and how they reach an engineer |
 | — | [examples/](examples/README.md) | One feature carried through the artifacts, with the frictions left visible |
 | 1 | [01-spec.md](01-spec.md) | Stating the problem and what "done" means |

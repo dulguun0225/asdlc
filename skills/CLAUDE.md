@@ -13,8 +13,11 @@ live here, and this file's authoring invariants bind only the first:
 - **The four `asdlc-*` stage procedures** — governed by
   [asdlc/skills/README.md](../asdlc/skills/README.md) and the ADRs it cites,
   **not** by the invariants below: they are procedures, carry no `evidence.md`,
-  no markers, and no rule ids. They are T1 and the agent identity has no write
-  access to them. Do not "fix" them toward this file's rules.
+  no markers, and no rule ids. The first three carry a `template.md` instead —
+  the feature artifact that stage produces, blank
+  ([ADR-0040](../reference/decisions/0040-templates-ship-inside-the-stage-skills.md)).
+  They are T1 and the agent identity has no write access to them. Do not "fix"
+  them toward this file's rules.
 
 **The toolchain lives at [`tools/skills-harness/`](../tools/skills-harness/)**
 — `package.json`, `mise.toml`, `scripts/` — and every command below runs with

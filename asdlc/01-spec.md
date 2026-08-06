@@ -29,7 +29,7 @@ signatures. Merge gates absorb the volume instead.
 ## The artifact
 
 `specs/<NNN>-<kebab-slug>/spec.md`, in the repository whose code the feature governs —
-template: [templates/spec.md](templates/spec.md), rules:
+template: [asdlc-spec/template.md](../skills/asdlc-spec/template.md), rules:
 [ADR-0014](../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md).
 
 Functional requirements are **EARS sentences under stable `FR-nnn` ids**, one testable behaviour

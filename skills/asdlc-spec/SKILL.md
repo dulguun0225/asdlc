@@ -19,8 +19,8 @@ problem and from this repository, and nothing about drafting one executes code.
 
 ## Before writing anything
 
-1. **Read the template** at `asdlc/templates/spec.md` if this repository carries one; otherwise
-   reproduce its structure from the section list below. Do not invent a different structure.
+1. **Read [template.md](template.md)**, beside this file. It is the structure — copy it into the
+   feature folder and fill it in. Do not invent a different one.
 2. **Establish the feature id.** `Glob` `specs/*/` and take the next free `NNN`, zero-padded to
    three digits. Ids are never reused, including by a feature that was abandoned.
 3. **Check the tier expectation.** A documentation, comments-only, formatting-only, tests-only or

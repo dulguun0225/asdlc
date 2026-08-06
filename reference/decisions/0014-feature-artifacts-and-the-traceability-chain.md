@@ -75,9 +75,9 @@ Three markdown files per feature, in **the repository whose code they govern**, 
 
 | File | Stage | Template |
 |---|---|---|
-| `spec.md` | [1. Spec](../../asdlc/01-spec.md) | [asdlc/templates/spec.md](../../asdlc/templates/spec.md) |
-| `plan.md` | [2. Plan / design](../../asdlc/02-plan.md) | [asdlc/templates/plan.md](../../asdlc/templates/plan.md) |
-| `tasks.md` | [3. Tasks](../../asdlc/03-tasks.md) | [asdlc/templates/tasks.md](../../asdlc/templates/tasks.md) |
+| `spec.md` | [1. Spec](../../asdlc/01-spec.md) | [skills/asdlc-spec/template.md](../../skills/asdlc-spec/template.md) |
+| `plan.md` | [2. Plan / design](../../asdlc/02-plan.md) | [skills/asdlc-plan/template.md](../../skills/asdlc-plan/template.md) |
+| `tasks.md` | [3. Tasks](../../asdlc/03-tasks.md) | [skills/asdlc-tasks/template.md](../../skills/asdlc-tasks/template.md) |
 
 No central specs repository. Co-location is what makes the rest of this record mechanical: the
 artifact is a committed file, so the gate record's `artifact_hash` is **sha256 over the file's

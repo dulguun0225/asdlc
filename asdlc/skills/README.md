@@ -25,7 +25,11 @@ an engineer: as Agent Skills, delivered by the `skills` CLI) and
 commands contributed to these procedures, and which were rejected).
 Artifact rules:
 [ADR-0014](../../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md).
-Templates: [../templates/](../templates/README.md).
+
+**The first three carry their own template**, as `template.md` beside the `SKILL.md`, so one
+`skills add` delivers the procedure and the blank it fills
+([ADR-0040](../../reference/decisions/0040-templates-ship-inside-the-stage-skills.md)). The rules
+those blanks encode are stated at [../templates/](../templates/README.md).
 
 ## How they get to an engineer
 

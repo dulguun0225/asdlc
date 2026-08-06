@@ -53,3 +53,4 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0037](0037-spec-kit-command-harvest.md) | Spec-kit's non-stage commands: three harvested as amendments, three rejected | accepted | 2026-08-06 |
 | [0038](0038-feature-artifact-content-hygiene.md) | Feature artifacts carry no secrets and no production personal data | accepted | 2026-08-06 |
 | [0039](0039-self-hosted-forks-on-the-assembly-axis.md) | The self-hosted variant forks on the assembly axis: three variants | accepted | 2026-08-06 |
+| [0040](0040-templates-ship-inside-the-stage-skills.md) | The three artifact templates ship inside the stage skills, as `template.md` | accepted | 2026-08-06 |

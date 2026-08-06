@@ -8,8 +8,8 @@
 
 ## Context
 
-The plan template carries a decision trace ([asdlc/templates/plan.md](../../asdlc/templates/plan.md)
-§9) with two rules: name what was rejected, and mark a choice no record covers `NEW — proposed`.
+The plan template carries a decision trace
+([skills/asdlc-plan/template.md](../../skills/asdlc-plan/template.md) §9) with two rules: name what was rejected, and mark a choice no record covers `NEW — proposed`.
 ADR-0014 created the template; nothing specifies the trace further.
 
 The bundle's wrapped plan command — written for the predecessor convention, kept as prior art
@@ -82,8 +82,8 @@ not re-litigated, because unframed re-derivation lands on the corpus default.
 
 ### 4. Where the rules live, and what checks them
 
-- [asdlc/templates/plan.md](../../asdlc/templates/plan.md) §9 — the template comment and the
-  example rows.
+- [skills/asdlc-plan/template.md](../../skills/asdlc-plan/template.md) §9 — the template comment
+  and the example rows.
 - [skills/asdlc-plan/SKILL.md](../../skills/asdlc-plan/SKILL.md) §9 — the procedure.
 - **No machine check reads §9.** The feature-artifact checker's seven blocking checks
   (ADR-0014 part 7) do not include the decision trace; the row kinds are review structure for

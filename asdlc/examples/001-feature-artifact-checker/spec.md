@@ -10,7 +10,7 @@
 
 <!--
   Worked example. This is what a filled-in spec.md looks like; the blank is at
-  asdlc/templates/spec.md. Nothing here is signed — see ../README.md.
+  skills/asdlc-spec/template.md. Nothing here is signed — see ../README.md.
 
   Guidance comments like this one are stripped before checking, which is itself FR-005.
 -->

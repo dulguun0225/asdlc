@@ -6,13 +6,21 @@ them honest afterwards. Rules:
 research behind them:
 [2026-07-27 note](../../reference/research/2026-07-27-spec-plan-task-templates.md).
 
-Copy them into the repository whose code they govern, at `specs/<NNN>-<kebab-slug>/`:
+**Each template ships inside its stage skill, as `template.md` beside that skill's `SKILL.md`**
+([ADR-0040](../../reference/decisions/0040-templates-ship-inside-the-stage-skills.md)) — so
+`skills add` delivers the procedure and the file it produces together, and the skill's link to
+its own template resolves in an installed skill directory. This page is the design's statement
+of the rules; the files are there.
 
 | Template | Becomes | Stage | Signed by |
 |---|---|---|---|
-| [spec.md](spec.md) | `specs/<NNN>-<slug>/spec.md` | [1. Spec](../01-spec.md) | domain owner (T1); at T2 the plan signer asserts it too |
-| [plan.md](plan.md) | `specs/<NNN>-<slug>/plan.md` | [2. Plan / design](../02-plan.md) | ring reviewer, or a review-competent team leader |
-| [tasks.md](tasks.md) | `specs/<NNN>-<slug>/tasks.md` | [3. Tasks](../03-tasks.md) | nobody — automated check only |
+| [asdlc-spec/template.md](../../skills/asdlc-spec/template.md) | `specs/<NNN>-<slug>/spec.md` | [1. Spec](../01-spec.md) | domain owner (T1); at T2 the plan signer asserts it too |
+| [asdlc-plan/template.md](../../skills/asdlc-plan/template.md) | `specs/<NNN>-<slug>/plan.md` | [2. Plan / design](../02-plan.md) | ring reviewer, or a review-competent team leader |
+| [asdlc-tasks/template.md](../../skills/asdlc-tasks/template.md) | `specs/<NNN>-<slug>/tasks.md` | [3. Tasks](../03-tasks.md) | nobody — automated check only |
+
+**The shipped files cite no record.** A consumer installs skills, not this design, so a template
+that cited `ADR-0014` would send its reader nowhere. Each states its rule and points at the
+`SKILL.md` beside it; the records behind the rules are on this page.
 
 **A filled-in example is in [../examples/](../examples/README.md).** These templates state the
 rules; the example applies them, and records in its own §7 the places where the notation resisted.
@@ -69,7 +77,7 @@ second trigger list ([tiers.md](../tiers.md)).
   requires a gate record per tier. Reconciling the two is the top row of
   [open-parameters.md](../../rollout/open-parameters.md), and which side has to move is settled by
   [ADR-0030](../../reference/decisions/0030-design-states-the-rules-tools-implement-them.md).
-- **The four stage skills** that drive these templates exist —
+- **The four stage skills** that carry these templates exist —
   [../skills/](../skills/README.md), `/asdlc-spec` … `/asdlc-implement` — and are unrun.
 - **The authoring language** is English by default, unconfirmed — see
   [context.md](../../reference/context.md).

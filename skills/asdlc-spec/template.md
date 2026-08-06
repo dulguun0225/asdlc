@@ -2,17 +2,17 @@
 
 <!--
   Template. Copy to `specs/<NNN>-<kebab-slug>/spec.md` in the repository whose code this
-  governs. Rules: ADR-0014. Guidance comments like this one are stripped before checking,
-  so leave or delete them freely — they never count as content.
+  governs. Rules: SKILL.md, beside this file. Guidance comments like this one are stripped
+  before checking, so leave or delete them freely — they never count as content.
 
   There is NO status or approval line in this file, deliberately. The approval is the gate
-  record, which carries the sha256 of this file's bytes at the commit that was signed
-  (reference/artifacts.md §3). Editing this file after signature invalidates the signature
-  mechanically. Do not add one back.
+  record, which carries the sha256 of this file's bytes at the commit that was signed.
+  Editing this file after signature invalidates the signature mechanically. Do not add one
+  back.
 
   No secrets and no production personal data anywhere in this file — example records, sample
-  requests and entity walkthroughs use fabricated values (ADR-0038). This file is read into
-  every agent session on the feature.
+  requests and entity walkthroughs use fabricated values. This file is read into every agent
+  session on the feature.
 -->
 
 | | |
@@ -40,8 +40,8 @@ language covers it. A requirement is only as precise as the words it uses.]
 ### State model
 
 <!--
-  Always present (ADR-0035): either the model below, or — only where the feature genuinely has
-  no externally visible states — this subsection's content replaced by exactly:
+  Always present: either the model below, or — only where the feature genuinely has no
+  externally visible states — this subsection's content replaced by exactly:
 
     This feature has no externally visible states.
 
@@ -50,15 +50,15 @@ language covers it. A requirement is only as precise as the words it uses.]
   (queues, retries, service hops) belongs to the plan. The states declared here are the closed
   vocabulary for every WHILE below; WHILE anywhere + the stateless line = check failure.
 
-  Checked (ADR-0035 part 2): states declared once, one initial; every From/To declared; every
-  state reachable and every non-terminal state has an exit; every WHILE names a declared state;
-  every transition cites an event-driven, unwanted-behaviour or complex FR; same (From, Trigger)
-  with textually identical guards fails. Checks are structural — names, citations, graph shape —
-  never that a sentence agrees with the transition citing it.
+  Checked: states declared once, one initial; every From/To declared; every state reachable and
+  every non-terminal state has an exit; every WHILE names a declared state; every transition
+  cites an event-driven, unwanted-behaviour or complex FR; same (From, Trigger) with textually
+  identical guards fails. Checks are structural — names, citations, graph shape — never that a
+  sentence agrees with the transition citing it.
 
-  Never hand-write a state diagram. The rendered view is generated from this table (a
-  deterministic table→Mermaid generator, ADR-0035 part 2 rule 7); where a generated diagram is
-  committed, CI regenerates it and fails on any byte difference.
+  Never hand-write a state diagram. The rendered view is generated from this table by a
+  deterministic table→Mermaid generator; where a generated diagram is committed, CI regenerates
+  it and fails on any byte difference.
 -->
 
 *States:* [Draft, Submitted, Approved, Rejected]. *Initial:* [Draft]. *Terminal:* [Approved, Rejected].
@@ -80,7 +80,7 @@ language covers it. A requirement is only as precise as the words it uses.]
     Optional feature    WHERE <feature is included>, the <system> shall <response>.
     Complex             WHILE <state>, WHEN <trigger>, the <system> shall <response>.
 
-  Rules, all checked (ADR-0014 part 7):
+  Rules, all checked:
   - One requirement = one testable behaviour. Two `shall`s means two requirements. Watch for a
     smuggled "and": "validates and persists and notifies" is three requirements in one id.
   - Prefer the simplest pattern that fits.
@@ -111,14 +111,14 @@ next free id regardless of grouping.]
 
 <!--
   EARS has no pattern for these, so they are a field set instead. Every NFR names an
-  enforcement point (ADR-0014 part 5):
+  enforcement point, and there are exactly three:
     canary  — becomes a threshold in the service's progressive-rollout policy, the signal that
               aborts a bad deploy. Name the metric and the value.
     test    — a named load or performance test, cited from tasks like any FR.
     none    — permitted, with a reason, signed at the plan gate.
-  The plan proposes values; the platform owner sets them at T1
-  (rollout/open-parameters.md). Delete the section only if the feature has no operational
-  properties worth stating — deletion is a review question.
+  This spec proposes values; the platform owner sets the final ones at T1. Delete the section
+  only if the feature has no operational properties worth stating — deletion is a review
+  question.
 -->
 
 | ID | Property | Metric | Threshold | Window | Scope | Enforcement |

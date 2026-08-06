@@ -14,7 +14,8 @@ Mechanical decomposition of the approved plan into tasks.
 
 ## The artifact
 
-`specs/<NNN>-<kebab-slug>/tasks.md` — template: [templates/tasks.md](templates/tasks.md), rules:
+`specs/<NNN>-<kebab-slug>/tasks.md` — template:
+[asdlc-tasks/template.md](../skills/asdlc-tasks/template.md), rules:
 [ADR-0014](../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md).
 
 Each task carries a stable `T-nnn`, at least one `[FR-nnn]` it implements (or an explicit

@@ -50,6 +50,53 @@ design, because a consumer installs skills and not the design;
 under it. **Consequence for authoring: do not re-add an `ADR-NNNN` or a `reference/…` path to a
 shipped template** — the gate does not catch prose citations.
 
+**Decided but not built: this repository's own quality system.** Three layers are unchecked —
+both CI workflows are `paths`-filtered to `tools/` subtrees, so the four design directories run
+nothing; `tools/` holds no test files at all, including the two gates that gate `skills/`; and the
+skills tree states about a dozen machine-checkable rules and enforces two. The shape decided: a new
+`tools/design-checks/` (Node built-ins only, no `package.json`, no install) behind an **unfiltered**
+`design-checks.yml` — the link graph, the ADR index and the OQ registry span directories, so a
+`paths` filter would have to name every one and still miss cross-directory breakage; two new gates
+in `tools/skills-harness/` (skill shape, and two exact contract sentences with a zero-match floor);
+`node --test` suites inside each tool directory behind a `run-tests.mjs` wrapper; and exactly one
+agent-run evaluation, `stage-walk`, on demand and never a gate, whose verdict comes from the
+deterministic checker rather than a model. Record it first as a new decision record — `ADR-0042` if
+that number is still free — plus `reference/quality.md`, whose load-bearing column is the invariants
+deliberately *not* machine-checked and why: before any green check exists, or conformance starts to
+look total.
+
+Defects verified against the tree on 2026-08-07, each one a check paying for itself: **16 tracked
+documents end with a stray `</content>` tag** (`decisions/0015`–`0023`, the seven
+`research/2026-07-28-*` notes); **18 bare `ADR-NNNN` citations in living documents resolve to no
+file** (`ADR-0004` ×15 in ADR-0005, plus `ADR-0001` and `ADR-0024`) — historical narrative this
+repository forbids, so the fix is deletion, never a declared deleted-numbers allowlist. That check
+takes backticks as load-bearing, the way `dangling-pointer.mjs` already does: a backticked id is a
+mention and passes, a bare one is a citation and must resolve — otherwise this paragraph, and the
+record that closes this work, could not name a deleted number at all. Also:
+`research/2026-08-05-constraint-audit.md` carries no "do not reintroduce" section; the never-signs
+sentence `asdlc/skills/README.md` says every stage skill repeats appears in **none** of the four;
+the task half of `check-specs.mjs` is unexercised because `examples/password-reset/` has no
+`tasks.md`; five of the eight "Known regressions to preserve" have no executable probe; and the
+checker workflow's `paths` filter excludes `asdlc/examples/**`, so editing the design's own worked
+spec triggers nothing. Measured on the pinned interpreter: `node --test 'test/**/*.test.mjs'`
+with zero matching files **exits 0**, as does an all-`skip` suite, while `node --test test/` exits 1
+*with* tests present — which is why the wrapper enforces a file floor and a skip ceiling.
+
+Deliberately not built, so nobody re-proposes them: any coverage collection or threshold
+([ADR-0019](decisions/0019-testing-agent-written-code.md) part 2); a test runner, linter or
+formatter dependency, in a repository with no platform owner to maintain it; a frontmatter key-set
+gate, a canonical tool-name failure list, or an argument-placeholder rule — all three would have a
+tool invent a design rule ([ADR-0030](decisions/0030-design-states-the-rules-tools-implement-them.md));
+a stated-counts gate, which is an allowlist that exists to make writing counts safe; a blocking
+check that every ADR carries a reversal section, since the surface is not standardised and an empty
+section would satisfy a heading check — it is a report; and any LLM-judge or rubric-scored
+evaluation ([ADR-0003](decisions/0003-graduated-gating-machine-derived-tier.md),
+[ADR-0037](decisions/0037-spec-kit-command-harvest.md): the producer never rates).
+
+Two steps need the owner's hand: deleting ~15 sentences of deleted-record narrative from ADR-0005,
+and editing the four stage skills to carry the contract sentences — instruction-layer files on
+ADR-0020 part 4's never-write list. Everything else is unblocked, starting with the record.
+
 **What is left, in order:**
 
 0. **The constraint audit's remainder** — 21 smaller findings awaiting the owner's

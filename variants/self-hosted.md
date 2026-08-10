@@ -298,23 +298,31 @@ unverified syntax here would violate the repository's research-before-content ru
 
 ## 6. Local test rig — what to prepare
 
-One machine with Docker proves the core of this stack before any procurement: the code host and
-gates, the registry, the observability layer, and both §4 bring-up verifications (the Harbor
-referrers path and the toolchain under `tlsTerminate`), plus the T1 pre-run human gate — the
-variant's headline claim. Figures checked 2026-08-06; re-verify before buying hardware.
+One machine with Docker proves this stack before any procurement: the code host and gates, the
+registry, the observability layer, both §4 bring-up verifications (the Harbor referrers path and
+the toolchain under `tlsTerminate`), the T1 pre-run human gate — the variant's headline claim —
+and, as its own sequenced slice, progressive rollout. Figures checked 2026-08-06; the rig
+machine itself was measured 2026-08-10 (below).
 
 | Layer | Local form | Sourced requirement (checked 2026-08-06) |
 |---|---|---|
 | Gerrit + Zuul + ZooKeeper | The [official Zuul quickstart](https://zuul-ci.org/docs/zuul/latest/tutorials/quick-start.html) — one docker-compose running ZooKeeper, Gerrit, scheduler, web, executor, launcher and a static test node | Stated: *"a network connection, the ability to run containers, and at least 2GiB of RAM."* Gerrit runs small sites at ~2 GiB heap ([scaling notes](https://www.gerritcodereview.com/scaling.html)); budget 4 GB for the compose |
 | Harbor | Its own docker-compose (offline installer), ~10 containers | **2 CPU / 4 GB RAM / 40 GB disk minimum**, 4 CPU / 8 GB / 160 GB recommended ([installation prerequisites](https://goharbor.io/docs/2.13.0/install-config/installation-prereqs/)) |
 | OTel Collector + Prometheus + Loki (monolithic) + Grafana | One compose file | Grafana states **512 MB / 1 core minimum** ([installation docs](https://grafana.com/docs/grafana/latest/setup-grafana/installation/)); the other three publish no minimum — budget ~2 GB total at test volume |
-| Flagger + Kubernetes | kind or k3d cluster, +2–4 GB | Optional — conditional on the deployment target being Kubernetes (§1); leave out of the first pass |
+| Flagger + Kubernetes | kind or k3d cluster, +2–4 GB | Conditional on the deployment target being Kubernetes (§1). On a 16 GB machine, bring up as its own slice with Harbor stopped — Harbor is needed for the referrers and signing verifications, not the rollout one; the RAM constraint costs concurrency, not coverage |
 | Claude Code runner | **On the host, not in Docker** | macOS, Linux or WSL2 only — the sandbox refuses native Windows (§1) |
 
 **Hardware to prepare:**
 
+- **The rig machine is known** (measured 2026-08-10): Linux, 32 cores, 16 GB RAM, NVMe,
+  ~860 GB free. CPU and disk are settled and cease to be sizing questions; RAM sits exactly on
+  the 16 GB line below, so the full stack is proven by **sequencing** — the core stack
+  (Gerrit + Zuul + Harbor + observability, ~10 GB of containers) concurrently beside a trimmed
+  desktop session, then kind + Flagger as its own slice with Harbor stopped. Swap absorbs the
+  transitions; do not run all layers concurrently swap-backed — memory pressure makes
+  ZooKeeper and Prometheus flaky, and a flaky rig undermines what it exists to prove.
 - **Linux: 4 cores, 16 GB RAM, 80 GB free disk** proves the core stack. 8 cores / 32 GB is
-  comfortable and leaves room for kind + Flagger.
+  comfortable and runs kind + Flagger concurrently instead of sequenced.
 - **Windows needs more than Linux for the same containers**: they all run inside the WSL2 VM
   (Docker Desktop's backend) while Windows 11 and desktop applications need ~6–8 GB beside it.
   16 GB total works only by bringing layers up one at a time; **24 GB runs the full core stack
@@ -323,9 +331,9 @@ variant's headline claim. Figures checked 2026-08-06; re-verify before buying ha
   Linux box is the lower-friction path.
 - RAM is the constraint, not CPU; no GPU is needed.
 
-**What the rig does not prove:** progressive rollout unless kind + Flagger is added; operations
-at scale (backup, retention, multi-user load); anything about token economics
-([OQ-7](../reference/open-questions.md)).
+**What the rig does not prove:** all layers running concurrently (the 16 GB machine sequences
+the Kubernetes slice); operations at scale (backup, retention, multi-user load); anything about
+token economics ([OQ-7](../reference/open-questions.md)).
 
 ## 7. Why this variant, in one paragraph
 

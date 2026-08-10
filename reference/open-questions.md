@@ -68,12 +68,19 @@ agent change was gated end-to-end (check on the static node → human CR+2/Workf
 Zuul submitted), 2026-08-10. Its README carries the runtime facts; the sharpest, also noted
 on the sheet §5: **Gerrit evaluates `users=human_reviewers` as a matching vote from *every*
 human reviewer**, so a reviewer voting only +1 or only Workflow blocks submission — the
-approver casts Code-Review+2 and Workflow+1 together. **Remaining on this definition:** the
-server half of ADR-0043's acceptance test (same definition brought up on a server), the
-code-owners plugin slice (T1 path ownership — jar per Gerrit stable branch on GerritForge CI,
-verified 2026-08-10; installing it unconfigured blocks every submit, so it is its own slice),
-and an authentication backend (the Gerrit image runs dev-mode auth; the sheet names no auth
-provider — a sheet gap; blocks any reachable server deployment). The integrated definition is
+approver casts Code-Review+2 and Workflow+1 together. **The sheet's §6 local rig now covers
+the whole stack** (updated 2026-08-10): the rig machine was measured (Linux, 32 cores, 16 GB,
+NVMe — RAM is the only constraint) and the first pass is full-coverage by sequencing — core
+stack concurrently, kind + Flagger as its own slice with Harbor stopped. **Remaining on this
+definition, in dependency order:** Harbor plus the §4 referrers verification; cosign
+provenance signing and verification (ADR-0018); the observability compose (retention set
+before the first gate record); the code-owners plugin slice (T1 path ownership — jar per
+Gerrit stable branch on GerritForge CI, verified 2026-08-10; installing it unconfigured blocks
+every submit, so it is its own slice); the build-row jobs (tier-function, never-write,
+ring/reassignment) and the real base job; the kind + Flagger slice; an authentication backend
+(the Gerrit image runs dev-mode auth; the sheet names no auth provider — a sheet gap; blocks
+any reachable server deployment); and the server half of ADR-0043's acceptance test (same
+definition brought up on a server). The integrated definition is
 frozen — fallback and demonstrations only, no further development. OQ-22 no longer blocks the
 primary but stays open for the fallback; the Forgejo definition demonstrates the fallback
 shape. Naming convention (owner, 2026-08-10): **`tools/stacks/<sheet-name>/` — one directory

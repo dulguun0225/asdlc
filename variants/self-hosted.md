@@ -254,7 +254,11 @@ unverified syntax here would violate the repository's research-before-content ru
     committer, and uploader in one rule (producer exclusion).
   - Requester exclusion: the agent account is in the **Service Users** group; agent-created
     changes are **owned by the requesting engineer**; a requirement using
-    `users=human_reviewers` ignores service-user and change-owner votes.
+    `users=human_reviewers` ignores service-user and change-owner votes — and requires the
+    matching vote from **every** human reviewer (verified live on Gerrit 3.14.2, 2026-08-10,
+    [tools/stacks/self-hosted](../tools/stacks/self-hosted/README.md): a reviewer voting only
+    +1 or only Workflow blocks submission, so the approver casts Code-Review and Workflow
+    together).
   - T1 gate: the **code-owners plugin** as a blocking submit rule on rule-1/rule-2 paths,
     owners = platform owner + backup, **implicit self-approval off**; overrides are label
     votes, hence recorded on the change.

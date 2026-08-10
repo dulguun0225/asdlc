@@ -1,0 +1,124 @@
+# The self-hosted assembled variant's code host and gates as code
+# (variants/self-hosted.md §5): Gerrit + Zuul, the shape of the official Zuul
+# quickstart (zuul-ci.org/docs/zuul/latest/tutorials/quick-start.html) with the
+# tutorial conveniences removed and every image pinned to a version tag.
+# Pin digests before anything real depends on these tags.
+#
+# Bring-up order matters (certs before zk, Gerrit configured before Zuul):
+# bootstrap.mjs runs the sequence — do not `docker compose up -d` cold.
+name: asdlc-self-hosted
+services:
+  gerrit:
+    # Verified 2026-08-10: newest tag on docker.io/gerritcodereview/gerrit.
+    # The image's default entrypoint runs in development mode
+    # (admin account, HTTP password "secret") — a recorded bring-up fact,
+    # and the reason this definition is not production as-is (see README).
+    image: docker.io/gerritcodereview/gerrit:3.14.2
+    restart: unless-stopped
+    environment:
+      CANONICAL_WEB_URL: "http://localhost:8080/"
+    ports:
+      - "8080:8080"
+      - "29418:29418"
+    volumes:
+      - gerrit-etc:/var/gerrit/etc
+      - gerrit-db:/var/gerrit/db
+      - gerrit-git:/var/gerrit/git
+      - gerrit-index:/var/gerrit/index
+      - gerrit-cache:/var/gerrit/cache
+
+  zk:
+    # Zuul requires TLS to ZooKeeper ("TLS is required", zuul-ci.org
+    # configuration docs, checked 2026-08-10); bootstrap.mjs generates the CA
+    # and certs into .secrets/certs before this container starts.
+    image: docker.io/zookeeper:3.9
+    restart: unless-stopped
+    hostname: zk
+    volumes:
+      - ./zuul/zoo.cfg:/conf/zoo.cfg:ro
+      - ./.secrets/certs:/var/certs:ro
+      - zk-data:/data
+      - zk-datalog:/datalog
+
+  mariadb:
+    image: docker.io/mariadb:11.4
+    restart: unless-stopped
+    env_file: .secrets/stack.env   # MARIADB_* and ZUUL_* values, generated
+    environment:
+      MARIADB_DATABASE: zuul
+      MARIADB_USER: zuul
+
+  scheduler:
+    image: quay.io/zuul-ci/zuul-scheduler:14.2.0
+    restart: unless-stopped
+    command: zuul-scheduler -f
+    env_file: .secrets/stack.env
+    depends_on: [zk, mariadb, gerrit]
+    volumes:
+      - ./zuul/etc:/etc/zuul:ro
+      - ./.secrets/certs:/var/certs:ro
+      - ./.secrets/ssh:/var/ssh:ro
+      - zuul-scheduler:/var/lib/zuul
+
+  web:
+    image: quay.io/zuul-ci/zuul-web:14.2.0
+    restart: unless-stopped
+    command: zuul-web -f
+    env_file: .secrets/stack.env
+    depends_on: [scheduler]
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./zuul/etc:/etc/zuul:ro
+      - ./.secrets/certs:/var/certs:ro
+      - zuul-web:/var/lib/zuul
+
+  executor:
+    image: quay.io/zuul-ci/zuul-executor:14.2.0
+    restart: unless-stopped
+    privileged: true   # the executor's own bubblewrap containment needs it
+    command: zuul-executor -f
+    env_file: .secrets/stack.env
+    depends_on: [scheduler]
+    volumes:
+      - ./zuul/etc:/etc/zuul:ro
+      - ./.secrets/certs:/var/certs:ro
+      - ./.secrets/ssh:/var/ssh:ro
+      - zuul-executor:/var/lib/zuul
+
+  launcher:
+    image: quay.io/zuul-ci/zuul-launcher:14.2.0
+    restart: unless-stopped
+    command: zuul-launcher -f
+    env_file: .secrets/stack.env
+    depends_on: [scheduler]
+    volumes:
+      - ./zuul/etc:/etc/zuul:ro
+      - ./.secrets/certs:/var/certs:ro
+      - zuul-launcher:/var/lib/zuul
+
+  node:
+    # The static test node jobs run on. Host key and authorized_keys are
+    # created at container start (entrypoint in node.Dockerfile); nothing
+    # key-shaped is committed, unlike the upstream quickstart.
+    build:
+      dockerfile: node.Dockerfile
+      context: .
+    restart: unless-stopped
+    volumes:
+      - ./.secrets/ssh:/var/bootstrap:ro
+      - node-etc-ssh:/etc/ssh
+
+volumes:
+  gerrit-etc:
+  gerrit-db:
+  gerrit-git:
+  gerrit-index:
+  gerrit-cache:
+  zk-data:
+  zk-datalog:
+  zuul-scheduler:
+  zuul-web:
+  zuul-executor:
+  zuul-launcher:
+  node-etc-ssh:

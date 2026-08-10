@@ -59,16 +59,25 @@ the owner scoped the operations appetite to bring-up only (context.md §Appetite
 post-pilot operations go to a dedicated AI-equipped team), which removed the integrated
 variant's one advantage. Updated to match: rollout plan §1 (decision replaces the cloud-pilot
 recommendation), §7 (assembled deltas now operative), §9; variants/README.md "Which one to
-run"; the assembled sheet's §7 closing paragraph. **Next build work this opens: a declarative
-local definition of the assembled stack** (Gerrit + Zuul + the sheet's §5 access policy as
-code) at `tools/stacks/self-hosted/`, whose acceptance test is that the same definition comes
-up locally and on a server. **This is the next session's work (owner, 2026-08-10)**; the
-integrated definition is frozen — fallback and demonstrations only, no further development.
-OQ-22 no longer blocks the primary but stays open for the fallback; the Forgejo definition
-now demonstrates the fallback shape. Naming convention set with the owner, 2026-08-10:
-**`tools/stacks/<sheet-name>/` — one directory per variant sheet, named as the sheet file
-is** (`tools/local-rig/` was renamed to `tools/stacks/self-hosted-integrated/`; compose
-project and container renamed to match, live volumes migrated by copy).
+run"; the assembled sheet's §7 closing paragraph. **The declarative definition now exists and
+is verified locally: [`tools/stacks/self-hosted/`](../tools/stacks/self-hosted/README.md)** —
+Gerrit 3.14.2 + Zuul 14.2.0 compose (the sheet §6's quickstart shape, images pinned, no
+committed keys), the §5 access policy merged as a reviewed `refs/meta/config` commit, tenant
+and pipelines seeded through their own review gate; the §5 denials were probed live and one
+agent change was gated end-to-end (check on the static node → human CR+2/Workflow+1 → gate →
+Zuul submitted), 2026-08-10. Its README carries the runtime facts; the sharpest, also noted
+on the sheet §5: **Gerrit evaluates `users=human_reviewers` as a matching vote from *every*
+human reviewer**, so a reviewer voting only +1 or only Workflow blocks submission — the
+approver casts Code-Review+2 and Workflow+1 together. **Remaining on this definition:** the
+server half of ADR-0043's acceptance test (same definition brought up on a server), the
+code-owners plugin slice (T1 path ownership — jar per Gerrit stable branch on GerritForge CI,
+verified 2026-08-10; installing it unconfigured blocks every submit, so it is its own slice),
+and an authentication backend (the Gerrit image runs dev-mode auth; the sheet names no auth
+provider — a sheet gap; blocks any reachable server deployment). The integrated definition is
+frozen — fallback and demonstrations only, no further development. OQ-22 no longer blocks the
+primary but stays open for the fallback; the Forgejo definition demonstrates the fallback
+shape. Naming convention (owner, 2026-08-10): **`tools/stacks/<sheet-name>/` — one directory
+per variant sheet, named as the sheet file is**.
 
 **New since 2026-08-10, second: [ADR-0042](decisions/0042-stack-sheets-share-one-layer-taxonomy.md)**
 — the three stack sheets share one layer vocabulary and row order (the assembled sheet's), a

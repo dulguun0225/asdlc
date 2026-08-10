@@ -1,0 +1,11 @@
+# Zuul tenant configuration. zuul-config is the config-project — the trusted
+# execution context ADR-0018 puts the signing key in; pilot is an ordinary
+# untrusted project.
+- tenant:
+    name: asdlc
+    source:
+      gerrit:
+        config-projects:
+          - zuul-config
+        untrusted-projects:
+          - pilot

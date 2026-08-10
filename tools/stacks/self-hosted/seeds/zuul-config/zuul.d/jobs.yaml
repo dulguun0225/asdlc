@@ -1,0 +1,10 @@
+# The minimal base job (quickstart's first form). The upstream jobs2 variant —
+# workspace sync from zuul-jobs, log upload — is later work; until then a job
+# runs on the node without the change's repos synced to it.
+- job:
+    name: base
+    parent: null
+    nodeset:
+      nodes:
+        - name: test-node
+          label: test-node

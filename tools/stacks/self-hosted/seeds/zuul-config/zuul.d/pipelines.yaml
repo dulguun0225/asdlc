@@ -1,0 +1,55 @@
+# Pipelines, quickstart shape. The gate pipeline's `require` on Workflow+1 is
+# variants/self-hosted.md §5's pre-run human gate: no gate job runs until a
+# human has voted, and only the humans group may cast Workflow (Gerrit label
+# permission — Zuul requirement matching cannot match groups).
+- pipeline:
+    name: check
+    description: |
+      Newly uploaded patchsets enter this pipeline to receive an
+      initial +/-1 Verified vote.
+    manager: independent
+    require:
+      gerrit:
+        open: True
+        current-patchset: True
+    trigger:
+      gerrit:
+        - event: patchset-created
+        - event: change-restored
+        - event: comment-added
+          comment: (?i)^(Patch Set [0-9]+:)?( [\w\\+-]*)*(\n\n)?\s*recheck
+    success:
+      gerrit:
+        Verified: 1
+    failure:
+      gerrit:
+        Verified: -1
+
+- pipeline:
+    name: gate
+    description: |
+      Changes approved by a human enter this pipeline in order, and
+      merge if they pass tests. No job runs before the human vote.
+    manager: dependent
+    post-review: True
+    require:
+      gerrit:
+        open: True
+        current-patchset: True
+        approval:
+          - Workflow: 1
+    trigger:
+      gerrit:
+        - event: comment-added
+          approval:
+            - Workflow: 1
+    start:
+      gerrit:
+        Verified: 0
+    success:
+      gerrit:
+        Verified: 2
+        submit: true
+    failure:
+      gerrit:
+        Verified: -2

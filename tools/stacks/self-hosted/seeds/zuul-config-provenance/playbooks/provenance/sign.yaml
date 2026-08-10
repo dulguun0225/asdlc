@@ -1,0 +1,70 @@
+# Post-run phase of pilot-artifact-provenance: the signing step (ADR-0018
+# §1–§3). Trusted execution context; the only playbook that ever sees the
+# signing key. Every predicate value comes from Zuul's job variables, never
+# from a file in the repository being built (§2) — a predicate populated
+# from repository-controlled input is self-attestation with extra steps.
+- hosts: localhost
+  tasks:
+    - name: Resolve the pushed artifact's digest
+      command: >-
+        /opt/stack-bin/oras resolve --plain-http
+        {{ registry }}/pilot/pilot-artifact:master-{{ zuul.newrev[:12] }}
+      register: resolved
+
+    - name: Write the SLSA Provenance v1 predicate from Zuul job variables
+      copy:
+        dest: "{{ zuul.executor.work_root }}/predicate.json"
+        content: "{{ predicate | to_nice_json }}"
+      vars:
+        predicate:
+          buildDefinition:
+            buildType: "urn:asdlc:zuul-job:v1"
+            externalParameters:
+              project: "{{ zuul.project.canonical_name }}"
+              ref: "{{ zuul.ref }}"
+              newrev: "{{ zuul.newrev }}"
+            internalParameters:
+              tenant: "{{ zuul.tenant }}"
+              pipeline: "{{ zuul.pipeline }}"
+              job: "{{ zuul.job }}"
+            # Empty by decision, not omission (ADR-0018 §2): populating it is
+            # an SBOM problem this design has not opened; L2 does not ask.
+            resolvedDependencies: []
+          runDetails:
+            builder:
+              id: "urn:asdlc:zuul:{{ zuul.tenant }}:{{ zuul.pipeline }}"
+            metadata:
+              invocationId: "{{ zuul.build }}"
+              startedOn: "{{ now(utc=true).strftime('%Y-%m-%dT%H:%M:%SZ') }}"
+
+    - name: Write the signing key from the config-project secret
+      copy:
+        dest: "{{ zuul.executor.work_root }}/signing.key"
+        content: "{{ provenance_signing_key.key }}"
+        mode: "0600"
+      no_log: true
+
+    - name: Create the empty signing config (no transparency log at L2 — ADR-0018 §6)
+      command: >-
+        /opt/stack-bin/cosign signing-config create
+        --out {{ zuul.executor.work_root }}/signing-config.json
+
+    - name: Attest — attach the provenance as an OCI referrer
+      command: >-
+        /opt/stack-bin/cosign attest
+        --key {{ zuul.executor.work_root }}/signing.key
+        --predicate {{ zuul.executor.work_root }}/predicate.json
+        --type slsaprovenance1
+        --signing-config {{ zuul.executor.work_root }}/signing-config.json
+        --allow-http-registry --yes
+        --registry-username {{ harbor_ci_push.name | quote }}
+        --registry-password {{ harbor_ci_push.secret | quote }}
+        {{ registry }}/pilot/pilot-artifact@{{ resolved.stdout | trim }}
+      environment:
+        COSIGN_PASSWORD: "{{ provenance_signing_key.password }}"
+      no_log: true
+
+    - name: Remove the key material from the work root
+      file:
+        path: "{{ zuul.executor.work_root }}/signing.key"
+        state: absent

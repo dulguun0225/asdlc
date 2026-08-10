@@ -57,3 +57,4 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0041](0041-one-toolchain-node.md) | One toolchain: Node; the checker seeds are ported and Python retires | accepted | 2026-08-07 |
 | [0042](0042-stack-sheets-share-one-layer-taxonomy.md) | The three stack sheets share one layer taxonomy | accepted | 2026-08-10 |
 | [0043](0043-primary-variant-self-hosted-assembled.md) | The primary variant is self-hosted assembled, brought up declaratively; integrated is the fallback | accepted | 2026-08-10 |
+| [0044](0044-authentication-backend-keycloak.md) | The authentication backend: Keycloak, one identity plane for the assembled stack | accepted | 2026-08-10 |

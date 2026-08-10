@@ -60,31 +60,32 @@ a phase-0 blocker.
 
 | Layer | Component | Licence / plan | Cost | Decided by | Status | Rules |
 |---|---|---|---|---|---|---|
-| Code host | **Gerrit** | **not recorded — verify** (see §3) | $0 licence + operations | [ADR-0009](../reference/decisions/0009-code-host.md) §2 | decided | §5 below |
-| T1 path ownership | Gerrit **code-owners plugin**, implicit self-approval **off** | not recorded — verify | $0 | [ADR-0009](../reference/decisions/0009-code-host.md) §2 | decided | §5 below |
-| Gating CI | **Zuul** | **not recorded — verify** (see §3) | $0 licence + operations | [ADR-0009](../reference/decisions/0009-code-host.md) §2 | decided | §5 below |
+| Code host | **Gerrit** | **Apache 2.0** (verified first-party 2026-08-10) | $0 licence + operations | [ADR-0009](../reference/decisions/0009-code-host.md) §2 | decided | §5 below |
+| T1 path ownership | Gerrit **code-owners plugin**, implicit self-approval **off** (the plugin's default) | **Apache 2.0** (verified first-party 2026-08-10); stable-3.14 jar built 2026-07 on GerritForge CI | $0 | [ADR-0009](../reference/decisions/0009-code-host.md) §2 | decided — **demonstrated live on the §6 rig 2026-08-10**: non-owner approval refused at submit, owner approval unblocks. **Order is load-bearing: configure before install** — the unconfigured plugin blocks every submit including its own disable change ([tools/stacks/self-hosted](../tools/stacks/self-hosted/README.md)) | §5 below |
+| Gating CI | **Zuul** | **Apache 2.0, some parts GPL v3** (project README, verified first-party 2026-08-10) — both free; passes this variant's test | $0 licence + operations | [ADR-0009](../reference/decisions/0009-code-host.md) §2 | decided | §5 below |
 | Review record / audit | **NoteDb**, in-repository; ACLs versioned on `refs/meta/config` | part of Gerrit | $0 | [ADR-0009](../reference/decisions/0009-code-host.md) §2 | decided — **default-logged, not guaranteed append-only**; replicate and back up meta refs | §5 below |
 | Merge-gate enforcement | **submit requirements** — max Code-Review vote with `user=non_contributor`, excluding author, committer and uploader in one rule | part of Gerrit | $0 | [ADR-0009](../reference/decisions/0009-code-host.md) §2 | decided | §5 below |
-| Tier-function job | ours | — | engineering | [ADR-0006](../reference/decisions/0006-tier-function-and-greenfield-cold-start.md) | build | [tiers](../asdlc/tiers.md) |
+| Authentication backend | **Keycloak** — one identity plane: Gerrit via the **oauth plugin** (Keycloak provider, jar per stable branch on GerritForge CI), Harbor native OIDC, Grafana generic OAuth, Zuul web OIDC for admin JWTs. The agent identity stays an HTTP-credential service user, never SSO | **Apache 2.0** (verified first-party 2026-08-10); **CNCF incubating** — below the graduated bar, stated in the record | $0 licence + operations | [ADR-0044](../reference/decisions/0044-authentication-backend-keycloak.md) | decided — **bring-up demonstrated on the §6 rig 2026-08-10**: the dev-mode→OAUTH flip keeps every HTTP credential working, and SSO reaches the existing accounts after the external-ID pre-link (Gerrit fails closed without it) | §5 below |
+| Tier-function job | ours | — | engineering | [ADR-0006](../reference/decisions/0006-tier-function-and-greenfield-cold-start.md) | build — **first implementation demonstrated on the §6 rig 2026-08-10**: rules 1–6 probed live, rule 4 fails naming unmapped paths, verdict emitted per change ([tools/stacks/self-hosted](../tools/stacks/self-hosted/README.md)) | [tiers](../asdlc/tiers.md) |
 | Requester-check job | **not needed** — native by construction: agent is a Service User, change owned by the requester, `users=human_reviewers` ignores both | — | $0 | [ADR-0009](../reference/decisions/0009-code-host.md) §2 | decided — **a self-hosted-variant advantage** | [merge](../asdlc/05-merge.md) §4 |
-| Never-write check | ours | — | engineering | [ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) §2 | build | [tiers](../asdlc/tiers.md) |
+| Never-write check | ours | — | engineering | [ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) §2 | build — **first implementation demonstrated on the §6 rig 2026-08-10**: an agent-authored write to `CLAUDE.md` rejected outright pre-review; ADR-0036 §5's map carve-out implemented | [tiers](../asdlc/tiers.md) |
 | T1 pre-run CI gate | **Zuul pipeline `require` on a human vote** — no job runs until a human has looked | part of Zuul | $0 | [ADR-0009](../reference/decisions/0009-code-host.md) §2 | decided — **the only unconditional pre-run human gate found on any stack** | §5 below |
 | Signature bound to artifact | **native** — votes attach to patch sets | part of Gerrit | $0 | [ADR-0009](../reference/decisions/0009-code-host.md) §2 | decided — no extra machinery, unlike the cloud variant's approximation | §5 below |
-| Ring + reassignment job | ours — **must speak Gerrit's API as well as the PR-model hosts'** if more than one variant ever runs | — | engineering | [ADR-0005](../reference/decisions/0005-roles-gate-signers-and-the-reviewer-ring.md) §4–5 | build | [roles](../asdlc/roles.md) §3 |
+| Ring + reassignment job | ours — **must speak Gerrit's API as well as the PR-model hosts'** if more than one variant ever runs | — | engineering | [ADR-0005](../reference/decisions/0005-roles-gate-signers-and-the-reviewer-ring.md) §4–5 | build — **first implementation demonstrated on the §6 rig 2026-08-10**: timer-driven sweep assigns i+k, breach reassigns to i+2k with the record on its own Loki stream ([tools/stacks/self-hosted](../tools/stacks/self-hosted/README.md)) | [roles](../asdlc/roles.md) §3 |
 | Fallback host | **Forgejo** with compensating controls | **GPL v3+**, no paid edition, Codeberg e.V. | $0 | [ADR-0009](../reference/decisions/0009-code-host.md) §5 | contingency — two named triggers (§4) | §5 below |
 
 ### Build, provenance and artifacts
 
 | Layer | Component | Licence / plan | Cost | Decided by | Status | Rules |
 |---|---|---|---|---|---|---|
-| Provenance signer | **cosign**, key-based (`--key`), in a **Zuul config-project post-playbook** | **Apache 2.0** (verified first-party 2026-07-28) | $0 licence | [ADR-0018](../reference/decisions/0018-self-hosted-provenance.md) §1 | decided — no OIDC provider and no Sigstore infrastructure needed. **Keyless was rejected**, not deferred | [deploy](../asdlc/06-deploy.md) §3 |
+| Provenance signer | **cosign**, key-based (`--key`), in a **Zuul config-project post-playbook** | **Apache 2.0** (verified first-party 2026-07-28) | $0 licence | [ADR-0018](../reference/decisions/0018-self-hosted-provenance.md) §1 | decided — no OIDC provider and no Sigstore infrastructure needed. **Keyless was rejected**, not deferred. **Demonstrated live on the §6 rig 2026-08-10** ([tools/stacks/self-hosted](../tools/stacks/self-hosted/README.md)): trusted-playbook signing, pinned signer-builder verification, fail-closed on a missing attestation, and the custody denial probed — an untrusted change referencing the secret is rejected at parse | [deploy](../asdlc/06-deploy.md) §3 |
 | Signing key | Zuul **config-project secret**; T1 artifact, platform owner | — | custody + rotation | [ADR-0018](../reference/decisions/0018-self-hosted-provenance.md) §5 | decided — config-project secrets *"run in the trusted execution context where proposed changes are not used in executing jobs"*, so **the agent structurally cannot reach it**. Residual: single key, no transparency log | [schema](../reference/artifacts.md) §5 |
 | Provenance predicate | **SLSA Provenance v1** (in-toto, DSSE), populated **only** from `zuul.*` job variables | open standard | $0 | [ADR-0018](../reference/decisions/0018-self-hosted-provenance.md) §2 | decided — `builder.id` = Zuul tenant + pipeline; `invocationId` = `zuul.build`. **`resolvedDependencies` deliberately empty** | [deploy](../asdlc/06-deploy.md) §3 |
 | Provenance verification | **`cosign verify-attestation`** + CUE/Rego policy pinning the **signer-builder pair**; **fails closed on a missing attestation** | Apache 2.0 | $0 | [ADR-0018](../reference/decisions/0018-self-hosted-provenance.md) §4 | decided — *"Consumers MUST accept only specific signer-builder pairs."* Public key is reviewed T1 configuration | [deploy](../asdlc/06-deploy.md) §3 |
 | Transparency log | **none** | — | — | [ADR-0018](../reference/decisions/0018-self-hosted-provenance.md) §6 | decided — **not required at Build L2.** Cost recorded: no independent record to bound a key compromise. Upgrade path is self-hosted Sigstore | — |
-| Artifact registry | **Harbor** — **every deployable stored as an OCI artifact**, non-container ones via **ORAS** | **Apache 2.0** (verified first-party 2026-07-28); **CNCF graduated** | $0 licence + operations | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §1–2 | decided — project RBAC, tag retention and immutability rules. **Multi-component:** another system on the platform owner | [deploy](../asdlc/06-deploy.md) §3 |
+| Artifact registry | **Harbor** — **every deployable stored as an OCI artifact**, non-container ones via **ORAS** | **Apache 2.0** (Harbor verified first-party 2026-07-28; ORAS verified first-party 2026-08-10); **CNCF graduated** | $0 licence + operations | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §1–2 | decided — project RBAC, tag retention and immutability rules. **Multi-component:** another system on the platform owner | [deploy](../asdlc/06-deploy.md) §3 |
 | Registry fallback | **zot** — *"single binary for all the features"*, *"no additional dependencies or services"* | **Apache 2.0**; **CNCF Sandbox** | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §7 | contingency — two triggers (§4). **Its referrers support is inferred from OCI conformance, not quoted** — verify before promoting it | — |
-| Attestation attachment | **OCI referrers API** — `/v2/<name>/referrers/<digest>`, added in distribution-spec 1.1 | open standard | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §1 | decided as the **mechanism**; what signs and what it binds is the provenance-signer row above ([ADR-0018](../reference/decisions/0018-self-hosted-provenance.md), which closed OQ-15 on 2026-07-28). **Set cosign's attachment mode to referrers explicitly in both the signing job and the verification** — an inherited default makes the two disagree | [deploy](../asdlc/06-deploy.md) §3 |
+| Attestation attachment | **OCI referrers API** — `/v2/<name>/referrers/<digest>`, added in distribution-spec 1.1 | open standard | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §1 | decided as the **mechanism**; what signs and what it binds is the provenance-signer row above ([ADR-0018](../reference/decisions/0018-self-hosted-provenance.md), which closed OQ-15 on 2026-07-28). **Verified live 2026-08-10** (cosign v3.1.3): attest writes the attestation as an OCI 1.1 referrer (sigstore bundle) — there is no attachment-mode flag on `attest`/`verify-attestation` to set; the only mode switch left is `sign --registry-referrers-mode=oci-1-1`, for fetching. The disagree-risk is now version skew between the signing job's cosign and the verifier's — pin the same version in both | [deploy](../asdlc/06-deploy.md) §3 |
 | Registry access | agent: **no credential**; CI: push; deploy: pull + verify; delete: platform owner at T1 | — | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §3 | decided — forced by [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §5: registry tokens are a `deny`, not a `mask` | [session](../asdlc/04-implementation.md) |
 | Artifact addressing | **digest, never tag**; tag immutability rules on release tags | — | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §4 | decided — a re-pushed tag migrates, so *"the tag can no longer be trusted to identify the image version"* | [deploy](../asdlc/06-deploy.md) §3 |
 
@@ -103,7 +104,7 @@ platform owner role.
 
 | Layer | Component | Licence / plan | Cost | Decided by | Status | Rules |
 |---|---|---|---|---|---|---|
-| Progressive rollout (Kubernetes) | **Flagger** — CNCF graduated; **Argo Rollouts** the named alternative | **Apache 2.0** | $0 licence | [ADR-0011](../reference/decisions/0011-progressive-rollout.md) §1 | **conditional** on the deployment target being Kubernetes (owner-held unknown) — converges with the cloud variant | [operate](../asdlc/07-operate.md) §1 |
+| Progressive rollout (Kubernetes) | **Flagger** — CNCF graduated; **Argo Rollouts** the named alternative | **Apache 2.0** | $0 licence | [ADR-0011](../reference/decisions/0011-progressive-rollout.md) §1 | **conditional** on the deployment target being Kubernetes (owner-held unknown) — converges with the cloud variant. **Demonstrated live on the §6 rig 2026-08-10, both directions**: metric-checked promotion, and automated rollback on a poisoned canary ([tools/stacks/self-hosted](../tools/stacks/self-hosted/README.md)) | [operate](../asdlc/07-operate.md) §1 |
 | Progressive rollout (off Kubernetes) | — | — | — | [ADR-0011](../reference/decisions/0011-progressive-rollout.md) §5 | **no verified licence-cost-free mechanism exists.** If the target is bare VMs or another non-Kubernetes shape, ADR-0011's self-hosted answer **reopens**. | [operate](../asdlc/07-operate.md) §1 |
 | Canary traffic | Flagger load-testing webhook or equivalent synthetic traffic | Apache 2.0 | $0 | [ADR-0011](../reference/decisions/0011-progressive-rollout.md) §3 | decided — required, not optional | [operate](../asdlc/07-operate.md) §1 |
 | Ingress / mesh | any Flagger-supported ingress controller; no mesh required | — | $0 | [ADR-0011](../reference/decisions/0011-progressive-rollout.md) §1 | **not selected** — a Kubernetes-platform choice this design leaves open | — |
@@ -116,7 +117,7 @@ first-party 2026-07-28.
 | Layer | Component | Licence / plan | Cost | Decided by | Status | Rules |
 |---|---|---|---|---|---|---|
 | Export protocol | **OpenTelemetry** from every agent session and CI job | open standard | $0 | [ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) §9 | decided | [operate](../asdlc/07-operate.md) §3 |
-| Collector | **OpenTelemetry Collector**, gateway deployment, one per environment | **Apache 2.0** | $0 licence + operations | [ADR-0015](../reference/decisions/0015-observability-backend.md) §1 | decided — **mandatory; the redaction point.** Nothing exports direct to a backend. Redaction processor is **alpha for logs** — a second line of defence, not the first | [operate](../asdlc/07-operate.md) §3 |
+| Collector | **OpenTelemetry Collector**, gateway deployment, one per environment | **Apache 2.0** | $0 licence + operations | [ADR-0015](../reference/decisions/0015-observability-backend.md) §1 | decided — **mandatory; the redaction point.** Nothing exports direct to a backend. Redaction processor is **alpha for logs** — a second line of defence, not the first. **Brought up on the §6 rig 2026-08-10** with retention verified before the first record; the alpha log-path redaction was observed masking a planted key in both attributes and body ([tools/stacks/self-hosted](../tools/stacks/self-hosted/README.md)) | [operate](../asdlc/07-operate.md) §3 |
 | Metrics backend | **Prometheus 3.x**, OTLP receiver enabled | **Apache 2.0** | $0 licence + operations | [ADR-0015](../reference/decisions/0015-observability-backend.md) §2 | decided — confirms the component ADR-0011 §2 had only assumed. `--web.enable-otlp-receiver`, reachable **from the collector only**; `out_of_order_time_window: 30m`; `--storage.tsdb.retention.time=400d` (the 15d default is a correctness bug here) | [operate](../asdlc/07-operate.md) §1, §3 |
 | Event store (session records) | **Grafana Loki** | **AGPLv3** | $0 licence + operations | [ADR-0015](../reference/decisions/0015-observability-backend.md) §3 | decided — 90d. Record family 1 comes from the **events** signal; the runner's **trace signal is beta and is not adopted** | [operate](../asdlc/07-operate.md) §3 |
 | Gate-record + requirements-trace store | **Grafana Loki**, dedicated streams | AGPLv3 | $0 | [ADR-0015](../reference/decisions/0015-observability-backend.md) §4 | decided — `limits_config.retention_stream` override, **5 years**. This copy is **derived**; the authoritative record stays on the change in NoteDb | [schema](../reference/artifacts.md) §3, §7 |
@@ -182,9 +183,9 @@ enforcement grounds and did not record their licences.
 
 | Component | What to verify |
 |---|---|
-| **Gerrit** | Licence and its terms. Not stated in any ADR or research note in this repository. Do not assert it from memory. |
-| **Zuul** | Same. Also: it is a second system to operate, and that ops cost lands on the platform owner ([OQ-10](../reference/open-questions.md)). |
-| **Gerrit code-owners plugin** | Licence and maintenance status; the T1 gate depends on it. |
+| **Gerrit** | **Apache 2.0**, verified first-party 2026-08-10 (repository licence and README: *"Gerrit is provided under the Apache License 2.0"*) — recorded, not outstanding. |
+| **Zuul** | **Apache 2.0 with some GPL v3 parts**, verified first-party 2026-08-10 (project README: *"Most of Zuul is licensed under the Apache License, version 2.0. Some parts of Zuul are licensed under the General Public License, version 3.0."*) — both free licences, so it passes this variant's test; recorded, not outstanding. The ops cost on the platform owner ([OQ-10](../reference/open-questions.md)) stands. |
+| **Gerrit code-owners plugin** | **Apache 2.0**, verified first-party 2026-08-10 (LICENSE in the plugin repository); maintained — the stable-3.14 branch builds on GerritForge CI, installed jar dated 2026-07-05 — recorded, not outstanding. |
 | **Forgejo** | GPL v3+ is recorded ([ADR-0009](../reference/decisions/0009-code-host.md)) — re-confirm at fallback time. |
 | **Flagger** | Apache 2.0 and CNCF graduated are recorded ([ADR-0011](../reference/decisions/0011-progressive-rollout.md)) — a licence change is a named reopen trigger. |
 | **Grafana and Loki** | **AGPLv3**, both verified first-party 2026-07-28 — recorded, not outstanding. The action that changes the analysis is **forking or patching** either project: AGPLv3's network clause concerns offering a *modified* version to remote users. Re-check then, not before ([ADR-0015](../reference/decisions/0015-observability-backend.md) §7). |
@@ -196,24 +197,27 @@ enforcement grounds and did not record their licences.
 
 | # | Gap | Blocking? |
 |---|---|---|
-| §3 above | Gerrit and Zuul licences unrecorded; **ORAS licence unverified** | **yes — the variant is defined by licence cost** |
+| §3 above | **None left open** — every §3 licence (Gerrit, Zuul, ORAS, code-owners plugin) was verified first-party 2026-08-10 | closed |
 | — | Deployment target is Kubernetes or not (owner-held) | yes — off Kubernetes this variant has **no** rollout answer |
 | [ADR-0022](../reference/decisions/0022-defect-attribution.md) part 6 | The **volume** of T3 changes needed before "T3 is not leaking defects" means anything. The attribution *rule* is decided ([07-operate.md](../asdlc/07-operate.md) §6); no threshold is set, deliberately, because it depends on an unmeasured base rate | not for bring-up — until pilot data sets it, no service flips to T3 automatic deploy |
 
 **This sheet is a complete bill of materials.** What is left is bring-up, verification, and the
 owner-held deployment target.
 
-**Two new bring-up verifications, both with a real chance of failing:**
+**Two new bring-up verifications, one still open:**
 
 - With `tlsTerminate` on, confirm `git`, `npm` and the projects' language toolchains still work
   against the allowed hosts, on macOS, Linux and WSL2. Reported TLS failures against MITM proxies
   involve exactly these tools, and adding a tool to `excludedCommands` does **not** exempt it from
   the proxy.
-- On Harbor: push an artifact, attach an attestation as a referrer, list it through
-  `/v2/<name>/referrers/<digest>`, and verify it from the deploy pipeline. **This is the one thing
-  ADR-0017 depends on that is not quoted from a first-party capability statement.** Reported
-  cosign-v3 display problems on 2.14.1 are a typing and UI defect, not a storage one — but confirm
-  it rather than inherit it.
+- **The Harbor referrers path is verified — it passed** (2026-08-10, Harbor v2.15.2 / cosign
+  v3.1.3 / oras v1.3.3, on the §6 rig:
+  [tools/stacks/self-hosted/verify-referrers.mjs](../tools/stacks/self-hosted/README.md)). All
+  four steps: oras push, cosign attest attached as an OCI 1.1 referrer (a
+  `application/vnd.dev.sigstore.bundle.v0.3+json` manifest), listed through
+  `/v2/<name>/referrers/<digest>`, verified by digest under the pull-only robot identity. This
+  was the one thing ADR-0017 depended on that no first-party capability statement covered;
+  ADR-0017 §7's zot fallback trigger did not fire.
 
 **Registry and signing-key backup join the phase-0 backup list**, alongside the Prometheus snapshot
 and the Gerrit meta refs. Unlike those two they protect the ability to **deploy and roll back**,

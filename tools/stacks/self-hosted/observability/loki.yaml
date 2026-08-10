@@ -1,0 +1,53 @@
+# Loki, monolithic single binary (ADR-0015 §3–§5). The load-bearing part is
+# limits_config: retention is configured before the first record is written,
+# because retention changes are not retroactive. The stream label values
+# (service_name) are this rig's bring-up contract for the CI emitters — a
+# gate record or requirements trace MUST arrive with the matching
+# service.name resource attribute or it ages out with the session events.
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+
+common:
+  instance_addr: 127.0.0.1
+  path_prefix: /loki
+  storage:
+    filesystem:
+      chunks_directory: /loki/chunks
+      rules_directory: /loki/rules
+  replication_factor: 1
+  ring:
+    kvstore:
+      store: inmemory
+
+schema_config:
+  configs:
+    - from: "2026-01-01"
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+# Retention deletion runs in the compactor; without retention_enabled the
+# retention_stream table below is decoration.
+compactor:
+  working_directory: /loki/compactor
+  retention_enabled: true
+  delete_request_store: filesystem
+
+limits_config:
+  # ADR-0015 §5, starting values set by the record so bring-up has a number:
+  #   session events (global default)   90d
+  #   gate records                      5y — floor; shortening is a T1 change
+  #   requirements traces               5y — same
+  retention_period: 2160h
+  retention_stream:
+    - selector: '{service_name="gate-records"}'
+      priority: 2
+      period: 43800h
+    - selector: '{service_name="requirements-traces"}'
+      priority: 2
+      period: 43800h

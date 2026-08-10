@@ -1,0 +1,9 @@
+# Base-job post phase (quickstart jobs2): manifest + upload to the executor's
+# /srv/static/logs, which the logs container serves on port 8000 — every
+# build gets a log_url.
+- hosts: localhost
+  gather_facts: false
+  roles:
+    - generate-zuul-manifest
+    - role: upload-logs
+      zuul_log_url: "http://localhost:8000"

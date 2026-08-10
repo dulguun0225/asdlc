@@ -1,0 +1,62 @@
+# The observability layer (variants/self-hosted.md §2 observability rows,
+# ADR-0015): OTel Collector as the gateway and redaction point, Prometheus
+# with the OTLP receiver, Loki monolithic, Grafana. Every image pinned
+# (release pages checked 2026-08-10). Bring up with observability.mjs — it
+# verifies the retention configuration is live BEFORE any record is sent
+# (ADR-0015's ordering constraint: retention is not retroactive).
+name: asdlc-observability
+services:
+  otel-collector:
+    # contrib build: the redaction processor lives there, not in core.
+    image: docker.io/otel/opentelemetry-collector-contrib:0.158.0
+    restart: unless-stopped
+    command: ["--config=/etc/otelcol/config.yaml"]
+    depends_on: [prometheus, loki]
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+    volumes:
+      - ./otel-collector.yaml:/etc/otelcol/config.yaml:ro
+
+  prometheus:
+    image: docker.io/prom/prometheus:v3.13.2
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      # Off by default; reachable only from the collector in the design.
+      - --web.enable-otlp-receiver
+      # ADR-0015 §5: 400d for per-tier metrics. The 15d default is a
+      # correctness bug in this design, not a tuning choice.
+      - --storage.tsdb.retention.time=400d
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+
+  loki:
+    image: docker.io/grafana/loki:3.7.6
+    restart: unless-stopped
+    command: ["-config.file=/etc/loki/config.yaml"]
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki.yaml:/etc/loki/config.yaml:ro
+      - loki-data:/loki
+
+  grafana:
+    # 13.0.2 is the newest OSS tag on Docker Hub (checked 2026-08-10); the
+    # GitHub release train (13.1.x) runs ahead of the published image.
+    image: docker.io/grafana/grafana-oss:13.0.2
+    restart: unless-stopped
+    env_file: ../.secrets/observability.env   # GF_SECURITY_ADMIN_PASSWORD, generated
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
+      - grafana-data:/var/lib/grafana
+
+volumes:
+  prometheus-data:
+  loki-data:
+  grafana-data:

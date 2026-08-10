@@ -26,6 +26,7 @@ services:
       - gerrit-git:/var/gerrit/git
       - gerrit-index:/var/gerrit/index
       - gerrit-cache:/var/gerrit/cache
+      - gerrit-plugins:/var/gerrit/plugins   # codeowners.mjs copies the jar in
 
   zk:
     # Zuul requires TLS to ZooKeeper ("TLS is required", zuul-ci.org
@@ -74,7 +75,11 @@ services:
       - zuul-web:/var/lib/zuul
 
   executor:
-    image: quay.io/zuul-ci/zuul-executor:14.2.0
+    # 14.2.0 plus libatomic1 for the node runtime in /opt/stack-bin
+    # (executor.Dockerfile).
+    build:
+      dockerfile: executor.Dockerfile
+      context: .
     restart: unless-stopped
     privileged: true   # the executor's own bubblewrap containment needs it
     command: zuul-executor -f
@@ -84,6 +89,12 @@ services:
       - ./zuul/etc:/etc/zuul:ro
       - ./.secrets/certs:/var/certs:ro
       - ./.secrets/ssh:/var/ssh:ro
+      # The pinned cosign and oras binaries (harbor.mjs downloads and
+      # checksums them) — the provenance playbooks (ADR-0018) run them in the
+      # trusted context on this executor.
+      - ./.harbor/bin:/opt/stack-bin:ro
+      # The base job's upload-logs target; the logs container serves it.
+      - zuul-logs:/srv/static/logs
       - zuul-executor:/var/lib/zuul
 
   launcher:
@@ -96,6 +107,32 @@ services:
       - ./zuul/etc:/etc/zuul:ro
       - ./.secrets/certs:/var/certs:ro
       - zuul-launcher:/var/lib/zuul
+
+  keycloak:
+    # The identity plane (ADR-0044). Verified 2026-08-10: 26.7.1 is the
+    # newest release. start-dev is the rig form — HTTP, embedded store; a
+    # server deployment runs `start` behind TLS with a real database, and
+    # that hardening is part of the server half of ADR-0043's test.
+    image: quay.io/keycloak/keycloak:26.7.1
+    restart: unless-stopped
+    command: start-dev
+    env_file: .secrets/keycloak.env   # KC_BOOTSTRAP_ADMIN_* generated
+    environment:
+      KC_HTTP_PORT: "8090"
+    ports:
+      - "8090:8090"
+    volumes:
+      - keycloak-data:/opt/keycloak/data
+
+  logs:
+    # Serves the base job's uploaded logs (quickstart jobs2 shape). httpd's
+    # default config lists directories, which is all this needs.
+    image: docker.io/httpd:2.4
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - zuul-logs:/usr/local/apache2/htdocs:ro
 
   node:
     # The static test node jobs run on. Host key and authorized_keys are
@@ -111,6 +148,7 @@ services:
 
 volumes:
   gerrit-etc:
+  gerrit-plugins:
   gerrit-db:
   gerrit-git:
   gerrit-index:
@@ -121,4 +159,6 @@ volumes:
   zuul-web:
   zuul-executor:
   zuul-launcher:
+  zuul-logs:
+  keycloak-data:
   node-etc-ssh:

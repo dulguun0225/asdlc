@@ -1,0 +1,7 @@
+# Base-job pre phase (quickstart jobs2): a per-build SSH key onto the node,
+# then the prepared repos — the change already merged onto its target —
+# synced there. Roles from opendev.org/zuul/zuul-jobs.
+- hosts: all
+  roles:
+    - add-build-sshkey
+    - prepare-workspace-git

@@ -1,0 +1,47 @@
+# The gateway collector (ADR-0015 §1): the one ingest point and the redaction
+# point. Nothing exports directly to a backend — agent sessions and CI jobs
+# send OTLP here.
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  # Second line of defence (ADR-0015 §1 states the caveat: the processor is
+  # beta for traces, alpha for logs and metrics). The first line is that no
+  # plaintext secret is inside the sandbox at all (ADR-0008). This rig allows
+  # all keys and blocks value patterns; production tightens to allowed_keys,
+  # which fails closed — populating that list needs the runner's real
+  # attribute key inventory, a bring-up task once telemetry flows.
+  redaction:
+    allow_all_keys: true
+    blocked_values:
+      - "AKIA[0-9A-Z]{16}"              # AWS access key id
+      - "sk-[A-Za-z0-9]{20,}"           # API secret key shapes
+      - "Bearer [A-Za-z0-9._~+/-]{20,}" # bearer tokens
+      - "[A-Za-z0-9+/]{40,}={0,2}"      # long base64 blobs (key material)
+  batch: {}
+
+exporters:
+  otlphttp/prometheus:
+    endpoint: http://prometheus:9090/api/v1/otlp
+    tls:
+      insecure: true
+  otlphttp/loki:
+    endpoint: http://loki:3100/otlp
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      processors: [redaction, batch]
+      exporters: [otlphttp/prometheus]
+    logs:
+      receivers: [otlp]
+      processors: [redaction, batch]
+      exporters: [otlphttp/loki]

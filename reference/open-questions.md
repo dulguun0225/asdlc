@@ -71,16 +71,113 @@ human reviewer**, so a reviewer voting only +1 or only Workflow blocks submissio
 approver casts Code-Review+2 and Workflow+1 together. **The sheet's §6 local rig now covers
 the whole stack** (updated 2026-08-10): the rig machine was measured (Linux, 32 cores, 16 GB,
 NVMe — RAM is the only constraint) and the first pass is full-coverage by sequencing — core
-stack concurrently, kind + Flagger as its own slice with Harbor stopped. **Remaining on this
-definition, in dependency order:** Harbor plus the §4 referrers verification; cosign
-provenance signing and verification (ADR-0018); the observability compose (retention set
-before the first gate record); the code-owners plugin slice (T1 path ownership — jar per
-Gerrit stable branch on GerritForge CI, verified 2026-08-10; installing it unconfigured blocks
-every submit, so it is its own slice); the build-row jobs (tier-function, never-write,
-ring/reassignment) and the real base job; the kind + Flagger slice; an authentication backend
-(the Gerrit image runs dev-mode auth; the sheet names no auth provider — a sheet gap; blocks
-any reachable server deployment); and the server half of ADR-0043's acceptance test (same
-definition brought up on a server). The integrated definition is
+stack concurrently, kind + Flagger as its own slice with Harbor stopped.
+
+**The registry slice landed and the sheet's §4 referrers verification passed** (2026-08-10,
+Harbor v2.15.2 / cosign v3.1.3 / oras v1.3.3): `harbor.mjs` brings Harbor up pinned and
+configured per ADR-0017 — private project, `v*` tag immutability (observed enforcing on
+re-push), the ci-push and deploy-pull robot identities — and `verify-referrers.mjs` repeatably
+passes all four steps: oras push → cosign attest attached as an OCI 1.1 referrer (sigstore
+bundle v0.3) → listed via `/v2/…/referrers/<digest>` → verified by digest as the pull-only
+robot. ADR-0017 §7's zot fallback trigger did not fire. Sharpest runtime facts (full list in
+the stack README): cosign v3.1.3 rejects `--tlog-upload=false` — signing with no transparency
+log takes an empty `signing-config create` file; there is no attachment-mode flag on
+`attest`/`verify-attestation` (referrers is the v3 default), so the sheet's explicit-mode
+instruction became "pin the same cosign version on both sides"; every re-attest adds another
+referrer bundle, nothing dedups. Same session, **three licences verified first-party and
+recorded on the sheet: Gerrit (Apache 2.0), Zuul (Apache 2.0 + some GPL v3 parts — still
+passes the variant test), ORAS (Apache 2.0)** — the §3/§4 licence gap now names only the
+code-owners plugin.
+
+**The provenance chain landed and held end to end** (2026-08-10, `provenance.mjs`): the
+platform-owner key encrypted to the zuul-config project key (Zuul's OAEP scheme reproduced
+with Node built-ins), the signing job merged through its own review gate, a pilot merge fired
+the `post` pipeline — trusted post-playbook signed, the verify job passed with the CUE policy
+pinning `urn:asdlc:zuul:asdlc:post` + `gerrit/pilot`, the fail-closed probe on a never-signed
+twin failed as required, and the host re-verified independently. **The custody denial was
+probed live**: an untrusted pilot change referencing the secret gets Verified-1 at parse —
+*"Secrets must be defined in the same project in which they are used."* Runtime facts
+(bubblewrap needs `trusted_ro_paths`, canonical names are `gerrit/<project>`, executor-only
+nodesets, no stored logs until the base job) are in the stack README.
+
+**The observability layer landed with retention verified before the first record**
+(2026-08-10, `observability.mjs`: collector-contrib 0.158.0, Prometheus 3.13.2, Loki 3.7.6,
+Grafana OSS 13.0.2 — all pinned): ADR-0015's ordering constraint is enforced by the script —
+it asserts Prometheus 400d and Loki's 90d global / 5y gate-record and requirements-trace
+streams live, and refuses to send anything if they are wrong. Both signals round-trip through
+the collector (the only ingest point), and the alpha log-path redaction was observed live
+masking a planted key in body and attributes. The stream contract for the still-missing CI
+emitters is fixed: `service.name` = `gate-records` / `requirements-traces`. Sharp facts in
+the stack README (Loki normalizes durations in `/config`; Docker Hub lags Grafana's GitHub
+releases — pin from the registry).
+
+**T1 path ownership landed** (2026-08-10, `codeowners.mjs`): the code-owners plugin,
+Apache 2.0 verified first-party — **the sheet's §3/§4 licence gap is now fully closed**
+(stable-3.14 jar, sha256-pinned; the numbered-build API is login-walled). The recorded hazard
+is worse than written and was observed live: the unconfigured plugin blocks every submit
+**including its own disable change** — configure-before-install is the mandatory order, and
+the script recovers from the wrong one. Probes: a `t1/` change with CR+2/Workflow+1/Verified+2
+from a non-owner is refused at submit (*"submit requirement 'Code-Owners' is unsatisfied"*);
+the owner's CR+2 unblocks; root paths submit on any human review. Ownership is reviewed data
+end to end (code-owners.config on refs/meta/config, OWNERS in-branch; refs/meta/config
+exempted via `disabledBranch`).
+
+**Two of the three build rows landed** (2026-08-10, `buildjobs.mjs`): the tier-function job
+(ADR-0006 §3 rules 1–6; verdict JSON per change; probed live — docs-only computes T3, a
+`t1/` path computes T2 while `launched: false` because rule 3 is launched-gated, an unmapped
+path fails rule 4 naming it) and the never-write check (ADR-0008 §2 + ADR-0020 §4; an
+agent-authored write to `CLAUDE.md` rejected outright pre-review; ADR-0036 §5's tier-map
+carve-out implemented). Both run trusted-context from zuul-config on pilot's check and gate
+pipelines — the repository under test cannot alter the rule that judges it. The map stays
+YAML per the schema; the executor image needed `libatomic1` for the pinned node runtime
+(`executor.Dockerfile`). Details in the stack README.
+
+**The third build row landed** (2026-08-10, `ringjob.mjs`): `ring-assign` on a five-minute
+timer pipeline, trusted, CI identity — assigns the ring reviewer (i+k), reassigns to i+2k on
+SLA breach with `{change, from, to, breached_at}` recorded to the `ring-reassignments` Loki
+stream, idempotent, offset validated coprime-to-18, all probed live plus one observed
+periodic build. Ring config is artifacts.md §4 verbatim; team→account wiring is a rig-local
+contacts file (deliberately outside the schema). Ansible fact: `no_log` censors registered
+results — credential-bearing tasks get no output task.
+
+**The real base job landed** (2026-08-10, `basejob.mjs`): quickstart jobs2 shape — zuul-jobs
+from a new opendev.org git connection, pre-run syncs the change's repos to the node (probed:
+the change's own file greppable there), post-run uploads logs to an httpd container; every
+node-backed build now carries a working `log_url`. Three rig facts with teeth (stack README):
+`main.yaml` changes need `zuul-scheduler full-reconfigure`, not a restart; `docker compose
+restart` never applies a new volume mount; the upload target needs `trusted_rw_paths`.
+
+**The rollout slice ran, both directions** (2026-08-10, `rollout.mjs`, kind v0.32.0 +
+Flagger v1.44.0 pinned): a good podinfo version promoted through metric-checked Blue/Green
+iterations (`provider: kubernetes`), and a poisoned canary — a Job forcing 500s through the
+analysis window — **rolled back automatically** (*"failed checks threshold reached 2"*), the
+primary untouched. The sheet's §6 sequencing held as written: Harbor stopped, slice ran
+beside the core stack on the 16 GB machine, cluster deleted, Harbor restarted healthy. One
+correction absorbed: the docs' `kustomize/kind` overlay no longer exists — the pinned
+`kustomize/kubernetes` overlay is the helm-free install.
+
+**The authentication backend is decided:
+[ADR-0044](decisions/0044-authentication-backend-keycloak.md)** (2026-08-10) — **Keycloak**,
+one identity plane: Gerrit via the oauth plugin (Keycloak provider, per-stable-branch jar on
+GerritForge CI — the code-owners delivery shape), Harbor native OIDC, Grafana generic OAuth
+(an OSS feature), Zuul web OIDC admin JWTs. Apache 2.0, CNCF **incubating** — below the
+graduated bar, stated in the record; no graduated self-hosted IdP exists, and every binding
+is standard OIDC so the component is swappable. LDAP was the near-miss (no Zuul path, no
+SSO, hand-rolled password lifecycle). The sheet gained the identity row.
+
+**ADR-0044's bring-up ran and the named-risk probe passed** (2026-08-10, `auth.mjs`,
+Keycloak 26.7.1 pinned into the compose): after the dev-mode→OAUTH flip all seven identities
+keep authenticating over REST with HTTP credentials, and SSO reaches the **existing**
+accounts — but only after pre-linking `keycloak-oauth:<user>` external IDs in All-Users
+`refs/meta/external-ids`; without that Gerrit fails closed (*"Email … is already assigned"*),
+no silent duplicate, no auto-link. The migration procedure is in the script and the ADR's
+status line; the reversal trigger did not fire. Rig facts (bridge-IP root-url, Keycloak's
+VERIFY_PROFILE interrupt, the external-ids tree format) are in the stack README.
+
+**Remaining on this definition:** only the server half of ADR-0043's acceptance test (same
+definition brought up on a server — **needs owner hardware**, the one blocking input) plus
+the recorded hardening items for a reachable deployment (Keycloak `start` + TLS + real
+database, rotated admin credential — README "deliberately omits"). The integrated definition is
 frozen — fallback and demonstrations only, no further development. OQ-22 no longer blocks the
 primary but stays open for the fallback; the Forgejo definition demonstrates the fallback
 shape. Naming convention (owner, 2026-08-10): **`tools/stacks/<sheet-name>/` — one directory

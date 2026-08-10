@@ -1,0 +1,9 @@
+# Prometheus 3.x (ADR-0015 §2). The OTLP receiver and the 400d retention are
+# command-line flags in compose.yml; this file carries the guide's own
+# recommendation for collector-batched writes.
+storage:
+  tsdb:
+    out_of_order_time_window: 30m
+
+# Delta temporality is not used (experimental behind otlp-deltatocumulative).
+scrape_configs: []

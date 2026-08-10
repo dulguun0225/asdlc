@@ -1,0 +1,40 @@
+# The sheet's build rows as jobs (variants/self-hosted.md §2: tier-function
+# job, never-write check). Defined in the config project: the scripts they
+# run are reviewed here and execute in the trusted context, and a proposed
+# change to the repository under test cannot alter them.
+- job:
+    name: tier-function
+    description: |
+      ADR-0006 §3: the tier, computed. Ordered rules, first match wins;
+      an unmapped path fails the build naming the paths (rule 4). The
+      verdict (tier, rule, why) is the job's last output line.
+    parent: null
+    nodeset:
+      nodes: []
+    run: playbooks/build/tier-function.yaml
+    required-projects:
+      - zuul-config
+
+- job:
+    name: never-write
+    description: |
+      ADR-0008 §2 / ADR-0020 §4: an agent-authored change touching the
+      never-write classes is rejected outright. The tier map file is
+      exempt (ADR-0036 §5) — it stays T1 via tier-function rule 1.
+    parent: null
+    nodeset:
+      nodes: []
+    run: playbooks/build/never-write.yaml
+    required-projects:
+      - zuul-config
+
+- project:
+    name: pilot
+    check:
+      jobs:
+        - tier-function
+        - never-write
+    gate:
+      jobs:
+        - tier-function
+        - never-write

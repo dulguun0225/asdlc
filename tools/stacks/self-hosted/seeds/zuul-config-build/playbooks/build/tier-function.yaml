@@ -1,0 +1,19 @@
+# Run the tier function against the change as checked out by Zuul.
+# Trusted context (this playbook lives in the config project); the node
+# runtime and the scripts come from reviewed sources, never from the
+# repository under test.
+- hosts: localhost
+  vars:
+    repo_src: "{{ zuul.executor.work_root }}/{{ zuul.project.src_dir }}"
+    config_src: >-
+      {{ zuul.executor.work_root }}/{{ (zuul.projects.values()
+         | selectattr('short_name', 'equalto', 'zuul-config')
+         | first).src_dir }}
+  tasks:
+    - name: Compute the tier (ADR-0006 §3, first match wins)
+      command: /opt/stack-bin/node {{ config_src }}/scripts/tier-function.mjs {{ repo_src }}
+      register: tier
+
+    - name: The verdict, visible on the build
+      debug:
+        msg: "{{ tier.stdout_lines | last }}"

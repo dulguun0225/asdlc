@@ -1,9 +1,13 @@
-# The minimal base job (quickstart's first form). The upstream jobs2 variant —
-# workspace sync from zuul-jobs, log upload — is later work; until then a job
-# runs on the node without the change's repos synced to it.
+# The base job, quickstart jobs2 shape: the change's repos sync to the node
+# (zuul-jobs roles) and the job's logs upload to the logs container, so every
+# build carries a log_url.
 - job:
     name: base
     parent: null
+    pre-run: playbooks/base/pre.yaml
+    post-run: playbooks/base/post-logs.yaml
+    roles:
+      - zuul: zuul/zuul-jobs
     nodeset:
       nodes:
         - name: test-node

@@ -1,0 +1,55 @@
+# The deploy-side verification (ADR-0018 §4), as its own job so the deploy
+# pipeline's shape is demonstrated: verify by digest against the reviewed
+# public key, pin the signer-builder pair with the CUE policy, and fail
+# closed — a missing attestation is a failure, proven on the unsigned twin.
+# The public key and policy come from this config project's own reviewed
+# checkout, never from the repository being verified.
+- hosts: localhost
+  vars:
+    config_src: >-
+      {{ zuul.executor.work_root }}/{{ (zuul.projects.values()
+         | selectattr('short_name', 'equalto', 'zuul-config')
+         | first).src_dir }}
+  tasks:
+    - name: Log in to Harbor as the deploy-pull robot (the project is private)
+      command: >-
+        /opt/stack-bin/oras login {{ registry }} --plain-http
+        -u {{ harbor_deploy_pull.name | quote }} -p {{ harbor_deploy_pull.secret | quote }}
+      no_log: true
+
+    - name: Resolve the digest being "deployed" (deploys resolve digests, never tags)
+      command: >-
+        /opt/stack-bin/oras resolve --plain-http
+        {{ registry }}/pilot/pilot-artifact:master-{{ zuul.newrev[:12] }}
+      register: resolved
+
+    - name: Verify the attestation — pinned key, pinned signer-builder pair
+      command: >-
+        /opt/stack-bin/cosign verify-attestation
+        --key {{ config_src }}/keys/provenance.pub
+        --type slsaprovenance1
+        --policy {{ config_src }}/policy/provenance.cue
+        --insecure-ignore-tlog --allow-http-registry
+        --registry-username {{ harbor_deploy_pull.name | quote }}
+        --registry-password {{ harbor_deploy_pull.secret | quote }}
+        {{ registry }}/pilot/pilot-artifact@{{ resolved.stdout | trim }}
+      no_log: true
+
+    - name: Resolve the unsigned twin's digest
+      command: >-
+        /opt/stack-bin/oras resolve --plain-http
+        {{ registry }}/pilot/pilot-artifact-unsigned:master-{{ zuul.newrev[:12] }}
+      register: unsigned
+
+    - name: Fail-closed probe — verification of the unsigned twin MUST fail
+      command: >-
+        /opt/stack-bin/cosign verify-attestation
+        --key {{ config_src }}/keys/provenance.pub
+        --type slsaprovenance1
+        --insecure-ignore-tlog --allow-http-registry
+        --registry-username {{ harbor_deploy_pull.name | quote }}
+        --registry-password {{ harbor_deploy_pull.secret | quote }}
+        {{ registry }}/pilot/pilot-artifact-unsigned@{{ unsigned.stdout | trim }}
+      register: probe
+      failed_when: probe.rc == 0
+      no_log: true

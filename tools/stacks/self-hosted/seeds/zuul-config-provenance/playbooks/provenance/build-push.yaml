@@ -1,0 +1,38 @@
+# Run phase of pilot-artifact-provenance: build the artifact and push it as
+# the ci-push robot. Runs on the executor (trusted context — this playbook
+# lives in a config project). The unsigned twin exists only so the verify
+# job can prove fail-closed behaviour.
+- hosts: localhost
+  tasks:
+    - name: Make the artifact work dir
+      file:
+        path: "{{ zuul.executor.work_root }}/artifact"
+        state: directory
+        mode: "0700"
+
+    - name: Write the artifact — the merged revision this build is of
+      copy:
+        dest: "{{ zuul.executor.work_root }}/artifact/pilot-artifact.txt"
+        content: "pilot {{ zuul.newrev }}\n"
+
+    - name: Log in to Harbor as the ci-push robot
+      command: >-
+        /opt/stack-bin/oras login {{ registry }} --plain-http
+        -u {{ harbor_ci_push.name | quote }} -p {{ harbor_ci_push.secret | quote }}
+      no_log: true
+
+    - name: Push the artifact
+      command: >-
+        /opt/stack-bin/oras push --plain-http --format json
+        {{ registry }}/pilot/pilot-artifact:master-{{ zuul.newrev[:12] }}
+        pilot-artifact.txt:text/plain
+      args:
+        chdir: "{{ zuul.executor.work_root }}/artifact"
+
+    - name: Push the unsigned twin (fail-closed probe target, never signed)
+      command: >-
+        /opt/stack-bin/oras push --plain-http --format json
+        {{ registry }}/pilot/pilot-artifact-unsigned:master-{{ zuul.newrev[:12] }}
+        pilot-artifact.txt:text/plain
+      args:
+        chdir: "{{ zuul.executor.work_root }}/artifact"

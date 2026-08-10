@@ -9,3 +9,8 @@
           - zuul-config
         untrusted-projects:
           - pilot
+      opendev.org:
+        untrusted-projects:
+          - zuul/zuul-jobs:
+              include:
+                - job

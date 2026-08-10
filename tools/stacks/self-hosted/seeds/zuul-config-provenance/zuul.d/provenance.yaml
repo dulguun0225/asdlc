@@ -1,0 +1,69 @@
+# The provenance chain (ADR-0018), as Zuul config. Everything here lives in
+# the config project deliberately: the playbooks run in the trusted execution
+# context, and the signing key — declared in zuul.d/provenance-secrets.yaml,
+# generated per instance, never committed — is structurally unreachable from
+# a proposed change.
+#
+# provenance.mjs pushes this into the live zuul-config repo through its own
+# review gate; this copy is the seed template.
+
+- pipeline:
+    name: post
+    description: |
+      Jobs run after a change merges (the branch ref updates). This is
+      where the artifact is built, pushed, signed and verified — never
+      before review.
+    manager: supercedent
+    post-review: true
+    trigger:
+      gerrit:
+        - event: ref-updated
+          ref: ^refs/heads/master$
+
+- job:
+    name: pilot-artifact-provenance
+    description: |
+      Build-and-push the pilot artifact (run phase), then sign it in this
+      config project's trusted post-playbook (ADR-0018 §1): SLSA v1
+      predicate populated from Zuul job variables only, attached as an
+      OCI referrer in Harbor.
+    parent: null
+    nodeset:
+      nodes: []
+    run: playbooks/provenance/build-push.yaml
+    post-run: playbooks/provenance/sign.yaml
+    vars:
+      registry: 172.17.0.1:8082
+    secrets:
+      - name: harbor_ci_push
+        secret: harbor-ci-push
+      - name: provenance_signing_key
+        secret: provenance-signing-key
+
+- job:
+    name: pilot-artifact-verify
+    description: |
+      The deploy-side verification (ADR-0018 §4): resolve the digest,
+      verify the attestation against the reviewed public key with the
+      CUE policy pinning our signer-builder pair, and prove fail-closed
+      behaviour on an unsigned artifact.
+    parent: null
+    nodeset:
+      nodes: []
+    run: playbooks/provenance/verify.yaml
+    required-projects:
+      - zuul-config
+    vars:
+      registry: 172.17.0.1:8082
+    secrets:
+      - name: harbor_deploy_pull
+        secret: harbor-deploy-pull
+
+- project:
+    name: pilot
+    post:
+      jobs:
+        - pilot-artifact-provenance
+        - pilot-artifact-verify:
+            dependencies:
+              - pilot-artifact-provenance

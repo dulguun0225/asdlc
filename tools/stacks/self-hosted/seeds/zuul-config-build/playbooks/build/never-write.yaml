@@ -1,0 +1,17 @@
+# The never-write capability boundary, evaluated on the change as checked
+# out by Zuul. Trusted context; see tier-function.yaml.
+- hosts: localhost
+  vars:
+    repo_src: "{{ zuul.executor.work_root }}/{{ zuul.project.src_dir }}"
+    config_src: >-
+      {{ zuul.executor.work_root }}/{{ (zuul.projects.values()
+         | selectattr('short_name', 'equalto', 'zuul-config')
+         | first).src_dir }}
+  tasks:
+    - name: Reject agent-authored writes to the never-write classes (ADR-0008 §2)
+      command: /opt/stack-bin/node {{ config_src }}/scripts/never-write.mjs {{ repo_src }}
+      register: nw
+
+    - name: The verdict, visible on the build
+      debug:
+        msg: "{{ nw.stdout_lines | last }}"

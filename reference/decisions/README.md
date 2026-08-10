@@ -55,3 +55,5 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0039](0039-self-hosted-forks-on-the-assembly-axis.md) | The self-hosted variant forks on the assembly axis: three variants | accepted | 2026-08-06 |
 | [0040](0040-templates-ship-inside-the-stage-skills.md) | The three artifact templates ship inside the stage skills, as `template.md` | accepted | 2026-08-06 |
 | [0041](0041-one-toolchain-node.md) | One toolchain: Node; the checker seeds are ported and Python retires | accepted | 2026-08-07 |
+| [0042](0042-stack-sheets-share-one-layer-taxonomy.md) | The three stack sheets share one layer taxonomy | accepted | 2026-08-10 |
+| [0043](0043-primary-variant-self-hosted-assembled.md) | The primary variant is self-hosted assembled, brought up declaratively; integrated is the fallback | accepted | 2026-08-10 |

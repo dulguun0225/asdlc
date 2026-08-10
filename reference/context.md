@@ -49,11 +49,19 @@ preferred over best-of-breed component assemblies, and for the self-hosted varia
 still be licence-cost-free. Setup and operations time weighs heavier than component-level
 capability optimality.
 
-Consequence: the appetite is embodied as its own deployment variant rather than a rewrite of
+**Scoped to bring-up (owner, 2026-08-10):** the appetite above binds the bring-up and pilot
+phases, not steady state. Once the project has proven itself, maintenance and operations are
+handed to a dedicated operations team equipped with AI agents. Setup-and-operations weight is
+therefore a transitional constraint, not a property of the target stack.
+
+Consequences: the appetite is embodied as its own deployment variant rather than a rewrite of
 the enforcement-first stack — the self-hosted variant forks on the assembly axis
 ([ADR-0039](decisions/0039-self-hosted-forks-on-the-assembly-axis.md)). An enforcement
 capability lost by choosing an integrated product is still never absorbed silently: it is
-priced in a research note and stated on the variant's sheet as an accepted loss.
+priced in a research note and stated on the variant's sheet as an accepted loss. And because
+the constraint is transitional, it no longer selects the integrated variant at all — the
+owner's variant decision, including the declarative local-first bring-up of the primary, is
+[ADR-0043](decisions/0043-primary-variant-self-hosted-assembled.md).
 
 ## Teams
 

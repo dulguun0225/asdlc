@@ -4,40 +4,32 @@
   size, phase durations, the widening rate, the pilot's abort criteria, and the go/no-go
   sign-off assignment — the choice is marked in place as a **default the owner can move**,
   because appetite is the owner's to set.
-- **One owner decision this plan cannot make:** which variant to *run*. All three are
-  designed ([variants/](../variants/README.md),
-  [ADR-0039](../reference/decisions/0039-self-hosted-forks-on-the-assembly-axis.md)). They
-  are not free to run simultaneously — every phase below exists once per stack stood up. §1
-  states the decision and a recommendation.
+- **The one decision this plan could not make is made:** the variant. §1 states it.
 
 ## 1. The variant decision
 
-**Recommendation: pilot on the cloud variant (GitHub), and treat any self-hosted build-out
-as a separate, later decision.** Grounds, all from the record: time-to-value is the cloud
-variant's stated optimisation target (CLAUDE.md); the pilot's purpose is measurement
-([OQ-6](../reference/open-questions.md), [OQ-7](../reference/open-questions.md)), which favours the stack with
-the least bring-up work; and both self-hosted stacks add systems to operate before the gate
-design itself is validated — the wrong costs to pay simultaneously. The self-hosted designs
-lose nothing by waiting: the assembled sheet is fully specified at licence cost $0, and the
-integrated sheet's open items ([OQ-22](../reference/open-questions.md#oq-22--provenance-on-the-integrated-self-hosted-variant),
-its §3 verifications) can close in parallel with a cloud pilot.
+**Decided ([ADR-0043](../reference/decisions/0043-primary-variant-self-hosted-assembled.md),
+2026-08-10): the primary variant is self-hosted assembled, and it is its own bring-up rig.**
+The stack is developed declaratively — the whole definition as code in
+[`tools/`](../tools/README.md) — **proven locally first, then deployed onto a server or
+servers from the same definition**. The integrated variant is the recorded fallback shape
+only ([ADR-0009](../reference/decisions/0009-code-host.md) §5), not a bring-up stand-in; the
+cloud variant stays fully designed as an alternative. The ground is in the ADR: the owner set
+self-hosted as primary and scoped the operations appetite to bring-up only
+([context.md](../reference/context.md) §Appetite), which removes the integrated variant's one
+advantage over the assembled sheet's enforcement wins.
 
-**Among the self-hosted pair,** the integrated variant
-([sheet](../variants/self-hosted-integrated.md)) is the one aligned with the owner's recorded
-appetite ([context.md](../reference/context.md) §Appetite: ready-made over assembled); the
-assembled variant is the one to pick when the two enforcement losses stated on the integrated
-sheet are unacceptable.
+Anything run on the existing Forgejo instance
+([`tools/stacks/self-hosted-integrated/`](../tools/README.md)) is a
+demonstration on the *fallback* shape, labelled as such; the integrated sheet's named gaps
+bind there exactly as before —
+[OQ-22](../reference/open-questions.md#oq-22--provenance-on-the-integrated-self-hosted-variant)
+before any production deploy from it, the
+[sheet's §3 verifications](../variants/self-hosted-integrated.md) before a pilot.
 
-This is a recommendation, not a decision. What would reverse it: a data-boundary change
-(SaaS permission withdrawn — [context.md](../reference/context.md) currently permits it), or the owner
-valuing self-hosted operational experience above pilot speed.
-
-The plan below is written for the cloud variant; §7 lists what changes if the owner picks the
-self-hosted assembled variant first. **If the owner picks the integrated variant first:** §7's
-shape applies with its sheet's substitutions (Forgejo for Gerrit + Zuul + Harbor, SigNoz for
-the Grafana stack), and its named gaps become phase blockers — OQ-22 before the first
-production deploy, the [sheet's §3 verifications](../variants/self-hosted-integrated.md)
-before the pilot.
+The plan below is written for the cloud variant (its phases were drafted when that stack was
+the recommended pilot); **§7 lists the substitutions for the primary**, and standing up the
+primary applies them. Reversal conditions are in the ADR.
 
 ## 2. Phase 0 — prerequisites (blockers, in dependency order)
 
@@ -200,9 +192,9 @@ Nothing in this phase is scheduled. Each step fires only on its recorded conditi
   upgrade path ([ADR-0003](../reference/decisions/0003-graduated-gating-machine-derived-tier.md)), not a
   plan item.
 
-## 7. If the owner picks the self-hosted assembled variant first
+## 7. The assembled-variant substitutions (operative — it is the primary, ADR-0043)
 
-Phases keep their shape; these items change:
+Phases keep their shape; these items change when standing up the primary stack:
 
 - Phase 0 adds: Gerrit and Zuul installation and hardening; the access policy from
   [self-hosted sheet](../variants/self-hosted.md) §5 (no Push on `refs/heads/*`, no Forge Author);
@@ -238,7 +230,7 @@ Phases keep their shape; these items change:
 
 ## 9. What this plan does not decide
 
-Owner-held, listed once: the variant to run (§1); the three phase-0 facts; pilot size,
+Owner-held, listed once: the three phase-0 facts; pilot size,
 durations, widening rate, abort criteria, and the go/no-go assignment beyond the stated
 defaults; budget appetite for the pilot (the only defensible anchor is the vendor aggregate
 in [OQ-7](../reference/open-questions.md), and it is not our measurement).

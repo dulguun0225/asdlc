@@ -1,0 +1,27 @@
+# The self-hosted integrated variant's code-host layer as code
+# (variants/self-hosted-integrated.md): Forgejo = code host + CI + registry, one container.
+# Pin a digest before anything real depends on this tag.
+name: asdlc-self-hosted-integrated
+services:
+  forgejo:
+    image: codeberg.org/forgejo/forgejo:16.0.2-rootless
+    container_name: asdlc-self-hosted-integrated-forgejo
+    restart: unless-stopped
+    environment:
+      FORGEJO__security__INSTALL_LOCK: "true"
+      FORGEJO__server__ROOT_URL: "http://localhost:3000/"
+      FORGEJO__server__HTTP_PORT: "3000"
+      FORGEJO__server__SSH_PORT: "2222"
+      FORGEJO__server__SSH_LISTEN_PORT: "2222"
+      FORGEJO__database__DB_TYPE: "sqlite3"
+      FORGEJO__actions__ENABLED: "true"
+      FORGEJO__service__DISABLE_REGISTRATION: "true"
+    ports:
+      - "3000:3000"
+      - "2222:2222"
+    volumes:
+      - forgejo-data:/var/lib/gitea
+      - forgejo-config:/etc/gitea
+volumes:
+  forgejo-data:
+  forgejo-config:

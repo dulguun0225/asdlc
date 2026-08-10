@@ -13,7 +13,12 @@ what is still undecided.
 
 Each sheet is **self-contained**. Shared layers are restated in each rather than
 cross-referenced, so building one variant needs exactly one document open
-([ADR-0012](../reference/decisions/0012-per-variant-stack-sheets.md)).
+([ADR-0012](../reference/decisions/0012-per-variant-stack-sheets.md)). The sheets also share
+**one layer vocabulary and row order**
+([ADR-0042](../reference/decisions/0042-stack-sheets-share-one-layer-taxonomy.md)): the same
+layer sits on the same row in every sheet, a layer a variant lacks still appears with the
+lack stated, and one product covering several layers repeats across those rows rather than
+merging them — so any two sheets compare row by row.
 
 ## A licensed shape is out of scope
 
@@ -92,11 +97,15 @@ All three are designed (the integrated sheet carries named gaps — provenance, 
 close before *its* production use, not before the design counts as complete). They are **not
 free to run simultaneously** — every rollout phase exists once per stack stood up.
 
-The [rollout plan](../rollout/plan.md) §1 **recommends piloting the cloud variant**, on the
-grounds that the pilot's purpose is measurement and that stack has the least bring-up work.
-Among the self-hosted pair, the integrated variant is the one aligned with the owner's
-recorded appetite ([context.md](../reference/context.md) §Appetite). That is a recommendation,
-not a decision, and the decision is the owner's.
+**The decision is made**
+([ADR-0043](../reference/decisions/0043-primary-variant-self-hosted-assembled.md), 2026-08-10):
+the **primary variant is self-hosted assembled, and it is its own bring-up rig** — developed
+declaratively, one definition as code proven locally and then deployed onto server(s). The
+integrated variant is the recorded fallback shape only; the owner scoped the operations
+appetite to bring-up ([context.md](../reference/context.md) §Appetite), which removed the
+integrated variant's one advantage over the assembled sheet's enforcement wins. The cloud
+variant stays fully designed as an alternative. Sequencing is the
+[rollout plan](../rollout/plan.md) §1.
 
 ## No cross-variant cost comparison exists
 

@@ -48,21 +48,35 @@ is a phase-0 blocker.
 | Layer | Component | Licence / plan | Cost | Decided by | Status | Rules |
 |---|---|---|---|---|---|---|
 | Code host | **GitHub**, organisation on **Team** | SaaS | **$4/user/month** — promotional, "first 12 months" | [ADR-0009](../reference/decisions/0009-code-host.md) §1 | decided | §5 below |
-| Audit upgrade path | **GitHub Enterprise Cloud** | SaaS | **$21/user/month** — promotional, same qualifier | [ADR-0009](../reference/decisions/0009-code-host.md) §5 | conditional — trigger is audit need crossing the 180-day UI retention, or needing audit API/streaming | §5 below |
-| Gate enforcement | **Rulesets** (not classic branch protection), bypass list **empty**; CODEOWNERS for T1 paths | included | $0 | [ADR-0009](../reference/decisions/0009-code-host.md) §1 | decided | §5 below |
-| CI | **GitHub Actions** | included; minutes metered beyond plan allowance | usage-metered — **not quantified** ([OQ-7](../reference/open-questions.md)) | [ADR-0009](../reference/decisions/0009-code-host.md) | decided | §5 below |
+| T1 path ownership | **CODEOWNERS** on the map's rule-1/rule-2 paths — platform owner + backup only | included | $0 | [ADR-0009](../reference/decisions/0009-code-host.md) §1 | decided | §5 below |
+| Gating CI | **GitHub Actions** | included; minutes metered beyond plan allowance | usage-metered — **not quantified** ([OQ-7](../reference/open-questions.md)) | [ADR-0009](../reference/decisions/0009-code-host.md) | decided | §5 below |
+| Review record / audit | **managed organisation audit log** — 180-day UI retention; audit API and streaming are Enterprise Cloud (**$21/user/month** — promotional, same qualifier) | SaaS | included at Team | [ADR-0009](../reference/decisions/0009-code-host.md) §5 | decided — upgrade to Enterprise Cloud is conditional; trigger is audit need crossing the 180-day UI retention, or needing audit API/streaming | §5 below |
+| Merge-gate enforcement | **Rulesets** (not classic branch protection), bypass list **empty** | included | $0 | [ADR-0009](../reference/decisions/0009-code-host.md) §1 | decided | §5 below |
 | Tier-function job | ours | — | engineering | [ADR-0006](../reference/decisions/0006-tier-function-and-greenfield-cold-start.md) | build | [tiers](../asdlc/tiers.md) |
 | Requester-check job | ours — **required here**; GitHub's native requester block covers only Copilot | — | engineering | [ADR-0009](../reference/decisions/0009-code-host.md) §4 | build | [merge](../asdlc/05-merge.md) §4 |
 | Never-write check | ours | — | engineering | [ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) §2 | build | [tiers](../asdlc/tiers.md) |
-| Ring + reassignment job | ours | — | engineering | [ADR-0005](../reference/decisions/0005-roles-gate-signers-and-the-reviewer-ring.md) §4–5 | build | [roles](../asdlc/roles.md) §3 |
 | T1 pre-run CI gate | mechanism undecided — fork-PR approval is documented for public repos only | included | $0 | [ADR-0009](../reference/decisions/0009-code-host.md) §1 | **open parameter** — platform owner at bring-up ([open parameters](../rollout/open-parameters.md)); pipeline-level gate covers the interim | §5 below |
+| Signature bound to artifact | approximated — the ruleset setting **require approval of the most recent reviewable push** (the last-pusher rule) | included | $0 | [ADR-0009](../reference/decisions/0009-code-host.md) §1 | decided — an approximation of the assembled variant's native vote-to-patchset binding | §5 below |
+| Ring + reassignment job | ours | — | engineering | [ADR-0005](../reference/decisions/0005-roles-gate-signers-and-the-reviewer-ring.md) §4–5 | build | [roles](../asdlc/roles.md) §3 |
+| Fallback host | none named — [ADR-0009](../reference/decisions/0009-code-host.md) records the rejected runner-up, not a fallback | — | — | — | — | — |
 
 ### Build, provenance and artifacts
 
+The provenance chain is **native on this host — a cloud-variant advantage**: produced and
+verified by tooling the host maintains, so several rows below are one product
+([ADR-0042](../reference/decisions/0042-stack-sheets-share-one-layer-taxonomy.md) — the rows
+stay separate so the sheets compare).
+
 | Layer | Component | Licence / plan | Cost | Decided by | Status | Rules |
 |---|---|---|---|---|---|---|
-| Provenance | **GitHub artifact attestations** — Sigstore-signed, SLSA v1.0 Build Level 2 floor | included | $0 | [ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) §8 | decided — **native on this host; this is a cloud-variant advantage** | [deploy](../asdlc/06-deploy.md) §3 |
-| Artifact registry | **GitHub Container Registry** (`ghcr.io`) — **every deployable stored as an OCI artifact**, non-container ones via **ORAS** | included | **$0** — *"Container image storage and bandwidth for the Container registry is currently free"*, with *"at least one month in advance"* notice of change (checked 2026-07-28) | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §1–2 | decided — attestation attaches natively (`actions/attest`, `push-to-registry: true`); verify with `gh attestation verify oci://…` | [deploy](../asdlc/06-deploy.md) §3 |
+| Provenance signer | **GitHub artifact attestations** (`actions/attest`) — Sigstore-signed | included | $0 | [ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) §8 | decided — native; never cited as a security guarantee | [deploy](../asdlc/06-deploy.md) §3 |
+| Signing key | the host's — no key custody, rotation or backup lands on us | included | $0 | [ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) §8 | decided — the flip side of native: the chain is the host's to maintain, not ours | — |
+| Provenance predicate | **SLSA v1.0, Build Level 2 floor** | open standard | $0 | [ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) §8 | decided | [deploy](../asdlc/06-deploy.md) §3 |
+| Provenance verification | **`gh attestation verify oci://…`** in the deploy pipeline | included | $0 | [ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) §8 | decided | [deploy](../asdlc/06-deploy.md) §3 |
+| Transparency log | part of the host's Sigstore tooling — not separately examined; nothing for us to operate | included | — | [ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) §8 | decided as part of the signer row | — |
+| Artifact registry | **GitHub Container Registry** (`ghcr.io`) — **every deployable stored as an OCI artifact**, non-container ones via **ORAS** | included | **$0** — *"Container image storage and bandwidth for the Container registry is currently free"*, with *"at least one month in advance"* notice of change (checked 2026-07-28) | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §1–2 | decided | [deploy](../asdlc/06-deploy.md) §3 |
+| Registry fallback | none named — the registry is included with the host | — | — | — | — | — |
+| Attestation attachment | attaches natively (`actions/attest`, `push-to-registry: true`) over the **OCI referrers API** | included | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §1 | decided | [deploy](../asdlc/06-deploy.md) §3 |
 | Registry access | agent: **no credential**; CI: push; deploy: pull + verify; delete: platform owner at T1 | included | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §3 | decided — forced by [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §5: registry tokens are a `deny`, not a `mask` | [session](../asdlc/04-implementation.md) |
 | Artifact addressing | **digest, never tag** | — | — | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §4 | decided — an attestation binds to a digest; a pipeline that deploys a tag has a defect | [deploy](../asdlc/06-deploy.md) §3 |
 

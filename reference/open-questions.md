@@ -50,6 +50,42 @@ design, because a consumer installs skills and not the design;
 under it. **Consequence for authoring: do not re-add an `ADR-NNNN` or a `reference/…` path to a
 shipped template** — the gate does not catch prose citations.
 
+**New since 2026-08-10, third: [ADR-0043](decisions/0043-primary-variant-self-hosted-assembled.md)**
+— the owner's variant decision. Primary = **self-hosted assembled, and it is its own bring-up
+rig**: developed declaratively (the whole definition as code in `tools/`), proven locally
+first, then deployed onto server(s) from the same definition. The integrated variant is the
+recorded fallback only — not a bring-up stand-in; cloud stays a designed alternative. Ground:
+the owner scoped the operations appetite to bring-up only (context.md §Appetite, 2026-08-10 —
+post-pilot operations go to a dedicated AI-equipped team), which removed the integrated
+variant's one advantage. Updated to match: rollout plan §1 (decision replaces the cloud-pilot
+recommendation), §7 (assembled deltas now operative), §9; variants/README.md "Which one to
+run"; the assembled sheet's §7 closing paragraph. **Next build work this opens: a declarative
+local definition of the assembled stack** (Gerrit + Zuul + the sheet's §5 access policy as
+code) at `tools/stacks/self-hosted/`, whose acceptance test is that the same definition comes
+up locally and on a server. **This is the next session's work (owner, 2026-08-10)**; the
+integrated definition is frozen — fallback and demonstrations only, no further development.
+OQ-22 no longer blocks the primary but stays open for the fallback; the Forgejo definition
+now demonstrates the fallback shape. Naming convention set with the owner, 2026-08-10:
+**`tools/stacks/<sheet-name>/` — one directory per variant sheet, named as the sheet file
+is** (`tools/local-rig/` was renamed to `tools/stacks/self-hosted-integrated/`; compose
+project and container renamed to match, live volumes migrated by copy).
+
+**New since 2026-08-10, second: [ADR-0042](decisions/0042-stack-sheets-share-one-layer-taxonomy.md)**
+— the three stack sheets share one layer vocabulary and row order (the assembled sheet's), a
+missing layer still appears as a row stating the lack, and consolidation repeats a product
+across rows instead of merging them. All three sheets were rearranged to it; the assembled
+sheet gained the one row it had left implicit (merge-gate enforcement). Content unchanged —
+verify a diff against content only, not arrangement.
+
+**New since 2026-08-10: [`tools/stacks/self-hosted-integrated/`](../tools/stacks/self-hosted-integrated/README.md)** — a runnable
+local instance of the integrated variant's code-host layer (Forgejo compose + §4 host
+configuration by script), both scripts verified against a live Forgejo 16.0.2. It records
+three runtime facts, including the presence half of the integrated sheet's §3 item 3
+(stale-approval dismissal) and ADR-0032 §4 check 1's outcome (local-source
+`skills-lock.json` pins a content hash, no commit ref — the explicit owner pin is the CI
+reference). A pilot service repo on this rig has run `skills add` delivery with
+byte-identical copies; the end-to-end stage run has not happened yet.
+
 **Decided but not built: this repository's own quality system.** Three layers are unchecked —
 both CI workflows are `paths`-filtered to `tools/` subtrees, so the four design directories run
 nothing; `tools/` holds no test files at all, including the two gates that gate `skills/`; and the
@@ -60,8 +96,9 @@ skills tree states about a dozen machine-checkable rules and enforces two. The s
 in `tools/skills-harness/` (skill shape, and two exact contract sentences with a zero-match floor);
 `node --test` suites inside each tool directory behind a `run-tests.mjs` wrapper; and exactly one
 agent-run evaluation, `stage-walk`, on demand and never a gate, whose verdict comes from the
-deterministic checker rather than a model. Record it first as a new decision record — `ADR-0042` if
-that number is still free — plus `reference/quality.md`, whose load-bearing column is the invariants
+deterministic checker rather than a model. Record it first as a new decision record — `ADR-0044` or
+the next free number ([ADR-0043](decisions/0043-primary-variant-self-hosted-assembled.md) is now
+taken by the variant decision) — plus `reference/quality.md`, whose load-bearing column is the invariants
 deliberately *not* machine-checked and why: before any green check exists, or conformance starts to
 look total.
 

@@ -64,6 +64,7 @@ a phase-0 blocker.
 | T1 path ownership | Gerrit **code-owners plugin**, implicit self-approval **off** | not recorded — verify | $0 | [ADR-0009](../reference/decisions/0009-code-host.md) §2 | decided | §5 below |
 | Gating CI | **Zuul** | **not recorded — verify** (see §3) | $0 licence + operations | [ADR-0009](../reference/decisions/0009-code-host.md) §2 | decided | §5 below |
 | Review record / audit | **NoteDb**, in-repository; ACLs versioned on `refs/meta/config` | part of Gerrit | $0 | [ADR-0009](../reference/decisions/0009-code-host.md) §2 | decided — **default-logged, not guaranteed append-only**; replicate and back up meta refs | §5 below |
+| Merge-gate enforcement | **submit requirements** — max Code-Review vote with `user=non_contributor`, excluding author, committer and uploader in one rule | part of Gerrit | $0 | [ADR-0009](../reference/decisions/0009-code-host.md) §2 | decided | §5 below |
 | Tier-function job | ours | — | engineering | [ADR-0006](../reference/decisions/0006-tier-function-and-greenfield-cold-start.md) | build | [tiers](../asdlc/tiers.md) |
 | Requester-check job | **not needed** — native by construction: agent is a Service User, change owned by the requester, `users=human_reviewers` ignores both | — | $0 | [ADR-0009](../reference/decisions/0009-code-host.md) §2 | decided — **a self-hosted-variant advantage** | [merge](../asdlc/05-merge.md) §4 |
 | Never-write check | ours | — | engineering | [ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) §2 | build | [tiers](../asdlc/tiers.md) |
@@ -332,6 +333,8 @@ boundary that can be bypassed silently is decoration* — that left one candidat
 for enforcement, not ergonomics**, and the record says so plainly: eighteen engineers who likely
 know pull requests will work in changes, patch sets, and labels, and nobody is expected to enjoy
 the first month ([ADR-0009](../reference/decisions/0009-code-host.md) consequences). The abort
-trigger in §4 is the honest exit. The [rollout plan](../rollout/plan.md) §1 recommends piloting
-the cloud variant first and treating this build-out as a separate, later decision — this design
-loses nothing by waiting.
+trigger in §4 is the honest exit. **This is the primary variant, and its own bring-up rig**
+([ADR-0043](../reference/decisions/0043-primary-variant-self-hosted-assembled.md)): the owner
+scoped the operations appetite to bring-up only, and the stack is developed declaratively —
+one definition as code, proven locally, then deployed onto server(s) — sequencing is the
+[rollout plan](../rollout/plan.md) §1 and §7.

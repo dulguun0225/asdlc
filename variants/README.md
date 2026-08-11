@@ -46,7 +46,9 @@ Identical in all three, at identical cost:
   ([ADR-0015](../reference/decisions/0015-observability-backend.md)). The *backend* no longer
   fully converges: cloud and assembled share the Prometheus + Loki + Grafana shapes (and their
   PromQL, LogQL and dashboard JSON); the integrated variant runs SigNoz, whose dashboards and
-  alerts are rebuilt, not ported.
+  alerts are rebuilt, not ported — keeping Prometheus beside it as Flagger's metric source on
+  Kubernetes deploys
+  ([research 2026-08-11](../reference/research/2026-08-11-observability-reconsideration.md) §1).
 - **The deployment layer — if the target is Kubernetes.** Flagger, Apache 2.0, every variant.
 - **TLS termination and credential masking** — the runner's built-in proxy does it in every
   variant, through one setting. No product is procured
@@ -78,14 +80,15 @@ Identical in all three, at identical cost:
 | **Signature bound to artifact** | Approximated by a last-pusher rule | Native — votes attach to patch sets | Stale-approval dismissal — **verify** | [asdlc/05-merge.md](../asdlc/05-merge.md) §3 |
 | **Provenance (SLSA L2)** | Native, $0 | cosign in a Zuul config-project playbook — **ours to maintain, permanently** | **GAP** — no trusted execution context identified yet ([OQ-22](../reference/open-questions.md#oq-22--provenance-on-the-integrated-self-hosted-variant)) | [ADR-0018](../reference/decisions/0018-self-hosted-provenance.md) |
 | **Artifact registry** | GitHub Container Registry, *"currently free"* | Harbor (zot the fallback) | Forgejo's built-in registry — referrers **verify**; zot the fallback | [ADR-0017](../reference/decisions/0017-artifact-registry.md) |
-| **Observability hosting** | Grafana Cloud Pro, *"From $19 / month + usage"* | Prometheus + Loki + Grafana, operated by us | SigNoz, operated by us — per-stream retention is a named gap | [ADR-0015](../reference/decisions/0015-observability-backend.md), [ADR-0039](../reference/decisions/0039-self-hosted-forks-on-the-assembly-axis.md) |
+| **Observability hosting** | Grafana Cloud Pro, *"From $19 / month + usage"* | Prometheus + Loki + Grafana, operated by us | SigNoz, operated by us — per-stream retention is a named gap, and Prometheus returns beside it on Kubernetes deploys (Flagger cannot read SigNoz, 2026-08-11) | [ADR-0015](../reference/decisions/0015-observability-backend.md), [ADR-0039](../reference/decisions/0039-self-hosted-forks-on-the-assembly-axis.md), [research 2026-08-11](../reference/research/2026-08-11-observability-reconsideration.md) |
 | **Rollout off Kubernetes** | AWS CodeDeploy (verified for AWS only) | **No verified answer** | **No verified answer** | [asdlc/07-operate.md](../asdlc/07-operate.md) §1 |
-| **Licence cost** | $4–21/user/month promotional, plus observability | $0 licence, and materially more operations labour | $0 licence; three-ish systems against the assembled six-plus | each sheet §2 |
+| **Licence cost** | $4–21/user/month promotional, plus observability | $0 licence, and materially more operations labour | $0 licence; three-ish systems against the assembled six-plus (four-ish on a Kubernetes deploy target) | each sheet §2 |
 
 **The self-hosted fork is an enforcement-versus-assembly trade, stated plainly.** The
 assembled variant is the only stack with an unconditional pre-enqueue human gate and a native,
 unlimited bypass record; the integrated variant gives up exactly those two properties to run
-one forge instead of three systems and one observability backend instead of three. The cloud
+one forge instead of three systems and one observability backend instead of three — less
+Prometheus, which returns as Flagger's metric source on Kubernetes deploys. The cloud
 variant remains the bring-up-time and provenance winner, at subscription prices. What every
 variant shares: the real cost lands on the platform owner role
 ([OQ-10](../reference/open-questions.md)), and the build rows (tier function, checker, ring

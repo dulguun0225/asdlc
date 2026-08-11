@@ -95,7 +95,10 @@ backend products and the operator differ per sheet. Components and prices are in
 - **Everything exports OTLP to a collector**, never direct to a backend. The collector is the
   redaction point. This holds in all three variants.
 - **Metrics → Prometheus** (Grafana Cloud Metrics in the cloud variant; SigNoz carries the
-  signal in the integrated variant). This confirms the component ADR-0011 had only assumed.
+  signal in the integrated variant — where Prometheus still returns beside it on Kubernetes
+  deploys, because Flagger cannot read SigNoz,
+  [research 2026-08-11](../reference/research/2026-08-11-observability-reconsideration.md) §1).
+  This confirms the component ADR-0011 had only assumed.
 - **Events, gate records and requirements traces → Loki** (Grafana Cloud Logs), with the two
   long-lived families on their own streams. The integrated variant's backend has no per-stream
   retention — its compensation is chosen at bring-up

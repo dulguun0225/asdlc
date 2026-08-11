@@ -13,7 +13,9 @@
   [forgejo#6982](https://codeberg.org/forgejo/forgejo/issues/6982), still open 2026-08-06),
   and **the T1 pre-run human gate is pipeline-constructed, not platform-guaranteed**. An org
   that cannot accept either uses the [assembled sheet](self-hosted.md).
-- **Checked 2026-08-06.** Re-verify before procurement.
+- **Checked 2026-08-06; observability rows re-verified 2026-08-11**
+  ([research note](../reference/research/2026-08-11-observability-reconsideration.md)).
+  Re-verify before procurement.
 - **Companions:** [assembled sheet](self-hosted.md) — the same licence constraint,
   enforcement-first; [cloud sheet](cloud.md) — the same layers, bought managed.
 
@@ -106,27 +108,35 @@ gap.
 | Canary traffic | load-testing webhook or equivalent | Apache 2.0 | $0 | [ADR-0011](../reference/decisions/0011-progressive-rollout.md) §3 | decided — required | [operate](../asdlc/07-operate.md) §1 |
 | Ingress / mesh | any Flagger-supported ingress controller; no mesh required | — | $0 | [ADR-0011](../reference/decisions/0011-progressive-rollout.md) §1 | **not selected** — a Kubernetes-platform choice this design leaves open | — |
 
-### Observability — one backend instead of three
+### Observability — one backend instead of three, plus Prometheus when Flagger applies
 
 The architecture keeps [ADR-0015](../reference/decisions/0015-observability-backend.md)'s
 shape — **the OTel Collector stays, as the mandatory redaction point; nothing exports direct
-to a backend** — but the three backend products collapse into one.
+to a backend** — and Loki and Grafana collapse into SigNoz. **Prometheus is not replaced on a
+Kubernetes deploy target:** Flagger's provider list has no SigNoz/ClickHouse type and SigNoz
+exposes no supported Prometheus-compatible query API (researched 2026-08-11,
+[research note](../reference/research/2026-08-11-observability-reconsideration.md) §1), so
+ADR-0015 reason 3 — any other metrics backend is an *additional* component, never a
+replacement — holds in this variant too.
 
 | Layer | Component | Licence / plan | Cost | Decided by | Status | Rules |
 |---|---|---|---|---|---|---|
 | Export protocol | **OpenTelemetry** from every agent session and CI job | open standard | $0 | [ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) §9 | decided | [operate](../asdlc/07-operate.md) §3 |
 | Collector | **OpenTelemetry Collector**, gateway deployment | Apache 2.0 | $0 licence + operations | [ADR-0015](../reference/decisions/0015-observability-backend.md) §1 | decided — mandatory; the redaction point | [operate](../asdlc/07-operate.md) §3 |
-| Metrics backend | **SigNoz** (community core) on its bundled ClickHouse | **open core: MIT outside `ee/` and `cmd/enterprise/`** (verified 2026-08-06). SSO and fine-grained RBAC are **enterprise-gated** — not in this variant | $0 licence + operations | [ADR-0039](../reference/decisions/0039-self-hosted-forks-on-the-assembly-axis.md) | decided as product — **two named verifications below** | [operate](../asdlc/07-operate.md) §3 |
+| Metrics backend | **SigNoz** (community core) on its bundled ClickHouse | **open core: MIT outside `ee/` and `cmd/enterprise/`** (re-verified 2026-08-11). SAML/OIDC SSO and fine-grained RBAC are **enterprise-gated** — not in this variant; Google-OAuth-only SSO is in the community core since v0.85.0 (2025-05-27) | $0 licence + operations | [ADR-0039](../reference/decisions/0039-self-hosted-forks-on-the-assembly-axis.md) | decided as product — **two named verifications below** | [operate](../asdlc/07-operate.md) §3 |
+| Flagger metric source (Kubernetes deploys) | **Prometheus 3.x**, as in the assembled variant — SigNoz cannot serve it: no Flagger provider type, no supported Prometheus-compatible API (both first-party, 2026-08-11) | Apache 2.0 | $0 licence + operations | [ADR-0015](../reference/decisions/0015-observability-backend.md) §2; [research 2026-08-11](../reference/research/2026-08-11-observability-reconsideration.md) §1 | decided — **conditional** on the deploy target being Kubernetes, like the Flagger row above; off Kubernetes no progressive-rollout mechanism exists at all ([ADR-0011](../reference/decisions/0011-progressive-rollout.md) §5) | [operate](../asdlc/07-operate.md) §1 |
 | Event store (session records) | **SigNoz** — the same installation, logs signal | part of SigNoz | $0 | [ADR-0039](../reference/decisions/0039-self-hosted-forks-on-the-assembly-axis.md); retention per [ADR-0015](../reference/decisions/0015-observability-backend.md) §3 | decided — 90 d. Record family 1 comes from the **events** signal; the runner's **trace signal is beta and is not adopted** | [operate](../asdlc/07-operate.md) §3 |
-| Gate-record + requirements-trace store | — | — | — | — | **GAP** — SigNoz retention is **per-signal, not per-stream** (docs, 2026-08-06): session events (90 d) and gate records (5 y) share the logs signal. Compensations: the 5-year copy is *derived* (the authoritative record stays on the change), or gate records get a dedicated small store. Chosen at bring-up, recorded then | [schema](../reference/artifacts.md) §3, §7 |
+| Gate-record + requirements-trace store | — | — | — | — | **GAP** — SigNoz retention is **per-signal, not per-stream** (re-verified 2026-08-11): session events (90 d) and gate records (5 y) share the logs signal. The upstream fix, "custom retention for different sources of logs", is announced **enterprise-gated, COMING SOON** (pricing page, 2026-08-11) — so the compensation is **permanent for this variant**, not a wait: the 5-year copy is *derived* (the authoritative record stays on the change), or gate records get a dedicated small store. Chosen at bring-up, recorded then | [schema](../reference/artifacts.md) §3, §7 |
 | Trace store | — deferred, as in the other variants | — | — | [ADR-0015](../reference/decisions/0015-observability-backend.md) §8 | not built — trigger unchanged (runner trace signal leaves beta) | [operate](../asdlc/07-operate.md) §3 |
 | Dashboards | **SigNoz** — per-tier gate metrics, bypass watch, spend per team; alerting in the same installation | part of SigNoz | $0 | [ADR-0039](../reference/decisions/0039-self-hosted-forks-on-the-assembly-axis.md) | decided — **rebuilt, not ported**: the Grafana dashboard JSON from the other variants does not carry over | [operate](../asdlc/07-operate.md) §3 |
 | Record emission from CI | ours | — | engineering | [ADR-0015](../reference/decisions/0015-observability-backend.md) consequences | build — CI jobs must emit gate records and requirements traces as OTLP log records | [schema](../reference/artifacts.md) §3, §7 |
 
 **Verifications this table depends on:** self-hosted SigNoz retention accepts the required
-values (the cloud menus stop at 1 year logs / 13 months metrics; the self-hosted maximum is
-undocumented, 2026-08-06), and per-tier dashboards + alert rules rebuild in SigNoz — the
-Grafana dashboard JSON from the other variants **does not port**.
+values (the UI menus stop at 1 year logs / 13 months metrics; the self-hosted maximum is
+undocumented — re-checked 2026-08-11, still nothing first-party either way; the TTL API takes
+a day count directly, which suggests but does not confirm larger values), and per-tier
+dashboards + alert rules rebuild in SigNoz — the Grafana dashboard JSON from the other
+variants **does not port**.
 
 ### Explicitly out of scope
 
@@ -147,7 +157,7 @@ there applies to this variant unchanged.
 |---|---|---|
 | Platform licences | **$0** — the variant keeps the assembled variant's defining property | high |
 | Model tokens | Rate table sourced and dated in [OQ-7](../reference/open-questions.md#oq-7--what-are-the-per-unit-of-agent-work-economics) | rates certain, volume unknown |
-| Infrastructure | Forgejo, SigNoz + ClickHouse, the collector, and Kubernetes + Flagger if applicable — **three-ish systems against the assembled variant's six-plus** | **unquantified** |
+| Infrastructure | Forgejo, SigNoz + ClickHouse, the collector, and Kubernetes + Flagger + **Prometheus** if applicable (Flagger cannot read SigNoz — §1 observability table, 2026-08-11) — **three-ish systems against the assembled variant's six-plus, four-ish on a Kubernetes deploy target** | **unquantified** |
 | Operations labour | Lower than the assembled variant by construction — this is the variant's purpose — but still on the platform owner role, and **still unquantified** | flagged, as in every variant |
 
 The prompt-cache and batch-pricing caveats of the assembled variant apply unchanged

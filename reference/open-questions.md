@@ -130,6 +130,17 @@ new runtime facts: Gerrit normalizes sparse label value sets to a contiguous ran
 −2/0/+2 is inexpressible), and an out-of-range vote is silently dropped with HTTP 200, not
 refused.
 
+**Also new 2026-08-11: the observability choice was reconsidered against SigNoz and stands**
+([research/2026-08-11-observability-reconsideration.md](research/2026-08-11-observability-reconsideration.md)).
+ADR-0015 is unchanged; both fresh checks landed against SigNoz: **Flagger cannot read it**
+(a question no prior note asked — no provider type, no supported Prometheus-compatible API),
+so Prometheus returns beside SigNoz on Kubernetes deploys — the integrated sheet, its cost
+line, variants/README.md, 07-operate.md §3 and the integrated stack README are corrected —
+and the per-stream retention gap stands, its upstream fix now announced **enterprise-gated
+("COMING SOON")**, making the free variant's compensation permanent. Read the note's "do not reintroduce" list before quoting SigNoz claims; the sheet's
+§3 verification item on self-hosted retention maxima still stands (re-checked 2026-08-11,
+still undocumented).
+
 **The registry slice landed and the sheet's §4 referrers verification passed** (2026-08-10,
 Harbor v2.15.2 / cosign v3.1.3 / oras v1.3.3): `harbor.mjs` brings Harbor up pinned and
 configured per ADR-0017 — private project, `v*` tag immutability (observed enforcing on

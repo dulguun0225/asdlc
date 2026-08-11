@@ -41,7 +41,8 @@ may ever be committed.
 
 The sheet's remaining layers, so their absence is stated rather than absorbed: the provenance
 signer (GAP — [OQ-22](../../../reference/open-questions.md#oq-22--provenance-on-the-integrated-self-hosted-variant)),
-the OTel collector and SigNoz, Flagger, the Actions runner and every gating job (the T1 gating
+the OTel collector and SigNoz, Flagger and the Prometheus that returns as its metric source on
+Kubernetes deploys (sheet §1 observability table, 2026-08-11), the Actions runner and every gating job (the T1 gating
 job, tier function, requester check, never-write check, byte-equality check), and the
 external logging of webhook-visible events (§4's bypass-visibility floor). A pilot on this
 instance carries that list as its known deferrals.

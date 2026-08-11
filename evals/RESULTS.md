@@ -2,6 +2,21 @@
 
 Newest first. Format: date, session model, per-eval verdict, notes worth acting on.
 
+## 2026-08-12 — session model Fable 5 (retune from the bare-model probe audit)
+
+Trigger: descriptions/rules edited on `coder`, `deep-worker`, `reviewer` — routing boundaries and
+the reviewer hunt list retuned from 64 bare no-skill probe sessions (2026-08-11: sonnet 13/32 vs
+opus 26/32 directive compliance; four corpus defaults survived the frontier tier). `Skill` added
+to `coder`/`deep-worker` tool allowlists. Model × effort table unchanged.
+
+| Eval | Verdict | Notes |
+|---|---|---|
+| routing | **Pass** 22/22 | Judge: sonnet, no tools. Boundary tasks 21 (conformance→reviewer) and 22 (command→prober) both held; the widened coder/deep-worker domain lists caused no misroutes on tasks 6–10. |
+| coder | **Pass** | One-line `.toLowerCase()` fix, test run, `ok` reported; `diff -r` vs fixture confirms nothing else touched. |
+| reviewer | **Pass** 3/3 | All seeded bugs with concrete scenarios (incl. the compounding-carts note), zero false positives, "blocked" verdict, read only the fixture. New hunt-list rule did not produce noise findings. |
+
+Static validator: clean (10 agents, README/SKILL tables consistent).
+
 ## 2026-08-07 (later, Opus 5) — workflow-light hardening, driven by a measured failure
 
 **The failure.** `/workflow-light` ran a real task — design a quality system for the `nc/asdlc`

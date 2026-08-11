@@ -19,7 +19,9 @@ Reusable subagent definitions with per-task model and reasoning-effort routing: 
 
 `deep-worker`, `architect`, `spec-author`, `refuter`, and `reviewer` omit `model:` so they inherit the session model — pinning them would cap quality below the session tier (e.g. Fable) exactly where being wrong is expensive. Review is the last gate before commit; a pinned reviewer would judge the session model's work with a weaker model.
 
-Escalation path: `scout` → `coder` → `deep-worker`; plan with `architect` first when the approach is unclear; run `reviewer` after any non-trivial change.
+Escalation path: `scout` → `coder` → `deep-worker`; plan with `architect` first when the approach is unclear; run `reviewer` after any non-trivial change. Correctness-critical domain code goes straight to `deep-worker`: money, async handoff, caching, API error contracts, webhook/callback delivery, batch jobs with a failure policy, new dependency picks.
+
+Assignments re-checked 2026-08-12 against 64 bare no-skill probe sessions (`claude-sonnet-5` vs `claude-opus-5`, CLI 2.1.227, 16 coding/decision tasks × 2 repeats × 2 tiers): sonnet complied with domain-discipline directives in 13/32 sessions, opus in 26/32. Consequences applied here: the model × effort table stands; code whose defects are silent routes to inherit-tier agents (the domain list above — every one of those classes failed at sonnet); four defaults survived even the frontier tier (retry-to-green on flaky tests, ORDER BY on a UUID key, silent rounding at money construction, the bigint+external-id hybrid), so `reviewer` hunts them by name — no model assignment removes them. `coder` and `deep-worker` carry `Skill` so a project that ships skills gets them consumed; the definitions name no skill and work unchanged where none exist.
 
 ## Install
 

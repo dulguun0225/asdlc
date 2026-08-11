@@ -20,7 +20,7 @@ Pick per stage, by the kind of work the agent does:
 | Run a given command and return its output | haiku / low | `prober` |
 | Web search, claim extraction, per-source reading | haiku / low | — |
 | Dedup, format conversion, counting, list merging | haiku / low | — |
-| Well-scoped edit with a decided approach | sonnet / medium | `coder` |
+| Well-scoped edit with a decided approach | sonnet / high | `coder` |
 | Prose artifacts: docs, changelogs, comments | sonnet / medium | `docs-writer` |
 | Verify one claim against its cited source | sonnet / medium | — |
 | Evidence gathering with dated claims, registry/version checks | sonnet / high | `researcher` |

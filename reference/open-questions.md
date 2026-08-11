@@ -203,14 +203,16 @@ the work list splits by evidence:
   probe 0/2): primary-keys P7/P8/P13/P14/P15-core; java-backend-api A15/A16/A18;
   money-storage M-31/M-33; java-backend-rules R1/R8/R10/R23/R27 (R10/R23 are Spring Boot
   mechanical defaults, near-certain passes; probe anyway — it is one cheap batch).
-  Single-tier sonnet run, 2 repeats, ~12 cases ≈ $4 on the existing
-  `tools/skills-harness/scripts/redundancy-probes.mjs` rig; add the cases to
-  `redundancy-cases.json`.
+  Single-tier run at **sonnet / `--effort high`** (matching `coder` since 2026-08-12),
+  2 repeats, ~12 cases ≈ $4 on the existing
+  `tools/skills-harness/scripts/redundancy-probes.mjs` rig (`--effort` passthrough added);
+  add the cases to `redundancy-cases.json`.
 - **Cancelled, stays cancelled:** E-34/E-35 (bound at sonnet 0/2).
 
-New caveats the executor must carry: (1) **effort was not controlled in the probes** — coder
-runs at `medium`; probe sessions used the CLI default. Lower effort cannot improve compliance,
-so this only ever strengthens keep-verdicts; it never licenses a trim. (2) **Tripwire:** if
+New caveats the executor must carry: (1) **the effort axis is now measured** (2026-08-12):
+sonnet at `--effort high` went 3/14 → 6/14 on the sonnet-failed cases — it fixed
+under-engineering (E34, G4) and no corpus-gravity default (E5/A56/M5 stayed 0/2), so `coder`
+moved to effort high and the sonnet-binding keep-verdicts stand unchanged. (2) **Tripwire:** if
 any code-writing task is ever routed to a haiku-tier agent, every trim verdict is void — the
 audit measured sonnet and opus only. Execution constraints unchanged: demote with the recorded
 probe result rather than delete where the skill has a growth-path convention; keep every dated

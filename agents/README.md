@@ -11,7 +11,7 @@ Priorities, in order:
 1. Quality of work done
 2. Token efficiency
 
-Concretely: judgment-heavy agents (`deep-worker`, `architect`, `spec-author`, `refuter`, `reviewer`) **omit `model:`** so they inherit the session model — never pin them to a lower tier to save tokens. Mechanical/lookup work gets pinned cheap (`scout`/`prober` = haiku/low, `coder`/`docs-writer` = sonnet/medium). When adding or retuning an agent, place it on this axis first; the routing table below is the source of truth and must be updated in the same change.
+Concretely: judgment-heavy agents (`deep-worker`, `architect`, `spec-author`, `refuter`, `reviewer`) **omit `model:`** so they inherit the session model — never pin them to a lower tier to save tokens. Mechanical/lookup work gets pinned cheap (`scout`/`prober` = haiku/low, `docs-writer` = sonnet/medium, `coder` = sonnet/high). When adding or retuning an agent, place it on this axis first; the routing table below is the source of truth and must be updated in the same change.
 
 ## Routing table
 
@@ -20,7 +20,7 @@ Concretely: judgment-heavy agents (`deep-worker`, `architect`, `spec-author`, `r
 | `scout` | haiku | low | Locating files, symbols, usages ("where is X") |
 | `prober` | haiku | low | System-state checks: link/junction targets, hardlink identity, processes, env, tool versions; running a read-only command the caller wrote out, for its output |
 | `docs-writer` | sonnet | medium | README, changelogs, comments, docstrings |
-| `coder` | sonnet | medium | Well-scoped features, known-cause fixes, mechanical refactors, tests |
+| `coder` | sonnet | high | Well-scoped features, known-cause fixes, mechanical refactors, tests |
 | `reviewer` | inherit | high | Read-only diff review before committing; config/docs consistency audits; conformance audit of a corpus against a stated rule |
 | `deep-worker` | inherit | high | Gnarly bugs, concurrency, performance, cross-cutting refactors |
 | `architect` | inherit | high | Read-only design/planning when the approach is not obvious |
@@ -33,6 +33,8 @@ Concretely: judgment-heavy agents (`deep-worker`, `architect`, `spec-author`, `r
 Escalation path: `scout` → `coder` → `deep-worker`; plan with `architect` first when the approach is unclear; run `reviewer` after any non-trivial change. Correctness-critical domain code goes straight to `deep-worker`: money, async handoff, caching, API error contracts, webhook/callback delivery, batch jobs with a failure policy, new dependency picks.
 
 Assignments re-checked 2026-08-12 against 64 bare no-skill probe sessions (`claude-sonnet-5` vs `claude-opus-5`, CLI 2.1.227, 16 coding/decision tasks × 2 repeats × 2 tiers): sonnet complied with domain-discipline directives in 13/32 sessions, opus in 26/32. Consequences applied here: the model × effort table stands; code whose defects are silent routes to inherit-tier agents (the domain list above — every one of those classes failed at sonnet); four defaults survived even the frontier tier (retry-to-green on flaky tests, ORDER BY on a UUID key, silent rounding at money construction, the bigint+external-id hybrid), so `reviewer` hunts them by name — no model assignment removes them. `coder` and `deep-worker` carry `Skill` so a project that ships skills gets them consumed; the definitions name no skill and work unchanged where none exist.
+
+`coder` runs at effort **high** since 2026-08-12, from a controlled re-run of the seven sonnet-failed probe cases at `--effort high` (claude-sonnet-5, CLI 2.1.228): compliance rose 3/14 → 6/14 at +13% measured session cost — high effort fixed under-engineering (the SSRF delivery pipeline, deterministic-gate review closure went 0/2 → 2/2) but not one corpus-gravity default (outbox still 0/2 with one session naming the dual-write problem and shipping it anyway; ad-hoc error shapes, silently posted partial totals, Luhn and the dead jollyday all persisted). Opus at default effort passed all fourteen. Consequence: effort is the cheap win and is taken; the trap-shaped defaults remain skill/gate territory, not an effort or prompt problem.
 
 ## Install
 

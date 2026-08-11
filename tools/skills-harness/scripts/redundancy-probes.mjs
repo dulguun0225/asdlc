@@ -222,7 +222,7 @@ try {
     const written = snapshot(box, new Set(Object.keys(files)));
     const result = {
       case: c.id, skill: c.skill, directive: c.directive, criterion: c.criterion,
-      rep, model: stamp.model, cli: stamp.cli, ran: new Date().toISOString(),
+      rep, model: stamp.model, effort: args.effort ?? "(cli default)", cli: stamp.cli, ran: new Date().toISOString(),
       prompt: c.prompt, fixtureFiles: Object.keys(files),
       writtenFiles: written, finalText: session.text,
       cost: session.cost, error: session.error, unexpected: session.unexpected,
@@ -236,7 +236,7 @@ try {
   console.log(`\n${done.length}/${runs.length} sessions run, $${spent.toFixed(2)} spent, model=${stamp.model} cli=${stamp.cli}.`);
   if (skipped.length) console.log(`Budget stop: NOT run (do not read absence as compliance): ${skipped.join(", ")}`);
   writeFileSync(join(args.out, "summary.json"), JSON.stringify({
-    ran: new Date().toISOString(), model: stamp.model, cli: stamp.cli, host: process.platform,
+    ran: new Date().toISOString(), model: stamp.model, effort: args.effort ?? "(cli default)", cli: stamp.cli, host: process.platform,
     maxTurns: MAX_TURNS, permitted: PERMITTED, repeats: args.repeats, spentUsd: spent,
     sessions: done.map((r) => ({ case: r.case, rep: r.rep, cost: r.cost, error: r.error })),
     budgetSkipped: skipped,
@@ -260,6 +260,7 @@ function runOne(cwd, cfgDir, prompt) {
         "--allowed-tools", ...PERMITTED,
         "--disallowed-tools", ...DENIED,
         ...(args.model ? ["--model", args.model] : []),
+        ...(args.effort ? ["--effort", args.effort] : []),
       ],
       { cwd, env: childEnv(cfgDir), stdio: ["pipe", "pipe", "pipe"], shell: process.platform === "win32" },
     );
@@ -369,7 +370,7 @@ function fileExists(p) {
 }
 
 function parseArgs(argv) {
-  const a = { case: [], repeats: 2, concurrency: 4, budget: 40, model: null, out: "probe-results", dryRun: false };
+  const a = { case: [], repeats: 2, concurrency: 4, budget: 40, model: null, effort: null, out: "probe-results", dryRun: false };
   for (let i = 0; i < argv.length; i++) {
     const v = argv[i];
     if (v === "--case") a.case.push(argv[++i]);
@@ -377,6 +378,7 @@ function parseArgs(argv) {
     else if (v === "--concurrency") a.concurrency = Number(argv[++i]);
     else if (v === "--budget") a.budget = Number(argv[++i]);
     else if (v === "--model") a.model = argv[++i];
+    else if (v === "--effort") a.effort = argv[++i];
     else if (v === "--out") a.out = argv[++i];
     else if (v === "--dry-run") a.dryRun = true;
     else { console.error(`Unknown argument: ${v}`); process.exit(2); }

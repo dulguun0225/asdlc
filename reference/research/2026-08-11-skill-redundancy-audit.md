@@ -177,10 +177,19 @@ consumers execute as written; trims resting on desk classification alone where `
 consumer (primary-keys P7/P8/P13/P14/P15-core, java-backend-api A15/A16/A18, money-storage
 M-31/M-33, java-backend-rules R1/R8/R10/R23/R27) need a single-tier sonnet probe batch first —
 sonnet failed the neighboring A5/A6 probe 0/2, so its unprobed api/schema discipline cannot be
-assumed. One probe-design caveat recorded: probe sessions ran at the CLI's default effort,
-`coder` runs at `medium`; lower effort can only worsen compliance, so the mismatch can
-strengthen a keep-verdict but never license a trim. The current work list lives in
+assumed. The current work list lives in
 [open-questions.md](../open-questions.md) → "The trim is the next job".
+
+**The effort axis was then measured (2026-08-12):** the seven sonnet-failed cases re-run at
+`--effort high` (claude-sonnet-5, CLI 2.1.228, 2 repeats, $4.91) went 3/14 → 6/14. High effort
+rescued under-engineering (E34 SSRF pipeline and G4 gate-closure both 0-1/2 → 2/2) and **no
+corpus-gravity default** — E5 outbox stayed 0/2 (one session named the dual-write problem in
+prose and shipped `kafkaTemplate.send` in the transaction anyway), A56 error shapes 0/2, M5
+partial totals 0/2, N13 and T6 still coin flips. Opus at default effort passed all fourteen.
+Consequences: `coder` moved to `effort: high` (the cheap win, +13% measured session cost); the
+sonnet-binding keep-verdicts stand unchanged — effort is not the lever for trap-shaped
+defaults; and the bucket-B probe batch runs at **sonnet / effort high** to match the fleet.
+Full table: `tools/agents-harness/evals/RESULTS.md`, 2026-08-12 (later) entry.
 
 ## What this audit does not decide
 

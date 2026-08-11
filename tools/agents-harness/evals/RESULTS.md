@@ -2,6 +2,30 @@
 
 Newest first. Format: date, session model, per-eval verdict, notes worth acting on.
 
+## 2026-08-12 (later) — coder effort medium → high, from a controlled effort experiment
+
+Question: does raised effort rescue the probe cases sonnet failed at default effort, before
+paying the opus 2× on every coder task? Method: the seven sonnet-failed redundancy-probe cases
+re-run at `--effort high` (claude-sonnet-5, CLI 2.1.228, 2 repeats, $4.91, rig:
+`tools/skills-harness/scripts/redundancy-probes.mjs`, results graded against the same criteria
+as the 2026-08-11 baseline).
+
+| Case | sonnet default | sonnet high | opus default |
+|---|---|---|---|
+| E34-webhook-out | 0/2 | **2/2** | 2/2 |
+| G4-review-closure | 1/2 | **2/2** | 2/2 |
+| E5-outbox | 0/2 | 0/2 | 2/2 |
+| A56-error-shape | 0/2 | 0/2 | 2/2 |
+| M5-batch-failloud | 0/2 | 0/2 | 2/2 |
+| N13-check-digit | 1/2 | 1/2 | 2/2 |
+| T6-jollyday | 1/2 | 1/2 | 2/2 |
+
+Verdict applied: `coder` → `effort: high` (+13% measured session cost, compliance 3/14 → 6/14
+on this set). Not applied: a model bump — high effort fixed under-engineering but no
+corpus-gravity default (E5 #1 named the dual-write problem in prose and shipped
+`kafkaTemplate.send` in the transaction anyway); those remain skill/gate territory, which the
+planned `skills:` preload targets. Validator re-run green after the routing-table update.
+
 ## 2026-08-12 — session model Fable 5 (retune from the bare-model probe audit)
 
 Trigger: descriptions/rules edited on `coder`, `deep-worker`, `reviewer` — routing boundaries and

@@ -34,6 +34,7 @@ tools/        the code — programs and packages the life cycle needs
 | **See what the agent is actually told at each stage** | [asdlc/skills/](asdlc/skills/README.md) — the rules; the files are in [skills/](skills/README.md) |
 | **Install the skills into a repository** | [skills/](skills/README.md) — `npx skills add dulguun0225/asdlc` |
 | **Build one variant** | [variants/cloud.md](variants/cloud.md), [variants/self-hosted.md](variants/self-hosted.md) or [variants/self-hosted-integrated.md](variants/self-hosted-integrated.md) — each is self-contained |
+| **Try it on your machine** | [tools/stacks/self-hosted/demo.md](tools/stacks/self-hosted/demo.md) — bring the primary stack up locally and put a change through the gates by hand |
 | **Know what to do first** | [rollout/plan.md](rollout/plan.md) |
 | **Know why something was decided** | [reference/decisions/](reference/decisions/README.md) |
 | **Know what is still unanswered** | [reference/open-questions.md](reference/open-questions.md) |
@@ -44,7 +45,9 @@ decision record. On any conflict, the ADR wins and the design document has a bug
 
 ## Status
 
-**The design is decided; nothing has been run.** Every layer of the cloud and self-hosted
+**The design is decided; the org pilot has not started.** The four stage procedures have one
+recorded end-to-end run — a demo feature through spec → plan → tasks → implementation on the
+self-hosted assembled rig, agent-authored, human-gated, 2026-08-11. Every layer of the cloud and self-hosted
 assembled stacks is chosen and recorded: gates and signers, the tier system, the runner and its
 containment, the code host, rollout, artifacts and traceability, observability, egress and
 masking, registry, provenance, testing, instruction layers, units of work, defect attribution.
@@ -63,8 +66,8 @@ deployment target ([context.md](reference/context.md)).
 **Missing, but code rather than decisions:** the feature-artifact checker, the CI emitters for
 gate records and requirements traces, and the bring-up verifications listed in
 [rollout/open-parameters.md](rollout/open-parameters.md) — two need hardware (Harbor's OCI
-referrers path; the toolchain under TLS termination). The four stage procedures exist and are
-unrun.
+referrers path; the toolchain under TLS termination). The four stage procedures have exactly
+one end-to-end run behind them, on the local rig.
 
 ## The design's own footing
 

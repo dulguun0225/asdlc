@@ -53,6 +53,10 @@ T1 work between signature and merge
 - **A T1 or T2 change with no feature folder fails.** T3 changes carry no feature artifacts at
   all ([03-tasks.md](03-tasks.md)). This is the same failure shape as a tier escalation: a change
   that turns out T1 or T2 without a signed spec and plan is a plan defect surfaced at merge.
+- **Abandoned work carries its reason in-band** — in the abandon message or closing comment,
+  where the first glance at the abandoned change lands, naming what supersedes it if anything
+  does. Conduct for humans and agents alike, not mechanically enforced on any host
+  ([ADR-0045](../reference/decisions/0045-abandoned-work-carries-its-reason.md)).
 
 ## 3. How each variant enforces this
 

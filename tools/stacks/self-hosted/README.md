@@ -29,16 +29,22 @@ node codeowners.mjs          # T1 path ownership (§5) — configure-before-inst
 node buildjobs.mjs           # build rows: tier-function + never-write (ADR-0006/0008)
 node ringjob.mjs             # last build row: ring + reassignment (ADR-0005 §4–5)
 node basejob.mjs             # real base job: workspace sync + stored logs (jobs2)
+node skillsjob.mjs           # ADR-0032 §3 byte-equality row — pilot must carry the delivered skills
 node rollout.mjs             # sequenced slice: kind + Flagger (ADR-0011) — stop Harbor first
 node auth.mjs                # ADR-0044: Keycloak, oauth plugin, the migration probe
 ```
+
+**New to all of this? [demo.md](demo.md) is the guided walkthrough** — bring-up, a change
+through the gates in the browser, a small service by git, and the denials; no prior
+knowledge of the project or the tools assumed.
 
 `bootstrap.mjs`, ordered internally: secrets (ZooKeeper TLS material, SSH keys, passwords —
 all generated into `.secrets/`, mode 0600, gitignored) → core containers (Gerrit 3.14.2,
 ZooKeeper 3.9, MariaDB 11.4, static test node) → Gerrit groups, accounts and the §5 access
 policy → seeded `zuul-config` and `pilot` projects → Zuul 14.2.0 (scheduler, web, executor,
-launcher). Idempotent; re-running converges. Gerrit answers at `http://localhost:8080`,
-Zuul at `http://localhost:9000/t/asdlc/status`.
+launcher) and the log server. Idempotent; re-running converges. Gerrit answers at
+`http://localhost:8080`, Zuul at `http://localhost:9000/t/asdlc/status`, build logs at
+`http://localhost:8000`.
 
 `harbor.mjs`: pinned Harbor v2.15.2 offline installer (sha256 recorded in the script) into
 `.harbor/` (gitignored), harbor.yml generated from the vendor's template — localhost, HTTP
@@ -120,6 +126,12 @@ So absence is stated rather than absorbed:
   the merge. No gate job ran before the human vote.
 - The Gerrit image's development mode answers `/a/` REST as `admin`/`secret` with zero
   configuration — the bootstrap's first contact depends on it.
+- **Changes created through Gerrit's UI dialog are born work-in-progress** (REST-created
+  ones are not), and Zuul will not enqueue a WIP change into the gate — at DEBUG:
+  *"can not be merged due to: work in progress flag"*; at INFO the vote event vanishes
+  without a trace (observed 2026-08-11). Check runs regardless (independent pipelines
+  skip the mergeability test). Votes cast while WIP stand but move nothing; after
+  Start Review the reviewer re-sends them to re-fire the gate trigger.
 - Host-generated key files at mode 0644 are accepted: the executor loads the node key through
   its SSH agent and the scheduler reads the Gerrit key via paramiko; no OpenSSH strict-modes
   refusal appears at container UIDs.
@@ -212,6 +224,15 @@ So absence is stated rather than absorbed:
 - **The upload target must be in `trusted_rw_paths`** (`/srv/static/logs`) — the write-side
   twin of the `trusted_ro_paths` fact above; the quickstart's own zuul.conf carries exactly
   this line.
+- **The web UI's Logs and Console tabs are a cross-origin client** (observed 2026-08-11):
+  the browser fetches `zuul-manifest.json` and the log files from the log server
+  (`:9000` → `:8000`), so the log server must send `Access-Control-Allow-Origin` — the
+  quickstart's own httpd.conf sets `*` over stock, which stock `httpd:2.4` does not;
+  reproduced here as two `-c` directives on the compose command. Without the header the
+  build page reports *"This build does not provide any logs"* while `log_url` itself
+  serves fine. Found the same way: `bootstrap.mjs` had never started the `logs` container
+  (only `basejob.mjs` did) — the seed's base job uploads logs from first boot, so a fresh
+  rig's `log_url` refused connections; `logs` joined bootstrap's start list.
 
 ## Runtime facts — rollout slice (2026-08-10, kind v0.32.0 / Flagger v1.44.0, `rollout.mjs`)
 
@@ -331,6 +352,42 @@ So absence is stated rather than absorbed:
   declared — an unprovable claim does not qualify (ADR-0006 §4), so those changes fall to T2.
 - **Diff scope is `HEAD^..HEAD`** of Zuul's prepared checkout — correct for single-commit
   changes, unverified for stacked series; noted rather than absorbed.
+
+## Runtime facts — skills delivery + byte-equality (2026-08-11, skills CLI v1.5.x / claude CLI 2.1.227, `skillsjob.mjs`)
+
+- **Delivery ran on the consumer path** (`npx skills add dulguun0225/asdlc -a claude-code
+  --copy -s <name>` ×4 — one `-s` per skill; a comma-separated list matches nothing): four
+  byte-identical copies under `.claude/skills/`, merged into pilot through the gate,
+  human-authored (instruction files are on the agent's never-write list).
+- **ADR-0032 §4 check 1, github source**: `skills-lock.json` carries `source`, `sourceType`,
+  `skillPath` and `computedHash` — **no commit ref**, same as the integrated rig's
+  local-source outcome; and the hash is computed over `SKILL.md` alone, so the shipped
+  `template.md` files are outside the lock entirely. The explicit owner pin (a commit sha in
+  the trusted job definition) is the CI reference, as the ADR provided.
+- **ADR-0032 §4 check 2, both halves, single-run each**: a session ordered to invoke
+  `asdlc-spec` via the Skill tool is refused by the harness itself — *"cannot be used with
+  Skill tool due to disable-model-invocation"* — and `/asdlc-spec` loads the stage and starts
+  with the shipped template.
+- **ADR-0032 §4 check 3 via the new `skills-equality` build row** (trusted, executor-only,
+  shell+git only — no node runtime needed): clones the canonical at the pinned sha and
+  `diff -r`s each committed copy. Probed both ways live: intact copies SUCCESS; one appended
+  byte in a committed `SKILL.md` — the unreviewed-update stand-in — FAILURE naming the file.
+  The pin moves only by a reviewed zuul-config change plus a reviewed pilot change.
+- **The first end-to-end stage run happened on this rig** (2026-08-11, pilot changes 11–14):
+  spec — revised once through the review loop (requester's open-item answer as a CR−1 comment
+  → folded in as a new FR on patch set 2) — then plan (created the repo's `tier-map.yaml`, the
+  greenfield cold start; refused to compute an advisory tier with no runner present), tasks
+  (no human gate by design; the host's uniform review floor still applies, as plain review
+  rather than signature), implementation (a coder subagent following the delivered procedure —
+  runner heterogeneity, engineer-directed; stages 1–3 fired the installed skills' own
+  invocation path headless). Interim signer throughout: cft-lead (OQ-10 unfilled).
+- **Every defect in that run was harness-side, not procedure-side**: a `git add` swept
+  `__pycache__/` into the stage-4 change (caught by the human gate; pilot gained its first
+  `.gitignore`), and an amend that dropped the `Change-Id` trailer spawned a stray
+  higher-numbered duplicate change (caught by Gerrit's identity model; abandoned with its
+  reason in the abandon message — the incident behind ADR-0045). Gate-record tooling's absence
+  bit at plan time: the procedure demands signature confirmation, and the engineer's
+  attestation of the merged change stood in.
 
 ## Runtime facts — ring + reassignment (2026-08-10, `ringjob.mjs`)
 

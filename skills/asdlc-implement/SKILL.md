@@ -149,6 +149,10 @@ Nothing enforces this. Getting it wrong produces a muddled record, not a failed 
   nobody approved.
 - If you touch a path that has no tier-map entry, expect the build to fail at merge naming that
   path. Report it now rather than letting rule 4 find it.
+- **Abandon nothing without its reason written into the abandonment itself** — the abandon
+  message or closing comment, naming what supersedes the work if anything does. A reason a
+  reviewer must excavate from history is not discoverable, and the abandoned change is part of
+  the record they read.
 
 ## When you are done
 

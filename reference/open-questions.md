@@ -29,9 +29,10 @@ research thread) and gate-record retention, plus the §3 verification items. Two
 questions close only from pilot measurement
 ([OQ-6](#oq-6--does-approval-drift-reproduce-with-a-small-fixed-reviewer-pool),
 [OQ-7](#oq-7--what-are-the-per-unit-of-agent-work-economics)),
-[OQ-20](#oq-20--the-runner-admission-contract) blocks only a second runner. Nothing decided has
-been run; research notes carry **"do not reintroduce"** lists — read them before quoting any
-number back into this repository. Three shipping comparables (factory.ai, lee-to/ai-factory,
+[OQ-20](#oq-20--the-runner-admission-contract) blocks only a second runner. **The four stage
+procedures have run once end-to-end on the local rig** (2026-08-11 — the paragraph below); the
+org pilot has not started. Research notes carry **"do not reintroduce"** lists — read them
+before quoting any number back into this repository. Three shipping comparables (factory.ai, lee-to/ai-factory,
 Kandev) are mapped onto the design's layers in
 [research/2026-08-06-comparable-systems.md](research/2026-08-06-comparable-systems.md); Kandev
 is a watched candidate on the [self-hosted sheet](../variants/self-hosted.md) — do not re-derive
@@ -71,7 +72,49 @@ human reviewer**, so a reviewer voting only +1 or only Workflow blocks submissio
 approver casts Code-Review+2 and Workflow+1 together. **The sheet's §6 local rig now covers
 the whole stack** (updated 2026-08-10): the rig machine was measured (Linux, 32 cores, 16 GB,
 NVMe — RAM is the only constraint) and the first pass is full-coverage by sequencing — core
-stack concurrently, kind + Flagger as its own slice with Harbor stopped.
+stack concurrently, kind + Flagger as its own slice with Harbor stopped. **A
+no-prior-knowledge demo walkthrough exists:
+[tools/stacks/self-hosted/demo.md](../tools/stacks/self-hosted/demo.md)** (2026-08-11) —
+browser pass, a small service by git, the denials, the optional slices; its git-pass loop was
+re-run live end to end on the rig before writing (engineer upload with the change's own
+playbook running the new tests → check Verified+1 → cft-lead CR+2/Workflow+1 → gate →
+Zuul merged), linked from the root README and the stack README. **A first outside-the-author
+walkthrough (2026-08-11) shook out guide fixes (SSO sign-in state, sudo teardown of
+root-owned `.harbor/data`, buildset-vs-build navigation) and two definition bugs, both
+fixed:** `bootstrap.mjs` never started the `logs` container, and the log server lacked the
+quickstart's CORS header, so the web UI's Logs tab reported no logs on a fresh rig
+(stack README, base-job runtime facts).
+
+**New since 2026-08-11: delivery bring-up done, and the first end-to-end stage run** — both on
+the assembled rig, closing "What is left" item 2. Delivery: the four stage skills installed
+into pilot by the real consumer command and merged through the gate, byte-identical to
+canonical at the pinned commit; **all three ADR-0032 §4 verifications ran** — (1) the lock is
+hash-only even from a github source, and its hash covers `SKILL.md` alone (shipped templates
+outside the lock), so the explicit owner pin backs CI, as the ADR provided; (2)
+`disable-model-invocation` is enforced by the Claude Code harness itself (a model-initiated
+Skill call is refused with a named error) while `/asdlc-spec` fires; (3) a new
+**`skills-equality`** trusted build row (`skillsjob.mjs`, shell+git only, pin in zuul-config)
+fails on one byte of drift — probed both ways live. The stage run: one demo feature
+(greeter learns Mongolian) through spec → plan → tasks → implementation as four gated changes
+on pilot, agent-authored via the delivered skills (headless stages 1–3; stage 4 by a coder
+subagent — runner heterogeneity, engineer-directed), signed by cft-lead as interim signer
+(OQ-10 unfilled). **The procedures held; no procedure text needed rewriting.** Findings:
+the spec stage routed unanswerable clarifications into OI/assumptions and the review loop
+folded the requester's OI answer in as a new FR through a CR−1 → patch-set-2 cycle; the plan
+stage created `tier-map.yaml` (the greenfield cold start) and declined to compute an advisory
+tier with no runner; gate-record tooling's absence bit at plan time (the procedure demands
+signature confirmation — the engineer's attestation of the merged change stood in; the
+open-parameters top row, observed blocking); the tasks stage's "no human gate" meets the
+host's uniform review floor as plain review, not signature. Every defect in the run was
+harness-side, not procedure-side: a `git add` swept `__pycache__` into the change (caught by
+the human gate; pilot gained a `.gitignore`), and an amend that dropped the Change-Id trailer
+spawned a stray higher-numbered duplicate change (caught by Gerrit's identity model;
+abandoned with its reason). That incident produced
+**[ADR-0045](decisions/0045-abandoned-work-carries-its-reason.md)** (owner-directed):
+abandoned work carries its reason in-band — now a §2 structural rule in
+[asdlc/05-merge.md](../asdlc/05-merge.md) and a line in the canonical `asdlc-implement`
+skill, so the next delivery carries it downstream (the pin moves by the recorded
+two-reviewed-changes discipline).
 
 **The registry slice landed and the sheet's §4 referrers verification passed** (2026-08-10,
 Harbor v2.15.2 / cosign v3.1.3 / oras v1.3.3): `harbor.mjs` brings Harbor up pinned and
@@ -256,9 +299,9 @@ ADR-0020 part 4's never-write list. Everything else is unblocked, starting with 
 
 1. **Staffing — [OQ-10](#oq-10--who-fills-the-platform-owner-role).** The platform owner and a
    backup: the single largest dependency and the only blocking item the owner must supply.
-2. **Delivery bring-up** — wire the `skills` CLI delivery into a product repo, write the CI
-   byte-equality check, run [ADR-0032](decisions/0032-stage-delivery-via-skills-cli.md) §4's
-   three verifications.
+2. **Delivery bring-up — done 2026-08-11 on the assembled rig** (the paragraph above): skills
+   delivered through the gate, the `skills-equality` row live, ADR-0032 §4's three
+   verifications run. Remains only as a repeat on an org product repo when one exists.
 3. **Code and configuration** ([open-parameters.md](../rollout/open-parameters.md)): the
    feature-artifact checker (fork seed in place at
    [`tools/feature-artifact-checker/`](../tools/feature-artifact-checker/README.md); the

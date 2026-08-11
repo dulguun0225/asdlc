@@ -120,6 +120,10 @@ one-command verifications; the rest is in [rollout/plan.md](../../rollout/plan.m
   specific hook, if any, should back a stage rule is still a bring-up design task. The candidate
   with the clearest value: reject a write to a path outside `specs/<NNN>-<slug>/` while the spec or
   plan skill is active, since that is the boundary the turn-scoped `allowed-tools` cannot hold.
-- **These procedures are unrun.** They were written against the templates and the ADRs on
-  2026-07-28 and no engineer has walked one. Expect the first pilot week to rewrite them; that is
-  the intended loop, not a defect.
+- **These procedures have one recorded end-to-end run.** Written against the templates and the
+  ADRs on 2026-07-28; on 2026-08-11 one feature was taken through all four stages on the
+  assembled variant's local rig
+  ([tools/stacks/self-hosted/](../../tools/stacks/self-hosted/README.md), delivery + stage-run
+  runtime facts) — agent-authored via the delivered skills, interim signers, no procedure text
+  rewritten. One run on a demo service is a walk, not validation: expect the first org pilot
+  week to rewrite them; that is the intended loop, not a defect.

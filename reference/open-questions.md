@@ -163,8 +163,25 @@ sessions); 5 were pro-default at N=2 and are recorded in the note's do-not-reint
 (cache-first-answer, allocation drift, wall-clock-in-domain, plain baseline, JSR-275).
 Sharpest finding: bare sonnet passed 13/32 sessions vs opus 26/32 — **redundancy is a property
 of the deployed model tier**, and the fleet model is an open rollout parameter, so no trim
-should execute on frontier-tier evidence alone. Trim execution is a follow-up (owner sign-off;
-per-directive token yield measurable with `npm run tokens` first).
+should execute on frontier-tier evidence alone.
+
+**The trim is the next job (owner-directed, 2026-08-12).** The verdict table in the audit note
+is the work list; directive ids there outside the native `M-n`/`C-n`/`E-n` sets are
+triage-assigned and glossed in the note's Stage A section. Scope: **trim** guardrails-toolchain
+(pro-default bulk: G1 core, G6, G8, G11, G16 core; demote G15 with its probe result) and
+primary-keys (P7, P8, P13, P14, P15 core); **named directives elsewhere** — money M-3/M-4
+(demote M-8 with its probe result), money-storage M-31/M-33, money-java J4,
+java-backend-rules R1/R8/R10/R23/R27 (demote R20), java-backend-api A15/A16/A18,
+java-backend-observability O14, llm-default-traps T8 to a one-line demoted trap,
+ai-maintainer-principles A3 + A11's non-ladder half; **reword** caching D1's
+"first answer is a cache" ground to the probe-scoped claim. The E-34/E-35 trim the triage
+proposed is **cancelled** — the probe showed E-34 binding at sonnet. Execution constraints:
+demote with the recorded probe result rather than delete where the skill has a growth-path
+convention (llm-default-traps says so explicitly); keep every dated verification a trimmed
+line carries; obey `skills/CLAUDE.md` invariants (never state counts, never compress the
+corpus-favourite sentence, keep markers and evidence-order); frontmatter untouched so firing
+rates stay comparable; measure per-skill token yield with `npm run tokens` before and after
+and record it in the audit note's verdict table.
 
 **The registry slice landed and the sheet's §4 referrers verification passed** (2026-08-10,
 Harbor v2.15.2 / cosign v3.1.3 / oras v1.3.3): `harbor.mjs` brings Harbor up pinned and

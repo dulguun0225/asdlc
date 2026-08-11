@@ -11,7 +11,7 @@ Spawn `prober` with:
 
 ## Answer key (this machine, 2026-08)
 
-1-2. All three are junctions into `D:\repos\dulguun0225\agents\claude\...` (agents, workflows, skills/workflow-light respectively).
+1-2. Links (junctions on Windows, symlinks on Linux) into the asdlc clone's `agents\definitions`, `agents\workflows`, and `agents\skills\workflow-light` respectively — verify against the actual clone path on the machine under test.
 3. Depends on machine state; as of 2026-08-07 the mise shim fails with `mise ERROR cannot find binary path`. The point is exact reporting, not a fixed answer.
 
 ## Rubric

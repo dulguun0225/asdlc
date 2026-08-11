@@ -4,7 +4,7 @@ The `description` fields are the router: Claude Code matches tasks against them.
 
 ## Run
 
-Spawn a `general-purpose` agent pinned to `sonnet` with: the 10 `description` fields verbatim (copy them fresh from `claude/agents/*.md` — do not use a stale copy), the task list below, the instruction to use no tools, and to answer as a JSON object mapping task number to agent name or `"none"`.
+Spawn a `general-purpose` agent pinned to `sonnet` with: the 10 `description` fields verbatim (copy them fresh from `agents/definitions/*.md` — do not use a stale copy), the task list below, the instruction to use no tools, and to answer as a JSON object mapping task number to agent name or `"none"`.
 
 ## Tasks and answer key
 

@@ -10,7 +10,10 @@ A **monorepo holding two things**: the ASDLC design, and the code that implement
   variant ([`variants/`](variants/README.md)), a rollout plan ([`rollout/`](rollout/plan.md)),
   and the working record ([`reference/`](reference/open-questions.md)).
 - **The code** — [`tools/`](tools/README.md), and nowhere else
-  ([ADR-0025](reference/decisions/0025-monorepo.md)).
+  ([ADR-0025](reference/decisions/0025-monorepo.md)); "code" means programs this repository
+  runs or builds — [`agents/`](agents/README.md) ships instruction artifacts (including
+  Workflow scripts) that only ever execute on the machines that install them
+  ([ADR-0047](reference/decisions/0047-agents-join-the-monorepo.md)).
 
 **ASDLC** = **agentic software development life cycle** ("Agentic SDLC" in prose; "life cycle"
 as three words). The subject is a life cycle where **agents execute multi-step development work
@@ -81,6 +84,12 @@ as decided and gets built on.
   [`skills/`](asdlc/skills/README.md) (the rules of the stage procedures).
 - [`skills/`](skills/README.md) — what `skills add` delivers: the four stage procedures and the
   engineering-decision skills. Documents, not code; the QA harness is `tools/skills-harness/`.
+- [`agents/`](agents/README.md) — the third product family
+  ([ADR-0047](reference/decisions/0047-agents-join-the-monorepo.md)): global subagent
+  definitions with model × effort routing, their skills and saved workflows, installed on
+  target machines by clone-and-link (this machine is only the development bench). Never move
+  anything from `agents/skills/` into `skills/` or `.claude/skills/` — those are skills-CLI
+  discovery containers and it would join the delivery set. Harness: `tools/agents-harness/`.
 - [`variants/`](variants/README.md) — the two stacks, each a self-contained bill of materials.
 - [`rollout/`](rollout/plan.md) — `plan.md` and `open-parameters.md` (values to be filled).
 - [`reference/`](reference/open-questions.md) — `context.md` (the org this is designed for —

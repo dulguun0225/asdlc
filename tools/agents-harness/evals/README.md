@@ -1,6 +1,6 @@
 # Evals
 
-Golden-task regression suite for the agent definitions. Static consistency is `checks/validate.py`; these test behavior, which the validator cannot.
+Golden-task regression suite for the agent definitions under `agents/`. Static consistency is `node ../scripts/validate.mjs` (from this directory); these test behavior, which the validator cannot.
 
 ## How to run
 

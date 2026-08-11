@@ -151,6 +151,22 @@ and the per-stream retention gap stands, its upstream fix now announced **enterp
 §3 verification item on self-hosted retention maxima still stands (re-checked 2026-08-11,
 still undocumented).
 
+**New 2026-08-12: the agents family joined the monorepo and the standalone repo is gone**
+([ADR-0047](decisions/0047-agents-join-the-monorepo.md)) — `agents/` (10 subagent definitions
+with model × effort routing, `workflow-light` skill, `research-lite` workflow; README there is
+the routing source of truth) plus `tools/agents-harness/` (validator ported from Python to
+Node per ADR-0041, behavioral evals; CI `agents-checks.yml`). Full history of
+`dulguun0225/agents` is merged in; the old repo is deleted at origin. Standing owner
+constraint, same day: **this machine is only the development bench — agents and skills deploy
+to other machines by clone-and-link**; nothing may assume this bench's environment.
+`agents/skills/` must never move into a skills-CLI discovery container (`skills/`,
+`.claude/skills/`, root `SKILL.md`) or it enters the ASDLC delivery set. Agent routing was
+retuned from the redundancy audit the day before (probed sonnet-failure classes route past
+the sonnet coder to inherit-tier deep-worker; reviewer hunts the four frontier-surviving
+defaults by name; evals rerun green — `tools/agents-harness/evals/RESULTS.md`). Named next
+for this family: wire `skills:` preload (deterministic per-agent skill injection at spawn)
+on coder/deep-worker with an agents-owned measured-defaults skill sourced from the audit note.
+
 **Also new 2026-08-11: the 20 engineering-decision skills were audited for training-data
 redundancy** ([research/2026-08-11-skill-redundancy-audit.md](research/2026-08-11-skill-redundancy-audit.md))
 — every directive desk-classified contra-default / pro-default / dated-fact, 16 contested

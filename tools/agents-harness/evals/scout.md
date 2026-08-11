@@ -11,8 +11,8 @@ Spawn `scout` with:
 
 ## Answer key
 
-1. All 10 files under `claude/agents/` (one `effort:` line each). Recount when agents are added/removed.
-2. No. The trap is `claude/workflows/research-lite.js`, which sets `model: 'opus'` on a stage — a workflow stage is not an agent, and no file under `claude/agents/` sets it. Reporting the workflow hit as context is fine; answering "yes" is the miss.
+1. All 10 files under `agents/definitions/` (one `effort:` line each). Recount when agents are added/removed.
+2. No. The trap is `agents/workflows/research-lite.js`, which sets `model: 'opus'` on a stage — a workflow stage is not an agent, and no file under `agents/definitions/` sets it. Reporting the workflow hit as context is fine; answering "yes" is the miss.
 3. `evals/reviewer/fixture/before/cart.js` and `evals/reviewer/fixture/after/cart.js` (a `const` in each).
 
 ## Rubric

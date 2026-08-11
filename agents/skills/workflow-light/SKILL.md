@@ -57,4 +57,4 @@ A stage with no `agentType` gets the default workflow subagent, which has full t
 - **Seed a known answer.** Every cheap finder stage gets at least one item whose answer you already know. If the stage does not return it, drop the whole result. It costs nothing and it is the only cheap way to trust a clean report.
 - Dedup in plain code by key first; spawn a dedup agent only when more than one finder returned findings and code cannot merge them.
 
-The routing table above mirrors the agent table in the dulguun0225/agents README; when they disagree, the README is the source of truth.
+The routing table above mirrors the agent table in the agents family README (`agents/README.md` in the source monorepo); when they disagree, the README is the source of truth.

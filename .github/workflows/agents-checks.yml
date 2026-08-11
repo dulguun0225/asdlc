@@ -1,0 +1,48 @@
+# CI for the agents/ family and its harness in tools/agents-harness/.
+#
+# WHY THIS FILE EXISTS AT THE ROOT: GitHub runs workflows only from the
+# repository root `.github/workflows/`. A workflow under agents/ or tools/
+# would be inert, so neither directory keeps a copy. THIS IS THE ONLY COPY.
+# Delete it and the agents silently lose their CI.
+#
+# Created 2026-08-12 with ADR-0047, when the agents family moved into this
+# repository. It runs the static validator only (frontmatter, tool allowlists,
+# routing-table consistency both directions, workflow-script syntax). It does
+# NOT run the behavioral evals — they spawn real agent sessions, spend money,
+# and are judged against rubrics by hand (tools/agents-harness/evals/README.md
+# says when to run which).
+
+name: agents-checks
+
+on:
+  push:
+    paths:
+      - 'agents/**'
+      - 'tools/agents-harness/**'
+      - '.github/workflows/agents-checks.yml'
+  pull_request:
+    paths:
+      - 'agents/**'
+      - 'tools/agents-harness/**'
+      - '.github/workflows/agents-checks.yml'
+
+defaults:
+  run:
+    working-directory: tools/agents-harness
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # The exact pin from tools/agents-harness/mise.toml, for the reason
+          # recorded there: two machines resolving a major differently shows up
+          # as a toolchain behaviour change.
+          node-version: '26.5.1'
+
+      # No npm ci: the harness has zero dependencies by design.
+      - name: Static consistency — definitions, README table, skill routes, workflow syntax
+        run: npm run check

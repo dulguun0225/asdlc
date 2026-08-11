@@ -6,7 +6,9 @@ under human review gates.
 
 **A monorepo: the design, and the code that implements it.** The four design directories are
 documents — no build, no test suite, no package manifest. The code lives in
-[`tools/`](tools/README.md) ([ADR-0025](reference/decisions/0025-monorepo.md)).
+[`tools/`](tools/README.md) ([ADR-0025](reference/decisions/0025-monorepo.md)). A third
+product family, [`agents/`](agents/README.md), ships global subagent definitions to the
+machines that install them ([ADR-0047](reference/decisions/0047-agents-join-the-monorepo.md)).
 
 It is designed for a specific organisation — 18 cross-functional teams of three, greenfield
 projects only, SaaS permitted — and answered for **three deployment variants**: cloud,

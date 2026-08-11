@@ -1,0 +1,9 @@
+{
+  "name": "agents-harness",
+  "private": true,
+  "type": "module",
+  "description": "Static validation and behavioral evals for the agents/ product family. No dependencies.",
+  "scripts": {
+    "check": "node scripts/validate.mjs"
+  }
+}

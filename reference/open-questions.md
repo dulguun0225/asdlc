@@ -181,23 +181,43 @@ Sharpest finding: bare sonnet passed 13/32 sessions vs opus 26/32 — **redundan
 of the deployed model tier**, and the fleet model is an open rollout parameter, so no trim
 should execute on frontier-tier evidence alone.
 
-**The trim is the next job (owner-directed, 2026-08-12).** The verdict table in the audit note
-is the work list; directive ids there outside the native `M-n`/`C-n`/`E-n` sets are
-triage-assigned and glossed in the note's Stage A section. Scope: **trim** guardrails-toolchain
-(pro-default bulk: G1 core, G6, G8, G11, G16 core; demote G15 with its probe result) and
-primary-keys (P7, P8, P13, P14, P15 core); **named directives elsewhere** — money M-3/M-4
-(demote M-8 with its probe result), money-storage M-31/M-33, money-java J4,
-java-backend-rules R1/R8/R10/R23/R27 (demote R20), java-backend-api A15/A16/A18,
-java-backend-observability O14, llm-default-traps T8 to a one-line demoted trap,
-ai-maintainer-principles A3 + A11's non-ladder half; **reword** caching D1's
-"first answer is a cache" ground to the probe-scoped claim. The E-34/E-35 trim the triage
-proposed is **cancelled** — the probe showed E-34 binding at sonnet. Execution constraints:
-demote with the recorded probe result rather than delete where the skill has a growth-path
-convention (llm-default-traps says so explicitly); keep every dated verification a trimmed
-line carries; obey `skills/CLAUDE.md` invariants (never state counts, never compress the
-corpus-favourite sentence, keep markers and evidence-order); frontmatter untouched so firing
-rates stay comparable; measure per-skill token yield with `npm run tokens` before and after
-and record it in the audit note's verdict table.
+**The trim is the next job (owner-directed 2026-08-12; work list revised same day against the
+consumer map).** With the agents family in-repo ([ADR-0047](decisions/0047-agents-join-the-monorepo.md)),
+the tiers that actually execute each skill are known: `coder` is **sonnet/medium** and holds
+the `Skill` tool; `deep-worker` inherits the session model; `scout`/`prober` (haiku) never
+write code or load skills. The recorded end-to-end stage run implemented via a coder subagent,
+so **the pilot's implementation tier is sonnet/medium** — the tier that failed 19/32 probe
+sessions. The trim bar therefore stays two-tier ("redundant" = compliant at sonnet too), and
+the work list splits by evidence:
+
+- **Trim now** (probe-passed on both tiers, or the skill's consumer is inherit-tier work —
+  toolchain and architecture decisions route to `architect`/`deep-worker`/main sessions):
+  guardrails-toolchain pro-default bulk (G1 core, G6, G8, G11, G16 core) and G15 demoted with
+  its 4/4 probe result; money M-8 demoted, M-3/M-4 cut (trivial yield — two lines);
+  java-backend-rules R20 demoted (4/4 with fixed-clock tests at both tiers); llm-default-traps
+  T8 demoted to a one-line trap; ai-maintainer-principles A3 + A11's non-ladder half;
+  java-backend-observability O14; money-java J4. Reword caching D1's "first answer is a
+  cache" ground to the probe-scoped claim.
+- **Probe at sonnet before trimming** (desk-classified pro-default only, and the consumer is
+  `coder` — sonnet's measured api/schema discipline is weak: it failed the neighboring A5/A6
+  probe 0/2): primary-keys P7/P8/P13/P14/P15-core; java-backend-api A15/A16/A18;
+  money-storage M-31/M-33; java-backend-rules R1/R8/R10/R23/R27 (R10/R23 are Spring Boot
+  mechanical defaults, near-certain passes; probe anyway — it is one cheap batch).
+  Single-tier sonnet run, 2 repeats, ~12 cases ≈ $4 on the existing
+  `tools/skills-harness/scripts/redundancy-probes.mjs` rig; add the cases to
+  `redundancy-cases.json`.
+- **Cancelled, stays cancelled:** E-34/E-35 (bound at sonnet 0/2).
+
+New caveats the executor must carry: (1) **effort was not controlled in the probes** — coder
+runs at `medium`; probe sessions used the CLI default. Lower effort cannot improve compliance,
+so this only ever strengthens keep-verdicts; it never licenses a trim. (2) **Tripwire:** if
+any code-writing task is ever routed to a haiku-tier agent, every trim verdict is void — the
+audit measured sonnet and opus only. Execution constraints unchanged: demote with the recorded
+probe result rather than delete where the skill has a growth-path convention; keep every dated
+verification a trimmed line carries; obey `skills/CLAUDE.md` invariants (never state counts,
+never compress the corpus-favourite sentence, keep markers and evidence-order); frontmatter
+untouched so firing rates stay comparable; measure per-skill token yield with `npm run tokens`
+before and after and record it in the audit note's verdict table.
 
 **The registry slice landed and the sheet's §4 referrers verification passed** (2026-08-10,
 Harbor v2.15.2 / cosign v3.1.3 / oras v1.3.3): `harbor.mjs` brings Harbor up pinned and

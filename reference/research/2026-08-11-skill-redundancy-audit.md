@@ -151,6 +151,37 @@ Behavioral claims refuted at N=2 per tier on `claude-sonnet-5` + `claude-opus-5`
 - "Bare agents adopt the plain findings baseline" — refuted: 4/4 refused it and independently derived the never-shrinks ground (G15).
 - "JSR-275/JScience outnumbering Indriya in the corpus makes bare agents pick the dead API" — refuted behaviorally: 4/4 picked unit-api + Indriya (T8).
 
+## Addendum 2026-08-12 — verdicts re-read against the known consumer map
+
+The agents family joined this repository ([ADR-0047](../decisions/0047-agents-join-the-monorepo.md))
+with a fixed routing table, so the tier that executes each skill is no longer hypothetical:
+
+- `coder` — **sonnet / medium**, carries the `Skill` tool: the default writer for well-scoped
+  code, including everything that does not announce itself as a correctness-critical domain.
+  The recorded end-to-end stage run (2026-08-11) implemented via a coder subagent, so the
+  pilot's implementation tier is sonnet/medium — the tier that passed 13/32 probe sessions.
+- `deep-worker` — inherits the session model (frontier on this bench): the named domain
+  classes (money, async handoff, caching, API error contracts, webhook delivery, batch
+  failure policy, dependency picks) route here by description match. Routing is stochastic
+  matching, not a gate — incidental contact with these domains still lands on `coder`.
+- `scout`/`prober` — haiku, never write code, never load skills: no haiku exposure exists, so
+  the two-tier bar needs no third tier. Tripwire: routing code work to haiku voids every
+  verdict here.
+- Toolchain/architecture skills (backend-stack, guardrails-toolchain, tech-decision-research,
+  enforceable-rules, ai-maintainer-principles) fire in main sessions and inherit-tier agents,
+  not in `coder`.
+
+Consequences for the verdict table: the two-tier redundancy bar stands (sonnet demonstrably
+executes implementation work); trims backed by both-tier probes or owned by inherit-tier
+consumers execute as written; trims resting on desk classification alone where `coder` is the
+consumer (primary-keys P7/P8/P13/P14/P15-core, java-backend-api A15/A16/A18, money-storage
+M-31/M-33, java-backend-rules R1/R8/R10/R23/R27) need a single-tier sonnet probe batch first —
+sonnet failed the neighboring A5/A6 probe 0/2, so its unprobed api/schema discipline cannot be
+assumed. One probe-design caveat recorded: probe sessions ran at the CLI's default effort,
+`coder` runs at `medium`; lower effort can only worsen compliance, so the mismatch can
+strengthen a keep-verdict but never license a trim. The current work list lives in
+[open-questions.md](../open-questions.md) → "The trim is the next job".
+
 ## What this audit does not decide
 
 - Verdicts are **model-relative and dated**: measured on `claude-sonnet-5` and `claude-opus-5`, CLI 2.1.227, 2026-08-11. A directive redundant here may bind on a weaker deployed model; re-check on deployment-model change.

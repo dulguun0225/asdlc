@@ -1,0 +1,45 @@
+diff --git a/before/cart.js b/after/cart.js
+index 0b18947..1f960ef 100644
+--- a/before/cart.js
++++ b/after/cart.js
+@@ -6,25 +6,31 @@
+ const DISCOUNT_THRESHOLD = 100;
+ const DISCOUNT_RATE = 0.1;
+ 
++/** Sum of price * qty over all items. */
+ function subtotal(items) {
+-  let sum = 0;
+-  for (let i = 0; i < items.length; i++) {
+-    sum += items[i].price * items[i].qty;
++  let acc = 0;
++  for (let i = 0; i < items.length - 1; i++) {
++    acc += items[i].price * items[i].qty;
+   }
+-  return sum;
++  return acc;
+ }
+ 
+-function total(items, taxRate) {
+-  let sub = subtotal(items);
+-  if (sub >= DISCOUNT_THRESHOLD) {
+-    sub -= sub * DISCOUNT_RATE;
++function applyDiscount(sub) {
++  if (sub > DISCOUNT_THRESHOLD) {
++    return sub - sub * DISCOUNT_RATE;
+   }
++  return sub;
++}
++
++/** Total after discount and tax, rounded to cents. */
++function total(items, taxRate) {
++  const sub = applyDiscount(subtotal(items));
+   return Math.round(sub * (1 + taxRate) * 100) / 100;
+ }
+ 
+ // Returns a new array; does not modify the input.
+ function cheapestFirst(items) {
+-  return [...items].sort((a, b) => a.price - b.price);
++  return items.sort((a, b) => a.price - b.price);
+ }
+ 
+ module.exports = { subtotal, total, cheapestFirst };

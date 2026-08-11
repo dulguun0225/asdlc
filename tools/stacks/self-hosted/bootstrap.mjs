@@ -333,8 +333,8 @@ await seedProject('zuul-config', join(here, 'seeds', 'zuul-config'), (dir) => {
 });
 await seedProject('pilot', join(here, 'seeds', 'pilot'));
 
-log('Starting Zuul (scheduler, web, executor, launcher)');
-compose('up', '-d', 'scheduler', 'web', 'executor', 'launcher');
+log('Starting Zuul (scheduler, web, executor, launcher) and the log server');
+compose('up', '-d', 'scheduler', 'web', 'executor', 'launcher', 'logs');
 
 log(`
 Done.

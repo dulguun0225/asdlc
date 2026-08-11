@@ -126,9 +126,19 @@ services:
 
   logs:
     # Serves the base job's uploaded logs (quickstart jobs2 shape). httpd's
-    # default config lists directories, which is all this needs.
+    # default config lists directories; the two -c directives are the
+    # quickstart's own httpd.conf deltas over stock (its doc/source/examples/
+    # httpd.conf, checked 2026-08-11): the Zuul web UI fetches the log
+    # manifest cross-origin (:9000 → :8000), and without the CORS header the
+    # build page claims the build provides no logs while log_url serves fine.
     image: docker.io/httpd:2.4
     restart: unless-stopped
+    command:
+      - httpd-foreground
+      - -c
+      - LoadModule headers_module modules/mod_headers.so
+      - -c
+      - Header set Access-Control-Allow-Origin "*"
     ports:
       - "8000:80"
     volumes:

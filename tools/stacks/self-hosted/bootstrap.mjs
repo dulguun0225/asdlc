@@ -184,17 +184,27 @@ async function findOpenChange(project, branch) {
   return changes[0];
 }
 
+// The Code-Review max at vote time. The access-policy change is judged under
+// the config it replaces: a fresh Gerrit ships the stock -2..+2 label whose
+// submit requirement demands MAX = +2; once the policy lands, MAX is +1
+// (ADR-0046). A constant vote value satisfies only one of the two states.
+async function crMax() {
+  const label = await rest('admin', 'GET', '/projects/All-Projects/labels/Code-Review');
+  return Math.max(...Object.keys(label.values).map((v) => parseInt(v, 10)));
+}
+
 // Review-and-submit for bootstrap-seeded changes. Every §5 rule still holds:
 // the uploader never approves itself, the approving vote is a human's, and
 // Verified comes from the zuul account — each vote lands in NoteDb.
-// The approver casts Code-Review and Workflow together: Gerrit evaluates
+// One human label (ADR-0046): Code-Review is -1/0/+1, and the single +1 both
+// approves the content and releases the gate. Gerrit evaluates
 // users=human_reviewers as "every human reviewer must hold the matching
-// vote", so a human whose only vote is Workflow would block the submit
-// (runtime fact, Gerrit 3.14.2 — see README).
-async function reviewAndSubmit(change, { verify, workflow }) {
+// vote" (runtime fact, Gerrit 3.14.2 — see README), so any human reviewer
+// below the max blocks the submit.
+async function reviewAndSubmit(change, { verify }) {
   const id = change.id;
   await rest('platform-owner-backup', 'POST', `/changes/${id}/revisions/current/review`,
-    { labels: { 'Code-Review': 2, ...(workflow ? { Workflow: 1 } : {}) } });
+    { labels: { 'Code-Review': await crMax() } });
   if (verify) {
     await rest('zuul', 'POST', `/changes/${id}/revisions/current/review`,
       { labels: { Verified: 2 } });
@@ -228,6 +238,16 @@ async function applyAccessPolicy(groupUuids) {
     return;
   }
 
+  // A previous failed run may have left its change open; this script's
+  // changes are script artifacts, so the stale one is abandoned (reason
+  // in-band, ADR-0045) rather than resumed.
+  for (let stale = await findOpenChange('All-Projects', 'refs/meta/config'); stale;
+       stale = await findOpenChange('All-Projects', 'refs/meta/config')) {
+    await rest('admin', 'POST', `/changes/${stale.id}/abandon`,
+      { message: 'superseded by a bootstrap.mjs re-run' });
+    log(`Access policy: abandoned stale open change ${stale._number}`);
+  }
+
   log('Access policy: pushing to refs/meta/config for review');
   writeFileSync(join(dir, 'project.config'), desired);
   writeFileSync(groupsFilePath, groupsFile);
@@ -238,7 +258,7 @@ async function applyAccessPolicy(groupUuids) {
     'HEAD:refs/for/refs/meta/config']);
 
   const change = await findOpenChange('All-Projects', 'refs/meta/config');
-  await reviewAndSubmit(change, { verify: false, workflow: false });
+  await reviewAndSubmit(change, { verify: false });
   log('Access policy: merged');
 }
 
@@ -280,7 +300,7 @@ async function seedProject(project, seedDir, transform) {
     git(dir, 'platform-owner', ['push', '-q', 'origin', 'HEAD:refs/for/master']);
     change = await findOpenChange(project, 'master');
   }
-  await reviewAndSubmit(change, { verify: true, workflow: true });
+  await reviewAndSubmit(change, { verify: true });
   log(`Seed ${project}: merged`);
 }
 

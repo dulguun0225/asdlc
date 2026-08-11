@@ -95,8 +95,9 @@ async function waitGerrit() {
 }
 
 // Push files onto a branch of a project and take the change through review.
-// approver casts CR+2 and Workflow together (Human-Review evaluates every
-// human reviewer — see README); verify=false on refs/meta/config.
+// One human label (ADR-0046): the approver's CR+1 is the whole human vote
+// (Human-Review evaluates every human reviewer — see README); no Verified
+// vote on refs/meta/config, where no jobs run.
 async function landFiles(project, branch, files, { as, approver, message }) {
   const dir = join(workDir, `co-${project.replaceAll('/', '-')}-${branch.replaceAll('/', '-')}`);
   rmSync(dir, { recursive: true, force: true });
@@ -131,7 +132,7 @@ async function landFiles(project, branch, files, { as, approver, message }) {
   git(dir, as, ['push', '-q', gitUrl(as, project), `HEAD:refs/for/${branch}`]);
   const change = await findOpenChange(project, branch);
   await rest(approver, 'POST', `/changes/${change.id}/revisions/current/review`,
-    { labels: { 'Code-Review': 2, ...(isMeta ? {} : { Workflow: 1 }) } });
+    { labels: { 'Code-Review': 1 } });
   if (!isMeta) {
     await rest('zuul', 'POST', `/changes/${change.id}/revisions/current/review`,
       { labels: { Verified: 2 } });
@@ -239,7 +240,7 @@ git(probeDir, 'engineer', ['commit', '-q', '-m', `Touch the T1-owned path\n\nCha
 git(probeDir, 'engineer', ['push', '-q', 'origin', 'HEAD:refs/for/master']);
 const probe = await findOpenChange('pilot', 'master');
 await rest('platform-owner-backup', 'POST', `/changes/${probe.id}/revisions/current/review`,
-  { labels: { 'Code-Review': 2, Workflow: 1 } });
+  { labels: { 'Code-Review': 1 } });
 await rest('zuul', 'POST', `/changes/${probe.id}/revisions/current/review`,
   { labels: { Verified: 2 } });
 
@@ -261,7 +262,7 @@ log(`  submit requirement "${co?.name}": ${co?.status}`);
 // 6. Probe B: the owner's approval unblocks the same change.
 log('Probe B: cft-lead (the t1/ owner) approves — expecting the submit to succeed');
 await rest('cft-lead', 'POST', `/changes/${probe.id}/revisions/current/review`,
-  { labels: { 'Code-Review': 2 } });
+  { labels: { 'Code-Review': 1 } });
 await rest('platform-owner', 'POST', `/changes/${probe.id}/submit`);
 log('  submitted');
 

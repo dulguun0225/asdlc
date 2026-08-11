@@ -65,11 +65,15 @@ is verified locally: [`tools/stacks/self-hosted/`](../tools/stacks/self-hosted/R
 Gerrit 3.14.2 + Zuul 14.2.0 compose (the sheet §6's quickstart shape, images pinned, no
 committed keys), the §5 access policy merged as a reviewed `refs/meta/config` commit, tenant
 and pipelines seeded through their own review gate; the §5 denials were probed live and one
-agent change was gated end-to-end (check on the static node → human CR+2/Workflow+1 → gate →
-Zuul submitted), 2026-08-10. Its README carries the runtime facts; the sharpest, also noted
-on the sheet §5: **Gerrit evaluates `users=human_reviewers` as a matching vote from *every*
-human reviewer**, so a reviewer voting only +1 or only Workflow blocks submission — the
-approver casts Code-Review+2 and Workflow+1 together. **The sheet's §6 local rig now covers
+agent change was gated end-to-end (check on the static node → the human approval → gate →
+Zuul submitted), 2026-08-10, re-verified 2026-08-11 on the ADR-0046 single-label config.
+Its README carries the runtime facts; the sharpest, also noted on the sheet §5: **Gerrit
+evaluates `users=human_reviewers` as a matching vote from *every* human reviewer**, so any
+human reviewer below the label maximum blocks submission — the incident behind
+**[ADR-0046](decisions/0046-one-human-label-code-review-only.md)**: the human vote is now
+**one label, Code-Review −1/0/+1** (veto / silence / approve-and-release-the-gate); the
+Workflow label and the trap votes are gone, and Gerrit's normalization of sparse value sets
+to a contiguous range (which forbids −2/0/+2) is a recorded runtime fact. **The sheet's §6 local rig now covers
 the whole stack** (updated 2026-08-10): the rig machine was measured (Linux, 32 cores, 16 GB,
 NVMe — RAM is the only constraint) and the first pass is full-coverage by sequencing — core
 stack concurrently, kind + Flagger as its own slice with Harbor stopped. **A
@@ -77,7 +81,7 @@ no-prior-knowledge demo walkthrough exists:
 [tools/stacks/self-hosted/demo.md](../tools/stacks/self-hosted/demo.md)** (2026-08-11) —
 browser pass, a small service by git, the denials, the optional slices; its git-pass loop was
 re-run live end to end on the rig before writing (engineer upload with the change's own
-playbook running the new tests → check Verified+1 → cft-lead CR+2/Workflow+1 → gate →
+playbook running the new tests → check Verified+1 → cft-lead's approving vote → gate →
 Zuul merged), linked from the root README and the stack README. **A first outside-the-author
 walkthrough (2026-08-11) shook out guide fixes (SSO sign-in state, sudo teardown of
 root-owned `.harbor/data`, buildset-vs-build navigation) and two definition bugs, both
@@ -115,6 +119,16 @@ abandoned work carries its reason in-band — now a §2 structural rule in
 [asdlc/05-merge.md](../asdlc/05-merge.md) and a line in the canonical `asdlc-implement`
 skill, so the next delivery carries it downstream (the pin moves by the recorded
 two-reviewed-changes discipline).
+
+**Also new 2026-08-11: [ADR-0046](decisions/0046-one-human-label-code-review-only.md)** —
+prompted by the owner's demo observation that approval had two controls on one axis. The
+assembled variant's human vote is now **one label, Code-Review −1/0/+1**; the Workflow label
+is gone, Zuul's gate requires Code-Review+1, and every touched surface (all-projects.config,
+pipelines.yaml, the seven script vote sites, sheet §5, demo, stack README) is updated and
+**re-verified live on the rig the same day** — end-to-end merge on the single vote, plus two
+new runtime facts: Gerrit normalizes sparse label value sets to a contiguous range (so
+−2/0/+2 is inexpressible), and an out-of-range vote is silently dropped with HTTP 200, not
+refused.
 
 **The registry slice landed and the sheet's §4 referrers verification passed** (2026-08-10,
 Harbor v2.15.2 / cosign v3.1.3 / oras v1.3.3): `harbor.mjs` brings Harbor up pinned and
@@ -159,9 +173,10 @@ Apache 2.0 verified first-party — **the sheet's §3/§4 licence gap is now ful
 (stable-3.14 jar, sha256-pinned; the numbered-build API is login-walled). The recorded hazard
 is worse than written and was observed live: the unconfigured plugin blocks every submit
 **including its own disable change** — configure-before-install is the mandatory order, and
-the script recovers from the wrong one. Probes: a `t1/` change with CR+2/Workflow+1/Verified+2
-from a non-owner is refused at submit (*"submit requirement 'Code-Owners' is unsatisfied"*);
-the owner's CR+2 unblocks; root paths submit on any human review. Ownership is reviewed data
+the script recovers from the wrong one. Probes: a `t1/` change carrying the human approval and
+Verified+2 from a non-owner is refused at submit (*"submit requirement 'Code-Owners' is
+unsatisfied"*); the owner's approving vote unblocks; root paths submit on any human review.
+Ownership is reviewed data
 end to end (code-owners.config on refs/meta/config, OWNERS in-branch; refs/meta/config
 exempted via `disabledBranch`).
 

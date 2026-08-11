@@ -135,7 +135,7 @@ async function landFiles(project, branch, files, { as, approver, message }) {
   git(dir, as, ['push', '-q', gitUrl(as, project), `HEAD:refs/for/${branch}`]);
   const change = await findOpenChange(project, branch);
   await rest(approver, 'POST', `/changes/${change.id}/revisions/current/review`,
-    { labels: { 'Code-Review': 2, Workflow: 1 } });
+    { labels: { 'Code-Review': 1 } });
   await rest('zuul', 'POST', `/changes/${change.id}/revisions/current/review`,
     { labels: { Verified: 2 } });
   await rest('platform-owner', 'POST', `/changes/${change.id}/submit`);

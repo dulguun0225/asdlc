@@ -73,7 +73,7 @@ async function findOpenChange(project, subject) {
 // Verified comes from the zuul account, every vote lands in NoteDb.
 async function reviewAndSubmit(change) {
   await rest('platform-owner-backup', 'POST', `/changes/${change.id}/revisions/current/review`,
-    { labels: { 'Code-Review': 2, Workflow: 1 } });
+    { labels: { 'Code-Review': 1 } });
   await rest('zuul', 'POST', `/changes/${change.id}/revisions/current/review`,
     { labels: { Verified: 2 } });
   await rest('platform-owner', 'POST', `/changes/${change.id}/submit`);

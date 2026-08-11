@@ -95,10 +95,13 @@ Everything below traces to the variant sheet's §5; the stack merely implements 
 - **CI runs twice.** On upload, the **check** pipeline runs the project's tests and votes
   Verified +1/−1 (advisory). After human approval, the **gate** pipeline runs them again
   and votes Verified +2 — and no gate job starts before a human has approved.
-- **The approving Code-Review +2 must come from a human who is not the change's author,
-  committer or uploader.** Your own +2 counts for nothing on your own change.
-- **A human must vote Workflow +1** ("approved for gating") — and only humans hold the
-  Code-Review and Workflow labels at all. The agent and CI accounts cannot cast them.
+- **The approving Code-Review +1 must come from a human who is not the change's author,
+  committer or uploader.** Your own +1 counts for nothing on your own change.
+- **One human label** ([ADR-0046](../../../reference/decisions/0046-one-human-label-code-review-only.md)):
+  the Code-Review +1 both approves the content and releases the gate — and only humans
+  hold the Code-Review label at all. The agent and CI accounts cannot cast it. Its
+  values are −1 (veto, carried across patch sets), 0, and +1 — three, not Gerrit's
+  stock five.
 - **Only the CI account votes Verified**, and **the merge itself is Zuul's act**: when
   the gate passes, Zuul submits. There is no button that skips any of this — the same
   submit requirements bind every account.
@@ -112,16 +115,22 @@ Everything below traces to the variant sheet's §5; the stack merely implements 
    line, **SAVE**, close the editor (**STOP EDITING**), then **PUBLISH EDIT**. The
    edit becomes a patch set — the thing CI tests and reviewers review. Your file now
    appears in the **Files** section below the commit message; click it for the diff.
-3. Click **START REVIEW** and send. The dialog is Gerrit's ordinary reply dialog with
-   vote rows — leave them untouched; the send alone clears the draft state. (Voting
-   Workflow +1 on your own change here would work — the policy restricts only the
-   approving *code review* to a non-author — but it would skip the reviewer role this
-   part is showing.) UI-created changes are born as **work-in-progress drafts**: the
+   (The unpublished edit is a private scratchpad: SAVE as often as you like and touch
+   as many files as you need — nothing runs, nobody sees it. PUBLISH EDIT freezes the
+   accumulated work into one **immutable patch set**, and the patch set is the unit
+   everything binds to: CI runs once per patch set, and votes die with it. Without the
+   edit stage, every save would mint a patch set — a check run and a vote reset per
+   keystroke.)
+3. Take the change out of work-in-progress: press **Mark as Active** — one click, no
+   dialog. (**START REVIEW** ends WIP too; the difference is that it opens the reply
+   dialog so you can add reviewers and a message in the same act. With no reviewer to
+   name in this rig — cft-lead finds the change by search — Mark as Active is the
+   shorter path.) UI-created changes are born as **work-in-progress drafts**: the
    check pipeline still runs on them, but a WIP change cannot gate or merge — Zuul
    refuses it without comment (*"can not be merged due to: work in progress flag"* in
    the scheduler log), and votes cast while it is WIP move nothing.
-   If you forget this step and vote anyway, click Start Review, then have the reviewer
-   re-send their votes (**REPLY → SEND**; the votes stay pre-selected).
+   If you forget this step and vote anyway, press Mark as Active, then have the
+   reviewer re-send their votes (**REPLY → SEND**; the votes stay pre-selected).
 4. Wait a minute. Watch <http://localhost:9000/t/asdlc/status> while you do: the change
    appears in the **check** pipeline. When it finishes, `zuul` comments on the change
    and votes **Verified +1**. The comment carries two kinds of link: one on the
@@ -131,14 +140,14 @@ Everything below traces to the variant sheet's §5; the stack merely implements 
    tab, open `job-output.txt`: the job ran on the static test node, and its whole
    console is preserved.
 5. Now sign out, sign in as **cft-lead**. Find the change: type `status:open` in the
-   search bar. Open it, click **REPLY**, set **Code-Review +2 and Workflow +1
-   together**, send. (Comments you type on files or the patchset are **drafts** —
-   visible only to you, pencil-marked — until the Reply dialog's **SEND** publishes
-   them together with your votes. Gerrit is two-phase everywhere: save, then publish.)
+   search bar. Open it, click **REPLY**, set **Code-Review +1**, send. (Comments you
+   type on files or the patchset are **drafts** — visible only to you, pencil-marked —
+   until the Reply dialog's **SEND** publishes them together with your vote. Gerrit is
+   two-phase everywhere: save, then publish.)
 
-   > Cast both votes in one reply. The submit rule requires the approving Code-Review
-   > vote from *every* human reviewer on the change — a reviewer whose only vote is
-   > Workflow +1 **blocks** the merge (a measured fact of this stack; see the
+   > The submit rule requires the approving Code-Review vote from *every* human
+   > reviewer on the change — a reviewer added to the change who does not reach +1
+   > **blocks** the merge (a measured fact of this stack; see the
    > [README](README.md) runtime facts).
 6. Watch the status page again: the change enters the **gate** pipeline, the same jobs
    run again, `zuul` votes **Verified +2** — and submits. Refresh the change: **Merged**.
@@ -256,9 +265,8 @@ have uploaded, and each change's page shows its full diff, votes and CI results.
   verdict (last line of its `job-output.txt`) is **T1 by rule 1**. Editing CI is
   high-tier by definition.
 
-Approve exactly as in Part 1 — sign in as **cft-lead**, **Code-Review +2 and
-Workflow +1 in one reply** — and watch the gate run and merge it. Then confirm from the
-clone:
+Approve exactly as in Part 1 — sign in as **cft-lead**, reply with **Code-Review +1**
+— and watch the gate run and merge it. Then confirm from the clone:
 
 ```sh
 git pull
@@ -285,13 +293,13 @@ no privileged remote path to skip review. (If `tier-map.yaml` exists, declare
 its own demonstration.)
 
 **Approve your own change.** Upload it properly — `git push origin HEAD:refs/for/master`
-— open it as **engineer**, reply with **Code-Review +2**. The change stays
+— open it as **engineer**, reply with **Code-Review +1**. The change stays
 unsubmittable: the Code-Review requirement reads *"a maximum Code-Review vote from
-someone who is not the author, committer or uploader."* Your +2 on your own work
+someone who is not the author, committer or uploader."* Your +1 on your own work
 satisfies nothing.
 
 **Vote as the agent.** Sign in as **agent**, open the same change, click **REPLY**: no
-Code-Review or Workflow votes are offered — those labels are granted to the humans
+Code-Review vote is offered — the label is granted to the humans
 group only, and the agent is a service user. On a rig with single sign-on (§3), the
 agent has no browser login at all; make the attempt over REST from
 `tools/stacks/self-hosted/` (replace `<number>` with the change's number from its URL):
@@ -323,7 +331,7 @@ each printing what it verified. Run them in that order; later ones assume earlie
 | `verify-referrers.mjs` | the signed-attestation round trip: push → attest → list → verify as the pull-only robot | terminal output |
 | `provenance.mjs` | build provenance (ADR-0018): merges to `pilot` signed by a trusted job, verified fail-closed | the `post` pipeline on the Zuul builds page |
 | `observability.mjs` | metrics and logs: OTel Collector → Prometheus + Loki + Grafana, retention asserted before the first record (ADR-0015). Nothing about your changes lands here yet — the CI emitters for gate records are a recorded open item; the review trail lives on the change page and in Zuul's Builds tab | <http://localhost:3000> — `admin`, password in `.secrets/observability.env` |
-| `codeowners.mjs` | T1 path ownership: changes under `t1/**` refuse to submit without the owner's +2 | repeat Part 2 with a file under `t1/` |
+| `codeowners.mjs` | T1 path ownership: changes under `t1/**` refuse to submit without the owner's +1 | repeat Part 2 with a file under `t1/` |
 | `buildjobs.mjs` | the tier function and the never-write check on every change (ADR-0006/0008); **from here on, every changed path must be declared in `tier-map.yaml`** | two extra jobs in every check/gate comment |
 | `ringjob.mjs` | reviewer auto-assignment on a five-minute timer, with SLA-breach reassignment (ADR-0005) | a fresh change gains a reviewer within five minutes |
 | `basejob.mjs` | the base job all jobs inherit (workspace sync, stored logs) — already in a fresh seed; the script converges and verifies it | build logs served at <http://localhost:8000> |

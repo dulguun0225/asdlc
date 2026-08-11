@@ -1,7 +1,9 @@
-# Pipelines, quickstart shape. The gate pipeline's `require` on Workflow+1 is
-# variants/self-hosted.md §5's pre-run human gate: no gate job runs until a
-# human has voted, and only the humans group may cast Workflow (Gerrit label
-# permission — Zuul requirement matching cannot match groups).
+# Pipelines, quickstart shape. The gate pipeline's `require` on Code-Review+1
+# is variants/self-hosted.md §5's pre-run human gate: no gate job runs until a
+# human has voted, and only the humans group may cast Code-Review (Gerrit label
+# permission — Zuul requirement matching cannot match groups). One human label
+# (ADR-0046): Code-Review is -1/0/+1, and the single +1 approves the content
+# and releases the gate.
 - pipeline:
     name: check
     description: |
@@ -37,12 +39,12 @@
         open: True
         current-patchset: True
         approval:
-          - Workflow: 1
+          - Code-Review: 1
     trigger:
       gerrit:
         - event: comment-added
           approval:
-            - Workflow: 1
+            - Code-Review: 1
     start:
       gerrit:
         Verified: 0

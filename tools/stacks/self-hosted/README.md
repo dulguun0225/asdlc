@@ -79,15 +79,18 @@ service user — verify its own change.
   config-submit-requirements documentation, 2026-08-10).
 - **Requester exclusion:** a second requirement, `users=human_reviewers`, ignores
   service-user and change-owner votes.
-- **Pre-run human gate:** the gate pipeline `require`s Workflow+1 before enqueue
+- **Pre-run human gate:** the gate pipeline `require`s Code-Review+1 before enqueue
   ([seeds/zuul-config/zuul.d/pipelines.yaml](seeds/zuul-config/zuul.d/pipelines.yaml)); the
-  Workflow label is castable only by the humans group — Gerrit's label permission bounds who
-  votes, exactly as the sheet prescribes (Zuul requirements cannot match groups).
+  Code-Review label is castable only by the humans group — Gerrit's label permission bounds
+  who votes, exactly as the sheet prescribes (Zuul requirements cannot match groups). One
+  human label ([ADR-0046](../../../reference/decisions/0046-one-human-label-code-review-only.md)):
+  the same +1 approves the content and releases the gate; there is no Workflow label, and
+  Code-Review's values are −1/0/+1 — veto, silence, approve.
 - **Vote-to-patchset binding:** no `copyCondition` except `is:MIN` (blocking votes) — a new
   patch set is a new thing to approve ([artifacts.md](../../../reference/artifacts.md) §3).
 - **ACL as reviewed data:** the access policy itself merges through `refs/for/refs/meta/config`
   with a second human's vote; the bootstrap plays the identities and every vote lands in
-  NoteDb. Verified and Workflow requirements carry `applicableIf = -branch:refs/meta/config`
+  NoteDb. The Verified requirement carries `applicableIf = -branch:refs/meta/config`
   because no jobs run there.
 
 ## What this definition deliberately omits
@@ -114,24 +117,42 @@ So absence is stated rather than absorbed:
 
 - **`users=human_reviewers` requires a matching vote from *every* human reviewer** — the
   change owner and service users are excluded from the set, exactly as the sheet's
-  requester-exclusion row says, but the shape is all-must-approve: a human whose only vote is
-  Workflow+1 (or Code-Review+1) **blocks** the submit, and a change with no human reviewer is
-  unsatisfied. Observed live: the bootstrap's first seed was blocked by a Workflow-only voter.
-  Operational consequence: the approver casts Code-Review+2 and Workflow+1 together.
-- **The §5 denials all hold on the live instance:** direct push to `refs/heads/master` is
-  rejected for agent and engineer (*"prohibited by Gerrit: not permitted: update"*); the
-  agent's Code-Review vote returns 403 (label permission); an engineer's self +2 cannot
-  submit. The full path succeeded once end-to-end: agent upload → check `pilot-test` SUCCESS
-  on the static node → cft-lead CR+2 + Workflow+1 → gate SUCCESS → Verified+2 → Zuul submitted
-  the merge. No gate job ran before the human vote.
+  requester-exclusion row says, but the shape is all-must-approve: any human reviewer below
+  the label maximum **blocks** the submit, and a change with no human reviewer is
+  unsatisfied. Observed live under the pre-ADR-0046 two-label config: the bootstrap's first
+  seed was blocked by a Workflow-only voter — the incident behind ADR-0046's removal of every
+  vote value that is not veto, silence, or approve.
+- **The access-policy change is judged under the config it replaces** (fresh bring-up,
+  2026-08-11): stock Gerrit ships Code-Review as −2..+2 with a submit requirement demanding
+  MAX = +2, so on a fresh instance the bootstrap's approving vote must be +2 even though the
+  policy being merged defines the label as −1..+1 — the bootstrap therefore votes the current
+  label's max (`crMax()`), not a constant. A constant +1 fails the first bring-up; a constant
+  +2 fails every later refs/meta/config change.
+- **Label values are normalized to a contiguous range** (ADR-0046 bring-up, 2026-08-11): a
+  sparse `-2/0/+2` definition comes back from `/projects/All-Projects/labels/` as the full
+  `-2..+2` with empty ±1 descriptions — the `config-labels` docs state no such constraint
+  (checked 2026-08-11). Three vote states therefore require the `-1..+1` range. And **an
+  out-of-range vote is dropped, not refused**: POSTing Code-Review+2 against the −1..+1
+  label answers 200 with an empty `labels` map and records nothing — a probe asserting a
+  4xx there fails against a healthy instance. (Two also-observed details: git-config `;`
+  starts a comment, so a label description containing one is silently truncated; a merged
+  refs/meta/config label change takes effect immediately, no restart.)
+- **The §5 denials all hold on the live instance** (re-verified 2026-08-11 on the
+  single-label config): direct push to `refs/heads/master` is rejected for agent and
+  engineer (*"prohibited by Gerrit: not permitted: update"*); the agent's Code-Review vote
+  returns 403 (label permission); an engineer's self-approval cannot submit. The full path
+  succeeded end-to-end on the −1/0/+1 label: agent upload → check `pilot-test` SUCCESS on
+  the static node → cft-lead Code-Review+1, the only human vote → gate SUCCESS → Verified+2
+  → Zuul submitted the merge. No gate job ran before the human vote.
 - The Gerrit image's development mode answers `/a/` REST as `admin`/`secret` with zero
   configuration — the bootstrap's first contact depends on it.
 - **Changes created through Gerrit's UI dialog are born work-in-progress** (REST-created
   ones are not), and Zuul will not enqueue a WIP change into the gate — at DEBUG:
   *"can not be merged due to: work in progress flag"*; at INFO the vote event vanishes
   without a trace (observed 2026-08-11). Check runs regardless (independent pipelines
-  skip the mergeability test). Votes cast while WIP stand but move nothing; after
-  Start Review the reviewer re-sends them to re-fire the gate trigger.
+  skip the mergeability test). Votes cast while WIP stand but move nothing; after the
+  change leaves WIP (Mark as Active, or Start Review with its reply dialog) the reviewer
+  re-sends them to re-fire the gate trigger.
 - Host-generated key files at mode 0644 are accepted: the executor loads the node key through
   its SSH agent and the scheduler reads the Gerrit key via paramiko; no OpenSSH strict-modes
   refusal appears at container UIDs.
@@ -311,10 +332,12 @@ So absence is stated rather than absorbed:
   `codeOwners.disabled = true` in All-Projects while the plugin is absent, then load the jar.
   The script recovers from the wrong order by removing the jar, restarting, landing the
   config, and reinstalling.
-- **Both probes held.** A `t1/` change carrying CR+2, Workflow+1 and Verified+2 from a
+- **Both probes held.** A `t1/` change carrying the human approval and Verified+2 from a
   non-owner is refused at submit — *"submit requirement 'Code-Owners' is unsatisfied"*
-  (status UNSATISFIED via `o=SUBMIT_REQUIREMENTS`); the owner's CR+2 flips it submittable.
-  A root-path change submits on any human's review (root OWNERS lists all four).
+  (status UNSATISFIED via `o=SUBMIT_REQUIREMENTS`); the owner's approving vote flips it
+  submittable. A root-path change submits on any human's review (root OWNERS lists all
+  four). (Probed 2026-08-10 under the two-label config; the plugin keys on the approving
+  Code-Review vote, which ADR-0046 left in place.)
 - **Implicit approvals stay off by default** — the sheet's "implicit self-approval off"
   expectation is the plugin's own default (`enableImplicitApprovals` unset), not a setting
   this rig had to make.

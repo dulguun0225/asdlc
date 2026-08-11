@@ -254,15 +254,22 @@ unverified syntax here would violate the repository's research-before-content ru
     platform owner and backup).
 - **Labels and submit requirements** (documented operators; exact stanza syntax per
   Gerrit's `config-submit-requirements` docs):
+  - **One human label** ([ADR-0046](../reference/decisions/0046-one-human-label-code-review-only.md)):
+    Code-Review with values **−1/0/+1** — no Workflow label, no intermediate votes. The
+    single +1 approves the content and releases the gate; −1 vetoes and is the only vote
+    copied to new patch sets. Not a sparse −2/0/+2: Gerrit normalizes label values to the
+    contiguous min-to-max range, growing the trap votes back (observed live 2026-08-11,
+    Gerrit 3.14.2). The approve-but-hold state is expressed by deferring the +1 (or
+    Gerrit's native work-in-progress flag), not by a second label.
   - Merge gate: max Code-Review vote with `user=non_contributor` — excludes author,
     committer, and uploader in one rule (producer exclusion).
   - Requester exclusion: the agent account is in the **Service Users** group; agent-created
     changes are **owned by the requesting engineer**; a requirement using
     `users=human_reviewers` ignores service-user and change-owner votes — and requires the
     matching vote from **every** human reviewer (verified live on Gerrit 3.14.2, 2026-08-10,
-    [tools/stacks/self-hosted](../tools/stacks/self-hosted/README.md): a reviewer voting only
-    +1 or only Workflow blocks submission, so the approver casts Code-Review and Workflow
-    together).
+    [tools/stacks/self-hosted](../tools/stacks/self-hosted/README.md): a human reviewer whose
+    vote is anything below the label maximum blocks submission — under the pre-ADR-0046
+    two-label config this surfaced as a Workflow-only voter blocking the seed).
   - T1 gate: the **code-owners plugin** as a blocking submit rule on rule-1/rule-2 paths,
     owners = platform owner + backup, **implicit self-approval off**; overrides are label
     votes, hence recorded on the change.
@@ -271,10 +278,10 @@ unverified syntax here would violate the repository's research-before-content ru
     2026-07-27; [code-host research note](../reference/research/2026-07-27-code-host-enforcement.md),
     Finding 5) — with voting rights restricted to Zuul through label permissions.
 - **Zuul pipelines:**
-  - T1 changes: pipeline `require` on a human vote before enqueue — **no job runs** until a
-    human has looked (the CI-execution gate, native). Requirement matching is by
-    username/email regex and vote values — no group matching; restrict who may cast the
-    vote via label permissions.
+  - T1 changes: pipeline `require` on the human Code-Review+1 before enqueue — **no job
+    runs** until a human has approved (the CI-execution gate, native). Requirement matching
+    is by username/email regex and vote values — no group matching; restrict who may cast
+    the vote via label permissions.
   - Gate pipeline runs the tier-function job and never-write check; submission blocked
     until they pass.
 - **Vote-to-patchset binding is native** — a new patch set is a new thing to approve; this

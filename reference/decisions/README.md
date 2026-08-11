@@ -59,3 +59,4 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0043](0043-primary-variant-self-hosted-assembled.md) | The primary variant is self-hosted assembled, brought up declaratively; integrated is the fallback | accepted | 2026-08-10 |
 | [0044](0044-authentication-backend-keycloak.md) | The authentication backend: Keycloak, one identity plane for the assembled stack | accepted | 2026-08-10 |
 | [0045](0045-abandoned-work-carries-its-reason.md) | Abandoned work carries its reason in-band, discoverable from the abandoned artifact itself | accepted | 2026-08-11 |
+| [0046](0046-one-human-label-code-review-only.md) | One human label: Code-Review only, values −1/0/+1; the Workflow label is removed | accepted | 2026-08-11 |

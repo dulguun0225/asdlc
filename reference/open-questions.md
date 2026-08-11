@@ -151,6 +151,21 @@ and the per-stream retention gap stands, its upstream fix now announced **enterp
 §3 verification item on self-hosted retention maxima still stands (re-checked 2026-08-11,
 still undocumented).
 
+**Also new 2026-08-11: the 20 engineering-decision skills were audited for training-data
+redundancy** ([research/2026-08-11-skill-redundancy-audit.md](research/2026-08-11-skill-redundancy-audit.md))
+— every directive desk-classified contra-default / pro-default / dated-fact, 16 contested
+claims probed with bare no-skill sessions on two model tiers (`claude-sonnet-5` +
+`claude-opus-5`, 64 sessions; runner `tools/skills-harness/scripts/redundancy-probes.mjs` +
+`redundancy-cases.json`, both new). **Delete: no skill. Trim: guardrails-toolchain and
+primary-keys (pro-default bulk), plus named directives in six others.** 11 of 16 probed
+directives were violated bare (P6 ORDER-BY-uuidv7 and M-1 reject-at-construction by 4/4
+sessions); 5 were pro-default at N=2 and are recorded in the note's do-not-reintroduce list
+(cache-first-answer, allocation drift, wall-clock-in-domain, plain baseline, JSR-275).
+Sharpest finding: bare sonnet passed 13/32 sessions vs opus 26/32 — **redundancy is a property
+of the deployed model tier**, and the fleet model is an open rollout parameter, so no trim
+should execute on frontier-tier evidence alone. Trim execution is a follow-up (owner sign-off;
+per-directive token yield measurable with `npm run tokens` first).
+
 **The registry slice landed and the sheet's §4 referrers verification passed** (2026-08-10,
 Harbor v2.15.2 / cosign v3.1.3 / oras v1.3.3): `harbor.mjs` brings Harbor up pinned and
 configured per ADR-0017 — private project, `v*` tag immutability (observed enforcing on

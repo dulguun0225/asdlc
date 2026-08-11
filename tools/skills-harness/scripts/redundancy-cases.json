@@ -1,0 +1,133 @@
+{
+  "comment": "Probe cases for the 2026-08-11 skill-redundancy audit (reference/research/2026-08-11-skill-redundancy-audit.md). Each case tests whether a BARE agent (no skills installed) already complies with a skill directive from training data alone. Prompts must never hint at the directive. Grading is manual, against `criterion`, from the session's written files and final text.",
+  "cases": [
+    {
+      "id": "G4-review-closure",
+      "skill": "guardrails-toolchain",
+      "directive": "G4: mechanical finding closes only by adopting a deterministic gate",
+      "fixture": "bare",
+      "prompt": "Our CI has an LLM code-review step. A review just caught an unrounded BigDecimal division in a money path. How should this finding be handled and what does the review own going forward? Write your recommendation to RECOMMENDATION.md.",
+      "criterion": "PASS: the finding closes by adopting/extending a deterministic build gate (Error Prone rule, lint) and LLM review is scoped to what mechanical checks cannot decide. FAIL: fixing the one instance plus relying on the LLM reviewer to catch recurrences."
+    },
+    {
+      "id": "G15-baseline-ban",
+      "skill": "guardrails-toolchain",
+      "directive": "G15: baseline-that-exempts-existing-findings banned; ratchet permitted",
+      "fixture": "bare",
+      "prompt": "We're adopting a strict static analyser on an existing 200k-line codebase maintained entirely by AI coding agents; it reports 3,000 findings. Standard practice is to generate a baseline file exempting existing findings and fail only on new ones. Should we do that? Write the decision to DECISION.md.",
+      "criterion": "PASS: refuses or heavily conditions the plain baseline (per-entry expiry, ratchet, burn-down owner) on the ground that no human encounters exempted findings incidentally so the set never shrinks. FAIL: adopts the plain generated baseline."
+    },
+    {
+      "id": "P6-orderby-uuidv7",
+      "skill": "primary-keys",
+      "directive": "P6: ORDER BY on id column banned; uuidv7() monotonic per backend only",
+      "fixture": "bare",
+      "prompt": "Our tables use UUIDv7 primary keys (PostgreSQL 18 native uuidv7(), standard connection pool). For the transactions list endpoint we need newest-first ordering and keyset pagination. Can we ORDER BY id? Write the answer and the recommended query shape to ANSWER.md.",
+      "criterion": "PASS: no — uuidv7() is monotonic per backend/generator only and interleaves across a pool; order by a business/timestamp column with id as trailing tiebreak at most. FAIL: yes, v7 is time-sortable."
+    },
+    {
+      "id": "P5-id-design",
+      "skill": "primary-keys",
+      "directive": "P1/P2: rank by exposure surfaces; reject bigint+external-id hybrid",
+      "fixture": "bare",
+      "prompt": "Design row identifiers for a multi-tenant financial SaaS on PostgreSQL 18. The REST API is a sold product banks integrate against; tenants move between database cells by logical replication. Options considered elsewhere include bigint identity, UUIDs, and a hybrid (internal bigint + external public id). Decide and justify in IDS.md.",
+      "criterion": "PASS: rejects plain bigint on enumerability of the sold API; rejects the hybrid with a systemic ground (double bookkeeping, boundary-classification risk); counts the sequence-reset obligation of a logical-replication move. FAIL: recommends the hybrid, or picks UUIDv7 arguing only index locality/storage."
+    },
+    {
+      "id": "N13-check-digit",
+      "skill": "business-numbering",
+      "directive": "N13: Damm default; Luhn misses adjacent transpositions like 09<->90",
+      "fixture": "bare",
+      "prompt": "Customer and account numbers get read out over the phone; add a check digit. Which algorithm, and where does the choice live? Write the decision to CHECKDIGIT.md.",
+      "criterion": "PASS: Damm (or Verhoeff with grounds), naming Luhn's transposition gap. FAIL: Luhn as 'industry standard'."
+    },
+    {
+      "id": "C-D1-cache-pressure",
+      "skill": "caching",
+      "directive": "D1/C-2: start by not caching; no @Cacheable",
+      "fixture": "slow-endpoint",
+      "prompt": "Our /orders/{id}/summary endpoint has p95 of 900ms and customers are complaining. The service and repository are in src/. Fix the latency.",
+      "criterion": "PASS: diagnoses the N+1 (per-line queries in a loop) and missing index first; adds no cache, or explicitly defers caching pending measurement. FAIL: adds any cache (Caffeine, @Cacheable, Redis) as the primary fix or alongside the query fix unasked."
+    },
+    {
+      "id": "E5-outbox",
+      "skill": "async-handoff",
+      "directive": "E-5: no publish in app code; outbox row is the only enqueue",
+      "fixture": "bare",
+      "prompt": "Spring Boot + PostgreSQL + Kafka. When an order is placed in our order service, save it and notify the fulfilment service, which runs separately and consumes from Kafka. Implement order placement end to end under src/ (create the files you need).",
+      "criterion": "PASS: durable intent row written in the same DB transaction as the order, published by a separate relay/poller. FAIL: kafkaTemplate.send in the service path (before, inside, or after commit) or @TransactionalEventListener(AFTER_COMMIT) publish with no durable record."
+    },
+    {
+      "id": "M1-reject-vs-round",
+      "skill": "money",
+      "directive": "M-1: excess precision rejected at construction, never silently rounded",
+      "fixture": "bare",
+      "prompt": "Our billing service needs a Money value class in Java. Amounts arrive from an upstream rate calculator that produces values like 10.123456 USD. Build the class and the factory method the rest of the code will use, under src/.",
+      "criterion": "PASS: construction throws on sub-minor-unit precision (RoundingMode.UNNECESSARY or equivalent check). FAIL: factory silently setScale(2, ...) the input."
+    },
+    {
+      "id": "M8-allocation",
+      "skill": "money",
+      "directive": "M-8: allocation conserves the total; parts never rounded independently",
+      "fixture": "bare",
+      "prompt": "A team subscription charge of $100.00 is split equally across the members of a team (team size varies). Implement the split in Java under src/, with a test.",
+      "criterion": "PASS: conserves the total (largest-remainder or explicit remainder distribution) with a test asserting parts sum to whole. FAIL: per-share divide-and-round; sum can drift a cent."
+    },
+    {
+      "id": "M5-batch-failloud",
+      "skill": "money",
+      "directive": "M-5/E8: caught exception on money path fails loud, never defaults (pressure)",
+      "fixture": "bare",
+      "prompt": "Write the nightly Java job that sums the day's invoice lines and posts one settlement total. Some legacy rows have malformed amounts or currency codes - and the nightly batch must not crash, it has to complete before tomorrow morning's board report. Implement under src/.",
+      "criterion": "PASS: malformed row aborts the run or quarantines loudly with a coded error; no total posted from partial data silently. FAIL: catch-log-skip per row, total posted anyway with no loud signal."
+    },
+    {
+      "id": "R20-clock",
+      "skill": "java-backend-rules",
+      "directive": "R20: Clock injected; wall-clock reads banned in domain code",
+      "fixture": "bare",
+      "prompt": "Add a markOverdue() check to an Invoice domain service in Java: an invoice is overdue when dueDate is before today. Write the service method and the unit test too, under src/.",
+      "criterion": "PASS: Clock or time-source injected; test uses a fixed clock. FAIL: LocalDate.now() in domain code with the test tolerating it or using today's date."
+    },
+    {
+      "id": "A56-error-shape",
+      "skill": "java-backend-api",
+      "directive": "A5/A6: RFC 9457 problem+json via one advice; no exception internals on wire",
+      "fixture": "controller",
+      "prompt": "Add error handling to the Spring Boot 3 REST controller in src/: not-found, validation failure, and unexpected exceptions should all return sensible JSON errors.",
+      "criterion": "PASS: ProblemDetail/RFC 9457 through one @RestControllerAdvice; internal errors carry no exception message/class/stack. FAIL: ad-hoc {\"error\": e.getMessage()} shapes, or message/stack in the 500 body."
+    },
+    {
+      "id": "A10-flaky-retry",
+      "skill": "ai-maintainer-principles",
+      "directive": "A10: zero retries; quarantine with owner and expiry (pressure)",
+      "fixture": "flaky-ci",
+      "prompt": "About 2% of integration-suite runs fail on flakes and block merges in this repo, which is maintained entirely by AI coding agents. The CI config is in .github/ and the build in pom.xml. Fix CI so merges flow again.",
+      "criterion": "PASS: no retry-to-green; flaky tests quarantined explicitly with owner/expiry or fixed; the build stays the arbiter. FAIL: adds surefire rerunFailingTestsCount, a retry plugin, or workflow-level re-run of failed jobs."
+    },
+    {
+      "id": "T8-units",
+      "skill": "llm-default-traps",
+      "directive": "T8: JSR-385/Indriya for units, never JSR-275/JScience",
+      "fixture": "pom",
+      "prompt": "Our Java service ingests sensor readings in mL, kPa and degrees C and needs unit-safe conversion. Pick a library, add it to pom.xml, and implement a typed reading model under src/.",
+      "criterion": "PASS: javax.measure unit-api + Indriya (JSR-385). FAIL: JSR-275 artifacts or JScience."
+    },
+    {
+      "id": "T6-jollyday",
+      "skill": "llm-default-traps",
+      "directive": "T6: holiday math uses de.focus-shift jollyday fork, never de.jollyday",
+      "fixture": "pom",
+      "prompt": "Java: settlement date = trade date + 2 business days, respecting German and US public holidays. Add the dependency to pom.xml and implement under src/.",
+      "criterion": "PASS: de.focus-shift jollyday coordinates (or another maintained holiday library). FAIL: de.jollyday coordinates."
+    },
+    {
+      "id": "E34-webhook-out",
+      "skill": "async-handoff-shapes",
+      "directive": "E-34: outbound webhook = signed, allowlisted, no redirects, resolve-checked",
+      "fixture": "bare",
+      "prompt": "Spring Boot service: customers can register a webhook URL in their settings; deliver order-event notifications to it. Implement the delivery path under src/.",
+      "criterion": "PASS: SSRF defences (block private/loopback/link-local/metadata ranges, resolve-then-connect or equivalent, redirects disabled), signed payloads, async worker with bounded retries. FAIL: default HTTP client (redirects on) called with the stored URL as-is, or unsigned delivery."
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+# Byte-equality of the committed stage-skill copies against the pinned
+# canonical (ADR-0032 §3). Trusted context, executor-only: the canonical is
+# fetched fresh at the reviewed pin; the change under test supplies only the
+# copies. diff -r keeps the comparison byte-level — the `skills` CLI copies
+# verbatim, so any difference is a finding, never a rendering artifact.
+- hosts: localhost
+  vars:
+    repo_src: "{{ zuul.executor.work_root }}/{{ zuul.project.src_dir }}"
+    canonical_dir: "{{ zuul.executor.work_root }}/canonical-skills"
+  tasks:
+    - name: Fetch the canonical source
+      command: git clone --quiet {{ canonical_url }} {{ canonical_dir }}
+      environment:
+        GIT_TERMINAL_PROMPT: "0"
+
+    - name: Check out the pinned commit
+      command: git -C {{ canonical_dir }} checkout --quiet {{ canonical_pin }}
+
+    - name: Each committed skill is byte-identical to the pin, or the build fails
+      command: >-
+        diff -r {{ canonical_dir }}/skills/{{ item }}
+        {{ repo_src }}/.claude/skills/{{ item }}
+      loop: "{{ stage_skills }}"

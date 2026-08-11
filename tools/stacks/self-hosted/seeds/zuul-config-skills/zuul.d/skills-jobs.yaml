@@ -1,0 +1,35 @@
+# The stage-skill byte-equality row (ADR-0032 §3): committed copies of the
+# four stage procedures must be byte-identical to the canonical source at the
+# pinned commit. Defined in the config project: the pin is reviewed here, and
+# a proposed change to the repository under test cannot move it. The pin is
+# the platform owner's explicit reference — skills-lock.json pins content
+# hashes only, no commit (ADR-0032 §4 check 1, observed for github and local
+# sources both).
+- job:
+    name: skills-equality
+    description: |
+      ADR-0032 §3: the committed .claude/skills/asdlc-* copies must be
+      byte-identical to canonical skills/asdlc-* at the pinned commit.
+      Any difference — including an unreviewed `skills update` — fails
+      the build naming the differing files.
+    parent: null
+    nodeset:
+      nodes: []
+    run: playbooks/build/skills-equality.yaml
+    vars:
+      canonical_url: https://github.com/dulguun0225/asdlc
+      canonical_pin: f0986955d4c0328eacedfec0573f3bf3144940d6
+      stage_skills:
+        - asdlc-spec
+        - asdlc-plan
+        - asdlc-tasks
+        - asdlc-implement
+
+- project:
+    name: pilot
+    check:
+      jobs:
+        - skills-equality
+    gate:
+      jobs:
+        - skills-equality

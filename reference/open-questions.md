@@ -89,6 +89,16 @@ fixed:** `bootstrap.mjs` never started the `logs` container, and the log server 
 quickstart's CORS header, so the web UI's Logs tab reported no logs on a fresh rig
 (stack README, base-job runtime facts).
 
+**New since 2026-08-11, second: the Gerrit review-UX question is researched and recorded** —
+[research/2026-08-11-gerrit-review-ux.md](research/2026-08-11-gerrit-review-ux.md). ADR-0009
+stands; mitigation is three parts inside the bet (current 3.14.x, VSCode-Gerrit as the
+in-editor reviewer path, first-party GitHub-users walkthrough in onboarding), now a
+Reviewer-UX row on the [assembled sheet](../variants/self-hosted.md). One open verification
+item: the extension's Code-Review voting against the rig's −1..+1 label has not been
+exercised — one rig session settles it. Closed paths recorded in the note's do-not-reintroduce
+list: no PR-style wrapper frontend exists (Gerrit 4.0 decoupling is 2027/2028), Gertty dormant,
+review-via-email not adopted.
+
 **New since 2026-08-11: delivery bring-up done, and the first end-to-end stage run** — both on
 the assembled rig, closing "What is left" item 2. Delivery: the four stage skills installed
 into pilot by the real consumer command and merged through the gate, byte-identical to

@@ -163,9 +163,17 @@ to other machines by clone-and-link**; nothing may assume this bench's environme
 `.claude/skills/`, root `SKILL.md`) or it enters the ASDLC delivery set. Agent routing was
 retuned from the redundancy audit the day before (probed sonnet-failure classes route past
 the sonnet coder to inherit-tier deep-worker; reviewer hunts the four frontier-surviving
-defaults by name; evals rerun green — `tools/agents-harness/evals/RESULTS.md`). Named next
-for this family: wire `skills:` preload (deterministic per-agent skill injection at spawn)
-on coder/deep-worker with an agents-owned measured-defaults skill sourced from the audit note.
+defaults by name; evals rerun green — `tools/agents-harness/evals/RESULTS.md`). **The
+`skills:` preload is wired (2026-08-12):** `coder` and `deep-worker` preload the agents-owned
+[`agents/skills/measured-defaults/`](../agents/skills/measured-defaults/SKILL.md) skill — the
+audit's probe-confirmed traps, one required behavior per line, full content injected at every
+spawn (deterministic, unlike Skill-tool discovery). The validator now parses YAML block-list
+frontmatter and enforces the ADR-0047 boundary: preload entries must be agents-family skills,
+and never a `disable-model-invocation` skill — unpreloadable per vendor sub-agents docs
+(fetched 2026-08-12). Verified live on the bench (CLI 2.1.228): a fresh session's `coder`
+spawn carries the full injected content; a running session does not pick up a preload change
+— new-session fact in the agents README §Editing; install caveat (missing preload skill =
+silent skip, agents still run) in §Skills.
 
 **Also new 2026-08-11: the 20 engineering-decision skills were audited for training-data
 redundancy** ([research/2026-08-11-skill-redundancy-audit.md](research/2026-08-11-skill-redundancy-audit.md))

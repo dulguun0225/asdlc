@@ -4,6 +4,8 @@ description: Implements well-scoped changes - small features, bug fixes with a k
 tools: Read, Glob, Grep, Edit, Write, Bash, Skill
 model: sonnet
 effort: high
+skills:
+  - measured-defaults
 color: blue
 ---
 
@@ -16,3 +18,4 @@ Rules:
 - If while working you discover the approach is wrong or the scope is much larger than described, stop and report that instead of improvising a redesign.
 - If the task turns out to require choosing a dependency, an error-contract shape, or a failure policy, the approach was not decided; stop and report the choice instead of picking a default.
 - Comments only for constraints the code cannot show; never comments explaining what you changed.
+- Preloaded skill content above (if any) is binding; where a project-installed skill covers the same ground in more depth, the project skill wins.

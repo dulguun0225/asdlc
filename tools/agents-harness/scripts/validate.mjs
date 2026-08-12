@@ -18,6 +18,9 @@
 // 7. Skill frontmatter: name matches directory, description present.
 // 8. evals: every eval file appears in the evals README suite table and every table row
 //    names a file that exists; routing.md's rubric denominators match its task-row count.
+// 9. skills: preload lists: every entry resolves to agents/skills/<name>/SKILL.md (the
+//    ADR-0047 boundary — never a skill outside the agents family) and the named skill
+//    does not set disable-model-invocation (unpreloadable per vendor docs, 2026-08-12).
 //
 // Exit 0 = clean, 1 = failures (each printed as FAIL: ...). Warnings do not fail.
 
@@ -56,11 +59,24 @@ function parseFrontmatter(path) {
     return {};
   }
   const fm = {};
+  let listKey = null; // key whose value is a YAML block sequence (e.g. skills:)
   for (const line of lines.slice(1)) {
     if (line.trim() === "---") return fm;
+    const item = line.match(/^\s+-\s+(\S.*)$/);
+    if (item && listKey) {
+      fm[listKey].push(item[1].trim());
+      continue;
+    }
     const m = line.match(/^(\w[\w-]*):\s*(.*)$/);
-    if (m) fm[m[1]] = m[2].trim();
-    else if (line.trim()) fail(`${name}: unparseable frontmatter line: ${JSON.stringify(line)}`);
+    if (m) {
+      if (m[2].trim() === "") {
+        listKey = m[1];
+        fm[listKey] = [];
+      } else {
+        listKey = null;
+        fm[m[1]] = m[2].trim();
+      }
+    } else if (line.trim()) fail(`${name}: unparseable frontmatter line: ${JSON.stringify(line)}`);
   }
   fail(`${name}: frontmatter never closed with '---'`);
   return fm;
@@ -86,6 +102,22 @@ function checkAgents() {
     if (model && !MODELS.has(model) && !FULL_MODEL_ID.test(model)) fail(`${file}: invalid model '${model}'`);
     const effort = fm.effort;
     if (effort && !EFFORTS.has(effort)) fail(`${file}: invalid effort '${effort}'`);
+    if (fm.skills !== undefined) {
+      if (!Array.isArray(fm.skills) || !fm.skills.length) {
+        fail(`${file}: 'skills' must be a non-empty YAML block list`);
+      } else {
+        for (const s of fm.skills) {
+          const skillMd = join(SKILLS, s, "SKILL.md");
+          if (!existsSync(skillMd)) {
+            fail(`${file}: preloads '${s}' but agents/skills/${s}/SKILL.md does not exist — preload may name agents-family skills only (ADR-0047)`);
+            continue;
+          }
+          if ((parseFrontmatter(skillMd)["disable-model-invocation"] ?? "") === "true") {
+            fail(`${file}: preloads '${s}', which sets disable-model-invocation: true — not preloadable (vendor sub-agents docs, 2026-08-12)`);
+          }
+        }
+      }
+    }
     if (READ_ONLY.has(name)) {
       const bad = tools.filter((t) => WRITE_TOOLS.has(t));
       if (bad.length) fail(`${file}: read-only agent has write tools: ${JSON.stringify(sorted(bad))}`);

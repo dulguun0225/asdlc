@@ -18,8 +18,10 @@ A **monorepo holding two things**: the ASDLC design, and the code that implement
 **ASDLC** = **agentic software development life cycle** ("Agentic SDLC" in prose; "life cycle"
 as three words). The subject is a life cycle where **agents execute multi-step development work
 under human review gates** ([ADR-0002](reference/decisions/0002-scope-agentic-not-ai-assisted.md));
-AI-assisted tooling that only speeds up a human is background context. Where the agent/human
-boundary falls is open — [OQ-3](reference/open-questions.md).
+AI-assisted tooling that only speeds up a human is background context. The gates are the
+day-one posture: the recorded destination is a **fully autonomous software factory and
+operations**, every human gate scaffolding with a recorded exit signal
+([ADR-0048](reference/decisions/0048-end-goal-autonomous-software-factory.md)).
 
 **The four design directories are documents-only.** `asdlc/`, `variants/`, `rollout/` and
 `reference/` hold no application code, build system, test suite, or package manifest. Do not

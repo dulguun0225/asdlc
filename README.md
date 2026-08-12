@@ -4,6 +4,12 @@ A design for an **Agentic software development life cycle**: a life cycle in whi
 execute multi-step development work — planning, editing, running tests, opening changes —
 under human review gates.
 
+The gates are the day-one posture, not the destination. The recorded end goal is a **fully
+autonomous software factory and operations** — the factory refines intent, produces,
+deploys, monitors, and fixes on its own, with humans requesting, constraining, and
+occasionally helping; every human gate here is scaffolding carrying the evidence signal
+that would retire it ([ADR-0048](reference/decisions/0048-end-goal-autonomous-software-factory.md)).
+
 **A monorepo: the design, and the code that implements it.** The four design directories are
 documents — no build, no test suite, no package manifest. The code lives in
 [`tools/`](tools/README.md) ([ADR-0025](reference/decisions/0025-monorepo.md)). A third

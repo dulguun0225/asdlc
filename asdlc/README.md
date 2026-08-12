@@ -24,6 +24,12 @@ that humans sign at defined gates
 ([ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md),
 [ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md)).
 
+This is the starting posture, not the destination. The recorded end goal is a **fully
+autonomous software factory and operations**
+([ADR-0048](../reference/decisions/0048-end-goal-autonomous-software-factory.md)): every
+human gate below is scaffolding carrying the evidence signal that would retire it, and the
+per-gate exit signals are [OQ-25](../reference/open-questions.md#oq-25--gate-retirement-the-exit-signal-per-human-gate).
+
 The life cycle is **identical in all three deployment variants**. The variants differ in what
 enforces it, not in what it is — see [`variants/`](../variants/README.md).
 
@@ -83,6 +89,11 @@ agent output volume ([ADR-0005](../reference/decisions/0005-roles-gate-signers-a
 Read `roles.md` and `tiers.md` first. Every stage file refers to both.
 
 ## What is deliberately not automated
+
+Today's posture. Each item is a bet with an exit condition, not doctrine
+([ADR-0048](../reference/decisions/0048-end-goal-autonomous-software-factory.md) part 4);
+the per-item exit signals are
+[OQ-25](../reference/open-questions.md#oq-25--gate-retirement-the-exit-signal-per-human-gate).
 
 - **Deploy** — human wherever behaviour can change; a batch of mechanically proven
   behavior-preserving T3 changes ships unsigned

@@ -151,6 +151,26 @@ and the per-stream retention gap stands, its upstream fix now announced **enterp
 §3 verification item on self-hosted retention maxima still stands (re-checked 2026-08-11,
 still undocumented).
 
+**New 2026-08-12, second: the destination is recorded —
+[ADR-0048](decisions/0048-end-goal-autonomous-software-factory.md)**, the project's
+north-star record (owner-directed, the owner's stated end goal quoted in the ADR). The end
+goal is a **fully autonomous software factory and operations** — the factory refines intent,
+produces, deploys, monitors, finds issues, and fixes bugs on its own; humans request,
+constrain, get interviewed, and occasionally help (the ADR carries the owner's touchpoint
+list). Every human gate is now **scaffolding with a recorded exit signal** — a gate without
+one is a design bug; the "deliberately not automated" list is evidence-bound, not doctrine;
+ADR-0002's "under human review gates" reads as the starting posture, not the definition; the
+AI solution engineer role is transitional. Nothing changes mechanically today — the pilot's
+instrumentation now serves gate retirement, not only gate tuning. Three questions opened:
+[OQ-23](#oq-23--the-factorys-inbound-interface) (the inbound interface — requests,
+constraint documents, the factory interviewing the requester, complaints, bug reports),
+[OQ-24](#oq-24--the-autonomous-operations-loop) (detect → diagnose → fix → redeploy plus the
+escalation contract), [OQ-25](#oq-25--gate-retirement-the-exit-signal-per-human-gate) (the
+per-gate exit-signal table, and which touchpoints are permanent). The destination sentence
+landed in the root README, asdlc/README ("What this is" and the "deliberately not automated"
+header), and CLAUDE.md. The owner also directed the same day that prior work be read as
+experimentation — waypoints; ADR-0048 part 7 records that no existing ADR is reversed.
+
 **New 2026-08-12: the agents family joined the monorepo and the standalone repo is gone**
 ([ADR-0047](decisions/0047-agents-join-the-monorepo.md)) — `agents/` (10 subagent definitions
 with model × effort routing, `workflow-light` skill, `research-lite` workflow; README there is
@@ -414,7 +434,14 @@ ADR-0020 part 4's never-write list. Everything else is unblocked, starting with 
    gate-record retention compensation, and the
    [sheet's §3 verification items](../variants/self-hosted-integrated.md) (need a running
    Forgejo/SigNoz). Block that variant's use, nothing else.
-6. **The engineer-facing layer** — the "Not yet specified" sections in
+6. **The destination's design surface** —
+   [OQ-23](#oq-23--the-factorys-inbound-interface),
+   [OQ-24](#oq-24--the-autonomous-operations-loop),
+   [OQ-25](#oq-25--gate-retirement-the-exit-signal-per-human-gate), opened by
+   [ADR-0048](decisions/0048-end-goal-autonomous-software-factory.md). Blocks nothing
+   running; blocks the walk toward the end state. OQ-25 first — it binds the existing
+   gates; the other two need research sessions.
+7. **The engineer-facing layer** — the "Not yet specified" sections in
    [`asdlc/`](../asdlc/README.md). Blocks nobody; needs research sessions, not assembly.
 
 **Do not reopen as research questions:** prompt injection from repository content
@@ -546,3 +573,48 @@ One line each; the ADR is the record.
   secrets and trigger semantics.
 - **Variant answers:** integrated-only by construction; assembled is ADR-0018, cloud is
   host-native ([ADR-0008](decisions/0008-agent-write-scope-and-enforcement.md) part 8).
+
+## OQ-23 — The factory's inbound interface
+
+- **Status:** open — opened by [ADR-0048](decisions/0048-end-goal-autonomous-software-factory.md).
+- **Blocks:** nothing running today; blocks the destination — at the end state, requesters
+  talk to the factory directly, and today the only intake is an engineer driving the spec
+  stage.
+- **The question:** how the factory receives and refines intent without a human driver:
+  feature requests, constraint documents (laws, regulations, raw material), the factory
+  interviewing the requester, complaints in end-user terms ("this button is too slow"), and
+  bug reports — and how each becomes a unit of work with a computed tier. The pilot's one
+  glimpse: the spec stage routed unanswerable clarifications into OI/assumptions and folded a
+  requester's answer back in through a review cycle — an embryo of the interview, still
+  engineer-mediated.
+- **What would close it:** a designed intake surface — stages or channels, their artifacts,
+  who or what signs them — answered for every variant.
+
+## OQ-24 — The autonomous operations loop
+
+- **Status:** open — opened by [ADR-0048](decisions/0048-end-goal-autonomous-software-factory.md).
+- **Blocks:** nothing running today; blocks the destination — the end-state factory monitors,
+  finds issues, diagnoses, and fixes on its own, and today only rollback is automated
+  ([ADR-0011](decisions/0011-progressive-rollout.md)).
+- **The question:** the detect → diagnose → fix → redeploy loop: what turns an SLO breach,
+  an alert, or an attributed defect ([ADR-0022](decisions/0022-defect-attribution.md)) into
+  an agent session; how a self-authored fix meets the merge gate at its computed tier while
+  that gate still stands; and the escalation contract — when and how the factory hands an
+  issue it cannot fix to a human (the destination's touchpoint 4h).
+- **What would close it:** the loop designed end to end with its containment, plus the
+  escalation contract, answered for every variant.
+
+## OQ-25 — Gate retirement: the exit signal per human gate
+
+- **Status:** open — opened by [ADR-0048](decisions/0048-end-goal-autonomous-software-factory.md).
+- **Blocks:** nothing running today; ADR-0048 part 3 makes a human gate without a recorded
+  exit signal a design bug, and today no gate carries one.
+- **The question:** for each human gate (spec, plan, merge T1/T2, deploy) and each item on
+  the "deliberately not automated" list: the measured evidence that retires it, or narrows
+  it to a named residual human role. Also decides which destination touchpoints are
+  permanent rather than scaffolding — UAT, the unit-tests-versus-requirements check, and any
+  law-mandated human act (a permanent constraint with its legal source, per ADR-0048 part 4).
+- **What would close it:** a per-gate table — gate, exit signal, residual human role if
+  any — landed in the design; gates converge across variants
+  ([ADR-0039](decisions/0039-self-hosted-forks-on-the-assembly-axis.md)), so one table
+  answers all three.

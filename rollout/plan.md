@@ -192,6 +192,11 @@ Nothing in this phase is scheduled. Each step fires only on its recorded conditi
   upgrade path ([ADR-0003](../reference/decisions/0003-graduated-gating-machine-derived-tier.md)), not a
   plan item.
 
+This phase has no end. What lies past it — the path from the operating gated pilot to the
+recorded destination ([ADR-0048](../reference/decisions/0048-end-goal-autonomous-software-factory.md))
+— is [roadmap.md](roadmap.md): six evidence-gated autonomy levels, of which this phase's
+mechanics drive A0 → A2.
+
 ## 7. The assembled-variant substitutions (operative — it is the primary, ADR-0043)
 
 Phases keep their shape; these items change when standing up the primary stack:

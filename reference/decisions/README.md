@@ -62,3 +62,4 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0046](0046-one-human-label-code-review-only.md) | One human label: Code-Review only, values −1/0/+1; the Workflow label is removed | accepted | 2026-08-11 |
 | [0047](0047-agents-join-the-monorepo.md) | The agents family joins the monorepo: `agents/` + `tools/agents-harness/`; old repo deleted | accepted | 2026-08-12 |
 | [0048](0048-end-goal-autonomous-software-factory.md) | The end goal: a fully autonomous software factory; every human gate is scaffolding | accepted | 2026-08-12 |
+| [0049](0049-roadmap-evidence-gated-autonomy-levels.md) | The roadmap: evidence-gated autonomy levels, no dates | accepted | 2026-08-12 |

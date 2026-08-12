@@ -151,6 +151,19 @@ and the per-stream retention gap stands, its upstream fix now announced **enterp
 §3 verification item on self-hosted retention maxima still stands (re-checked 2026-08-11,
 still undocumented).
 
+**New 2026-08-12, third: the roadmap to the destination —
+[rollout/roadmap.md](../rollout/roadmap.md), shape fixed by
+[ADR-0049](decisions/0049-roadmap-evidence-gated-autonomy-levels.md).** Six evidence-gated
+autonomy levels, no dates: A0 gated pilot → A1 self-driving stages → A2 thinned gates →
+A3 self-healing operations → A4 direct intake → A5 the factory. Advancement per scope
+(tier-ratchet shape), regression automatic on an incident attributed to a retired gate's
+absence, ordering bets named and falsifiable (A1 before A2: measure the factory, not the
+engineer; A3 before A4: the ops loop compounds evidence and touches no new human
+interface). Consequences with teeth: OQ-25 is the critical path to A2, and the gate-record
+tooling gap (open-parameters top row) is load-bearing for A1 — a chained run has no
+engineer whose attestation can stand in. plan.md §6 now points to the roadmap; the root
+README gained the read-order row.
+
 **New 2026-08-12, second: the destination is recorded —
 [ADR-0048](decisions/0048-end-goal-autonomous-software-factory.md)**, the project's
 north-star record (owner-directed, the owner's stated end goal quoted in the ADR). The end

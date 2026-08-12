@@ -26,7 +26,7 @@ self-hosted assembled, and self-hosted integrated
 ```
 asdlc/        the life cycle — what happens at each stage, who signs what
 variants/     the three stacks — what to install, what it costs, what is missing
-rollout/      the order to build and adopt it in
+rollout/      the order to build and adopt it in, and the roadmap to the end goal
 reference/    the working record — decisions, research, open questions, schemas
 skills/       what `skills add` delivers — the four stage procedures and the
               researched engineering-decision skills
@@ -44,6 +44,7 @@ tools/        the code — programs and packages the life cycle needs
 | **Build one variant** | [variants/cloud.md](variants/cloud.md), [variants/self-hosted.md](variants/self-hosted.md) or [variants/self-hosted-integrated.md](variants/self-hosted-integrated.md) — each is self-contained |
 | **Try it on your machine** | [tools/stacks/self-hosted/demo.md](tools/stacks/self-hosted/demo.md) — bring the primary stack up locally and put a change through the gates by hand |
 | **Know what to do first** | [rollout/plan.md](rollout/plan.md) |
+| **See the path to the end goal** | [rollout/roadmap.md](rollout/roadmap.md) — six evidence-gated autonomy levels |
 | **Know why something was decided** | [reference/decisions/](reference/decisions/README.md) |
 | **Know what is still unanswered** | [reference/open-questions.md](reference/open-questions.md) |
 | **Find the code** | [tools/README.md](tools/README.md) |

@@ -26,7 +26,7 @@ A decision that lives as a bullet inside a larger document does not count as mad
 |---|---|---|---|
 | [0002](0002-scope-agentic-not-ai-assisted.md) | ASDLC means "agentic", not "AI-assisted" | accepted | 2026-07-26 |
 | [0003](0003-graduated-gating-machine-derived-tier.md) | Gating is graduated, and the tier is computed, not rated | accepted | 2026-07-27 |
-| [0005](0005-roles-gate-signers-and-the-reviewer-ring.md) | Who signs each gate, and how the reviewer pool works | accepted | 2026-07-27 |
+| [0005](0005-roles-gate-signers-and-the-reviewer-ring.md) | Who signs each gate, and how the reviewer pool works | accepted; parts 4–5 (the ring) superseded by [0056](0056-the-team-is-the-review-unit-the-ring-is-deleted.md)  | 2026-07-27 |
 | [0006](0006-tier-function-and-greenfield-cold-start.md) | The tier function, the path→tier map, and how a greenfield repository cold-starts | accepted | 2026-07-27 |
 | [0007](0007-agent-runner-and-containment.md) | The agent runner and how it is contained | accepted | 2026-07-27 |
 | [0008](0008-agent-write-scope-and-enforcement.md) | What the agent may touch, and where that is enforced | accepted | 2026-07-27 |
@@ -68,3 +68,8 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0048](0048-end-goal-autonomous-software-factory.md) | The end goal: a fully autonomous software factory; every human gate is scaffolding | accepted | 2026-08-12 |
 | [0049](0049-roadmap-evidence-gated-autonomy-levels.md) | The roadmap: evidence-gated autonomy levels, no dates | accepted | 2026-08-12 |
 | [0051](0051-records-bind-the-design-not-the-owner.md) | Records bind the design, not the owner — a record cited to the owner informs a pivot, never refuses it | accepted | 2026-08-12 |
+| [0052](0052-gate-record-tooling.md) | Gate records are written by CI: the change carries the record, the log store carries a copy | accepted | 2026-08-12 |
+| [0053](0053-no-stage-scoped-pretooluse-hook.md) | No stage-scoped `PreToolUse` hook: the runner cannot tell a hook which stage is running | accepted | 2026-08-12 |
+| [0054](0054-deployment-target-kubernetes-or-compose.md) | The deployment target is Kubernetes or Docker Compose; the Compose answer is Swarm-mode rolling update with a monitored rollback | accepted | 2026-08-12 |
+| [0055](0055-team-of-three-and-the-gate-signers.md) | The team is three roles, the gates map onto them, and there is no platform-owner role | accepted; the T1 pair superseded by [0056](0056-the-team-is-the-review-unit-the-ring-is-deleted.md) | 2026-08-12 |
+| [0056](0056-the-team-is-the-review-unit-the-ring-is-deleted.md) | The team is the review unit: the reviewer ring is deleted | accepted | 2026-08-12 |

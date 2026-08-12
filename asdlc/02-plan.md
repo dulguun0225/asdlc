@@ -7,13 +7,14 @@ tier.
 |---|---|
 | **Who drives** | AI solution engineer, driving an agent session |
 | **Artifact** | the plan, **including tier-map entries for every new path** |
-| **Gate** | human gate at T1 and T2 — ring reviewer, or a review-competent team leader |
+| **Gate** | human gate at T1 and T2 — the team's engineer |
 | **The assertion** | *This is a sound approach to that problem.* |
 
 ## What happens
 
-The agent drafts the plan. The ring reviewer signs it — the AI solution engineer of the
-reviewing team, assigned by the ring ([roles.md](roles.md) §3). A team leader may sign instead
+The agent drafts the plan. The team's **engineer** signs it
+([roles.md](roles.md) §1) — including on a session they drove, which is the self-review this
+design now measures rather than prevents ([roles.md](roles.md) §2). A team leader may sign instead
 **only if recorded as review-competent**.
 
 At T2 there is no separate spec gate, so this signer asserts both the problem and the
@@ -66,16 +67,16 @@ this is the heaviest gate in the design:
 |---|---|---|
 | Requirements traceability | ADR-0014 part 4 | every active `FR` and `NFR` mapped to the design element that satisfies it — none missing, none invented |
 | Tier-map entries | [ADR-0006](../reference/decisions/0006-tier-function-and-greenfield-cold-start.md) part 1 | a map entry for every new path, as a diff to the map file in the same change |
-| NFR enforcement | [ADR-0011](../reference/decisions/0011-progressive-rollout.md), [06-deploy.md](06-deploy.md) | per-service SLO values **proposed** here; the platform owner sets them at T1 |
+| NFR enforcement | [ADR-0011](../reference/decisions/0011-progressive-rollout.md), [06-deploy.md](06-deploy.md) | per-service SLO values **proposed** here; set at T1 |
 
 The map entries go in as a **diff to the repository's map file**, not as a block of text the plan
 alone holds, and **the agent commits that diff itself**
 ([ADR-0036](../reference/decisions/0036-constraint-audit-cuts.md) part 5): the map file is T1 by
-tier-function rule 1, so the platform owner reviews the diff at the gate whoever's keystrokes
+tier-function rule 1, so the engineer and the team leader both review the diff whoever's keystrokes
 committed it, and a map entry affects only future changes — the change carrying it is already at
 the top tier. The agent still cannot widen its own permissions through a plan: the widening is
-what the T1 signature reviews. Everything else in never-write class 1 — gate policy, ring
-configuration, managed settings — keeps
+what the T1 signature reviews. Everything else in never-write class 1 — gate policy,
+managed settings — keeps
 [ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) part 2's outright
 rejection.
 

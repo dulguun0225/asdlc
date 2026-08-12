@@ -10,11 +10,11 @@ Every file format this design defines, in one place — for whoever writes the c
 
 | § | Artifact | Owner | Change tier | Rules in |
 |---|---|---|---|---|
-| 1 | Path→tier map | platform owner | T1 | [asdlc/tiers.md](../asdlc/tiers.md) |
+| 1 | Path→tier map | T1 review | T1 | [asdlc/tiers.md](../asdlc/tiers.md) |
 | 2 | Tier-function output | — (generated) | — | [asdlc/tiers.md](../asdlc/tiers.md) §3 |
-| 3 | Gate record | platform owner | T1 | [asdlc/tiers.md](../asdlc/tiers.md) §2 |
-| 4 | Ring configuration | platform owner | T1 | [asdlc/roles.md](../asdlc/roles.md) §3 |
-| 5 | Managed settings | platform owner | T1 | [asdlc/04-implementation.md](../asdlc/04-implementation.md) |
+| 3 | Gate record | written by CI ([ADR-0052](decisions/0052-gate-record-tooling.md)) | T1 | [asdlc/tiers.md](../asdlc/tiers.md) §2 |
+| 4 | Ring configuration | T1 review | T1 | [asdlc/roles.md](../asdlc/roles.md) §3 |
+| 5 | Managed settings | operator identity | T1 | [asdlc/04-implementation.md](../asdlc/04-implementation.md) |
 | 6 | Feature artifacts — spec, plan, tasks | the feature's team | T1/T2 by content | [asdlc/templates/](../asdlc/templates/README.md) |
 | 7 | Requirements trace | — (generated) | — | [ADR-0014](decisions/0014-feature-artifacts-and-the-traceability-chain.md) part 9 |
 
@@ -29,7 +29,7 @@ One committed YAML file per repository. Schema fixed by
 version: 1
 
 repo:
-  launched: false            # platform owner only; flips once, at first production deploy
+  launched: false            # T1 + launch gate; flips once, at first production deploy
 
 defaults:                    # applied to any path whose entry omits them
   reversibility: irreversible
@@ -102,7 +102,7 @@ the change on the host **and** exported to the observability store
   "gate": "merge",                      // spec | plan | merge | deploy | launch | attribution
   "tier": 1,
   "rule_fired": 2,
-  "signer": {"id": "user:aise-07", "role": "ring-reviewer"},
+  "signer": {"id": "user:aise-07", "role": "engineer"},   // engineer | team-leader | domain-expert
   "assertion": "this change implements the plan and I would own it",
   "artifact_hash": "<sha256 of the exact artifact signed: spec text, plan text, or diff>",
   "artifact_ref": "change-1234/patchset-3",
@@ -115,13 +115,20 @@ the change on the host **and** exported to the observability store
 **The semantics are the point:** a record whose `artifact_hash` no longer matches the current
 artifact is **not** a signature on the current artifact.
 
+**Who writes it, and where it lives** — [ADR-0052](decisions/0052-gate-record-tooling.md). A
+trusted CI job transcribes the signature after the merge; neither the signer nor the producer
+of the work writes a record. The authoritative copy is attached to the change on the host, the
+observability copy is derived, and a field the host cannot supply is written `unknown` rather
+than inferred. `producer` is the record's one claim: it comes from the change's
+`ASDLC-Session` trailer, corroborated against the session event stream.
+
 Deploy-gate records additionally carry the batch's tier breakdown:
 
 ```json
 {"t1": 0, "t2": 3, "t3": 11}
 ```
 
-**An `attribution` gate record** is the platform owner's countersignature on a defect attribution
+**An `attribution` gate record** is the team leader's countersignature on a defect attribution
 ([ADR-0022](decisions/0022-defect-attribution.md) part 3). Its `artifact_ref` names the change the
 defect is charged to, or `unattributed`. The incident record it accompanies carries: the violated
 requirement if there is one, the failed deploy's digest, the named change or `unattributed`, and the
@@ -133,30 +140,18 @@ choice; these fields are the requirement on it.**
 `ghcr.io/org/checkout@sha256:…`. An attestation binds to a digest; a tag can migrate to a
 different artifact after the signature.
 
-## 4. Ring configuration
+## 4. Ring configuration — deleted 2026-08-12
 
-Committed file, owned by the platform owner, changed at T1
-([ADR-0005](decisions/0005-roles-gate-signers-and-the-reviewer-ring.md) parts 4–5).
-
-```yaml
-version: 1
-teams: [team-01, team-02, ..., team-18]   # index order is the ring order
-offset: 1                                  # k; must be coprime to 18; fixed — scheduled
-                                           # rotation is deferred (ADR-0036 part 3)
-review_competency:                         # who may sign plan gates besides the ring
-  - {person: "user:tl-04", scope: plan}
-sla:
-  t2_merge_review: same-working-day
-```
-
-The **reassignment job** that reads this is a small CI or bot job, **native to neither host**,
-and required before the ring is relied on. On SLA breach it reassigns to team `i + 2k (mod
-18)`, records `{change, from, to, breached_at}` to the observability store, does not queue,
-and does not escalate to a meeting.
+**This artifact no longer exists.** The reviewer ring it configured is deleted
+([ADR-0056](decisions/0056-the-team-is-the-review-unit-the-ring-is-deleted.md), owner-directed):
+a team owns its services and reviews its own work, so there is no cross-team assignment to
+configure, no offset, no reassignment target, and no review-competency list. The section number
+is kept rather than reused, so older citations land on this reason instead of on another
+schema. Who signs what is now [asdlc/roles.md](../asdlc/roles.md) §1.
 
 ## 5. Managed settings
 
-Distributed to every engineer machine; owner: platform owner; change tier: T1
+Distributed to every engineer machine; owner: operator identity; change tier: T1
 ([ADR-0007](decisions/0007-agent-runner-and-containment.md) parts 2, 4–5;
 [ADR-0016](decisions/0016-tls-terminating-proxy-and-credential-masking.md) part 7).
 
@@ -165,7 +160,7 @@ Distributed to every engineer machine; owner: platform owner; change tier: T1
 one admitted runner meets the admission contract, not a design-wide artifact.
 
 Key names below are the vendor's documented ones, checked 2026-07-28. `<...>` marks a value the
-platform owner fills.
+operator fills at bring-up.
 
 ```json
 {
@@ -305,7 +300,7 @@ Rules that go with the sandbox block, fixed by
   ([ADR-0020](decisions/0020-agent-instruction-layers.md) part 6).
 - **`denyWrite` entries** for every other never-write class
   ([ADR-0008](decisions/0008-agent-write-scope-and-enforcement.md) part 2): the tier map, gate
-  policy, ring and competency files, sandbox policy (settings paths are denied automatically),
+  policy, sandbox policy (settings paths are denied automatically),
   **and the IAM and network-configuration paths of the fifth class**. Credential files are
   covered by the deny list above.
 

@@ -41,6 +41,57 @@ lasting rule, **[ADR-0051](decisions/0051-records-bind-the-design-not-the-owner.
 records bind sessions, agents and documents — never the owner; a record cited to the owner
 informs a pivot, it does not refuse one.
 
+**New 2026-08-12, gate records: work on reaching A0 started, and the pilot's audit trail now exists.**
+**[ADR-0052](decisions/0052-gate-record-tooling.md)** closes the top row of
+[open-parameters.md](../rollout/open-parameters.md): a trusted CI job transcribes each
+signature after the merge — authoritative copy a change message (`ASDLC-Gate-Record v1` plus
+the [artifacts.md](artifacts.md) §3 object, in NoteDb), derived copy an OTLP record on the
+five-year `gate-records` stream. Built and probed live on the assembled rig
+(`gaterecordjob.mjs`, stack README runtime facts): a real gated change produced its `merge`
+record, a spec change produced `spec` + `merge`, `artifact_hash` matched an independently
+computed sha256, the Loki copy was queryable, a re-run wrote nothing, and the signer's role
+resolved from the configured role map. **`producer` reads `unknown (uploaded by …)`** until the
+implement skill ships an `ASDLC-Session` trailer — a new open-parameters row, deliberately
+visible rather than guessed. The same record answers ADR-0034's deferred question: a ratified
+`NEW — proposed` decision that binds beyond its feature is drafted as a decision record **in
+the product repository, in the same change as the plan**. **Two gates still have no record:**
+`deploy` — no act in any variant is defined as the casting of that signature
+([OQ-26](#oq-26--where-the-deploy-gates-signature-is-cast), which blocks the phase-1 exit
+gate) — and `attribution`, which waits on the incident-tracking choice.
+**[ADR-0053](decisions/0053-no-stage-scoped-pretooluse-hook.md)** closes the `PreToolUse` row:
+not buildable, because the hook's input names no active skill. open-parameters also lost the
+Gerrit/Zuul licence row as stale — the [assembled sheet](../variants/self-hosted.md) §3 has
+recorded both licences since 2026-08-10. **Pick up next:** the feature-artifact checker — its
+three open items (boundary, merge-time inputs, quarantine marking), then the program; it
+blocks the first T1/T2 change. After it, the requirements-trace emitter, the other half of
+ADR-0015's build task.
+
+**New 2026-08-12, latest — owner direction, and it removed two blockers.** The owner stated
+the org's shape and the deployment target, and struck one role from the design.
+
+- **Three roles per team: team leader, engineer, domain expert**
+  ([ADR-0055](decisions/0055-team-of-three-and-the-gate-signers.md)). Spec gate → domain
+  expert; plan gate → the team's engineer; deploy gate → team leader, unchanged. **There is no platform-owner role and none is decided** — the owner's words. Its
+  T1 merge seat is now the **team leader** beside the engineer, its artifacts are T1
+  changes, and its custody — host admin, signing key, secrets
+  boundary — belongs to an **operator identity**, an account rather than a seat. Staffing
+  beyond the three roles is deferred until the factory runs. [OQ-10](#oq-10--who-fills-the-platform-owner-role)
+  closes by dissolving. The sweep touched roles.md, tiers.md, 05-merge.md, 02-plan.md,
+  04-implementation.md, 07-operate.md, asdlc/README.md, artifacts.md, context.md,
+  rollout/plan.md and open-parameters.md; **ADRs before 0055 keep their original wording** —
+  they are records.
+- **The deployment target is Kubernetes or Docker Compose**
+  ([ADR-0054](decisions/0054-deployment-target-kubernetes-or-compose.md)), which discharges
+  [ADR-0011](decisions/0011-progressive-rollout.md) part 5's reopen condition. Kubernetes is
+  unchanged (Flagger). Compose is answered through **Swarm mode** — probed here 2026-08-12 that
+  `docker compose up` ignores `update_config`/`rollback_config` entirely (both replicas
+  recreated with a broken command, no rollback), while `docker stack deploy` executes them.
+  **The named loss: no traffic-percentage canary and no metric-gated analysis off Kubernetes**;
+  the compensation is a post-deploy watch window (Prometheus query → `--rollback`) that must
+  never be called canary analysis. Swarm is an explicit bet — Docker's own retired-products page
+  says SwarmKit *"remains functional"* while *"development has slowed"*; a deprecation notice is
+  the falsifier. **Not yet built:** the Compose/Swarm slice in `tools/`, and the watch window.
+
 **Where the project is:** every ADR is accepted and landed. **There are three variants**
 ([ADR-0039](decisions/0039-self-hosted-forks-on-the-assembly-axis.md), owner-directed): the
 self-hosted variant forked on the assembly axis — the assembled sheet (Gerrit + Zuul,
@@ -323,13 +374,13 @@ pipelines — the repository under test cannot alter the rule that judges it. Th
 YAML per the schema; the executor image needed `libatomic1` for the pinned node runtime
 (`executor.Dockerfile`). Details in the stack README.
 
-**The third build row landed** (2026-08-10, `ringjob.mjs`): `ring-assign` on a five-minute
-timer pipeline, trusted, CI identity — assigns the ring reviewer (i+k), reassigns to i+2k on
-SLA breach with `{change, from, to, breached_at}` recorded to the `ring-reassignments` Loki
-stream, idempotent, offset validated coprime-to-18, all probed live plus one observed
-periodic build. Ring config is artifacts.md §4 verbatim; team→account wiring is a rig-local
-contacts file (deliberately outside the schema). Ansible fact: `no_log` censors registered
-results — credential-bearing tasks get no output task.
+**The ring build row is deleted** (2026-08-12,
+[ADR-0056](decisions/0056-the-team-is-the-review-unit-the-ring-is-deleted.md)): `ringjob.mjs`,
+its `zuul-config-ring` seed, the `ring-assign` timer job and the `ring-reassignments` stream are
+gone with the ring itself. What its build taught and still applies: a trusted timer pipeline
+under the CI identity works, and `no_log` censors a registered result entirely (the follow-up
+`debug` fails with *"sequence was empty"*), so a credential-carrying playbook has no output
+task.
 
 **The real base job landed** (2026-08-10, `basejob.mjs`): quickstart jobs2 shape — zuul-jobs
 from a new opendev.org git connection, pre-run syncs the change's repos to the node (probed:
@@ -425,7 +476,7 @@ with zero matching files **exits 0**, as does an all-`skip` suite, while `node -
 
 Deliberately not built, so nobody re-proposes them: any coverage collection or threshold
 ([ADR-0019](decisions/0019-testing-agent-written-code.md) part 2); a test runner, linter or
-formatter dependency, in a repository with no platform owner to maintain it; a frontmatter key-set
+formatter dependency, in a repository with nobody holding a maintenance brief; a frontmatter key-set
 gate, a canonical tool-name failure list, or an argument-placeholder rule — all three would have a
 tool invent a design rule ([ADR-0030](decisions/0030-design-states-the-rules-tools-implement-them.md));
 a stated-counts gate, which is an allowlist that exists to make writing counts safe; a blocking
@@ -445,8 +496,9 @@ ADR-0020 part 4's never-write list. Everything else is unblocked, starting with 
    [research/2026-08-05-constraint-audit.md](research/2026-08-05-constraint-audit.md); the five
    big ones are closed ([ADR-0036](decisions/0036-constraint-audit-cuts.md)).
 
-1. **Staffing — [OQ-10](#oq-10--who-fills-the-platform-owner-role).** The platform owner and a
-   backup: the single largest dependency and the only blocking item the owner must supply.
+1. **Staffing — closed** ([ADR-0055](decisions/0055-team-of-three-and-the-gate-signers.md)):
+   there is no platform-owner role, the three team roles carry every gate, and the T1 pair is
+   the engineer and the team leader. Nothing in the design now waits on a person being named.
 2. **Delivery bring-up — done 2026-08-11 on the assembled rig** (the paragraph above): skills
    delivered through the gate, the `skills-equality` row live, ADR-0032 §4's three
    verifications run. Remains only as a repeat on an org product repo when one exists.
@@ -523,11 +575,14 @@ One line each; the ADR is the record.
   (p < 10⁻⁶) across 400 OSS reviewers. If that reproduces on a small enterprise team, a human
   gate silently decays into a rubber stamp.
 - **Known limit:** our reviewer pool is 18, so the published +6.7pp effect is undetectable at
-  our scale. What in-house measurement *can* do: detect a gross collapse in scrutiny under the
-  fixed ring. Scheduled rotation is deferred
-  ([ADR-0036](decisions/0036-constraint-audit-cuts.md) part 3) — measured drift appearing here
-  is what reintroduces it. **Do not present in-house drift numbers as validating or refuting
-  the 400-reviewer result.**
+  our scale. What in-house measurement *can* do: detect a gross collapse in scrutiny.
+  **The subject changed on 2026-08-12**
+  ([ADR-0056](decisions/0056-the-team-is-the-review-unit-the-ring-is-deleted.md)): the reviewer
+  is no longer a fixed pool of peers from another team but **the engineer inside the team, who
+  drove the session that produced the artifact**. That makes this question sharper, not
+  weaker — a change-request rate near zero at the plan or merge gate is the collapse, and it is
+  now the design's only guard on self-review. **Do not present in-house drift numbers as
+  validating or refuting the 400-reviewer result.**
 - **What would close it:** instrumented approval rate, change-request rate, and per-tier
   post-merge defect attribution, plus which countermeasures arrest drift.
 
@@ -559,19 +614,18 @@ One line each; the ADR is the record.
 
 ## OQ-10 — Who fills the platform owner role?
 
-- **Status:** open — a staffing fact the project owner holds, not a research question.
-- **Blocks:** starting the ASDLC at all. The tier configuration is a versioned, security-relevant
-  artifact reviewed at the strictest tier ([ADR-0003](decisions/0003-graduated-gating-machine-derived-tier.md),
-  [ADR-0006](decisions/0006-tier-function-and-greenfield-cold-start.md)); with no platform,
-  security, or infrastructure role in [context.md](context.md), it is unowned and unreviewable.
-- **What would close it:** two named people — one platform owner and one backup (a single holder
-  is a bus factor of one). Neither may be an AI solution engineer on a delivery team, or the
-  producer signs their own T1 changes.
-- **Scope of the role:** the tier function and map schema, the T3 allowlist, the CI gate policy,
-  the reviewer ring and its rotation, the review-competency record, the secrets boundary at the
-  agent runner, the `launched` flag, the runner admission contract
-  ([OQ-20](#oq-20--the-runner-admission-contract)), and the defect-attribution countersignature.
-  Signs every T1 merge.
+- **Status:** closed → [ADR-0055](decisions/0055-team-of-three-and-the-gate-signers.md)
+  (2026-08-12). **The question dissolved rather than being answered:** the owner stated there is
+  no platform-owner ceremony in this org and none is decided, so there is no role to fill.
+- **What replaced it:** every act the role held is a **T1 change reviewed by two ring
+  engineers** — the tier function and map, the T3 allowlist, the gate policy, the ring and the
+  competency record, the `launched` flag, the runner admission contract
+  ([OQ-20](#oq-20--the-runner-admission-contract)) and the defect-attribution countersignature.
+  Custody that cannot be reviewed — host administration, the signing key, the secrets boundary
+  — belongs to an **operator identity**: an account named at bring-up, not a seat.
+- **What this costs, recorded so it is not lost:** no single person is accountable for the
+  boundary end to end, and the operator identity's credential custody answers to a runbook
+  rather than to a named holder ([open-parameters.md](../rollout/open-parameters.md)).
 
 ## OQ-20 — The runner admission contract
 
@@ -586,7 +640,7 @@ One line each; the ADR is the record.
   replaces org-wide enforcement for a runner with no managed-settings equivalent.
 - **What would close it:** the contract as a checklist schema in [artifacts.md](artifacts.md);
   Claude Code shown passing it clause by clause with citations; the verification procedure
-  written so the platform owner can run it against any candidate.
+  written so anyone operating the platform can run it against any candidate.
 - **Variant answers:** the licensing clause diverges by construction — a runner can be
   admissible in the cloud variant and inadmissible self-hosted
   ([ADR-0010](decisions/0010-runner-licensing-token-spend-only.md)'s test, applied per runner).
@@ -654,3 +708,22 @@ One line each; the ADR is the record.
   any — landed in the design; gates converge across variants
   ([ADR-0039](decisions/0039-self-hosted-forks-on-the-assembly-axis.md)), so one table
   answers all three.
+
+## OQ-26 — Where the deploy gate's signature is cast
+
+- **Status:** open — opened by [ADR-0052](decisions/0052-gate-record-tooling.md) part 7.
+- **Blocks:** the deploy gate record, and with it the [phase-1 exit gate](../rollout/plan.md),
+  whose rehearsal requires every gate record to land in the observability store — including
+  the attested deploy's.
+- **The question:** the deploy gate is the only gate that is human at every tier
+  ([06-deploy.md](../asdlc/06-deploy.md)), its signer is the team leader, and its unit is a
+  batch — one service's merged changes since that service last deployed, resolved to one
+  artifact digest. **No act in any variant is defined as the casting of that signature.**
+  The pipeline that runs after it is designed; the approval it runs after is not. Consequences
+  that follow the choice: what the signer sees (the batch's tier breakdown is required
+  reading), what the record's `artifact_ref` binds to (the digest, never a tag —
+  [ADR-0017](decisions/0017-artifact-registry.md) part 4), and whether the batch is
+  reconstructible after the fact from host records alone.
+- **What would close it:** a decision record naming the signature surface per variant, the
+  batch's derivation from host records, and the trigger the signature releases; then the
+  gate-record job emits `deploy` records the same way it emits the change-scoped ones.

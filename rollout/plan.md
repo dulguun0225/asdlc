@@ -33,16 +33,13 @@ primary applies them. Reversal conditions are in the ADR.
 
 ## 2. Phase 0 — prerequisites (blockers, in dependency order)
 
-Nothing in phase 1 starts until all six exist. Items 1–3 are owner-held facts
-([OQ-10](../reference/open-questions.md), [context.md](../reference/context.md) "Not yet known").
+Nothing in phase 1 starts until all five exist. **No item here waits on a person being
+named**: there is no platform-owner role
+([ADR-0055](../reference/decisions/0055-team-of-three-and-the-gate-signers.md)), and the
+deployment target is settled as Kubernetes or Docker Compose
+([ADR-0054](../reference/decisions/0054-deployment-target-kubernetes-or-compose.md)).
 
-1. **Name the platform owner and backup.** Neither may be an AI solution engineer on a
-   delivery team. This role owns most artifacts in
-   [roles.md](../asdlc/roles.md) §4; every later step assumes it exists.
-2. **State the deployment target.** Kubernetes → [ADR-0011](../reference/decisions/0011-progressive-rollout.md)
-   stands as written; anything else → the deployment layer reopens before phase 4 (it does
-   not block phases 1–3).
-3. **Inventory the 18 engineers' operating systems; provision WSL2** for every Windows
+1. **Inventory the 18 engineers' operating systems; provision WSL2** for every Windows
    machine. The sandbox refuses to start on native Windows by design
    ([ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) part 3).
 4. **Create the Claude Console organisation:** members with the restricted Claude Code
@@ -76,7 +73,7 @@ Nothing in phase 1 starts until all six exist. Items 1–3 are owner-held facts
    6. Build the CI-side emitters for gate records and requirements traces, and import the three
       dashboards.
 
-## 3. Phase 1 — platform bring-up (platform owner, ~2–4 weeks)
+## 3. Phase 1 — platform bring-up (~2–4 weeks)
 
 Build and verify the shared artifacts before any team touches the system:
 
@@ -92,7 +89,7 @@ Build and verify the shared artifacts before any team touches the system:
   with no per-engineer step, and an edit to a committed skill copy fails CI. **Do this before
   the rehearsal below** — the rehearsal is supposed to exercise the stage procedures, not a
   hand-typed imitation of them.
-- The tier-function job, T3 proof checkers, requester check, and reassignment job
+- The tier-function job, T3 proof checkers and requester check
   implemented and tested against fixture repos ([tiers.md](../asdlc/tiers.md) §3,
   [05-merge.md](../asdlc/05-merge.md) §4, [roles.md](../asdlc/roles.md) §3).
 - **The feature-artifact checker** — seven blocking checks plus the merge-time requirement→test
@@ -111,18 +108,18 @@ Build and verify the shared artifacts before any team touches the system:
 
 **Exit gate for phase 1:** a rehearsal change walks the whole path on a fixture repository —
 spec, plan (with map entry), tasks check, agent implementation in sandbox, tier computed,
-ring review, merge, attested deploy — with every gate record landing in the observability
+review, merge, attested deploy — with every gate record landing in the observability
 store. A deliberate rule-1 change by the agent identity is rejected; a deliberate unmapped
 path fails CI naming the path; a deliberate edit to a signed spec breaks its pinned hash and
 fails the tasks check.
 
 ## 4. Phase 2 — pilot (default: 3 teams, one quarter; owner-adjustable)
 
-**Why 3 and not 1:** the ring needs at least three teams to be non-reciprocal (two teams
-reviewing each other is the mutual-pairing failure
-[ADR-0005](../reference/decisions/0005-roles-gate-signers-and-the-reviewer-ring.md) rejected). A 3-ring with
-`k=1` is the smallest honest instance. **Why a quarter:** it matches one ring-rotation
-period, so the pilot exercises exactly one rotation boundary.
+**Why 3 and not 1:** three teams is an appetite default, not a structural minimum — the reason
+the design once required three (a non-reciprocal reviewer ring) is gone
+([ADR-0056](../reference/decisions/0056-the-team-is-the-review-unit-the-ring-is-deleted.md)).
+Three still buys variance between teams, which one team cannot show. **Why a quarter:** it is
+long enough for defect attribution to accumulate against merged volume.
 
 Setup: three teams, each starting one greenfield repository; semi-strict thresholds as
 decided (T3 allowlist, T1 by rule, T2 default); `launched: false` floor T2; every deploy
@@ -135,8 +132,11 @@ human-signed.
   stage, from the Console workspace and OTel traces. This sets the per-tier session
   ceilings ([04-implementation.md](../asdlc/04-implementation.md) §3).
 - **Per-tier gate baselines** — approval rate, change-request rate, defect attribution,
-  revert rate, review latency, reassignment count
+  revert rate, review latency
   ([OQ-6](../reference/open-questions.md) baseline; drift needs time, but the baseline starts here).
+  **The sharpest of these is now the change-request rate at the plan and merge gates**, because
+  those are the two gates where the signer reviews their own commissioned work
+  ([ADR-0056](../reference/decisions/0056-the-team-is-the-review-unit-the-ring-is-deleted.md)).
 - **Gate friction facts** — how often rule 4 fires (expected: constantly, early), how often
   re-signing on tier escalation fires, deploy batch sizes.
 - **The rehearsed launch gate** — at least one pilot repository should flip `launched`
@@ -148,7 +148,7 @@ human-signed.
   ([ADR-0014](../reference/decisions/0014-feature-artifacts-and-the-traceability-chain.md)).
 
 **Abort criteria for the pilot** — new owner-adjustable defaults, like the pilot size (stop
-and redesign rather than push through): the ring's same-working-day SLA breaches chronically
+and redesign rather than push through): the same-working-day review cap breaches chronically
 for tool reasons (generalising the abort trigger
 [ADR-0009](../reference/decisions/0009-code-host.md) part 5 defines for the Gerrit case); the sandbox blocks
 legitimate work more than it blocks risk; per-developer-per-active-day spend sits an order
@@ -156,24 +156,24 @@ of magnitude above the vendor-published anchor (~$13/developer/active day, dated
 with no configuration explanation.
 
 **Exit gate for phase 2:** the measurement set above exists for a full quarter; no unresolved
-abort criterion; the platform owner signs a written go/no-go. Assigning that sign-off to the
-platform owner is itself a default the owner can move — no ADR allocates it.
+abort criterion; a written go/no-go is signed. **Who signs it is undecided** — no role in
+[roles.md](../asdlc/roles.md) §1 covers a decision about the life cycle itself, and
+[ADR-0055](../reference/decisions/0055-team-of-three-and-the-gate-signers.md) removed the role
+this plan used to assign it to. The owner allocates it, or takes it.
 
 ## 5. Phase 3 — widen to all 18 teams
 
-- Ring becomes the full 18-cycle at `k=1`; quarterly rotation through 1 → 5 → 7 → 11 → 13 →
-  17 begins ([ADR-0005](../reference/decisions/0005-roles-gate-signers-and-the-reviewer-ring.md) part 4).
 - Onboarding per team: WSL2/managed settings verified, Console membership, repo created
   from the phase-1 templates, first plan gate produces the first map entries.
 - Session spend ceilings set from pilot data.
-- The recorded review-competency list starts filling: team leaders who can sign plan gates
-  halve the ring's load — the highest-leverage staffing action available
-  ([ADR-0005](../reference/decisions/0005-roles-gate-signers-and-the-reviewer-ring.md) consequences).
 - **Widen gradually** (default: 5–6 teams per month over a quarter; owner-adjustable). The
-  constraint is the platform owner's attention, which is a bus factor of two by design.
+  constraint is the attention of whoever operates the platform, and with no role holding that
+  brief ([ADR-0055](../reference/decisions/0055-team-of-three-and-the-gate-signers.md)) the
+  widening rate is the one control over it.
 
-**Exit gate for phase 3:** all 18 teams operating; per-tier dashboards populated
-org-wide; first quarterly rotation completed without chronic reassignment.
+**Exit gate for phase 3:** all 18 teams operating; per-tier dashboards populated org-wide; a
+full quarter of per-tier defect attribution with no team's change-request rate at the plan or
+merge gate sitting at zero.
 
 ## 6. Phase 4 — deliberate relaxation (no calendar; evidence-gated)
 
@@ -207,9 +207,9 @@ Phases keep their shape; these items change when standing up the primary stack:
 - Phase 1 adds: submit requirements and code-owners plugin configuration; Zuul pipelines
   including the T1 human-vote requirement; **the provenance assembly design** — a named gap
   that must close before the first production deploy, not before the pilot.
-- Phase 2 adds one abort criterion: ring reviewers unable to operate the Gerrit review
-  model after the quarter (the ADR-0009 part 5 abort trigger → Forgejo fallback with its
-  recording gap accepted in writing).
+- Phase 2 adds one abort criterion: engineers unable to operate the Gerrit review model after
+  the quarter (the ADR-0009 part 5 abort trigger → Forgejo fallback with its recording gap
+  accepted in writing).
 - And the replacements, not only additions: phase 0 item 5 (the GitHub organisation) is
   replaced by the Gerrit/Zuul stand-up; phase 1's ruleset, CODEOWNERS, and fork-PR items are
   replaced by the submit-requirement, code-owners-plugin, and Zuul-pipeline configuration of
@@ -231,7 +231,7 @@ Phases keep their shape; these items change when standing up the primary stack:
 | Promo pricing normalises upward | ADR-0009/0010 | re-check at procurement and at each renewal |
 | Vendor billing model changes | ADR-0010 | re-verify before procurement; reopen on per-seat fees |
 | Deployment target ≠ Kubernetes | ADR-0011 | reopen the deployment layer before phase 4 |
-| Platform owner bus factor | ADR-0005, OQ-10 | named backup is part of the phase-0 blocker, not optional |
+| Nobody holds the platform brief | ADR-0055 | every platform artifact is a T1 change with two ring-engineer readers; custody sits with an operator identity, and its runbook is an open parameter |
 
 ## 9. What this plan does not decide
 

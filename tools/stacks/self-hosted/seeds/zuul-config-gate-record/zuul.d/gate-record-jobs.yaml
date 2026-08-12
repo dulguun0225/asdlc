@@ -1,0 +1,37 @@
+# The gate-record job (ADR-0052). It runs after the merge, not at the vote:
+# a vote that never merges is not a gate that was passed, and the tier binds
+# at merge (ADR-0008 part 6).
+- pipeline:
+    name: record
+    description: |
+      Post-merge transcription of the human signatures on a change into
+      gate records (artifacts.md section 3). Independent manager: each
+      merged change is recorded on its own.
+    manager: independent
+    trigger:
+      gerrit:
+        - event: change-merged
+
+- job:
+    name: gate-record
+    description: |
+      ADR-0052: for one merged change, work out which gates it closed,
+      transcribe every approving human vote into a gate record, post each
+      record onto the change as the authoritative copy, and emit the
+      derived copy to the collector on the gate-records stream.
+    parent: null
+    nodeset:
+      nodes: []
+    run: playbooks/gate-record/emit.yaml
+    required-projects:
+      - zuul-config
+      - pilot
+    secrets:
+      - name: gate_record_gerrit
+        secret: gate-record-gerrit
+
+- project:
+    name: pilot
+    record:
+      jobs:
+        - gate-record

@@ -27,9 +27,9 @@ node provenance.mjs          # the provenance chain (ADR-0018), end to end
 node observability.mjs       # collector + Prometheus + Loki + Grafana (ADR-0015)
 node codeowners.mjs          # T1 path ownership (§5) — configure-before-install
 node buildjobs.mjs           # build rows: tier-function + never-write (ADR-0006/0008)
-node ringjob.mjs             # last build row: ring + reassignment (ADR-0005 §4–5)
 node basejob.mjs             # real base job: workspace sync + stored logs (jobs2)
 node skillsjob.mjs           # ADR-0032 §3 byte-equality row — pilot must carry the delivered skills
+node gaterecordjob.mjs       # ADR-0052: gate records, written onto the change and to Loki
 node rollout.mjs             # sequenced slice: kind + Flagger (ADR-0011) — stop Harbor first
 node auth.mjs                # ADR-0044: Keycloak, oauth plugin, the migration probe
 ```
@@ -60,7 +60,7 @@ Nothing under `.secrets/` or `.harbor/` may ever be committed.
 
 | Identity | Groups | §5 rule it implements |
 |---|---|---|
-| `platform-owner`, `platform-owner-backup` | Administrators, humans | Administrate Server held by the platform owner and backup; ACL changes are theirs alone |
+| `platform-owner`, `platform-owner-backup` | Administrators, humans | The **operator identity** ([ADR-0055](../../../reference/decisions/0055-team-of-three-and-the-gate-signers.md)): Administrate Server, so ACL changes are theirs to apply. The account names predate that record and are kept to avoid churn across every script — they are host administration, not a life-cycle role, and they sign no gate |
 | `engineer` | humans | day-to-day identity; commissions work |
 | `cft-lead` | humans | reviewer |
 | `agent` | Service Users | the agent identity — no write anywhere; its work arrives via `refs/for/` like anyone's |
@@ -108,10 +108,11 @@ So absence is stated rather than absorbed:
   convenience key, distinct from the config-project signing key `provenance.mjs` lands. The
   rollout slice is sequenced, not resident: `rollout.mjs` deletes its kind cluster at the end
   and Harbor restarts.)
-- **The CI emitters for gate records and requirements traces** (ADR-0015's "new build task").
-  The observability slice fixes the stream contract they must hit — resource attribute
-  `service.name` = `gate-records` or `requirements-traces` — but nothing emits real records
-  yet; the smoke record says so in its body.
+- **The CI emitter for requirements traces** (the second half of ADR-0015's "new build task").
+  The observability slice fixes the stream contract it must hit — resource attribute
+  `service.name` = `requirements-traces` — but nothing emits a real trace yet; the smoke
+  record says so in its body. **Gate records are emitted** as of 2026-08-12 —
+  `gaterecordjob.mjs`, [ADR-0052](../../../reference/decisions/0052-gate-record-tooling.md).
 
 ## Runtime facts this definition's instance is authority for (2026-08-10, Gerrit 3.14.2 / Zuul 14.2.0)
 
@@ -412,27 +413,59 @@ So absence is stated rather than absorbed:
   bit at plan time: the procedure demands signature confirmation, and the engineer's
   attestation of the merged change stood in.
 
-## Runtime facts — ring + reassignment (2026-08-10, `ringjob.mjs`)
+## Deleted 2026-08-12: the ring slice
 
-- **The last build row runs**: `ring-assign` fires every five minutes from a `periodic`
-  (timer) pipeline, trusted, under the CI identity's Gerrit credential (a config-project
-  secret). All probes held: a fresh engineer change got the ring reviewer assigned
-  (team-01 + k=5 → team-06 = cft-lead); with the SLA forced to 1 s and the ring reviewer
-  silent, the sweep added team i+2k (team-11) and the breach record
-  `{change, from, to, breached_at}` landed on the `ring-reassignments` Loki stream; a second
-  sweep emitted nothing (the i+2k reviewer's presence is the idempotency marker); one
-  periodic build observed SUCCESS.
-- **The ring config is artifacts.md §4's schema verbatim** (`ring.yaml`, offset fixed at 5
-  per ADR-0036 §3; the job refuses to run on an offset not coprime to 18). Team-to-account
-  resolution is deliberately outside the schema — `ring-contacts.yaml` is this rig's wiring;
-  an org holds it in its directory. Producers without a contacts entry are reported, never
-  silently skipped.
-- **"Same-working-day" is interpreted as calendar-date advance** past the change's upload
-  date; weekend/holiday handling is a bring-up refinement. `RING_SLA_SECONDS` overrides for
-  probes.
-- **`no_log: true` censors the registered result entirely** — a follow-up `debug` of
-  `stdout_lines` fails with *"sequence was empty"*. A trusted playbook that must not log its
-  command (credentials in `environment:`) therefore has no output task; the sweep's visible
-  record is Gerrit's reviewer updates and the Loki stream.
-- **Gerrit 3.14's change-list endpoint has no `REVIEWERS` option** — the reviewer set comes
-  from `o=DETAILED_LABELS` (`labels.*.all` carries every reviewer, zero votes included).
+`ringjob.mjs` and `seeds/zuul-config-ring/` are gone, with the reviewer ring itself
+([ADR-0056](../../../reference/decisions/0056-the-team-is-the-review-unit-the-ring-is-deleted.md),
+owner-directed: a team reviews its own work). Two facts that outlived it and still apply to any
+trusted, credential-carrying job here: a `periodic` timer pipeline runs fine under the CI
+identity, and **`no_log: true` censors the registered result entirely** — a follow-up `debug` of
+`stdout_lines` fails with *"sequence was empty"* — so such a playbook has no output task.
+
+**Rig drift to know about:** a rig bootstrapped before 2026-08-12 still carries the ring job in
+its `zuul-config`, because the definition's removal does not reach an already-seeded instance.
+A fresh `bootstrap.mjs` is clean; an existing rig needs the ring files removed by a change
+through the gate.
+
+## Runtime facts — gate records (2026-08-12, `gaterecordjob.mjs`, Gerrit 3.14.2 / Zuul 14.2.0)
+
+- **The record job runs post-merge**, from a `record` pipeline triggered on Gerrit's
+  `change-merged` event, trusted, under the CI identity's Gerrit credential (a config-project
+  secret) — so an agent-authored change cannot write its own gate record
+  ([ADR-0052](../../../reference/decisions/0052-gate-record-tooling.md) part 1). `zuul.change`
+  is populated on that event, which is what the job is given.
+- **All probes held**: a docs-only change approved by cft-lead and merged through the real gate
+  produced one `merge` record (tier 3, rule 5) carrying cft-lead as signer, `user:engineer` as
+  requester and the 05-merge.md assertion verbatim; the record's `artifact_hash` matched an
+  independently computed sha256 of the revision's patch; the derived copy was queryable on the
+  `gate-records` Loki stream; a change carrying `specs/001-…/spec.md` produced `spec` and
+  `merge` records, the spec record hashing the spec text and computing tier 1 rule 1 (the same
+  change declared the paths in the tier map); a re-run wrote nothing.
+- **Which gates a change closed is read from its *changed* paths.** A change that rewrites
+  `spec.md` with identical bytes does not list the file, so no `spec` record fires — correct
+  (nothing was signed that was not already signed), and a trap for any probe that reuses a
+  fixture unchanged.
+- **The `launched: false` floor beats a map-declared tier 1**, visible in the records: a spec
+  change whose paths the map already declares tier 1 records as tier 2, because rule 3's
+  production conditions sleep until the launch gate ([tiers.md](../../../asdlc/tiers.md) §6).
+  The same change *declaring* those paths records as tier 1 rule 1 — it touched the map.
+- **The signer's role is configuration, and an unlisted signer records as `unknown`.** Roles are
+  the three team roles ([ADR-0056](../../../reference/decisions/0056-the-team-is-the-review-unit-the-ring-is-deleted.md));
+  the job reads a `GATE_ROLES` map, and the rig's cast is `engineer=engineer,
+  cft-lead=team-leader`. A role this rig cannot name is never guessed from an account name.
+- **Gerrit prepends `Patch Set N:` to every posted message**, so the `ASDLC-Gate-Record v1`
+  marker is *contained in* the message, never its first byte. A reader matches the marker and
+  parses from the first `{` — matching on the message's start would find nothing.
+- **The message carries `tag: asdlc:gate-record`.** Gerrit stores and returns non-`autogenerated:`
+  tags unchanged, so the records are filterable without being folded away as machine chatter
+  in the UI (Gerrit hides `autogenerated:` messages behind a toggle; this tag is not one).
+- **A review can be posted on a MERGED change** — the record lands after submit, which is what
+  makes post-merge transcription possible at all.
+- **Vote timestamps arrive as `2026-08-12 06:26:59.000000000`** (UTC, no zone marker) from
+  `o=DETAILED_LABELS`; the record's `signed_at` is that value as ISO 8601 Z.
+- **Robot comments are not an option on this version**: deprecated in Gerrit 3.8 and removed in
+  3.9 (upstream announcement 2023-03-16). The replacement Checks API models check results, not
+  signatures. Do not reintroduce either as the gate record's home.
+- **Deletion is bounded**: only holders of the Administrate Server capability can delete a change
+  message, and deletion replaces the text with one naming the deleter and the reason (Gerrit REST
+  documentation, checked 2026-08-12) — a gate record cannot be removed silently by a team.

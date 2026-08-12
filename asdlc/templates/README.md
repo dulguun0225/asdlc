@@ -15,7 +15,7 @@ of the rules; the files are there.
 | Template | Becomes | Stage | Signed by |
 |---|---|---|---|
 | [asdlc-spec/template.md](../../skills/asdlc-spec/template.md) | `specs/<NNN>-<slug>/spec.md` | [1. Spec](../01-spec.md) | domain owner (T1); at T2 the plan signer asserts it too |
-| [asdlc-plan/template.md](../../skills/asdlc-plan/template.md) | `specs/<NNN>-<slug>/plan.md` | [2. Plan / design](../02-plan.md) | ring reviewer, or a review-competent team leader |
+| [asdlc-plan/template.md](../../skills/asdlc-plan/template.md) | `specs/<NNN>-<slug>/plan.md` | [2. Plan / design](../02-plan.md) | the team's engineer |
 | [asdlc-tasks/template.md](../../skills/asdlc-tasks/template.md) | `specs/<NNN>-<slug>/tasks.md` | [3. Tasks](../03-tasks.md) | nobody — automated check only |
 
 **The shipped files cite no record.** A consumer installs skills, not this design, so a template

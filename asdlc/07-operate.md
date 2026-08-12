@@ -33,15 +33,20 @@ part 4) — whatever the tooling claims. Its human-signed deploys may still use 
 **Identical, if the deployment target is Kubernetes** — Flagger, at zero licence cost, on both
 sides.
 
-**Off Kubernetes they diverge sharply**, and the target is an owner-held unknown
-([context.md](../reference/context.md) "Not yet known"):
+**The target is Kubernetes or Docker Compose**
+([ADR-0054](../reference/decisions/0054-deployment-target-kubernetes-or-compose.md),
+owner-stated 2026-08-12), declared per service in its plan:
 
 | | Cloud | Self-hosted |
 |---|---|---|
-| Off-Kubernetes answer | AWS CodeDeploy — **verified for AWS only**; other clouds unchecked | **None.** No verified licence-cost-free mechanism exists |
+| Off-Kubernetes answer | AWS CodeDeploy — **verified for AWS only**; other clouds unchecked | **Docker Swarm mode**: the same compose file through `docker stack deploy`, `failure_action: rollback` with a `monitor` window, plus a post-deploy watch window we write |
 
-If the target is not Kubernetes, ADR-0011's self-hosted answer **reopens**
-([ADR-0011](../reference/decisions/0011-progressive-rollout.md) part 5).
+**On the Compose target there is no traffic-percentage canary and no metric-gated analysis.**
+Swarm shifts replicas, not traffic shares, and rolls back on task health. An `NFR-nnn` whose
+enforcement point is a canary threshold is therefore not enforced by the platform there: the
+plan signer accepts that, or the service targets Kubernetes. The watch window — a Prometheus
+query over the monitor window that calls `docker service update --rollback` on breach — is a
+rollback trigger with a metric source, and is not canary analysis.
 
 ## 2. The drill
 
@@ -64,7 +69,7 @@ Four record families, all exported by **OpenTelemetry** from every agent session
 2. **Gate records** — signer, assertion, artifact hash, computed tier, and the rule that
    fired, for every signature at every gate.
 3. **Per-tier metrics** — volume, approval rate, change-request rate, post-merge defect
-   attribution, revert rate, deploy batch size, reviewer-reassignment count, and — added by
+   attribution, revert rate, deploy batch size, review latency, and — added by
    [ADR-0019](../reference/decisions/0019-testing-agent-written-code.md) — **flaky-test rate** and
    **surviving-mutant rate at T1**, plus **changes per session**
    ([ADR-0021](../reference/decisions/0021-units-of-work.md)). The testing pair makes that strategy
@@ -167,7 +172,7 @@ change's recorded `tier`. The path uses records that already exist:
 requirements trace names the changes that touched a requirement's tests and plan elements, which is
 usually a candidate set of one or two. Blame tooling produces **candidates, never a verdict** — it
 is well attested to misattribute refactorings and tangled commits. **The investigating engineer
-names the change; the platform owner countersigns**, because a producer may not classify their own
+names the change; the team leader countersigns**, because a producer may not classify their own
 work after the fact any more than before it.
 
 | Case | Rule |

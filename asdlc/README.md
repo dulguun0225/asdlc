@@ -48,12 +48,12 @@ flowchart TD
     SPEC["1. Spec<br/>agent drafts, engineer drives"]
     SG(["Spec gate — domain owner<br/>T1 only; at T2 the plan signer asserts both"])
     PLAN["2. Plan / design<br/>agent drafts<br/>new paths must declare their tier here"]
-    PG(["Plan gate — ring reviewer,<br/>or a review-competent team leader"])
+    PG(["Plan gate — the team's engineer"])
     TASKS["3. Tasks<br/>mechanical decomposition"]
     TC{{"automated consistency check<br/>no human gate"}}
     IMPL["4. Implementation — the agent session<br/>own identity, OS sandbox, no plaintext secrets,<br/>egress deny-by-default, spend ceiling, full tool trace"]
     TIER{{"Tier computed on the final diff — binding<br/>6 ordered rules, first match wins, fail-safe to T1"}}
-    MG(["5. Merge gate<br/>T1: platform owner + ring reviewer<br/>T2: ring reviewer<br/>T3: automated checks only"])
+    MG(["5. Merge gate<br/>T1: engineer + team leader<br/>T2: engineer<br/>T3: automated checks only"])
     DG(["6. Deploy gate — team leader<br/>human at T1/T2; proven-preserving T3 unsigned"])
     OPS["7. Operate<br/>progressive rollout, canary analysis,<br/>automated rollback on SLO breach"]
     METRICS[("per-tier metrics<br/>gate records<br/>session traces")]
@@ -73,7 +73,7 @@ agent output volume ([ADR-0005](../reference/decisions/0005-roles-gate-signers-a
 
 | # | File | What it answers |
 |---|---|---|
-| — | [roles.md](roles.md) | Who exists, who may sign what, and the reviewer ring |
+| — | [roles.md](roles.md) | Who exists and who may sign what |
 | — | [tiers.md](tiers.md) | How a change's tier is computed, and which gates each tier gets |
 | — | [templates/](templates/README.md) | The three artifacts a feature produces, the traceability chain through them, and where the blanks ship |
 | — | [skills/](skills/README.md) | The four stage procedures the agent is given, and how they reach an engineer |
@@ -115,7 +115,7 @@ Standing reopen triggers, headline set — each ADR carries its own full conditi
 - A non-Kubernetes deployment target reopens the self-hosted rollout answer.
 - A per-seat fee on the Console path, or API-key authentication ceasing to be a supported
   mode, reopens the runner licensing.
-- Ring reviewers demonstrably unable to operate Gerrit after a quarter of reviewing triggers
+- Engineers demonstrably unable to operate Gerrit after a quarter of reviewing triggers
   the Forgejo fallback.
 - Flagger's rollback semantics or licence changing, or drill evidence showing the abort path
   failing, reopens the deployment layer.
@@ -126,8 +126,7 @@ Standing reopen triggers, headline set — each ADR carries its own full conditi
 Blockers, not tasks — see [rollout plan](../rollout/plan.md) phase 0 for the full list with
 dependencies.
 
-1. **Platform owner and backup named** ([OQ-10](../reference/open-questions.md)).
-2. **Deployment target known.**
+1. **Deployment target chosen** — Kubernetes or Docker Compose ([ADR-0054](../reference/decisions/0054-deployment-target-kubernetes-or-compose.md)).
 3. **WSL2 provisioned** for every Windows-based engineer — the sandbox refuses to start
    without it, by design.
 4. **Claude Console organisation** with spend limits.

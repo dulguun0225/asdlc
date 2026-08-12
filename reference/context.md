@@ -83,12 +83,16 @@ teams.
 These are consequences, recorded here so the chain from fact to decision is visible. The
 decisions themselves are in the ADRs.
 
-- **One engineer per team means intra-team peer review of code is impossible.** A peer
-  pool of one is not a peer pool. Settled by
-  [ADR-0005](decisions/0005-roles-gate-signers-and-the-reviewer-ring.md).
-- **No platform, security, or infrastructure role is named.** All 54 people are on
-  product-facing teams. That leaves the tier configuration, the CI gate policy, the
-  secrets boundary, and any shared library unowned — and
+- **One engineer per team means code review has no second engineer.** The owner's constraint
+  (2026-08-12) is that a team's work stays inside that team, so the plan and merge gates are
+  signed by the engineer who drove the session, and the team leader signs beside them at T1.
+  Settled by [ADR-0056](decisions/0056-the-team-is-the-review-unit-the-ring-is-deleted.md);
+  what it gives up, and how that is measured, is in the record.
+- **No platform, security, or infrastructure role is named, and none is decided**
+  ([ADR-0055](decisions/0055-team-of-three-and-the-gate-signers.md)). All 54 people are on
+  product-facing teams. The tier configuration, the CI gate policy, the secrets boundary and
+  any shared library are therefore held by T1 review and an operator identity rather than by a
+  role — and
   [ADR-0003](decisions/0003-graduated-gating-machine-derived-tier.md) requires the tier
   configuration to be a reviewed, security-relevant artifact. ADR-0005 names this as a
   **required addition to the org structure**, and the ASDLC cannot start without it.
@@ -106,13 +110,10 @@ Facts the owner holds that are still missing. Each is stated as what it blocks.
 - **Is the team leader competent to review code?** Unstated. ADR-0005 avoids assuming
   either way by keying the plan/design gate to a *declared* competency rather than to
   the job title.
-- **What are the greenfield projects?** Domain, language, and deployment target are all
-  unknown. This blocks a concrete path→tier map (the *schema* is settled by ADR-0006;
-  the *contents* need the code). The **deployment target** is separately load-bearing for
-  [ADR-0011](decisions/0011-progressive-rollout.md): on Kubernetes the progressive-rollout answer
-  converges at zero licence cost; off Kubernetes the self-hosted variant currently has no
-  verified mechanism and that record reopens.
-- **Who fills the platform owner role?** [OQ-10](open-questions.md).
+- **What are the greenfield projects?** Domain and language are unknown. This blocks a concrete
+  path→tier map (the *schema* is settled by ADR-0006; the *contents* need the code). The
+  **deployment target is answered**: Kubernetes or Docker Compose (owner, 2026-08-12), and both
+  have a rollout mechanism ([ADR-0054](decisions/0054-deployment-target-kubernetes-or-compose.md)).
 - **How many projects run at once, and does each CFT own one?** Affects whether the tier
   configuration is per repository or centralised.
 - **What language are specs authored in?** The templates

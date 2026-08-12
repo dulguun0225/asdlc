@@ -103,7 +103,7 @@ widen your own permissions, and you cannot ask a human to widen them either — 
 fails. If a task appears to require one, that is a plan defect: stop and report it.
 
 A team does change its project `CLAUDE.md` and `.claude/rules/`. A human proposes it and the
-platform owner signs it at T1. You do not do it inside a session.
+it is signed at T1. You do not do it inside a session.
 
 ## What you may never assert
 

@@ -58,7 +58,7 @@ is a phase-0 blocker.
 **Forgejo is host, CI (Forgejo Actions) and container registry in a single installation** —
 this is the variant's defining consolidation: Gerrit + Zuul + Harbor become one system, and
 the review model becomes **pull requests, converging with the cloud variant** (one review
-model to train; the ring/reassignment job speaks one model through two APIs). The registry
+model to train). The registry
 half of the consolidation is in the next section, on the same rows every sheet uses
 ([ADR-0042](../reference/decisions/0042-stack-sheets-share-one-layer-taxonomy.md)).
 
@@ -96,7 +96,7 @@ gap.
 | Artifact registry | **Forgejo container registry** — *"follows the OCI specs"* (docs, 2026-08-06) | part of Forgejo | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) (mechanism); [ADR-0039](../reference/decisions/0039-self-hosted-forks-on-the-assembly-axis.md) (product) | **verify** — the attestation chain depends on the attestation-attachment row below; verify end to end before the first deploy | [deploy](../asdlc/06-deploy.md) §3 |
 | Registry fallback | **zot** — single binary | **Apache 2.0**; CNCF Sandbox | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §7 | contingency — fires if the referrers verification fails; still two systems instead of three | — |
 | Attestation attachment | **OCI referrers API** — `/v2/<name>/referrers/<digest>` | open standard | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §1 | **verify** — **Forgejo's referrers support is unstated in its docs** (§3 item 2). Failure → zot | [deploy](../asdlc/06-deploy.md) §3 |
-| Registry access | agent: **no credential**; CI: push; deploy: pull + verify; delete: platform owner at T1 | — | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §3 | decided — forced by [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §5: registry tokens are a `deny`, not a `mask` | [session](../asdlc/04-implementation.md) |
+| Registry access | agent: **no credential**; CI: push; deploy: pull + verify; delete: T1 review | — | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §3 | decided — forced by [ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md) §5: registry tokens are a `deny`, not a `mask` | [session](../asdlc/04-implementation.md) |
 | Artifact addressing | **digest, never tag** | — | $0 | [ADR-0017](../reference/decisions/0017-artifact-registry.md) §4 | decided | [deploy](../asdlc/06-deploy.md) §3 |
 
 ### Deployment — identical to the assembled variant
@@ -104,7 +104,7 @@ gap.
 | Layer | Component | Licence / plan | Cost | Decided by | Status | Rules |
 |---|---|---|---|---|---|---|
 | Progressive rollout (Kubernetes) | **Flagger**; Argo Rollouts the named alternative | Apache 2.0 | $0 licence | [ADR-0011](../reference/decisions/0011-progressive-rollout.md) §1 | **conditional** on the target being Kubernetes | [operate](../asdlc/07-operate.md) §1 |
-| Progressive rollout (off Kubernetes) | — | — | — | [ADR-0011](../reference/decisions/0011-progressive-rollout.md) §5 | **no verified licence-cost-free mechanism exists** | [operate](../asdlc/07-operate.md) §1 |
+| Progressive rollout (Docker Compose target) | **Docker Swarm mode** + the post-deploy watch window, as the assembled sheet | **Apache 2.0** (in the engine) | $0 licence | [ADR-0054](../reference/decisions/0054-deployment-target-kubernetes-or-compose.md) | decided — not yet demonstrated; the metric source is **Prometheus**, not SigNoz, for the same reason Flagger cannot read SigNoz | [operate](../asdlc/07-operate.md) §1 |
 | Canary traffic | load-testing webhook or equivalent | Apache 2.0 | $0 | [ADR-0011](../reference/decisions/0011-progressive-rollout.md) §3 | decided — required | [operate](../asdlc/07-operate.md) §1 |
 | Ingress / mesh | any Flagger-supported ingress controller; no mesh required | — | $0 | [ADR-0011](../reference/decisions/0011-progressive-rollout.md) §1 | **not selected** — a Kubernetes-platform choice this design leaves open | — |
 
@@ -158,7 +158,7 @@ there applies to this variant unchanged.
 | Platform licences | **$0** — the variant keeps the assembled variant's defining property | high |
 | Model tokens | Rate table sourced and dated in [OQ-7](../reference/open-questions.md#oq-7--what-are-the-per-unit-of-agent-work-economics) | rates certain, volume unknown |
 | Infrastructure | Forgejo, SigNoz + ClickHouse, the collector, and Kubernetes + Flagger + **Prometheus** if applicable (Flagger cannot read SigNoz — §1 observability table, 2026-08-11) — **three-ish systems against the assembled variant's six-plus, four-ish on a Kubernetes deploy target** | **unquantified** |
-| Operations labour | Lower than the assembled variant by construction — this is the variant's purpose — but still on the platform owner role, and **still unquantified** | flagged, as in every variant |
+| Operations labour | Lower than the assembled variant by construction — this is the variant's purpose — but still on whoever operates the platform, and **still unquantified** | flagged, as in every variant |
 
 The prompt-cache and batch-pricing caveats of the assembled variant apply unchanged
 ([ADR-0010](../reference/decisions/0010-runner-licensing-token-spend-only.md),
@@ -182,11 +182,11 @@ Each is a recorded unknown; a negative result is a successful verification.
 ## 4. Host configuration — the compensating controls are not optional
 
 From [ADR-0009](../reference/decisions/0009-code-host.md) §5's fallback configuration, now
-this variant's standing configuration, owned by the platform owner and changed only at T1.
+this variant's standing configuration, changed only at T1.
 A runnable local instance of this configuration (bring-up and pilots, not production):
 [`tools/stacks/self-hosted-integrated/`](../tools/stacks/self-hosted-integrated/README.md).
 
-- **The admin role is held only by a break-glass account** of the platform owner; no
+- **The admin role is held only by a break-glass account** of the operator identity; no
   day-to-day identity can override protection.
 - **`enforce_on_admins` on every protection rule.** The binding option is settable by the
   population it binds — that residual is part of accepted loss 1.

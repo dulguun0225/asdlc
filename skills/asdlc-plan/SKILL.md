@@ -1,6 +1,6 @@
 ---
 name: asdlc-plan
-description: Draft a feature plan for the ASDLC plan/design stage — architecture, contracts, requirements traceability, tier-map entries for every new path, and non-functional enforcement. Use after the spec is signed. Produces specs/<NNN>-<slug>/plan.md for a ring reviewer to sign. This is the heaviest gate in the life cycle.
+description: Draft a feature plan for the ASDLC plan/design stage — architecture, contracts, requirements traceability, tier-map entries for every new path, and non-functional enforcement. Use after the spec is signed. Produces specs/<NNN>-<slug>/plan.md for the team's engineer to sign. This is the heaviest gate in the life cycle.
 argument-hint: "[NNN-kebab-slug]"
 disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Edit(specs/**), Bash(git log *), Bash(git show *), Bash(sha256sum *), Bash(shasum *), PowerShell(Get-FileHash *), PowerShell(git log *), PowerShell(git show *), AskUserQuestion
@@ -87,7 +87,7 @@ greenfield work; it is measured, not tolerated silently.
 ## §8 — Non-functional enforcement
 
 One row per `NFR`. A `canary` row is a **proposal** for the service's progressive-rollout policy;
-the platform owner sets the final value at T1.
+the final value is set at T1.
 
 Off Kubernetes the canary route may not exist. If that is this service's situation, say so and fall
 back to `test` or `none` with a reason — do not propose a threshold that has nothing to enforce it.

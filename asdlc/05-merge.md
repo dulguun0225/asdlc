@@ -5,7 +5,7 @@
 | | |
 |---|---|
 | **Artifact** | the final diff |
-| **Gate** | **T1:** platform owner **+** ring reviewer. **T2:** ring reviewer. **T3:** automated checks only. |
+| **Gate** | **T1:** engineer **+** team leader. **T2:** engineer. **T3:** automated checks only. |
 | **The assertion** | *This change implements the plan and I would own it.* |
 
 ## 1. The binding tier
@@ -27,9 +27,11 @@ T1 work between signature and merge
 - **Producer and requester cannot approve** ([roles.md](roles.md) §2). Enforcement differs by
   variant — §3.
 - **Approval binds to the artifact hash.** A new push invalidates the approval in effect.
-- **Review latency is capped at same-working-day (T2).** Breach **auto-reassigns** to the next
-  engineer in the ring and is recorded. Reassignment rather than queueing, because a queue
-  lets batches grow ([roles.md](roles.md) §3).
+- **Review latency is capped at same-working-day (T2), and the cap is measured rather than
+  enforced.** With the reviewer inside the team there is nobody to reassign to
+  ([ADR-0056](../reference/decisions/0056-the-team-is-the-review-unit-the-ring-is-deleted.md));
+  breaches are recorded per team and read beside batch size, which is what a slipping cap
+  inflates ([roles.md](roles.md) §3).
 - **For T1 changes, CI execution itself is human-authorised** before any workflow runs on
   agent-authored code
   ([ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) part 7).
@@ -68,7 +70,7 @@ the design after provenance.
 | Blocking review, named signer | Rulesets: require PR + approvals | Submit requirements on labels | Branch protection: blocking reviews |
 | **Producer cannot approve** | Hardcoded: authors cannot approve own PRs | `user=non_contributor` (excludes author, committer, uploader in one rule) | Hardcoded author block |
 | **Requester cannot approve** | **Not native for our runner** — enforced by a CI check we write, against the session record | **Native by construction**: agent is a Service User, change is owned by the requester, `users=human_reviewers` ignores both | As cloud: the CI check we write |
-| Platform owner on T1 paths | CODEOWNERS + require code-owner review (owner + backup only) | code-owners plugin, blocking submit rule, implicit self-approval off | code-owners mechanism — **verify** ([sheet](../variants/self-hosted-integrated.md) §3) |
+| Second reviewer on T1 paths | CODEOWNERS + require code-owner review (owner + backup only) | code-owners plugin, blocking submit rule, implicit self-approval off | code-owners mechanism — **verify** ([sheet](../variants/self-hosted-integrated.md) §3) |
 | Bypass surface | Empty ruleset bypass list binds admins | Nobody granted Push on `refs/heads/*`; overrides are recorded votes | Break-glass admin only; `enforce_on_admins` everywhere |
 | Bypass recording | Audit log: `protected_branch.policy_override`, ruleset events; 180-day UI, streaming at Enterprise Cloud | NoteDb in-repo (default-logged, **not guaranteed append-only**); ACLs versioned on `refs/meta/config` | **None native — the variant's accepted loss.** External logging of webhook-visible events |
 | **CI gated on a human (T1)** | Agent identity holds no write access → fork-PR approval gates. Public-repo caveat; pipeline-level gate until verified | Zuul pipeline `require` on a human vote — **unconditional, pre-enqueue**. The only such gate found on any stack | Pipeline-constructed gating job — **the variant's other accepted loss** |

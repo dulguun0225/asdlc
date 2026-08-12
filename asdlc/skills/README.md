@@ -115,11 +115,12 @@ one-command verifications; the rest is in [rollout/plan.md](../../rollout/plan.m
 
 ## Not yet specified
 
-- **No `PreToolUse` hook is defined.** Hooks are the enforcement layer
-  ([ADR-0020](../../reference/decisions/0020-agent-instruction-layers.md) option 4) and which
-  specific hook, if any, should back a stage rule is still a bring-up design task. The candidate
-  with the clearest value: reject a write to a path outside `specs/<NNN>-<slug>/` while the spec or
-  plan skill is active, since that is the boundary the turn-scoped `allowed-tools` cannot hold.
+- **No `PreToolUse` hook is defined, and none is specified**
+  ([ADR-0053](../../reference/decisions/0053-no-stage-scoped-pretooluse-hook.md)). The candidate
+  with the clearest value — reject a write outside `specs/<NNN>-<slug>/` while the spec or plan
+  skill is active — is not buildable: the hook's input names no active skill, so the condition is
+  unobservable where it would be enforced. That boundary is held by the sandbox, the never-write
+  list and the merge gate instead. The record names what would reopen it.
 - **These procedures have one recorded end-to-end run.** Written against the templates and the
   ADRs on 2026-07-28; on 2026-08-11 one feature was taken through all four stages on the
   assembled variant's local rig

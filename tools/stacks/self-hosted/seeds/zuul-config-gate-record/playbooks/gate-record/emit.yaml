@@ -1,0 +1,27 @@
+# Trusted context: the Gerrit credential is this config project's secret and
+# never reaches a proposed change, so an agent-authored change cannot write
+# its own gate record (ADR-0052 part 1).
+- hosts: localhost
+  vars:
+    config_src: >-
+      {{ zuul.executor.work_root }}/{{ (zuul.projects.values()
+         | selectattr('short_name', 'equalto', 'zuul-config')
+         | first).src_dir }}
+    repo_src: >-
+      {{ zuul.executor.work_root }}/{{ (zuul.projects.values()
+         | selectattr('short_name', 'equalto', zuul.project.short_name)
+         | first).src_dir }}
+  tasks:
+    - name: Transcribe the change's gate signatures into gate records
+      command: >-
+        /opt/stack-bin/node {{ config_src }}/scripts/gate-record.mjs
+        {{ zuul.change }} {{ repo_src }} {{ config_src }}/scripts/tier-function.mjs
+      environment:
+        GERRIT_URL: http://gerrit:8080
+        GERRIT_USER: "{{ gate_record_gerrit.user }}"
+        GERRIT_PASSWORD: "{{ gate_record_gerrit.password }}"
+        OTLP_URL: http://172.17.0.1:4318
+      # As the ring sweep: no_log censors the registered result entirely, so
+      # the job's visible record is the change messages in Gerrit and the
+      # records on the gate-records stream.
+      no_log: true

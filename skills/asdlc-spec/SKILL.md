@@ -139,7 +139,7 @@ Window | Scope | Enforcement`.
 - **`test`** — a named load or performance test, cited from tasks like any functional requirement.
 - **`none`** — permitted, with a reason, and the plan signer accepts it.
 
-You **propose** values. The platform owner sets the final ones at T1.
+You **propose** values. The final ones are set at T1.
 
 ## Success criteria and the rest
 

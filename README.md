@@ -68,12 +68,13 @@ runners are heterogeneous by requirement
 ([ADR-0031](reference/decisions/0031-heterogeneous-runners.md)), Claude Code the only admitted
 one until the admission contract ([OQ-20](reference/open-questions.md)) closes.
 
-**Blocking:** the platform owner and backup — a role that does not exist yet
-([OQ-10](reference/open-questions.md)) and owns almost every artifact in the design — and the
-deployment target ([context.md](reference/context.md)).
+**Blocking:** nothing that waits on a person. The design has **three roles per team and no
+role above them** ([ADR-0055](reference/decisions/0055-team-of-three-and-the-gate-signers.md)),
+and the deployment target is **Kubernetes or Docker Compose**
+([ADR-0054](reference/decisions/0054-deployment-target-kubernetes-or-compose.md)).
 
-**Missing, but code rather than decisions:** the feature-artifact checker, the CI emitters for
-gate records and requirements traces, and the bring-up verifications listed in
+**Missing, but code rather than decisions:** the feature-artifact checker, the CI emitter for
+requirements traces, the Compose/Swarm deploy slice, and the bring-up verifications listed in
 [rollout/open-parameters.md](rollout/open-parameters.md) — two need hardware (Harbor's OCI
 referrers path; the toolchain under TLS termination). The four stage procedures have exactly
 one end-to-end run behind them, on the local rig.

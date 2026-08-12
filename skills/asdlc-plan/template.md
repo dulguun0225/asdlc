@@ -20,7 +20,7 @@
 | **Feature** | `[NNN-kebab-slug]` |
 | **Spec** | `spec.md` — signed `[YYYY-MM-DD]`, hash `[sha256 prefix]` |
 | **Authored** | `[YYYY-MM-DD]` |
-| **Signer** | plan gate — ring reviewer, or a review-competent team leader |
+| **Signer** | plan gate — the team's engineer |
 | **Assertion** | *This is a sound approach to that problem.* |
 | **Advisory tier** | `[T1 / T2 / T3]`, rule `[n]` — plan-time run, **not binding**. The binding tier is computed on the final diff at merge; if it comes out higher, this plan must be re-signed. |
 

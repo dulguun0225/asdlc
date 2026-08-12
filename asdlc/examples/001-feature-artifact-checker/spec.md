@@ -235,10 +235,10 @@ mode, evaluating a tests-only change for T3.
 
 | ID | Item | Blocks | Owner | Due |
 |---|---|---|---|---|
-| OI-001 | **ADR-0014 part 7 defines seven blocking checks. Three more jobs have been assigned to this program since, by other records** — external imports (ADR-0020 part 7, here FR-036) and the tests-only T3 proof (ADR-0023 part 4, here FR-037/FR-038). Are they this program's, or separate checks? | the program's boundary, and what a failure message should say it is | platform owner | before implementation |
-| OI-002 | **How the checker learns CI status and gate-record hashes at merge time.** FR-013, FR-034 and FR-035 all depend on inputs no current record says how it receives. | `merge` mode entirely | platform owner | before implementation |
-| OI-003 | **What marks a test as quarantined** (FR-035). ADR-0019 requires quarantine and names no mechanism, and the mechanism is per language. | FR-035 | platform owner + each team | before the first T1 change |
-| OI-004 | **How the pinned hashes get rewritten** — checker flag, hook, or manual. Already an open parameter; it surfaces here because FR-012 makes a stale hash a hard failure and every plan edit produces one. | nothing — a manual step works | platform owner | bring-up |
+| OI-001 | **ADR-0014 part 7 defines seven blocking checks. Three more jobs have been assigned to this program since, by other records** — external imports (ADR-0020 part 7, here FR-036) and the tests-only T3 proof (ADR-0023 part 4, here FR-037/FR-038). Are they this program's, or separate checks? | the program's boundary, and what a failure message should say it is | decided before implementation | before implementation |
+| OI-002 | **How the checker learns CI status and gate-record hashes at merge time.** FR-013, FR-034 and FR-035 all depend on inputs no current record says how it receives. | `merge` mode entirely | decided before implementation | before implementation |
+| OI-003 | **What marks a test as quarantined** (FR-035). ADR-0019 requires quarantine and names no mechanism, and the mechanism is per language. | FR-035 | each team | before the first T1 change |
+| OI-004 | **How the pinned hashes get rewritten** — checker flag, hook, or manual. Already an open parameter; it surfaces here because FR-012 makes a stale hash a hard failure and every plan edit produces one. | nothing — a manual step works | operator | bring-up |
 | OI-005 | **Implementation language — closed** → [ADR-0041](../../../reference/decisions/0041-one-toolchain-node.md): Node, the repository's one toolchain. The program forks the seed `check-specs.mjs` in `tools/feature-artifact-checker/` ([ADR-0025](../../../reference/decisions/0025-monorepo.md); fork decided 2026-08-05, seed ported from Python 2026-08-07) | nothing | — | — |
 
 ## 8. Assumptions

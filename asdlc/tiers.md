@@ -23,9 +23,9 @@ Sources: [ADR-0003](../reference/decisions/0003-graduated-gating-machine-derived
 | Stage | T1 — high | T2 — default | T3 — low |
 |---|---|---|---|
 | [Spec](01-spec.md) | human gate — domain owner | no separate gate; the plan signer asserts both | — |
-| [Plan / design](02-plan.md) | human gate — ring reviewer, or review-competent team leader | same | — |
+| [Plan / design](02-plan.md) | human gate — the team's engineer | same | — |
 | [Tasks](03-tasks.md) | artifact + automated consistency check (no human gate) | same | — |
-| [Merge](05-merge.md) | platform owner **+** ring reviewer | ring reviewer | automated checks only |
+| [Merge](05-merge.md) | engineer **+** team leader | engineer | automated checks only |
 | [Deploy](06-deploy.md) | human — team leader | human — team leader | human, until the [07-operate.md](07-operate.md) §4 exit condition is met |
 
 Every gate records a named signer, what they asserted, and the **hash of the artifact
@@ -40,7 +40,7 @@ the **final diff at merge time is binding**, and plan-time runs are advisory
 
 | # | Condition | Tier |
 |---|---|---|
-| 1 | Diff touches tier configuration, CI gate policy, gate definitions, reviewer ring, or the review-competency record | **T1** |
+| 1 | Diff touches tier configuration, CI gate policy, or gate definitions | **T1** |
 | 2 | Diff touches any path declared `sensitivity: secret`, `credential`, or `iam` | **T1** |
 | 3 | `launched: true` **and** (touched path declared `tier: 1` **or** diff contains a schema/data migration **or** a touched path's service declares `reversibility: irreversible`) | **T1** |
 | 4 | Any touched path not covered by the map | **T1**, and the job **fails, naming the paths** |
@@ -53,7 +53,7 @@ Three behaviours that are rules, not implementation detail:
   authored by the agent identity **fails outright**. It is not routed to a stricter gate.
   The carve-out ([ADR-0036](../reference/decisions/0036-constraint-audit-cuts.md) part 5):
   **tier-map entry additions declared in the change's plan §7** may be agent-committed — the
-  change is T1 by this same rule, so the platform owner reviews the identical diff
+  change is T1 by this same rule, so the engineer and the team leader review the identical diff
   ([ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md) part 2).
 - **Escalation forces re-signing.** If the binding tier exceeds the tier the plan gate was
   signed at, the job fails until the plan is re-signed
@@ -101,7 +101,7 @@ level up.
 
 ## 5. The path→tier map
 
-One committed YAML file per repository. Owner: platform owner. Changes at T1 by rule 1 — so
+One committed YAML file per repository. Changes at T1 by rule 1 — so
 the agent can never widen its own permissions. Full schema and a worked example:
 [reference/artifacts.md](../reference/artifacts.md) §1.
 

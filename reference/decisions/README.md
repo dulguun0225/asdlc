@@ -11,6 +11,10 @@ A decision that lives as a bullet inside a larger document does not count as mad
   and what would reverse it.
 - Status is `proposed` · `accepted` · `superseded by ADR-NNNN`. A record is never edited to
   reverse a decision — supersede it, or delete it once nothing live depends on it.
+- **Records bind sessions, agents and documents — never the owner**
+  ([ADR-0051](0051-records-bind-the-design-not-the-owner.md)). A record cited to the owner
+  is information for a pivot, not grounds to refuse it; when the owner pivots, the pivot
+  lands and the record is superseded or deleted to follow.
 - Any claim about vendor pricing, SKUs, quotas, model capabilities, or agent-tooling features
   carries a **source and the date it was checked**.
 - Where a decision differs between the **self-hosted** and **cloud** variants, both answers
@@ -63,3 +67,4 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0047](0047-agents-join-the-monorepo.md) | The agents family joins the monorepo: `agents/` + `tools/agents-harness/`; old repo deleted | accepted | 2026-08-12 |
 | [0048](0048-end-goal-autonomous-software-factory.md) | The end goal: a fully autonomous software factory; every human gate is scaffolding | accepted | 2026-08-12 |
 | [0049](0049-roadmap-evidence-gated-autonomy-levels.md) | The roadmap: evidence-gated autonomy levels, no dates | accepted | 2026-08-12 |
+| [0051](0051-records-bind-the-design-not-the-owner.md) | Records bind the design, not the owner — a record cited to the owner informs a pivot, never refuses it | accepted | 2026-08-12 |

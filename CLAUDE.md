@@ -67,6 +67,12 @@ pattern, or a threshold. Still ask about what only the owner knows: scope and pr
 merit must trace to a dated source, or be labelled an explicit bet with the signal that would
 falsify it. Everything decided is a starting point: decide → run it → measure → revise.
 
+**Records bind the design, not the owner**
+([ADR-0051](reference/decisions/0051-records-bind-the-design-not-the-owner.md)). When the
+owner decides against a standing record: state the record's consequences once, briefly, then
+execute the pivot and update the registry to follow. Never cite a record as a refusal, and
+never re-argue after the owner has heard the consequence once.
+
 ## Research before content
 
 The documents *are* the product, so unresearched prose is worse than an empty stub — it reads

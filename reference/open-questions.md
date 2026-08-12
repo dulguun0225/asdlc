@@ -29,15 +29,17 @@ is a deleted record (the gap rule; git history holds the arc). Residue to know a
 **(1)** the development rig drifted — `demo-service` `main` carries the gateless skill
 copies and its branch protection dropped to 0 required approvals; approvals are restored to
 1 and a PR restoring the canonical skills is open, **waiting on a human approval** (the
-gate applies to it). **(2)** a stage-chaining runner (`tma1`, on the bench, standalone Go
-repo on the local Forgejo) was built during the excursion: it drives
-spec → plan → tasks → implement headless against a target repo with deterministic
-between-stage checks and completed one full run — under the ladder it is the natural **A1
-instrument**, but it currently self-merges via API and must learn to stop at gates before
-A1 use. **(3)** one observation from that run, relevant to
+gate applies to it). **(2)** a stage-chaining runner (`tma1`) built during the excursion
+was **deleted by owner decision the same day** — repo, rig identity and working copy all
+removed; its one run's evidence is retained on the bench, and its lesson stands: chained
+stages with deterministic between-stage checks worked end to end, the shape A1 will need.
+**(3)** one observation from that run, relevant to
 [OQ-25](#oq-25--gate-retirement-the-exit-signal-per-human-gate): a constraint stated in the
 feature request was silently dropped at the spec stage and no automated check caught it —
-the first live datum on what the spec gate is *for*.
+the first live datum on what the spec gate is *for*. The excursion also produced one
+lasting rule, **[ADR-0051](decisions/0051-records-bind-the-design-not-the-owner.md)**:
+records bind sessions, agents and documents — never the owner; a record cited to the owner
+informs a pivot, it does not refuse one.
 
 **Where the project is:** every ADR is accepted and landed. **There are three variants**
 ([ADR-0039](decisions/0039-self-hosted-forks-on-the-assembly-axis.md), owner-directed): the

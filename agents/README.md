@@ -55,8 +55,10 @@ macOS/Linux:
 
 ```sh
 git clone <asdlc-repo-url> ~/repos/dulguun0225/asdlc
-ln -s ~/repos/dulguun0225/asdlc/agents/definitions ~/.claude/agents
+ln -sfn ~/repos/dulguun0225/asdlc/agents/definitions ~/.claude/agents
 ```
+
+`-fn` makes the command repeat-safe. Plain `ln -s` against an existing `~/.claude/agents` (directory or earlier link) creates the new link *inside* it — when it is already this link, that lands a self-referential `definitions/definitions` symlink in the repository, which recurses naive directory walkers (observed 2026-08-12). If `~/.claude/agents` exists as a real directory with content, move that content into the clone first.
 
 ## Workflows
 

@@ -1,6 +1,6 @@
 # ADR-0005 — Who signs each gate, and how the reviewer pool works
 
-- **Status:** superseded by [ADR-0050](0050-autonomy-by-default-gates-on-evidence.md) — dormant machinery for evidence-added gates. Previously: accepted; supersedes the first gate-placement record (ADR-0004, deleted — its
+- **Status:** accepted; supersedes the first gate-placement record (ADR-0004, deleted — its
   gate table is restated here in full and its research content is preserved here). Part 4's
   quarterly rotation is deferred and part 6's deploy signature is narrowed for
   proven-behavior-preserving T3 batches by [ADR-0036](0036-constraint-audit-cuts.md)

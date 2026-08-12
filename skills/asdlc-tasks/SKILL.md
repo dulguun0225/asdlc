@@ -1,6 +1,6 @@
 ---
 name: asdlc-tasks
-description: Decompose a feature plan into tasks for the ASDLC tasks stage — stable task ids, requirement citations both ways, the verifying test named per task, and the sha256 pins that make the decomposition checkable against the pinned bytes. Use after the plan stage. Produces specs/<NNN>-<slug>/tasks.md, which has one blocking automated check.
+description: Decompose a signed plan into tasks for the ASDLC tasks stage — stable task ids, requirement citations both ways, the verifying test named per task, and the sha256 pins that make the decomposition checkable against the bytes that were signed. Use after the plan is signed. Produces specs/<NNN>-<slug>/tasks.md, which has no human gate and one blocking automated check.
 argument-hint: "[NNN-kebab-slug]"
 disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Edit(specs/**), Bash(git log *), Bash(git show *), Bash(sha256sum *), Bash(shasum *), PowerShell(Get-FileHash *), PowerShell(git log *), PowerShell(git show *)
@@ -9,13 +9,17 @@ disallowed-tools: NotebookEdit, WebFetch, WebSearch
 
 # Stage 3 — Tasks
 
-You are drafting `specs/$ARGUMENTS/tasks.md`. This stage has a **blocking automated check** and
-nothing else. That makes the two mechanical parts of this file load-bearing: the hashes and the
-citations. Get them wrong and the build fails; get them subtly wrong and the trace lies.
+You are drafting `specs/$ARGUMENTS/tasks.md`. **There is no human gate here** — this is the one
+stage where the design deliberately declines to add one, because a task list asserts almost nothing
+the plan gate did not.
 
-This is a **mechanical decomposition of a settled plan**. It is not a place to improve the
-design. If the plan is wrong, say so and stop — the fix is a revised plan with hashes
-re-pinned, not a clever task list.
+What there is instead is a **blocking automated check**. That makes the two mechanical parts of
+this file load-bearing: the hashes and the citations. Get them wrong and the build fails; get them
+subtly wrong and the trace lies.
+
+This is a **mechanical decomposition of an already-approved plan**. It is not a place to improve
+the design. If the plan is wrong, say so and stop — the fix is a re-signed plan, not a clever task
+list.
 
 The file's structure is [template.md](template.md), beside this file. Copy it into the feature
 folder and fill it in.
@@ -31,15 +35,16 @@ shasum -a 256 specs/<NNN>-<slug>/spec.md specs/<NNN>-<slug>/plan.md # macOS
 ```
 
 **These are the point of the whole stage.** The decomposition is checked against *these* bytes, not
-against whatever the files say later — that is what *"consistent with the plan"* means, literally
-rather than aspirationally.
+against whatever the files say later. At merge they must also match the hashes recorded in the spec
+and plan gate records — that is what *"consistent with the signed plan"* means, literally rather
+than aspirationally.
 
 If either artifact changes afterwards, re-derive the tasks and update the hash **in the same
 change**. A stale hash fails the check, and that failure is the drift alarm working.
 
 ## Step 2 — decompose, phase by phase
 
-Take the plan's §10 phase plan as the outline. Each phase becomes a `## Phase N — <name>` section.
+Take the plan's §11 phase plan as the outline. Each phase becomes a `## Phase N — <name>` section.
 
 Every task carries, without exception:
 
@@ -76,24 +81,25 @@ and hunt for faults the structural checks below cannot reach:
 - an entity in the spec's §6 that the plan's §5 never stores, or the reverse;
 - a vague adjective ("fast", "robust") standing where a threshold should be.
 
-Findings go **in your report, ungraded** — you list faults; the requester triages. Never fix one
-silently: a fault in the spec or plan is fixed in that artifact, with hashes re-pinned, not
-papered over with a quiet task edit. Frame the pass as finding faults, never as confirming
-consistency — an agent asked *"are these consistent?"* produces agreement.
+Findings go **in your report, ungraded** — you list faults, the humans triage. Never fix one
+silently: a fault in the spec or plan is a defect in a signed artifact, and the fix is a
+re-signed artifact, not a quiet task edit. Frame the pass as finding faults, never as
+confirming consistency — an agent asked *"are these consistent?"* produces agreement.
 
-## The six blocking checks, so you can predict the failure
+## The seven blocking checks, so you can predict the failure
 
 One deterministic program, standard library only, no network and no model call. It runs on every
 change touching a feature folder and again at merge on the final diff, as a required status check.
 
 | # | Check | Fails when |
 |---|---|---|
-| 1 | Hash pinning | the pinned `spec.md` / `plan.md` hashes differ from the current files |
+| 1 | Hash pinning | the pinned `spec.md` / `plan.md` hashes differ from the current files — or, at merge, from the hashes in those artifacts' gate records |
 | 2 | Requirement integrity | an id is reused, renumbered, or deleted without staying as `WITHDRAWN` |
-| 3 | Pattern parse | an active `FR` matches no EARS pattern and carries no `[form: …]` escape with a reason, or a `[NEEDS CLARIFICATION]` marker survives in the spec |
+| 3 | Pattern parse | an active `FR` matches no EARS pattern and carries no `[form: …]` escape with a reason, or a `[NEEDS CLARIFICATION]` marker survives into a signed spec |
 | 4 | Plan coverage | the plan's traceability table misses an active requirement, or names one the spec does not define |
 | 5 | Task coverage, both ways | a task cites no requirement and no `[FR: n/a]`, or an active requirement is cited by no task |
-| 6 | NFR enforcement | an `NFR` names no enforcement point, or a `canary` one names no metric and value |
+| 6 | Tier-map completeness | a path the plan declares as new has no map entry, or an entry is malformed |
+| 7 | NFR enforcement | an `NFR` names no enforcement point, or a `canary` one names no metric and value |
 
 Advisory, reported and never blocking: requirements-smell wording, the count of `[form: …]`
 escapes, and the ratio of unwanted-behaviour requirements. The wording check is advisory **on
@@ -103,12 +109,12 @@ ten may not block a merge.
 **What the check does not do:** it does not read a requirement's meaning. Pattern-perfect sentences
 can still describe an incomplete requirement set, and that failure mode gets *worse* once a parser
 is present, because conformance now shows up as a green check. Whether the unwanted cases were
-covered at all is a question no parser reaches — it was yours at the spec stage.
+covered at all was a plan-gate review question and is now behind you.
 
 ## Hard rules
 
 - **Write nothing outside `specs/<NNN>-<slug>/`.** No source, no tests yet, no configuration.
-- **Add no `Status:` or approval line.**
+- **Add no `Status:` or approval line.** There is no gate here to approve anything.
 - **Do not mark a task done.** Checkboxes are ticked during implementation, against evidence.
 - **Do not invent a requirement.** If the decomposition needs something the spec does not say,
   that is a spec defect. Report it; do not fill the gap.
@@ -122,5 +128,4 @@ you could not cover and why, and every fault the step-4 read found (or that it f
 Then run the feature-artifact checker if it is available in this repository, and report its
 output verbatim.
 
-The next stage is `/asdlc-implement` — continue when the requester has nothing further on the
-task list.
+Do not start implementing. The engineer invokes `/asdlc-implement`.

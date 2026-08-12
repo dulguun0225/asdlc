@@ -2,15 +2,13 @@
 
 A design for an **Agentic software development life cycle**: a life cycle in which agents
 execute multi-step development work — planning, editing, running tests, opening changes —
-**autonomously by default; a human gate exists only where evidence has added one**
-([ADR-0050](reference/decisions/0050-autonomy-by-default-gates-on-evidence.md)).
+under human review gates.
 
-The recorded end goal is a **fully autonomous software factory and operations** — the
-factory refines intent, produces, deploys, monitors, and fixes on its own, with humans
-requesting, constraining, and occasionally helping
-([ADR-0048](reference/decisions/0048-end-goal-autonomous-software-factory.md)). The walk
-starts at that posture: an attributed defect adds the narrowest gate that would have caught
-it, scoped to where the evidence points, carrying the exit signal that removes it again.
+The gates are the day-one posture, not the destination. The recorded end goal is a **fully
+autonomous software factory and operations** — the factory refines intent, produces,
+deploys, monitors, and fixes on its own, with humans requesting, constraining, and
+occasionally helping; every human gate here is scaffolding carrying the evidence signal
+that would retire it ([ADR-0048](reference/decisions/0048-end-goal-autonomous-software-factory.md)).
 
 **A monorepo: the design, and the code that implements it.** The four design directories are
 documents — no build, no test suite, no package manifest. The code lives in
@@ -46,7 +44,7 @@ tools/        the code — programs and packages the life cycle needs
 | **Build one variant** | [variants/cloud.md](variants/cloud.md), [variants/self-hosted.md](variants/self-hosted.md) or [variants/self-hosted-integrated.md](variants/self-hosted-integrated.md) — each is self-contained |
 | **Try it on your machine** | [tools/stacks/self-hosted/demo.md](tools/stacks/self-hosted/demo.md) — bring the primary stack up locally and put a change through the gates by hand |
 | **Know what to do first** | [rollout/plan.md](rollout/plan.md) |
-| **See the superseded ladder** | [rollout/roadmap.md](rollout/roadmap.md) — superseded by [ADR-0050](reference/decisions/0050-autonomy-by-default-gates-on-evidence.md); kept as the recovery path |
+| **See the path to the end goal** | [rollout/roadmap.md](rollout/roadmap.md) — six evidence-gated autonomy levels |
 | **Know why something was decided** | [reference/decisions/](reference/decisions/README.md) |
 | **Know what is still unanswered** | [reference/open-questions.md](reference/open-questions.md) |
 | **Find the code** | [tools/README.md](tools/README.md) |
@@ -83,13 +81,10 @@ one end-to-end run behind them, on the local rig.
 ## The design's own footing
 
 No published evidence establishes that human gates improve agent-code outcomes, and the one
-measured effect is that a gate *loosens* over time. The autonomy-by-default posture is the
-same discipline pointed the other way: it is an explicit bet
-([ADR-0050](reference/decisions/0050-autonomy-by-default-gates-on-evidence.md)), falsified by
-a recurring defect class that default gates would have caught cheaper than the incidents
-cost. The intended loop is **decide → run → measure → revise**, and every decision record is
-written so it can be reversed: it states the bet, the signal that would falsify it, and what
-would reopen the question.
+measured effect is that a gate *loosens* over time. Every gating rule here is an explicit bet
+carrying the instrumentation that would show it wrong. The intended loop is **decide → run →
+measure → revise**, and every decision record is written so it can be reversed: it states the
+bet, the signal that would falsify it, and what would reopen the question.
 
 **Read this before trusting any of it.** Several load-bearing findings are unreviewed
 preprints, marked as such in their research notes. Two records deliberately set **no threshold**

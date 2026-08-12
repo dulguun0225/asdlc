@@ -1,6 +1,6 @@
 # ADR-0006 — The tier function, the path→tier map, and how a greenfield repository cold-starts
 
-- **Status:** superseded by [ADR-0050](0050-autonomy-by-default-gates-on-evidence.md) — gates are no longer the default; this machinery is retained dormant, drawn on when evidence adds a gate
+- **Status:** accepted
 - **Date:** 2026-07-27
 
 ## Context

@@ -1,6 +1,6 @@
 ---
 name: asdlc-implement
-description: Implement tasks from a checked task list for the ASDLC implementation stage — write the code and the tests, with every test's expected behaviour derived from the requirement rather than from the implementation. Use after the tasks check passes. This is the only stage where the agent acts rather than drafts, and the only one the containment design exists for.
+description: Implement tasks from a checked task list for the ASDLC implementation stage — write the code and the tests, with every test's expected behaviour derived from the signed requirement rather than from the implementation. Use after the tasks check passes. This is the only stage where the agent acts rather than drafts, and the only one the containment design exists for.
 argument-hint: "[NNN-kebab-slug] [T-nnn ...]"
 disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Edit, Bash, TodoWrite
@@ -8,9 +8,10 @@ allowed-tools: Read, Grep, Glob, Edit, Bash, TodoWrite
 
 # Stage 4 — Implementation
 
-You are implementing tasks from `specs/$0/tasks.md`. Everything you do now is evidence someone —
-human or agent — may read later, and several of the rules below exist because nothing downstream
-can recover from breaking them.
+You are implementing tasks from `specs/$0/tasks.md`. There is no gate here; the change meets its
+gate at merge. That is not licence — it means everything you do now is evidence a human will read
+later, and several of the rules below exist because nothing downstream can recover from breaking
+them.
 
 If specific task ids were given, implement those and nothing else. If none were given, take the
 next unblocked task and confirm the scope before starting.
@@ -22,21 +23,21 @@ trust the checkboxes. Before building on a ticked task, verify it against its st
 and its named test. A tick whose evidence does not exist is a false entry in the requirements
 trace: untick it and say so.
 
-Classify what you find against the feature artifacts, in four kinds: **missing** (obligation with
+Classify what you find against the signed artifacts, in four kinds: **missing** (obligation with
 nothing behind it), **partial** (started, evidence incomplete), **contradicts** (code that
 conflicts with the plan or a requirement), **unrequested** (code no task and no requirement
 calls for — scope creep, and this is the only rule that surfaces it). Report the classification.
-Work that needs new tasks gets them by re-entering `/asdlc-tasks`, which appends
+Work that needs new tasks gets them by the engineer re-entering `/asdlc-tasks`, which appends
 under that stage's id and citation rules — you do not restructure `tasks.md` from here.
 
 ## The one rule that makes any of this evidence
 
-**A test's expected behaviour comes from the requirement. Never from the implementation.**
+**A test's expected behaviour comes from the signed requirement. Never from the implementation.**
 
 You are writing the code *and* the tests. A test written by reading an implementation cannot
 disagree with it. The measured behaviour is worse than neutral: shown buggy code, a model follows
 the implementation and encodes the bug as the expected result. The independence has to come from
-somewhere else, and the only thing available is the requirement text written down before the code
+somewhere else, and the only thing available is the requirement text a human signed before the code
 existed.
 
 So, concretely:
@@ -46,7 +47,7 @@ So, concretely:
   specification rather than inferring it from code is measured at **+38 percentage points** more
   often correct, against a baseline already told to probe edge cases. Doubling the number of tests
   barely helped.
-- ***"Write tests for this file"* is a prohibited instruction.** The instruction is
+- ***"Write tests for this file"* is a prohibited instruction at T1 and T2.** The instruction is
   *"write a test that verifies `FR-nnn`, whose text is this."* If you are ever asked the first
   form, convert it to the second and say that you did.
 - **Every test cites its requirement as `NNN:FR-nnn`** — in a test name, docstring, annotation or
@@ -54,8 +55,8 @@ So, concretely:
   requirement, which is exactly why this rule is written here rather than left to CI.
 
 **Be honest about what this rule is worth.** It is guidance, and guidance is not enforcement. The
-backstop that actually bites is mutation testing, where it runs. Nobody should read this rule as
-a control, including you.
+backstops that actually bite are mutation testing at T1 and the human merge signature. Nobody
+should read it as a control, including you.
 
 ## Testing rules
 
@@ -75,36 +76,42 @@ a control, including you.
   models transfer it from existing tests through prompt context. A flaky test in the repository is
   a template. Greenfield is a real advantage here and keeping it clean is far cheaper than cleaning
   it later.
-- **Where mutation testing runs on the diff, a surviving mutant is review input, not an automatic
-  block.** If you see one, explain it rather than mutating the test until it goes away.
+- **At T1, mutation testing runs on the diff.** A surviving mutant is **review input to the signer,
+  not an automatic block**. If you see one, explain it rather than mutating the test until it goes
+  away.
 
 ## What you may never write
 
-Four classes, enforced by the sandbox at run time and by policy in CI. Listed here so you do not
-spend a turn discovering them:
+Five classes, enforced twice — by the sandbox at run time and by the tier function in CI. Listed
+here so you do not spend a turn discovering them:
 
-1. **CI policy and check definitions.**
-2. **Managed settings and sandbox policy.**
-3. **Secrets, credential files, IAM and network configuration.**
-4. **Your own instructions**, which are the same rule one level up:
+1. **Tier configuration** — the path→tier map, per-service canary policy.
+2. **CI gate policy and gate definitions.**
+3. **Ring and competency records.**
+4. **Managed settings and sandbox policy.**
+5. **Secrets, credential files, IAM and network configuration.**
+
+And your own instructions, which are the same rule one level up:
 
 ```
 CLAUDE.md            .claude/CLAUDE.md      CLAUDE.local.md      AGENTS.md
 .claude/rules/**     .claude/skills/**      .claude/commands/**  .claude/agents/**
 ```
 
-**A change to any of these authored by the agent identity is rejected outright, not escalated.**
-You cannot widen your own permissions, and you cannot ask a human to widen them either — the
-change simply fails. If a task appears to require one, that is a plan defect: stop and report it.
+**A class-1 change authored by the agent identity is rejected outright, not escalated.** You cannot
+widen your own permissions, and you cannot ask a human to widen them either — the change simply
+fails. If a task appears to require one, that is a plan defect: stop and report it.
 
-A team does change its project `CLAUDE.md` and `.claude/rules/` — from outside an implementation
-session, never from inside one.
+A team does change its project `CLAUDE.md` and `.claude/rules/`. A human proposes it and the
+platform owner signs it at T1. You do not do it inside a session.
 
 ## What you may never assert
 
+- **Not the tier.** It is computed from the final diff at merge. You never classify your own work.
 - **Not that a requirement is verified.** A passing test in CI establishes that; you do not.
-- **Not that the change is ready to merge.** The merge checks establish that — report what
-  exists and let it be judged.
+- **Not that the change is ready to merge.** That is the signer's assertion, and you are the
+  producer.
+- **Not that a gate passed.** Gate records are written by the gate, not by you.
 
 ## About the environment you are in
 
@@ -123,22 +130,25 @@ session, never from inside one.
 
 ## Session boundaries
 
-**A session may span changes.**
+**A session is the engineer's to run — it may span changes.** The gate record names the producing
+session either way.
 
 - **Stage boundaries are not session boundaries.** Continue one session across spec → plan → tasks
   → implementation.
 - **The spend ceiling ends a session**; do not continue past it silently.
-- **Rework after review findings continues the same session** — same change, same producer.
+- **Rework after a rejected gate continues the same session** — same change, same producer.
 
-Nothing enforces this. Getting it wrong produces a muddled record, not a failed check.
+Nothing enforces this. Getting it wrong produces a muddled record, not a failed gate.
 
 ## As you work
 
 - Tick a task's checkbox in `tasks.md` **only against its stated evidence**, and only when its test
   passes without a retry. An optimistically ticked box is a false entry in the requirements trace.
-- If the implementation reveals that the plan is wrong, **stop and say so**. The fix is a revised
-  plan with hashes re-pinned. Working around a wrong plan produces a change no artifact accounts
-  for.
+- If the implementation reveals that the plan is wrong, **stop and say so**. The fix is a re-signed
+  plan. Working around a wrong plan produces a change whose tier was computed against a design
+  nobody approved.
+- If you touch a path that has no tier-map entry, expect the build to fail at merge naming that
+  path. Report it now rather than letting rule 4 find it.
 - **Abandon nothing without its reason written into the abandonment itself** — the abandon
   message or closing comment, naming what supersedes the work if anything does. A reason a
   reviewer must excavate from history is not discoverable, and the abandoned change is part of
@@ -151,4 +161,6 @@ the requirement's sentence you derived it from; any test quarantined and why; an
 if mutation testing ran; anything you could not do and the reason; and any never-write path a task
 appeared to require.
 
-The change merges when the automated checks pass.
+Then say that the change meets its gate at **merge**, where the tier is computed on the final diff
+— and that if it comes out higher than the tier the plan was signed at, the plan must be re-signed
+first.

@@ -16,15 +16,12 @@ A **monorepo holding two things**: the ASDLC design, and the code that implement
   ([ADR-0047](reference/decisions/0047-agents-join-the-monorepo.md)).
 
 **ASDLC** = **agentic software development life cycle** ("Agentic SDLC" in prose; "life cycle"
-as three words). The subject is a life cycle where **agents execute multi-step development
-work** ([ADR-0002](reference/decisions/0002-scope-agentic-not-ai-assisted.md)); AI-assisted
-tooling that only speeds up a human is background context. **Autonomy is the default**: no
-stage carries a human gate unless attributed evidence added one, scoped and carrying its exit
-signal ([ADR-0050](reference/decisions/0050-autonomy-by-default-gates-on-evidence.md)); the
-destination is a **fully autonomous software factory and operations**
-([ADR-0048](reference/decisions/0048-end-goal-autonomous-software-factory.md)). The tier/gate
-machinery in the design is dormant catalog, not defaults — do not add approval steps or
-sign-offs speculatively, in documents or in skills.
+as three words). The subject is a life cycle where **agents execute multi-step development work
+under human review gates** ([ADR-0002](reference/decisions/0002-scope-agentic-not-ai-assisted.md));
+AI-assisted tooling that only speeds up a human is background context. The gates are the
+day-one posture: the recorded destination is a **fully autonomous software factory and
+operations**, every human gate scaffolding with a recorded exit signal
+([ADR-0048](reference/decisions/0048-end-goal-autonomous-software-factory.md)).
 
 **The four design directories are documents-only.** `asdlc/`, `variants/`, `rollout/` and
 `reference/` hold no application code, build system, test suite, or package manifest. Do not

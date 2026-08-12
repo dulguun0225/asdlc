@@ -1,15 +1,8 @@
 # Roadmap — from the gated pilot to the autonomous factory
 
-> **Superseded by [ADR-0050](../reference/decisions/0050-autonomy-by-default-gates-on-evidence.md)
-> (2026-08-12).** The walk now starts at the destination's posture — autonomy by default,
-> gates added per scope on attributed evidence. This ladder is kept as the **recovery
-> path**: if ADR-0050's bet is falsified, re-entry is here, at the level the evidence
-> supports. Its per-scope advancement and automatic-regression rules survive inside
-> ADR-0050 part 2.
-
 The path from the waypoint this design builds to the destination
 [ADR-0048](../reference/decisions/0048-end-goal-autonomous-software-factory.md) records: a
-fully autonomous software factory and operations. Shape and rules were
+fully autonomous software factory and operations. Shape and rules are
 [ADR-0049](../reference/decisions/0049-roadmap-evidence-gated-autonomy-levels.md).
 
 - **This is not a schedule.** No level carries a date. Each level is entered when its entry

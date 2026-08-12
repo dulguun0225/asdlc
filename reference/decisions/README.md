@@ -21,9 +21,9 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | ADR | Title | Status | Date |
 |---|---|---|---|
 | [0002](0002-scope-agentic-not-ai-assisted.md) | ASDLC means "agentic", not "AI-assisted" | accepted | 2026-07-26 |
-| [0003](0003-graduated-gating-machine-derived-tier.md) | Gating is graduated, and the tier is computed, not rated | superseded by ADR-0050 | 2026-07-27 |
-| [0005](0005-roles-gate-signers-and-the-reviewer-ring.md) | Who signs each gate, and how the reviewer pool works | superseded by ADR-0050 | 2026-07-27 |
-| [0006](0006-tier-function-and-greenfield-cold-start.md) | The tier function, the path→tier map, and how a greenfield repository cold-starts | superseded by ADR-0050 | 2026-07-27 |
+| [0003](0003-graduated-gating-machine-derived-tier.md) | Gating is graduated, and the tier is computed, not rated | accepted | 2026-07-27 |
+| [0005](0005-roles-gate-signers-and-the-reviewer-ring.md) | Who signs each gate, and how the reviewer pool works | accepted | 2026-07-27 |
+| [0006](0006-tier-function-and-greenfield-cold-start.md) | The tier function, the path→tier map, and how a greenfield repository cold-starts | accepted | 2026-07-27 |
 | [0007](0007-agent-runner-and-containment.md) | The agent runner and how it is contained | accepted | 2026-07-27 |
 | [0008](0008-agent-write-scope-and-enforcement.md) | What the agent may touch, and where that is enforced | accepted | 2026-07-27 |
 | [0009](0009-code-host.md) | The code host: GitHub in the cloud variant, Gerrit + Zuul in the self-hosted variant | accepted | 2026-07-27 |
@@ -59,8 +59,7 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0043](0043-primary-variant-self-hosted-assembled.md) | The primary variant is self-hosted assembled, brought up declaratively; integrated is the fallback | accepted | 2026-08-10 |
 | [0044](0044-authentication-backend-keycloak.md) | The authentication backend: Keycloak, one identity plane for the assembled stack | accepted | 2026-08-10 |
 | [0045](0045-abandoned-work-carries-its-reason.md) | Abandoned work carries its reason in-band, discoverable from the abandoned artifact itself | accepted | 2026-08-11 |
-| [0046](0046-one-human-label-code-review-only.md) | One human label: Code-Review only, values −1/0/+1; the Workflow label is removed | superseded by ADR-0050 | 2026-08-11 |
+| [0046](0046-one-human-label-code-review-only.md) | One human label: Code-Review only, values −1/0/+1; the Workflow label is removed | accepted | 2026-08-11 |
 | [0047](0047-agents-join-the-monorepo.md) | The agents family joins the monorepo: `agents/` + `tools/agents-harness/`; old repo deleted | accepted | 2026-08-12 |
 | [0048](0048-end-goal-autonomous-software-factory.md) | The end goal: a fully autonomous software factory; every human gate is scaffolding | accepted | 2026-08-12 |
-| [0049](0049-roadmap-evidence-gated-autonomy-levels.md) | The roadmap: evidence-gated autonomy levels, no dates | superseded by ADR-0050 | 2026-08-12 |
-| [0050](0050-autonomy-by-default-gates-on-evidence.md) | Autonomy by default; a gate is added only on evidence — supersedes 0003, 0005, 0006, 0046, 0049 as defaults | accepted | 2026-08-12 |
+| [0049](0049-roadmap-evidence-gated-autonomy-levels.md) | The roadmap: evidence-gated autonomy levels, no dates | accepted | 2026-08-12 |

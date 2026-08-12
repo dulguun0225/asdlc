@@ -1,6 +1,6 @@
 # ADR-0046 — One human label: Code-Review only, values −1/0/+1
 
-- **Status:** superseded by [ADR-0050](0050-autonomy-by-default-gates-on-evidence.md) — dormant machinery for evidence-added gates. Previously: accepted 2026-08-11; verified live the same day (rig, Gerrit 3.14.2 / Zuul 14.2.0).
+- **Status:** accepted 2026-08-11; verified live the same day (rig, Gerrit 3.14.2 / Zuul 14.2.0).
 - **Date:** 2026-08-11
 
 ## Context

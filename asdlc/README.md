@@ -13,26 +13,22 @@ signs it off.
 ## What this is
 
 An **Agentic software development life cycle**: a life cycle in which **agents execute
-multi-step development work — planning, editing, running tests, opening changes —
-autonomously by default**, rather than a human executing every step with AI help
-([ADR-0002](../reference/decisions/0002-scope-agentic-not-ai-assisted.md),
-[ADR-0050](../reference/decisions/0050-autonomy-by-default-gates-on-evidence.md)). Tooling
-that only speeds up a human-executed workflow is out of scope.
+multi-step development work — planning, editing, running tests, opening changes — under
+human review gates**, rather than a human executing every step with AI help
+([ADR-0002](../reference/decisions/0002-scope-agentic-not-ai-assisted.md)). Tooling that only
+speeds up a human-executed workflow is out of scope.
 
 Concretely, "agent" here means: a Claude Code session, running under its **own machine
-identity** inside an OS-level sandbox, producing artifacts and changes that merge on green
-automated checks
+identity** inside an OS-level sandbox, driven by an AI solution engineer, producing artifacts
+that humans sign at defined gates
 ([ADR-0007](../reference/decisions/0007-agent-runner-and-containment.md),
 [ADR-0008](../reference/decisions/0008-agent-write-scope-and-enforcement.md)).
 
-The recorded end goal is a **fully autonomous software factory and operations**
-([ADR-0048](../reference/decisions/0048-end-goal-autonomous-software-factory.md)), and the
-walk starts at its posture. **The gates described in this directory are dormant machinery**:
-an attributed defect ([ADR-0022](../reference/decisions/0022-defect-attribution.md)) adds the
-narrowest gate that would have caught it, drawn from these documents, scoped to where the
-evidence points, carrying its exit signal —
-[OQ-25](../reference/open-questions.md#oq-25--gate-retirement-the-exit-signal-per-human-gate),
-inverted by ADR-0050 to the trigger-and-exit table for evidence-added gates.
+This is the starting posture, not the destination. The recorded end goal is a **fully
+autonomous software factory and operations**
+([ADR-0048](../reference/decisions/0048-end-goal-autonomous-software-factory.md)): every
+human gate below is scaffolding carrying the evidence signal that would retire it, and the
+per-gate exit signals are [OQ-25](../reference/open-questions.md#oq-25--gate-retirement-the-exit-signal-per-human-gate).
 
 The life cycle is **identical in all three deployment variants**. The variants differ in what
 enforces it, not in what it is — see [`variants/`](../variants/README.md).
@@ -46,11 +42,6 @@ explicit bet carrying the instrumentation that would show it wrong
 intended loop is decide → run → measure → revise.
 
 ## The flow
-
-The gates drawn below fire only where evidence has added them
-([ADR-0050](../reference/decisions/0050-autonomy-by-default-gates-on-evidence.md)); by
-default the stages chain without human signatures, and merge requires green automated
-checks only.
 
 ```mermaid
 flowchart TD
@@ -99,9 +90,7 @@ Read `roles.md` and `tiers.md` first. Every stage file refers to both.
 
 ## What is deliberately not automated
 
-Superseded as defaults by [ADR-0050](../reference/decisions/0050-autonomy-by-default-gates-on-evidence.md)
-— the items below are the shapes evidence can re-add, kept for that purpose. Each was a bet
-with an exit condition, not doctrine
+Today's posture. Each item is a bet with an exit condition, not doctrine
 ([ADR-0048](../reference/decisions/0048-end-goal-autonomous-software-factory.md) part 4);
 the per-item exit signals are
 [OQ-25](../reference/open-questions.md#oq-25--gate-retirement-the-exit-signal-per-human-gate).

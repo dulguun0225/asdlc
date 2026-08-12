@@ -18,19 +18,28 @@ if an answer covers only some, the question stays open. Read
 **This is the handover note between sessions** — the state lives here, not in a memory file.
 Update it when a session changes something; replace what is stale.
 
-**New 2026-08-12, and it reframes everything below:
-[ADR-0050](decisions/0050-autonomy-by-default-gates-on-evidence.md) — autonomy by default; a
-gate is added only on attributed evidence.** The owner inverted the gate-first posture
-(after executing and same-day reversing a wholesale retirement of the design — `298241b`,
-reverted). ADR-0003, 0005, 0006, 0046 and 0049 are superseded as defaults and retained as
-dormant machinery; the four stage skills ship gateless; the demo rig runs at 0 required
-approvals. **Read gate/tier language below as dormant catalog, not current defaults.**
-Follow-up work this opens: rewrite `asdlc/tiers.md`, `roles.md`, the stage files' gate
-sections and `rollout/plan.md` §6/phase-4 to the dormant-machinery framing (the ADR-wins
-rule covers the gap meanwhile), and recast OQ-25 as the trigger-and-exit table for
-evidence-added gates.
+**New 2026-08-12: a one-day posture excursion, fully reverted — the ladder stands.** In one
+day the owner ordered the design retired (commit `298241b`: tombstones on the four design
+directories, gateless stage skills), then replaced the retirement with an
+autonomy-by-default record (`8081048`: ADR-0050, superseding 0003/0005/0006/0046/0049),
+then reversed both: the repository is restored to the pre-excursion content and
+**[ADR-0049](decisions/0049-roadmap-evidence-gated-autonomy-levels.md)'s ladder is the
+wanted path** — do not reintroduce autonomy-by-default without new owner direction. `0050`
+is a deleted record (the gap rule; git history holds the arc). Residue to know about:
+**(1)** the development rig drifted — `demo-service` `main` carries the gateless skill
+copies and its branch protection dropped to 0 required approvals; approvals are restored to
+1 and a PR restoring the canonical skills is open, **waiting on a human approval** (the
+gate applies to it). **(2)** a stage-chaining runner (`tma1`, on the bench, standalone Go
+repo on the local Forgejo) was built during the excursion: it drives
+spec → plan → tasks → implement headless against a target repo with deterministic
+between-stage checks and completed one full run — under the ladder it is the natural **A1
+instrument**, but it currently self-merges via API and must learn to stop at gates before
+A1 use. **(3)** one observation from that run, relevant to
+[OQ-25](#oq-25--gate-retirement-the-exit-signal-per-human-gate): a constraint stated in the
+feature request was silently dropped at the spec stage and no automated check caught it —
+the first live datum on what the spec gate is *for*.
 
-**Where the project was before that:** every ADR accepted and landed. **There are three variants**
+**Where the project is:** every ADR is accepted and landed. **There are three variants**
 ([ADR-0039](decisions/0039-self-hosted-forks-on-the-assembly-axis.md), owner-directed): the
 self-hosted variant forked on the assembly axis — the assembled sheet (Gerrit + Zuul,
 enforcement-first) and the new integrated sheet (Forgejo + SigNoz, fewest systems, two
@@ -631,13 +640,9 @@ One line each; the ADR is the record.
 
 ## OQ-25 — Gate retirement: the exit signal per human gate
 
-- **Status:** open, **inverted by [ADR-0050](decisions/0050-autonomy-by-default-gates-on-evidence.md)**
-  (2026-08-12) — no gate exists by default, so the question is now the **trigger and exit
-  signal per gate that evidence adds**: which attributed defect classes add which gate shape
-  (from the dormant catalog), at what scope, and what measured evidence removes it again.
-  Opened by [ADR-0048](decisions/0048-end-goal-autonomous-software-factory.md).
-- **Blocks:** nothing running today; ADR-0048 part 3 still binds — an evidence-added gate
-  without a recorded exit signal is a design bug.
+- **Status:** open — opened by [ADR-0048](decisions/0048-end-goal-autonomous-software-factory.md).
+- **Blocks:** nothing running today; ADR-0048 part 3 makes a human gate without a recorded
+  exit signal a design bug, and today no gate carries one.
 - **The question:** for each human gate (spec, plan, merge T1/T2, deploy) and each item on
   the "deliberately not automated" list: the measured evidence that retires it, or narrows
   it to a named residual human role. Also decides which destination touchpoints are

@@ -55,7 +55,7 @@ longer drives each stage by hand. The 2026-08-11 rig run already did this in emb
 - **Entry evidence:** A0 baselines populated; the stage procedures held at pilot volume
   without procedure-text rewrites.
 - **Needs designed and built:** the stage-chaining harness; a first stuck-escalation path
-  (the embryo of touchpoint 4h); gate-record tooling
+  (the embryo of touchpoint 10); gate-record tooling
   ([open-parameters.md](open-parameters.md) top row) becomes load-bearing here — with no
   engineer mediating, the record of who signed what cannot live in an engineer's attestation.
 - **Measured while here:** where chains stall and why; how often the factory's
@@ -85,7 +85,7 @@ The [OQ-24](../reference/open-questions.md#oq-24--the-autonomous-operations-loop
 an SLO breach, an alert, or an attributed defect becomes an agent session that diagnoses,
 fixes, and redeploys. Every self-authored fix meets the merge gate at its computed tier —
 whatever that gate is at the change's scope's current level. The escalation contract
-(touchpoint 4h) is operative: what the factory cannot fix reaches a human with the
+(touchpoint 10) is operative: what the factory cannot fix reaches a human with the
 diagnosis attached.
 
 - **Entry evidence:** rollback exercised including the deliberate-failure drill

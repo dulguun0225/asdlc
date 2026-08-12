@@ -22,18 +22,30 @@ autonomous software factory and operations**: the factory refines intent, produc
 software, deploys it, monitors it, finds issues, and fixes bugs, on its own. Humans, at
 the destination (owner's list, explicitly non-exhaustive):
 
+**Originate intent** — the factory cannot know what the org wants until told:
+
 1. Request features.
-2. Supply constraints, laws and regulations, and raw documents that refine the intent.
-3. Are interviewed — grilled — by the factory to refine the intent.
-4. Occasionally:
-   - help with spec generation when the factory cannot do it properly;
-   - a human gate after the spec **when necessary — not always**;
-   - create the spec together with the AI;
-   - report bugs;
-   - complain in end-user terms ("this button is too slow");
-   - check that the unit tests conform to the functional requirements;
-   - perform UAT;
-   - help with issues the factory cannot fix on its own.
+2. Supply constraints: laws and regulations, and raw documents that refine the intent.
+3. Sit for the factory's interview — grilled — until the intent is refined.
+
+**Feed back as end users** — routine, in end-user terms, not engineering terms:
+
+4. Report bugs.
+5. Complain ("this button is too slow").
+
+**Verify against intent** — the candidate permanent touchpoints
+([OQ-25](../open-questions.md#oq-25--gate-retirement-the-exit-signal-per-human-gate)
+decides):
+
+6. Check that the unit tests conform to the functional requirements.
+7. Perform UAT.
+
+**Backstop the factory** — only where it falls short, shrinking as it improves:
+
+8. Help with spec generation when the factory cannot do it properly — up to creating
+   the spec together with the AI.
+9. Gate the spec — **when necessary, not always**.
+10. Take over issues the factory cannot fix on its own.
 
 The factory does everything else.
 
@@ -97,7 +109,7 @@ the factory drives its own stages end to end with defect outcomes
 ([ADR-0022](0022-defect-attribution.md)) and per-unit economics
 ([OQ-7](../open-questions.md#oq-7--what-are-the-per-unit-of-agent-work-economics)) no
 worse than the engineer-driven baseline. The role changes shape before it disappears —
-from driver to escalation target (the destination's touchpoint 4h).
+from driver to escalation target (the destination's touchpoint 10).
 
 **Part 7 — prior records are waypoints.** No existing ADR is reversed by this record;
 each keeps its own reversal conditions. What this record adds is the destination they

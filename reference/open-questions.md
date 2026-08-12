@@ -613,7 +613,7 @@ One line each; the ADR is the record.
   an alert, or an attributed defect ([ADR-0022](decisions/0022-defect-attribution.md)) into
   an agent session; how a self-authored fix meets the merge gate at its computed tier while
   that gate still stands; and the escalation contract — when and how the factory hands an
-  issue it cannot fix to a human (the destination's touchpoint 4h).
+  issue it cannot fix to a human (the destination's touchpoint 10).
 - **What would close it:** the loop designed end to end with its containment, plus the
   escalation contract, answered for every variant.
 

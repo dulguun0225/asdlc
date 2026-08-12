@@ -169,13 +169,13 @@ Three things reader will look for here and not find.
 
 **Instants on wire are RFC 3339 date-time, serialized in UTC with `Z` designator, field names end `At`.** Wire type is `java.time.Instant` through **one pinned time module**, so non-UTC offset and epoch-number timestamp both **unwritable**. Numeric or epoch time never appears.
 
-*Bespoke — pinned serialization time module + serialization test. **Confirmed** 2026-07-25: RFC 3339 date-time carries mandatory offset, `Z` means UTC, interoperability best with UTC. Reason number banned also confirmed — **JSON numbers have no guaranteed precision**, binary64 the interoperability baseline, integers exact only within roughly ±2^53.*
+*Bespoke — pinned serialization time module + serialization test. **Confirmed** 2026-07-25: RFC 3339 date-time carries mandatory offset, `Z` means UTC; JSON numbers exact only within roughly ±2^53. Probed pro-default at N=2 (bare sonnet, effort high, 2026-08-11); kept for the unwritability mechanics.*
 
 ### Business dates on the wire
 
 **Business dates on wire are strict `uuuu-MM-dd`, field names end `Date`.** Wire type is `java.time.LocalDate` parsed strictly, so **value carrying time component fails to parse, returns 400** — datetime never silently narrowed to date across time zones.
 
-*Off-the-shelf — strict `ISO_LOCAL_DATE` on `LocalDate` field rejects trailing text, stack maps parse failure to 400; deserialization test pins it. **Confirmed** 2026-07-25 for rejection; **400 comes from Spring and Jackson stack, not from `java.time` itself.** `uuuu`-versus-`yyyy` era rationale **uncertain** — strict parsing holds either way, so re-verify only if exact pattern pinned in repo.*
+*Off-the-shelf — strict `ISO_LOCAL_DATE` on `LocalDate` field rejects trailing text, stack maps parse failure to 400; deserialization test pins it. **Confirmed** 2026-07-25 for rejection; **400 comes from Spring and Jackson stack, not from `java.time` itself.** `uuuu`-versus-`yyyy` era rationale **uncertain**. Probed pro-default at N=2 (bare sonnet, effort high, 2026-08-11); the strict-parse gate stays.*
 
 ### Temporal naming and declared format agree both ways
 
@@ -189,7 +189,7 @@ Three things reader will look for here and not find.
 
 **API version is URL path segment (`/v1`), one OpenAPI file committed per major version.** Version is **diffable committed file, never runtime pipeline**: request or response transformation selecting or rewriting applied contract per request from header, date or account setting is **banned.**
 
-*Convention plus CI file check — one committed file per major; transformation-pipeline ban is spec and review. 2026-07-25. Mechanism behind ban **confirmed** from Stripe's own engineering write-up — rejected scheme really does select contract from ambient input and rewrite responses through runtime version-change modules.*
+*Convention plus CI file check — one committed file per major; transformation-pipeline ban is spec and review. 2026-07-25. Mechanism behind ban **confirmed** from Stripe's own engineering write-up. URL-path half probed pro-default at N=2 (bare sonnet, effort high, 2026-08-11); the transformation-pipeline ban is the half that earn the tokens.*
 
 ### `PATCH` is banned on every endpoint
 

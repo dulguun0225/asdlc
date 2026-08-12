@@ -27,7 +27,7 @@ description: The Java checks that make the money rules fail the build — which 
 
 - **`M-7` — spec and review.** Every rounding name its `RoundingMode` at call site. `Money` expose no operation that round without one: no rounding constructor, no `double` overload, no scalar divide taking mode from anywhere but call. Owning type = what make those signatures unwritable rather than lint-banned. (Convention — spec and review; absent signatures = real gate.)
 - **`M-8` — jqwik property test stating conservation.** Allocation hand-written: largest-remainder or equivalent. No Java money library ship allocation, so this code bespoke whichever way `M-1` answered. (Convention — property test.)
-- **`M-9` — spec and review; Java own naming = trap.** `RoundingMode.HALF_UP` round **away from zero** at tie; rounding toward positive infinity = `CEILING`. Spec saying "round up" without saying which decide nothing for negative amounts. (Convention.)
+- **`M-9` — spec and review.** `HALF_UP`-vs-`CEILING` semantics = desk pro-default (2026-08-11 audit; trimmed 2026-08-12); the spec obligation live in `money`. (Convention.)
 
 ## Observability
 

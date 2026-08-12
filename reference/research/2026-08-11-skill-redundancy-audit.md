@@ -1,6 +1,6 @@
 # Skill redundancy audit — do the engineering-decision skills override anything?
 
-Date: 2026-08-11. Status: complete. Models measured: `claude-sonnet-5` and `claude-opus-5`, CLI 2.1.227, linux. Probe spend: $29.34 (64 sessions).
+Date: 2026-08-11. Status: complete; **trim executed 2026-08-12** (see the second addendum). Models measured: `claude-sonnet-5` and `claude-opus-5`, CLI 2.1.227, linux. Probe spend: $29.34 (64 sessions) + $3.42 (24 bucket-B sessions, 2026-08-12).
 
 **Result in one line:** no skill is deletable — 11 of 16 probed directives were violated by a bare agent (5 of them on the frontier tier too) — but 5 probed directives and ~25 desk-classified pro-default directives are trim candidates, and compliance is strongly tier-dependent: bare sonnet passed 13/32 sessions, bare opus 26/32, so every redundancy claim weakens one model tier down.
 
@@ -120,24 +120,24 @@ Delete: **none.** Trim verdicts name directives; per-firing token yield of a tri
 |---|---|---|
 | tech-decision-research | keep | core method uniformly contra-default; owns the confidence-marker vocabulary |
 | enforceable-rules | keep | five incompleteness checks + both marker vocabularies load-bearing for the whole set |
-| money | keep, trim M-3, M-4; demote M-8 | M-1 confirmed binding 0/4; M-5 confirmed at sonnet; M-8 pro-default at N=2, M-3/M-4 desk pro-default |
+| money | keep, trim M-3, M-4; demote M-8 | M-1 confirmed binding 0/4; M-5 confirmed at sonnet; M-8 pro-default at N=2, M-3/M-4 desk pro-default. **Executed 2026-08-12, +71 tokens** — demotion records outweigh the two-line cut |
 | money-api | keep | M-17/M-18 contra core; M-14 dated; A56-adjacent probe confirms wire-shape discipline binds at sonnet |
-| money-storage | keep, trim M-31, M-33 | reject-over-round class confirmed by M1 probe; five engine facts dated |
-| money-java | keep | almost pure dated-fact (pitest pin, Schemathesis keys, jOOQ facts); J4 one-line trim at most |
-| caching | keep | C-2/C-4/C-7/C-9/C-13–C-15 contra-default; D1's "first answer is a cache" weakened by probe — reword, don't delete (probe shape had a visible root cause) |
+| money-storage | keep, trim M-33; **M-31 trim cancelled** | reject-over-round class confirmed by M1 probe; five engine facts dated. 2026-08-12 probe: M-31 **binds 0/2** at sonnet (bare default is `bigint` minor units), M-33 pro-default 2/2. **Executed 2026-08-12, +96 tokens** — M-31's binding evidence recorded |
+| money-java | keep | almost pure dated-fact (pitest pin, Schemathesis keys, jOOQ facts); J4 one-line trim at most. **Executed 2026-08-12, −5 tokens** |
+| caching | keep | C-2/C-4/C-7/C-9/C-13–C-15 contra-default; D1's "first answer is a cache" weakened by probe — reword, don't delete (probe shape had a visible root cause). **Reword executed 2026-08-12, +84 tokens** — the probe-scoped ground is an addition by design |
 | caching-java | keep | dated-fact dense (licence boundary, tool limits, pricing); nothing redundant found |
 | async-handoff | keep | E-5 confirmed binding at sonnet (the exact named FAIL pattern); catalog/seam machinery anti-corpus |
 | async-handoff-shapes | keep | E-34 confirmed binding at sonnet; E-30/E-31 contra-default; planned trim of E-34/E-35 cancelled by probe |
 | async-handoff-java | keep | nearly pure dated-fact, several anti-corpus (model memory asserts them wrongly) |
 | backend-stack | keep | B1/B2/B4 ranking logic non-corpus; pro-default rows cheap |
-| guardrails-toolchain | **trim** | ~⅓ of directive tokens restate 2026 CI common sense (G1 core, G6, G8, G11, G16 core); G15 pro-default at N=2; G4/G10/G12/G13/G14 + advisory-uncovered discipline stay |
-| primary-keys | **trim** | P7/P8/P13/P14/P15-core pro-default (>half the text); core confirmed binding hard (P6 0/4, hybrid rejection) — trim the cliché, keep the inversions |
+| guardrails-toolchain | **trim** | ~⅓ of directive tokens restate 2026 CI common sense (G1 core, G6, G8, G11, G16 core); G15 pro-default at N=2; G4/G10/G12/G13/G14 + advisory-uncovered discipline stay. **Executed 2026-08-12, −137 tokens** (G16 mapping caveat in the second addendum) |
+| primary-keys | **trim** | P7/P8/P13/P14/P15-core pro-default (>half the text); core confirmed binding hard (P6 0/4, hybrid rejection) — trim the cliché, keep the inversions. 2026-08-12 probes: all five pro-default at sonnet; P8's renumbering ban binds (rotatable-number proposal). **Executed 2026-08-12, −38 tokens** — checks, layer clauses and ownership paragraphs are most of those sections and stay |
 | business-numbering | keep | N13 confirmed at sonnet; counter-transaction design + recorded predecessor defects non-corpus |
-| java-backend-rules | keep, trim R1, R8, R10, R23, R27; demote R20 | annotation bans + jOOQ core contra-default; R20 pro-default at N=2 |
-| java-backend-api | keep, trim A15, A16, A18 | A5/A6 confirmed binding at sonnet; A1/A9/A11/A19 override framework defaults by name |
-| java-backend-observability | keep, trim O14 | O4/O1/O13/O7 plausibly the largest real deltas in the set; O9 matrix dated panel work |
-| llm-default-traps | keep; demote T8 to one line | T5 jqwik pin owns three siblings; T6 confirmed at sonnet; T8 pro-default at N=2 — per the skill's own growth path, a passing trap demotes rather than deletes |
-| ai-maintainer-principles | keep, trim A3, A11's non-ladder half | A10 confirmed binding on both tiers; A2/A8 review-substituting core |
+| java-backend-rules | keep, trim R1, R8, R10, R23, R27; demote R20 | annotation bans + jOOQ core contra-default; R20 pro-default at N=2. 2026-08-12 probes: all five pro-default at sonnet. **Executed 2026-08-12, +196 tokens** — the five rows were already one-liners, so demotion is pure addition |
+| java-backend-api | keep, trim A15, A16, A18 | A5/A6 confirmed binding at sonnet; A1/A9/A11/A19 override framework defaults by name. 2026-08-12 probes: all three pro-default at sonnet. **Executed 2026-08-12, +43 tokens** — already terse; stamped, not cut |
+| java-backend-observability | keep, trim O14 | O4/O1/O13/O7 plausibly the largest real deltas in the set; O9 matrix dated panel work. **Executed 2026-08-12, +18 tokens** — phrase-ownership note kept |
+| llm-default-traps | keep; demote T8 to one line | T5 jqwik pin owns three siblings; T6 confirmed at sonnet; T8 pro-default at N=2 — per the skill's own growth path, a passing trap demotes rather than deletes. **Executed 2026-08-12, +39 tokens** |
+| ai-maintainer-principles | keep, trim A3, A11's non-ladder half | A10 confirmed binding on both tiers; A2/A8 review-substituting core. **Executed 2026-08-12, −83 tokens** |
 
 **The tier finding, stated for the record:** whether a skill is redundant is a property of the *deployed* model, not of the skill. On these probes the frontier tier already does unprompted what the cheaper tier does not (outbox, SSRF defences, RFC 9457, fail-loud batch). Any decision to trim on frontier-tier evidence silently breaks the moment a cheaper model joins the fleet — and the fleet model for this design is an open rollout parameter.
 
@@ -190,6 +190,64 @@ Consequences: `coder` moved to `effort: high` (the cheap win, +13% measured sess
 sonnet-binding keep-verdicts stand unchanged — effort is not the lever for trap-shaped
 defaults; and the bucket-B probe batch runs at **sonnet / effort high** to match the fleet.
 Full table: `tools/agents-harness/evals/RESULTS.md`, 2026-08-12 (later) entry.
+
+## Addendum 2026-08-12 (later) — the trim executed, with the bucket-B probe batch
+
+**The probe-first bucket ran**: 12 new cases (`redundancy-cases.json`, ids `P7-id-capability` …
+`R27-dispatch`), single-tier `claude-sonnet-5` at `--effort high` (matching `coder` since
+2026-08-12), 2 repeats, CLI 2.1.228, 24/24 clean sessions, $3.42. Opus deliberately unprobed —
+these directives were desk-classified pro-default and sonnet was the open question; single-tier
+sonnet evidence plus the desk classification satisfies the two-tier bar for these rows only.
+
+| probe | directive | sonnet (effort high) | conclusion |
+|---|---|---|---|
+| P7-id-capability | primary-keys P7: id is never a capability | 2/2 | pro-default — both designed a separate revocable share grant, rejecting key-in-URL on the not-a-secret ground |
+| P8-business-number | primary-keys P8: two identifiers | 2/2 on the split | pro-default for the split core. **The renumbering ban binds**: one session proposed a rotatable account number — the immutability bullet stays untrimmed |
+| P13-library-tables | primary-keys P13: library tables keep their key | 2/2 | pro-default — both refused the conforming migration and the FK into `flyway_schema_history` |
+| P14-wire-id-string | primary-keys P14: ids as strings on the wire | 2/2 | pro-default — both declared the bigint id `type: string`, citing 2^53 themselves |
+| P15-erasure | primary-keys P15 core: key survives erasure | 2/2 | pro-default — anonymize-in-place, key kept as pseudonym, no PII-derived key |
+| A1516-wire-temporals | api A15/A16: RFC 3339 UTC instants, date-only business dates | 2/2 both halves | pro-default — `Instant` UTC `Z` + `At` name, `LocalDate` + `Date` name, no epoch numbers |
+| A18-url-version | api A18: URL path version segment | 2/2 | pro-default — `/v1` with per-major committed contracts, header pipeline rejected unprompted |
+| M3133-money-columns | money-storage M-31 constrained decimal / M-33 both-NOT-NULL | **M-31 0/2**; M-33 2/2 | **M-31 binds — desk classification refuted.** Neither session wrote a decimal column: both stored `bigint` minor units (Stripe-style), pushing the per-currency exponent onto every reader. M-33 pro-default |
+| R1-web-stack | rules R1: Web MVC, WebFlux banned | 2/2 | pro-default — both picked servlet Web MVC and argued against reactive themselves |
+| R8-schema-migrations | rules R8: committed Flyway migrations | 2/2 | pro-default — both set up versioned Flyway; one pinned `ddl-auto: validate` |
+| R1023-json-injection | rules R10 Jackson / R23 constructor injection | 2/2 both halves | pro-default — Jackson, constructor injection, no `@Autowired` fields |
+| R27-dispatch | rules R27: no reflection dispatch | 2/2 | pro-default — typed handler registry from declared beans, loud unknown-type failure, no `Class.forName` |
+
+**Trims executed 2026-08-12** (probe-backed bucket-A trims from the 2026-08-11 run, plus the
+bucket-B rows above): guardrails-toolchain G1/G6/G8/G11/G16 cores trimmed and G15 demoted with
+its 4/4 result; money M-3/M-4 compacted to one tombstoned line and M-8 demoted; java-backend-rules
+R20 demoted and R1/R8/R10/R23/R27 stamped (already one-liners — nothing to cut); llm-default-traps
+T8 demoted to one line; ai-maintainer-principles A3 core and A11's non-ladder half trimmed;
+java-backend-observability O14 compacted; money-java J4 compacted; caching's *Start by not caching*
+ground rewritten to the probe-scoped claim; primary-keys P7/P8/P13/P14/P15 cores trimmed;
+java-backend-api A15/A16/A18 stamped (already terse); money-storage M-33 demoted. **M-31's trim is
+cancelled** and its binding probe result is recorded in the skill, including the measured
+bare default (`bigint` minor units) added to its defaults list. E-34/E-35 stayed cancelled.
+
+**Mapping caveat:** the Stage A triage tables did not survive into the repo, so bucket-A ids were
+mapped to skill headings by document order, verified against the probe-case anchors (G4, G15, P6,
+R20, A5/A6). **G16 could not be located with certainty**; the only "schedule window" content in
+guardrails-toolchain is the standing sweep's schedule layer clause (the GitHub
+inactivity-disabling fact), so its core prose was trimmed and the dated forge facts kept. If the
+triage meant something else by G16, the trim landed on adjacent pro-default material and nothing
+contra was removed.
+
+**Token yield, measured (`npm run tokens`, o200k_base, SKILL.md tier, before → after):**
+guardrails-toolchain 9637 → 9500 (−137), ai-maintainer-principles 8630 → 8547 (−83),
+primary-keys 12375 → 12337 (−38), money-java 3731 → 3726 (−5), java-backend-observability
+6150 → 6168 (+18), llm-default-traps 6062 → 6101 (+39), java-backend-api 7513 → 7556 (+43),
+money 3802 → 3873 (+71), caching 9397 → 9481 (+84), money-storage 6538 → 6634 (+96),
+java-backend-rules 9193 → 9389 (+196). **Net ≈ +284 — the trim's token yield is approximately
+zero.** The finding to carry forward: the execution constraints (keep dated verifications,
+demote with the recorded probe result, tombstone every removal) cost 15–40 tokens per directive,
+which exceeds the cut on any directive already written tersely — a real trim payoff exists only
+where a pro-default directive carries long reasoning prose (guardrails cores, A3/A11). Three
+files grew by mandate, not by failure: money-storage carries M-31's new binding evidence, caching
+carries the required probe-scoped reword, java-backend-rules' five pro-default rows were already
+one-liners so demotion is pure addition. **What the exercise actually bought is calibration, not
+tokens**: every trim-class directive now states inline whether it is measured instinct or an
+instinct-override, with the model tier and date.
 
 ## What this audit does not decide
 

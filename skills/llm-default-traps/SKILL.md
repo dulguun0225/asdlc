@@ -103,9 +103,9 @@ These five bind only JVM repo; non-JVM repo ignore this section entirely. **Four
 
 ### JSR-385 for units of measure
 
-**Units-of-measure work uses JSR-385 — `unit-api` plus Indriya — never the withdrawn JSR-275 or JScience**, both of which corpus still suggest. Two withdrawn or abandoned API outnumber live one in training data, so agent get this pick wrong by default, not by carelessness.
+**Units-of-measure work uses JSR-385 — `unit-api` plus Indriya — never the withdrawn JSR-275 or JScience.**
 
-*Banned-dependency rule — off-the-shelf. **Confirmed 2026-07-22.***
+*Banned-dependency rule — off-the-shelf. **Confirmed 2026-07-22** for the API status facts. Demoted 2026-08-12: probed pro-default at N=2 per tier (bare sonnet + opus, 2026-08-11 — no JSR-275/JScience appeared); the corpus-outnumbering claim be refuted, do not reintroduce it. Held by the cheap gate.*
 
 ### The `char[]` credential myth
 

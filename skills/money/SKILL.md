@@ -28,7 +28,7 @@ Agent told "use money type" still drift to corpus default. These the defaults, a
 - **Binary floating-point for money** — `float`, `double`, JSON number, float column. Corpus default by wide margin, wrong at first sub-minor-unit result. Banned at **five** layers, because it re-enter at each one: field (`M-2`), wire (`money-api`, `M-12`), column (`money-storage`, `M-10`), **cached copy** of amount (`C-10`, in published `caching` skill), **message payload** (`E-21`, in published `async-handoff` skill). Install each in any repo that cache or publish amount: no rule in money skills reach serializer that turn stored amount back into binary float, none reach field in message schema.
 - **A raw decimal for an amount** — exact decimal type, no currency beside it. Rejected by `M-1`: no check can tell which raw decimal hold amount, so rule scoped to "amounts" undecidable by check meant to enforce it and report green over exactly the case it exist to stop. That why `M-2` ban on exact-decimal arithmetic outside money module is unqualified.
 - **A repo-wide default rounding mode** — convenient pick, rejected by `M-7`. One default silently apply one jurisdiction rule to another jurisdiction computation, and nothing in code read as wrong.
-- **Rounding each part when splitting a sum** — obvious implementation, rejected by `M-8`: parts stop summing to whole.
+- **Rounding each part when splitting a sum** — rejected by `M-8`: parts stop summing to whole. Refuted as the bare default (probed 2026-08-11, 4/4 both tiers conserved) — cite it as the failure shape the property test pins, never as what an agent writes.
 - **Reaching for a money library, unexamined** — *not* rejected. Evaluation real and per-ecosystem: library that bind amounts to ISO 4217 minor-unit scale satisfy much of `M-1` natively, while one that also ship precision-losing operations on same public type weaken `M-1`. Do evaluation for ecosystem in hand and record it. Java evaluation in `money-java`.
 
 ## What to do when this skill fires
@@ -47,11 +47,8 @@ Agent told "use money type" still drift to corpus default. These the defaults, a
 **M-2 — All arithmetic on amounts goes through the money type; exact-decimal arithmetic outside the money module is banned, whether or not the value is an amount.** Ban unqualified on purpose. No static rule can tell which exact-decimal value hold amount, so ban scoped to amounts not decidable by check that enforce it and report green over exactly the case rule exist to stop. Binary floating-point on money — field, column, or wire — is defect.
 *Static rule for the module boundary; compiler or linter check for the float ban; **`M-10`'s schema lint in `money-storage` covers the column case**, which no check in this skill reaches. Convention, 2026-07-21.*
 
-**M-3 — Same-currency addition and subtraction are exact: they never round and take no rounding mode.** Both operands sit at currency minor-unit scale, so sum or difference do too. Rounding enter only where operation produce sub-minor-unit result — multiply by rate, divide, percentage — which name its mode at call site (`M-7`).
-*Property test: same-currency ± is exact and associative. Confirmed 2026-07-25 — scoped to ± only, deliberately not extended to multiply or divide.*
-
-**M-4 — Cross-currency arithmetic fails loud. There is no implicit conversion.** Conversion = rate applied at named call site, not something addition do on way past.
-*Type design, exercised by the money type's tests. Convention, 2026-07-21.*
+**M-3, M-4 — Same-currency ± is exact (never rounds, takes no rounding mode); cross-currency arithmetic fails loud, no implicit conversion.** Rounding enter only where operation produce sub-minor-unit result, which name its mode at call site (`M-7`); conversion = rate applied at named call site. Trimmed to this line 2026-08-12 (desk pro-default, 2026-08-11 audit); the checks stay.
+*M-3: property test — same-currency ± exact and associative. Confirmed 2026-07-25, scoped to ± only. M-4: type design, exercised by the money type's tests. Convention, 2026-07-21.*
 
 **M-5 — On a money computation path a caught exception fails loud.** It propagate or get re-thrown as coded error — never swallowed, never logged-and-continued to wrong result, never mapped to default, zero, or absent amount. Silent catch turn loud failure into wrong number, and wrong number on path nobody read is invisible forever. Log cause then re-throw coded error = intended shape, not violation.
 *Spec-and-review; not fully statically decidable. A partial compiler or linter check on the empty-catch case only is usually available and is wired where it is. Convention, verified 2026-07-25.*
@@ -65,7 +62,7 @@ Agent told "use money type" still drift to corpus default. These the defaults, a
 *Spec-and-review. Convention, 2026-07-21 — the finding under it, that no surveyed jurisdiction mandates one method, is confirmed for the surveyed regimes only; see [evidence.md](evidence.md).*
 
 **M-8 — Splitting a sum uses an allocation that conserves the total** (largest-remainder or equivalent). Parts never rounded independently.
-*Property test stating conservation. Convention, 2026-07-21.*
+*Property test stating conservation. Convention, 2026-07-21. Probed pro-default at N=2 per tier (bare sonnet + opus, 2026-08-11 — 4/4 conserved with a tested allocation); kept for the check it names.*
 
 **M-9 — Where amounts can be negative, the spec states whether "round up" means away from zero or toward positive infinity.** Jurisdiction texts and language libraries disagree on negatives, so phrase alone decide nothing.
 *Spec-and-review. Convention, 2026-07-21.*

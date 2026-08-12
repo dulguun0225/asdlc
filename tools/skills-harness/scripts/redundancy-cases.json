@@ -128,6 +128,102 @@
       "fixture": "bare",
       "prompt": "Spring Boot service: customers can register a webhook URL in their settings; deliver order-event notifications to it. Implement the delivery path under src/.",
       "criterion": "PASS: SSRF defences (block private/loopback/link-local/metadata ranges, resolve-then-connect or equivalent, redirects disabled), signed payloads, async worker with bounded retries. FAIL: default HTTP client (redirects on) called with the stored URL as-is, or unsigned delivery."
+    },
+    {
+      "id": "P7-id-capability",
+      "skill": "primary-keys",
+      "directive": "P7 (A key is never a capability and never a secret): holding an id never authorizes access",
+      "fixture": "bare",
+      "prompt": "Design a report-sharing feature for our multi-tenant SaaS (PostgreSQL, UUID primary keys that look random): a user shares a report with an external person who has no account. The simplest scheme is to mail them a link of the form /reports/{report-uuid}. Should we ship that? Write the design to DESIGN.md.",
+      "criterion": "PASS: rejects possession-of-the-id as the authorization — introduces a separate grant (scoped share token/record with expiry and revocation), on the ground that an id is not a capability or secret. FAIL: ships the raw key-in-URL scheme relying on UUID unguessability as the access control."
+    },
+    {
+      "id": "P8-business-number",
+      "skill": "primary-keys",
+      "directive": "P8 (The opaque key and the human-facing number are two identifiers): business number never a PK, never a URL id, never parsed",
+      "fixture": "bare",
+      "prompt": "Our support staff need a short account number a customer can read out over the phone. Tables are keyed by UUID today. Propose the schema change and how the new number relates to the existing key, including what appears in API URLs. Write it to ANSWER.md.",
+      "criterion": "PASS: the account number is a second identifier with its own unique index — never the primary key, never a foreign-key target, and the opaque key stays the machine/URL identifier (or the number is explicitly display-only); no meaning parsed out of the number. FAIL: replaces or shadows the key with the number as PK/FK, or routes URLs by the business number while calling it the identifier, or encodes parseable meaning (branch/type prefixes) it then reads back."
+    },
+    {
+      "id": "P13-library-tables",
+      "skill": "primary-keys",
+      "directive": "P13 (A library's own tables keep the library's key): never conform library schemas; no domain FK into them",
+      "fixture": "bare",
+      "prompt": "Our standard is UUID primary keys on every table. Flyway's flyway_schema_history and Quartz's scheduler tables use their own key shapes. Two proposals are open: (a) migrate those tables to conform to our standard; (b) add a foreign key from our audit_event table to flyway_schema_history so audits reference the migration that caused them. Decide both and write the decision to DECISION.md.",
+      "criterion": "PASS: both refused — library-owned tables keep the library's schema, and no domain table declares a foreign key into one (reference by value/copy instead). FAIL: migrates library tables to the house key standard, or accepts the foreign key into a library-owned table."
+    },
+    {
+      "id": "P14-wire-id-string",
+      "skill": "primary-keys",
+      "directive": "P14 (Ids cross the wire as strings): numeric ids serialize as strings on every wire",
+      "fixture": "bare",
+      "prompt": "Our orders table is keyed by bigint. Define the JSON wire shape for GET /orders/{id} (an order has an id, a status, and a createdAt) and write the OpenAPI schema for the response to api.yaml, with a one-paragraph note on any non-obvious choices in NOTES.md.",
+      "criterion": "PASS: the id field is declared/serialized as a JSON string (type: string), on the ground that a 64-bit integer silently corrupts in JavaScript consumers past 2^53 (format int64 maps to number in common generators). FAIL: id declared as a JSON number/integer on the wire."
+    },
+    {
+      "id": "P15-erasure",
+      "skill": "primary-keys",
+      "directive": "P15 core (The key is what survives erasure): anonymize rather than delete; key retained as pseudonym; key never derived from personal data",
+      "fixture": "bare",
+      "prompt": "Implement the design for GDPR right-to-erasure for our customers table (PostgreSQL). Customer rows are referenced by orders and invoices, which we must retain for 7 years under financial-records law. Write the erasure design to DESIGN.md.",
+      "criterion": "PASS: personal columns overwritten with typed tombstones / contact child rows deleted, while the row and its key are retained as the pseudonym keeping the retained orders/invoices joinable; nothing replaces the key with a value derived from personal data (e.g. hashed email). FAIL: deletes or cascades the customer row breaking retained references, or keys/pseudonymizes by a derivative of personal data."
+    },
+    {
+      "id": "A1516-wire-temporals",
+      "skill": "java-backend-api",
+      "directive": "A15/A16 (Instants and business dates on the wire): RFC 3339 UTC string instants, date-only strings for business dates, never epoch numbers",
+      "fixture": "controller",
+      "prompt": "Add two fields to the customer API response: when the customer record was created (exact moment), and the customer's contract renewal date (a calendar date, no time). Decide the JSON representation of each, update or add the DTO under src/, and give example JSON in EXAMPLES.md.",
+      "criterion": "PASS: the instant is an RFC 3339 / ISO 8601 date-time string in UTC (Z), the renewal date is a date-only string (yyyy-MM-dd) typed as a date not a datetime; no epoch millis/seconds numbers on the wire. FAIL: numeric epoch timestamp, non-UTC offset chosen for the wire, or the calendar date carried as a full datetime."
+    },
+    {
+      "id": "A18-url-version",
+      "skill": "java-backend-api",
+      "directive": "A18 (The API version is a URL path segment): /v1 path versioning, one committed contract per major; no runtime version pipeline",
+      "fixture": "bare",
+      "prompt": "We are releasing the first public version of our REST API (Spring Boot, OpenAPI document committed in the repo) and expect occasional breaking changes over the years. Choose the API versioning scheme and write the decision with its mechanics to DECISION.md.",
+      "criterion": "PASS: major version as a URL path segment (/v1), each major a diffable committed contract; no header/date-driven request-time version selection or response-rewriting pipeline. FAIL: header, media-type or date-based versioning selecting the applied contract per request (Stripe-style version-transformation modules)."
+    },
+    {
+      "id": "M3133-money-columns",
+      "skill": "money-storage",
+      "directive": "M-31/M-33: money column is a constrained decimal (explicit precision and scale), and amount + currency are both NOT NULL, neither nullable alone",
+      "fixture": "bare",
+      "prompt": "Write the SQL migration (PostgreSQL) adding a payments table for our service. A payment has a payer reference, an amount (multiple currencies: we bill in USD, EUR and JPY), a status, and a created timestamp. Put the migration in migrations/V7__payments.sql and note any schema decisions in NOTES.md.",
+      "criterion": "PASS on M-31: the amount column is NUMERIC/DECIMAL with explicit precision and scale (not bare numeric, not float, not money type). PASS on M-33: amount and its currency column are both NOT NULL (no half-nullable pair). Grade the two halves separately. FAIL examples: numeric with no (p,s); missing or nullable currency column beside a NOT NULL amount."
+    },
+    {
+      "id": "R1-web-stack",
+      "skill": "java-backend-rules",
+      "directive": "R1 (Java and Spring Boot Web MVC, WebFlux banned as a paradigm): one blocking concurrency model, servlet Web MVC",
+      "fixture": "pom",
+      "prompt": "Start the skeleton of a new Spring Boot backend service for order management backed by PostgreSQL: pick the web stack, add the dependencies to the pom, and write a paragraph on the choice to DECISION.md.",
+      "criterion": "PASS: servlet Web MVC (spring-boot-starter-web), one blocking model (virtual threads a plus, not required). FAIL: WebFlux/reactive stack, or both stacks mixed in one service."
+    },
+    {
+      "id": "R8-schema-migrations",
+      "skill": "java-backend-rules",
+      "directive": "R8 (Schema changes are committed Flyway migrations): versioned committed migrations, never ddl-auto or ad-hoc DDL",
+      "fixture": "pom",
+      "prompt": "Our Spring Boot + PostgreSQL service needs a customers table (id, legal name, country, created timestamp). Set up how schema changes are managed in this repo and add the table. Write files under the project as needed and a short note to NOTES.md.",
+      "criterion": "PASS: a versioned committed migration tool (Flyway or Liquibase) with the table as a committed migration file. FAIL: hibernate ddl-auto / JPA schema generation, or DDL presented to be run by hand outside any migration history."
+    },
+    {
+      "id": "R1023-json-injection",
+      "skill": "java-backend-rules",
+      "directive": "R10 (JSON is Jackson) + R23 (field and setter injection banned; constructor injection only)",
+      "fixture": "pom",
+      "prompt": "Our Spring Boot service receives a vendor's webhook: a JSON body with fields event_type, occurred_at, and a nested payment object (reference, amount_minor, currency). Implement a WebhookParser service class under src/ that turns the raw JSON string into typed objects, plus a VendorEventService that depends on WebhookParser and an (unimplemented) PaymentGateway interface, and wire the Spring beans.",
+      "criterion": "PASS on R10: Jackson (ObjectMapper / jackson annotations) is the JSON library. PASS on R23: dependencies arrive by constructor injection (no @Autowired fields or setters). Grade the two halves separately. FAIL examples: Gson/org.json/hand-rolled parsing; @Autowired on a field."
+    },
+    {
+      "id": "R27-dispatch",
+      "skill": "java-backend-rules",
+      "directive": "R27 (Reflection-based dispatch and stringly-typed behavior lookups banned)",
+      "fixture": "pom",
+      "prompt": "Incoming queue messages carry a type field (payment.settled, payment.refunded, account.closed — more types will be added). Implement the dispatch from a received message to its handler in our Spring Boot service under src/, so adding a type later is straightforward.",
+      "criterion": "PASS: typed, explicit dispatch — an enum or sealed-type switch, or an explicit registry map populated from declared handler beans keyed by a typed constant. FAIL: reflection-based dispatch (Class.forName, method-name lookup by string convention) or deriving the handler class/method name from the message type string."
     }
   ]
 }

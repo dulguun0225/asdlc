@@ -358,16 +358,16 @@ carried here.
 **No correctness rule, audit claim, or business record depend on telemetry; audit
 trail is transactional tables.**
 
-*Convention, 2026-07-27.*
+*Convention, 2026-07-27. Trimmed 2026-08-12 — desk pro-default, 2026-08-11
+audit; kept for the phrase ownership below and its live re-open trigger — fire
+moment someone propose read business answer out of telemetry.*
 
-**This directive own phrase "rebuildable-cache premise" in this skill set**, and
-collision worth know about because it invisible from either side. `caching` skill
-deliberately say **"derived-store premise"** for store that can rebuild from
-authoritative store, precisely to avoid redefine this one — and two are
-**different properties**: yesterday's histogram not recomputable from database,
-but derived store is. **Redefine this phrase would make this directive's re-open
-trigger incoherent**, and that trigger live: it fire moment someone propose read
-business answer out of metrics or logs.
+**This directive own phrase "rebuildable-cache premise" in this skill set.**
+`caching` deliberately say **"derived-store premise"** for store rebuildable from
+authoritative store, precisely to avoid redefine this one — different properties:
+yesterday's histogram not recomputable from database, derived store is. Redefine
+the phrase and this directive's re-open trigger turn incoherent; collision
+invisible from either side, why it record here.
 
 ## Wiring the gates
 

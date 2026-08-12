@@ -140,17 +140,11 @@ not stop the defect and its named example did.**
 
 **Every operational surface — schema, topic, ACL, alert rule, cron, feature flag,
 connector config — is committed text the build read, or it is state maintainer
-cannot reason about.** State that live only in a broker, a cluster, a dashboard or
-a console is state agent no read, no diff and no restore.
-
-Ground is same sensory-channel fact, one layer out: agent asked why production
-behave differently from code will read code, find nothing, and conclude code is
-right. **Console change is unreviewable by construction**, and unlike silent
-runtime behaviour it leave no trace in repo at all.
-
-Consequence to accept openly: infrastructure needing its own out-of-repo control
-plane cost more here than its feature list suggest, and that cost belong in the
-choice, not in the incident afterward.
+cannot reason about.** Console change is unreviewable by construction and leave no
+trace in repo; infrastructure needing its own out-of-repo control plane cost more
+here than its feature list suggest, and that cost belong in the choice, not in the
+incident afterward. Trimmed 2026-08-12 — desk pro-default, 2026-08-11 audit (GitOps
+mainstream); kept for its check and the composite shapes that lean on it.
 
 *Check: every operational surface have committed artifact and gate that diff it;
 surface with no artifact listed as gap. Off-the-shelf per surface — migration
@@ -353,22 +347,17 @@ setting, bespoke for expiry gate. **Convention**, 2026-06-14.*
 *shape* of failure rather than by likelihood — and record exit ladder cheapest step
 first, with the trigger that step down it.**
 
-Shape is what maintainer control; likelihood is what nobody know. Compile-time
-dependency with committed generated output fail benignly: pinned artifact keep
-compiling for years, decay vectors slow and on your own schedule. Runtime framework
-in request path no freeze-safe same way. **Two dependencies with identical
-maintenance signals can carry opposite risk, and only shape tell them apart.**
+Shape is what maintainer control; likelihood is what nobody know — a compile-time
+dependency with committed generated output freeze benignly where a runtime
+framework in the request path do not, and popularity metrics mislead across
+ecosystems. That half trimmed 2026-08-12 — desk pro-default, 2026-08-11 audit;
+the concession below already say why.
 
 Ladder is where premise bite: **steps must be ones an agent can execute**. Freeze
 and pin, then fork and apply targeted compatibility patch, then migrate
 incrementally behind a seam already in the code. Step requiring a team, a rewrite,
 or standing operational judgment is not an exit — it is an outage with a plan
 attached.
-
-**Popularity metric mislead and should be named as rejected**, cuz agent reach for
-them first: star counts compare badly across ecosystems, and commercial licensing
-that fund maintenance is opposite sustainability profile from volunteer project
-that abandon when attention move.
 
 **Weakest directive here on premise-specificity, and it say so rather than dress
 up.** Pricing dependency risk is ordinary engineering, sensible in any repo. Only

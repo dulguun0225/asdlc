@@ -61,7 +61,7 @@ Picks unbriefed agent statistically make. **Naming loser be load-bearing half** 
 
 **Java at version pinned in build, Spring Boot with servlet Web MVC stack. Reactive WebFlux banned as paradigm** — one concurrency model be blocking thread-per-request on virtual threads, and second model in same repo mean every later piece of code must answer which one it in.
 
-*ArchUnit — off-the-shelf. **Convention**, 2026-06-11..14 — platform pass decision; no note in evidence trail address WebFlux ban directly. **Nothing about this ban confirmed**: virtual-thread claims the alternative measured against be, but one-concurrency-model argument itself be reasoning no pass put to source. See [evidence.md](evidence.md).*
+*ArchUnit — off-the-shelf. **Convention**, 2026-06-11..14 — platform pass decision; no note in evidence trail address WebFlux ban directly. **Nothing about this ban confirmed**: virtual-thread claims the alternative measured against be, but one-concurrency-model argument itself be reasoning no pass put to source. Probed pro-default at N=2 (bare sonnet, effort high, 2026-08-11 — both picked Web MVC over WebFlux unprompted). See [evidence.md](evidence.md).*
 
 ### jOOQ against PostgreSQL, with JPA banned
 
@@ -105,7 +105,7 @@ Picks unbriefed agent statistically make. **Naming loser be load-bearing half** 
 
 **Schema changes be committed Flyway SQL migrations,** applied in integration tests against real PostgreSQL.
 
-*Convention — integration-test setup be check. Dated 2026-06-11..14, only pass whose scope cover it; no evidence note carry this rule, and dating be inference drawn while writing this skill.*
+*Convention — integration-test setup be check. Dated 2026-06-11..14, only pass whose scope cover it; no evidence note carry this rule, and dating be inference drawn while writing this skill. Probed pro-default at N=2 (bare sonnet, effort high, 2026-08-11 — both set up committed Flyway migrations unprompted).*
 
 ### Every migration is linted for lock and rewrite hazards
 
@@ -121,7 +121,7 @@ Picks unbriefed agent statistically make. **Naming loser be load-bearing half** 
 
 **JSON be Jackson.**
 
-*Convention. Dated 2026-06-11..14 by same inference as Flyway rule; no evidence note carry it.*
+*Convention. Dated 2026-06-11..14 by same inference as Flyway rule; no evidence note carry it. Probed pro-default at N=2 (bare sonnet, effort high, 2026-08-11).*
 
 ## Concurrency
 
@@ -189,7 +189,7 @@ One concurrency model be virtual threads — synchronous, top-to-bottom, un-colo
 
 **Wall-clock reads in domain code banned** — `Instant.now()`, `LocalDate.now()`, `new Date()`, `System.currentTimeMillis()`.
 
-*ArchUnit — off-the-shelf. **Convention**, 2026-07-21 — no external evidence survived, rule carry no citation. Kept because enforceable and cheap.*
+*ArchUnit — off-the-shelf. **Convention**, 2026-07-21 — no external evidence survived, rule carry no citation. Kept because enforceable and cheap. Probed pro-default at N=2 per tier (bare sonnet + opus, 2026-08-11 — 4/4 injected `Clock`, fixed-clock tests); held by the cheap gate, the layer clause below be the contra half.*
 
 ***The clock be readable in the store's language, and this skill own the stack's clock ban.* Layer check, 2026-08-02, conversion-dated.** ArchUnit read bytecode and match those four calls. **`now()` and `current_timestamp` in query text, a column `DEFAULT` of one, and a trigger that set one are each a wall-clock read** reaching the row the application write, in a language this rule never see — and on this stack they be *more* likely than the banned Java calls precisely because the Java calls fail the build. **`async-handoff` `E-23` replay-safety already depend on this ban reaching further than it do**, and its own layer clause point here; so do the regenerate-and-diff gates that assume committed inputs, which be a class rather than a rule and named as one. **The host exist one family over**: `money-java` `M-35` already pair an ArchUnit predicate with a lint over committed query text, view and function definitions and Flyway migrations, and what it need added is **clock functions in query text and clock defaults on columns** — named, not counted. **Not wired.**
 
@@ -215,7 +215,7 @@ One concurrency model be virtual threads — synchronous, top-to-bottom, un-colo
 
 *List as whole be **convention**, 2026-07-21 — defect-source claim carry no citation, no external evidence survived. Kept because enforceable, cheap, and every entry have named check. **Enforcement not confirmation**, and ArchUnit class below be enforcement.*
 
-**Marker, date, check stated once here for whole list — one place in this skill they not inline per directive.** Deliberate, not dropped marker: entries below share single ground and single enforcement host, named in *Every ban names the check that enforces it* at end of list. Read each entry as carrying **convention, 2026-07-21** and that host.
+**Marker, date, check stated once here for whole list — one place in this skill they not inline per directive.** Deliberate, not dropped marker: entries below share single ground and single enforcement host, named in *Every ban names the check that enforces it* at end of list. Read each entry as carrying **convention, 2026-07-21** and that host. Two entries probed pro-default at N=2 (bare sonnet, effort high, 2026-08-11): field-and-setter injection and reflection dispatch — both held by the shared host, not by instinct-override.
 
 **What this list not say be why constructor injection, route registration and typed config binding survive it**, since those be framework machinery too. Discriminator be **startup-loud versus runtime-silent** — mechanism whose failure be boot failure caught by first integration test, against one that change semantics silently at runtime — and it published in `ai-maintainer-principles`, not here. Repo carrying this list into own text without it will either ban own dependency injection or relax list informally until nothing banned.
 

@@ -252,18 +252,12 @@ at runtime from fragments is reached by neither.*
 ### A key is never a capability and never a secret
 
 **Holding an id must never be what authorizes access to the row.** RFC 9562 state
-this for UUIDs outright — they are not a security mechanism, and unguessability is
-not an authorization control. The rule is wider than the format: it hold for a
-random key, a hashed key, and a key nobody thinks is guessable.
-
-**A time-ordered key disclose its row's creation instant, in milliseconds, to
-anyone who hold it.** Decide that deliberately rather than discover it. In most
-designs it is contractually redundant — every resource already publish a creation
-timestamp — and it leak no counts or rates, which is the disclosure a dense
-sequential key make. Where a resource class genuinely must hide its creation time
-from its own holder, **that is a business-identifier question**, answered by giving
-that class a second, non-time-bearing identifier — not by changing the key
-strategy for every table.
+this for UUIDs outright, and the rule is wider than the format. **A time-ordered
+key also disclose its row's creation instant to anyone who hold it** — decide that
+deliberately; a resource class that must hide it take a second, non-time-bearing
+identifier, a business-identifier question, never a key-strategy change. *Trimmed 2026-08-12:
+probed pro-default at N=2 (bare sonnet, effort high, 2026-08-11 — both sessions
+designed a separate revocable grant unprompted). The check stays.*
 
 *Check: per-endpoint authorization probe asserting a valid id from another tenant or
 another principal return the same response as an id that never existed —
@@ -282,11 +276,13 @@ format; the check is narrower than the rule.*
 
 **A row's key and the number a person read out over the phone are different
 identifiers with different jobs, and neither may do the other's.** The key is
-opaque, machine-scoped, and the target of every foreign key. The business number —
-account number, loan number, voucher number, document number — is short, checkable,
-issued under a stated format, and **never a primary key and never a URL
-identifier**. It is a filter, a display value and document text, behind its own
-unique index.
+opaque, machine-scoped, and the target of every foreign key; the business number
+is short, checkable, issued under a stated format, **never a primary key and never
+a URL identifier** — a filter, a display value and document text, behind its own
+unique index. *Split core trimmed
+2026-08-12: probed pro-default at N=2 (bare sonnet, effort high, 2026-08-11).
+**The renumbering ban below binds** — one probed session proposed a rotatable
+account number.*
 
 Three rules that follow, and each of them is a defect somebody shipped:
 
@@ -447,13 +443,11 @@ named per table. Convention — written artifact, absence visible. **Convention*
 
 **Tables a third-party library create and own — a migration tool's history table, a
 scheduler's task table, an event-registry or session store — keep whatever key
-shape that library ship, and are out of scope of this repo's rule.** Fighting a
-library's own schema is a maintenance cost with no return.
-
-**The rule that make that safe: no domain table declare a foreign key into one.**
-Without it the exception spread — a library table become a join target, then a
-constraint target, and the repo now depend on a schema its own migrations do not
-own.
+shape that library ship, and are out of scope of this repo's rule. No domain table
+declare a foreign key into one** — without that the exception spread and the repo
+depend on a schema its own migrations do not own. *Trimmed 2026-08-12: probed
+pro-default at N=2 (bare sonnet, effort high, 2026-08-11 — both refused the
+conforming migration and the foreign key).*
 
 *Check: foreign-key graph assertion that no table outside the library-owned set
 reference one. **Off-the-shelf** as a schema query, the owned set listed per repo.
@@ -464,11 +458,10 @@ reference one. **Off-the-shelf** as a schema query, the owned set listed per rep
 ### Ids cross the wire as strings whatever the key type is
 
 **Serialize ids as strings on every wire, and do not book that as a cost of the
-wide key.** It is a cost of JSON. A 64-bit integer id corrupt silently in a
-JavaScript consumer past 2^53, and an OpenAPI `format: int64` map to a
-JavaScript `number` by default in the common generators — so a numeric key have to
-be a string on the wire too, or it is a silent-truncation defect waiting for a
-large enough id.
+wide key.** It is a cost of JSON: a 64-bit integer id corrupt silently in a
+JavaScript consumer past 2^53. *Trimmed 2026-08-12: probed pro-default at
+N=2 (bare sonnet, effort high, 2026-08-11 — both declared the bigint id
+`type: string`, citing 2^53).*
 
 **Export formats are the second edge, and this one is honest uncertainty.**
 Columnar formats have a UUID logical type whose support across writers and readers
@@ -493,21 +486,15 @@ round-trip assertion over a real payload, not a read of the document.*
 ### The key is what survives erasure
 
 **Under a right-to-erasure regime the key is usually what remain.** Where a record
-is linked to something that must be retained — a ledger, a contract, a statutory
-window — the lawful answer is anonymization rather than deletion: personal columns
-overwritten with typed tombstones, contact and identifier child rows deleted, and
-**the key retained as the pseudonym** that keep the retained rows joinable.
-
-Two consequences for the key itself:
-
-- **The key must contain no personal data and must not be derivable from any.** A
-  key computed from an email address, a national identifier or a name is not
-  pseudonymous after erasure — it is the erased data, encoded.
-- **The key is what appear in places the erasure sweep cannot reach**: object-storage
-  paths, external audit trails of the storage provider, anything already exported.
-  So object keys and log lines carry the key, **never a name** — a naming scheme
-  that embed a human-readable identifier put personal data in a control-plane log
-  nobody owns.
+link to something retained — a ledger, a contract, a statutory window — the lawful
+answer is anonymization rather than deletion, with **the key retained as the
+pseudonym** that keep the retained rows joinable. Two consequences: **the key
+contain no personal data and derive from none** (a key computed from an email or a
+name is the erased data, encoded), and object keys and log lines carry the key,
+**never a name** — the key is what appear in places the erasure sweep cannot
+reach. *Core trimmed 2026-08-12: probed
+pro-default at N=2 (bare sonnet, effort high, 2026-08-11). The 2026-08-01 clause
+below is unprobed and stays.*
 
 **One interaction the source records do not state, added here and marked as this
 conversion's own.** A time-ordered key retain the row's creation instant *after*

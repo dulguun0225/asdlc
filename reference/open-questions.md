@@ -189,45 +189,23 @@ Sharpest finding: bare sonnet passed 13/32 sessions vs opus 26/32 — **redundan
 of the deployed model tier**, and the fleet model is an open rollout parameter, so no trim
 should execute on frontier-tier evidence alone.
 
-**The trim is the next job (owner-directed 2026-08-12; work list revised same day against the
-consumer map).** With the agents family in-repo ([ADR-0047](decisions/0047-agents-join-the-monorepo.md)),
-the tiers that actually execute each skill are known: `coder` is **sonnet/medium** and holds
-the `Skill` tool; `deep-worker` inherits the session model; `scout`/`prober` (haiku) never
-write code or load skills. The recorded end-to-end stage run implemented via a coder subagent,
-so **the pilot's implementation tier is sonnet/medium** — the tier that failed 19/32 probe
-sessions. The trim bar therefore stays two-tier ("redundant" = compliant at sonnet too), and
-the work list splits by evidence:
-
-- **Trim now** (probe-passed on both tiers, or the skill's consumer is inherit-tier work —
-  toolchain and architecture decisions route to `architect`/`deep-worker`/main sessions):
-  guardrails-toolchain pro-default bulk (G1 core, G6, G8, G11, G16 core) and G15 demoted with
-  its 4/4 probe result; money M-8 demoted, M-3/M-4 cut (trivial yield — two lines);
-  java-backend-rules R20 demoted (4/4 with fixed-clock tests at both tiers); llm-default-traps
-  T8 demoted to a one-line trap; ai-maintainer-principles A3 + A11's non-ladder half;
-  java-backend-observability O14; money-java J4. Reword caching D1's "first answer is a
-  cache" ground to the probe-scoped claim.
-- **Probe at sonnet before trimming** (desk-classified pro-default only, and the consumer is
-  `coder` — sonnet's measured api/schema discipline is weak: it failed the neighboring A5/A6
-  probe 0/2): primary-keys P7/P8/P13/P14/P15-core; java-backend-api A15/A16/A18;
-  money-storage M-31/M-33; java-backend-rules R1/R8/R10/R23/R27 (R10/R23 are Spring Boot
-  mechanical defaults, near-certain passes; probe anyway — it is one cheap batch).
-  Single-tier run at **sonnet / `--effort high`** (matching `coder` since 2026-08-12),
-  2 repeats, ~12 cases ≈ $4 on the existing
-  `tools/skills-harness/scripts/redundancy-probes.mjs` rig (`--effort` passthrough added);
-  add the cases to `redundancy-cases.json`.
-- **Cancelled, stays cancelled:** E-34/E-35 (bound at sonnet 0/2).
-
-New caveats the executor must carry: (1) **the effort axis is now measured** (2026-08-12):
-sonnet at `--effort high` went 3/14 → 6/14 on the sonnet-failed cases — it fixed
-under-engineering (E34, G4) and no corpus-gravity default (E5/A56/M5 stayed 0/2), so `coder`
-moved to effort high and the sonnet-binding keep-verdicts stand unchanged. (2) **Tripwire:** if
-any code-writing task is ever routed to a haiku-tier agent, every trim verdict is void — the
-audit measured sonnet and opus only. Execution constraints unchanged: demote with the recorded
-probe result rather than delete where the skill has a growth-path convention; keep every dated
-verification a trimmed line carries; obey `skills/CLAUDE.md` invariants (never state counts,
-never compress the corpus-favourite sentence, keep markers and evidence-order); frontmatter
-untouched so firing rates stay comparable; measure per-skill token yield with `npm run tokens`
-before and after and record it in the audit note's verdict table.
+**The trim executed 2026-08-12** (second addendum of
+[research/2026-08-11-skill-redundancy-audit.md](research/2026-08-11-skill-redundancy-audit.md)
+— probe table, per-skill token yields in the verdict table, and the G16 mapping caveat).
+The bucket-B probe batch ran at sonnet / `--effort high` (12 new cases in
+`redundancy-cases.json`, 24/24 clean, $3.42): eleven cases pro-default at N=2, executed as
+trims; **money-storage M-31 refuted its desk classification and binds** — 0/2 bare sessions
+wrote a decimal money column, both defaulted to `bigint` minor units — so its trim is
+cancelled and the measured bare default is recorded in the skill's defaults list. P8's
+renumbering ban also binds (one session proposed a rotatable account number).
+**Net token yield ≈ zero (+284)**: real cuts only where pro-default prose was long
+(guardrails −137, ai-maintainer −83); already-terse directives grew, because a demotion
+recorded with its probe stamp costs more than a one-line directive sheds. What the trim
+bought is inline calibration — every trim-class directive now states whether it is measured
+instinct or an instinct-override, with tier and date. Standing caveats unchanged: **tripwire**
+— routing any code-writing task to a haiku-tier agent voids every trim verdict (sonnet and
+opus measured only); E-34/E-35 stay cancelled; re-check on deployment-model change, not on
+calendar. No trim follow-up is queued.
 
 **The registry slice landed and the sheet's §4 referrers verification passed** (2026-08-10,
 Harbor v2.15.2 / cosign v3.1.3 / oras v1.3.3): `harbor.mjs` brings Harbor up pinned and

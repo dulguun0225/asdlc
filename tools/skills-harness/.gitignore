@@ -4,3 +4,9 @@ npm-debug.log*
 
 # Machine-local config, deliberately not shared: mise.toml is the shared one.
 mise.local.toml
+
+# Redundancy-probe session outputs: stochastic, paid, per-machine; the audit note in
+# reference/research/ carries the graded record.
+probe-results*/
+results-sonnet*/
+results-opus*/

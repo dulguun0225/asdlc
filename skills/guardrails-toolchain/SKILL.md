@@ -60,8 +60,9 @@ regardless.
 ### A guardrail is a tool whose verdict fails a build by itself
 
 **Adopt tool that emit machine-readable verdict — exit code, SARIF, JSON — and
-wire it to fail build on that verdict. Tool whose output need reading is not
-guardrail, it a report.** Under premise nobody read reports.
+wire it to fail build on that verdict; tool whose output need reading is a
+report, and under premise nobody read reports.** *(Core desk pro-default,
+2026-08-11 audit; the clauses below be the contra half.)*
 
 **Advisory tool may still be adopted, into named advisory lane, never as the
 answer for defect class.** Distinction load-bearing cuz advisory tool is the one
@@ -187,14 +188,10 @@ catch a caveat written vaguely. **Convention**, 2026-06-13.*
 
 **Build generate machine-readable dependency inventory and fail on any licence
 not on committed allowlist — including undeclared and unknown.** Deny-by-default
-is the half that matter: allowlist of permissive licences fail by construction on
-licence nobody anticipated, where denylist only catch ones somebody thought of.
-
-**Adopted tool's own licence is selection input too.** Source-available and
-copyleft licences appear in guardrail tooling itself, and constraint is usually
-about *where* it may run — build-only, internal code, never request path. Record
-the licence beside the tool and the condition it hold under; tool whose licence
-forbid your use is gate you cannot keep.
+fail by construction on licence nobody anticipated; **adopted tool's own licence
+is selection input too** — record it beside the tool with the condition it hold
+under (build-only, internal code, never request path). *(Trimmed 2026-08-12 — desk
+pro-default, 2026-08-11 audit; the layer clause below be the contra half.)*
 
 *Check: build have licence gate over generated inventory, allowlist committed,
 undeclared licence rejected; selection record carry licence column. Off-the-shelf
@@ -250,18 +247,12 @@ one owning layer. Bespoke and unbuilt here — nothing generate this map.
 
 **Measurement gate only in environment that support claim it make. Where
 environment cannot, signal move to environment that can — production, nightly,
-dedicated runner — rather than being asserted where it lie.**
-
-**Flaky gate is worse than no gate**, and mechanism is not annoyance: it train
-maintainer to ignore or quarantine it, then quarantine is where it live, and
-class read as covered. Under this premise maintainer is agent, and agent that
-learn one gate ignorable have learned rule about gates.
-
-Worked shape, from the performance case below: relative comparison against
-committed baseline with wide band gate in CI; absolute latency budget do not,
-cuz CI have wrong topology — no real network, no warm runtime, noisy shared
-runner. Absolute budget move to production alert rule where topology is real.
-**Same number, two homes, split by what each home can prove.**
+dedicated runner — rather than being asserted where it lie.** **Flaky gate is
+worse than no gate** — it train the maintaining agent that a gate is ignorable —
+and the worked split live under *Every named numeric threshold* below: relative
+ratchet in CI, absolute budget as production alert rule. **Same number, two
+homes, split by what each home can prove.** *(Trimmed 2026-08-12 — desk pro-default,
+2026-08-11 audit.)*
 
 *Check: every gate state environment its claim hold in, and no gate assert
 absolute value in environment that cannot reproduce production topology. Bespoke
@@ -326,19 +317,14 @@ mapping is not. **Convention**, 2026-06-13.*
 
 ### Pin end-to-end output stability, not just invariants and goldens
 
-**Invariants prove internal consistency at one moment. Goldens pin cases author
-thought of. Neither pin that realistic end-to-end output stay same across code
-versions.** Refactor can keep every invariant green and every golden passing
-while quietly changing which branch a boundary case take — and output already
-delivered to somebody no longer reproducible.
-
-Shape of gate: corpus of realistic end-to-end cases, many shapes, run whole path,
-compare rendered output against approved copy, **fail on any unapproved diff.**
-Effect is not detection — it is that every output change become explicit,
-committed re-approval somebody chose.
-
+**Invariants prove internal consistency at one moment; goldens pin cases author
+thought of; neither pin that realistic end-to-end output stay same across code
+versions.** Gate shape: committed corpus of realistic end-to-end cases run whole
+path, rendered output compared against approved copy, **fail on any unapproved
+diff** — every output change become explicit committed re-approval.
 **Condition this fire under: any recompute-must-match-previous-output assumption
 anywhere in system.** Repo that never re-render past output need not carry it.
+*(Trimmed 2026-08-12 — desk pro-default, 2026-08-11 audit.)*
 
 *Check: committed approved-output corpus exercised end-to-end each build, diff
 fail build. Off-the-shelf — approval-test libraries exist in most ecosystems;
@@ -466,25 +452,17 @@ report carry its own evidence of being able to fail. Bespoke. **Convention**,
 2026-06-13.*
 
 ***A schedule in a committed file be not a schedule that run.* Layer check,
-2026-08-02, conversion-dated.** Check read the CI configuration inventory and find
-the sweep declared. **Whether it fire is decided by the hosting forge**, in a
-language this repo do not hold — and the forge get named here, **GitHub**, cuz this
-skill already name it above for the code-scanning surface and a described host is
-one a reader cannot check: **GitHub Actions disable a scheduled workflow after a
-period of repository inactivity**, a fork inherit the workflow file and never its
-schedule, a self-hosted runner label can stop matching, and a disabled or expired
-credential make every run fail identically to none. **Verify the inactivity
-behaviour and its window against the forge's current documentation at adoption** —
-it is a vendor policy, not a standard, and this skill's own *record the caveat that
-bites* apply to it. **Failure mode is exactly the one this directive exist for** —
-erosion nobody see, on the gate whose whole job is to see erosion — and it is worse
-than a missing sweep, cuz the committed file read as coverage. **Decidable half:
-the milestone gate already require the sweep's committed artifact, so require it to
-carry its own run timestamp and fail when the newest is older than the declared
-cadence.** That make the forge's silence visible inside the build, and it is one
-line of the artifact contract this check already ask for — **and it hold on any
-forge**, which is why the remedy is stated in terms of the artifact rather than in
-terms of GitHub.
+2026-08-02, conversion-dated.** Whether the declared sweep fire is decided by the
+hosting forge, named — **GitHub**: **GitHub Actions disable a scheduled workflow
+after a period of repository inactivity** — **verify the behaviour and its window
+against the forge's current documentation at adoption**, it is vendor policy with
+no primary source here — a fork inherit the workflow file and never its schedule,
+a runner label can stop matching, and a dead credential make every run fail
+identically to none. **Decidable half: the milestone gate already require the
+sweep's committed artifact, so require it to carry its own run timestamp and fail
+when the newest is older than the declared cadence** — hold on any forge, why the
+remedy is stated in artifact terms. *(Trimmed 2026-08-12 — desk pro-default,
+2026-08-11 audit; the dated forge facts stay.)*
 
 ## The worked case — one repo's map, 2026-06-13
 
@@ -594,6 +572,10 @@ organisation fact, the absence of a panel, and its re-open condition.
 - *No panel.* Case written by this conversion; nobody argued the other side, and the
   other side is real — a baseline is how a large existing codebase adopt a strict
   tool at all.
+- *Probed pro-default at N=2 per tier* (bare sonnet + opus, 2026-08-11): all four
+  sessions refused the plain baseline and derived the never-shrinks ground
+  themselves. Demoted 2026-08-12 — the ban match measured instinct; it stay cuz
+  the composite table would otherwise read as permitting the shape.
 - *Reopens when* the baseline carry a committed expiry per entry and the build fail
   on an entry past it, which turn the unbounded exemption into a dated one. **Then it
   is a ratchet**, and the row above already permit it.

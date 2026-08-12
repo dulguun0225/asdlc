@@ -30,7 +30,7 @@ Ranking, for repo with no measured latency problem:
 2. **An in-process cache with a short expiry.** Second cheapest. No new service. Limit is per-instance scope — `C-9`'s stated condition.
 3. **A shared cache server.** Only when number says so.
 
-Add cache when measurement says so, not when design looks like it wants one. **Which engine to run, where needed, is not directive here** — per-stack pick with deployment-shaped and ecosystem-shaped gates, stated in stack skill. Nine-candidate survey of engine landscape, with licences, release cadence and ground each candidate lost on, is in [evidence.md](evidence.md); evidence for that pick, not rule here.
+Add cache when measurement says so, not when design looks like it wants one. **Probe-scoped ground (2026-08-11, bare sonnet + opus):** handed a slow endpoint with a findable root cause, 4/4 sessions fixed the cause and added no cache — never cite "the first answer is a cache" as self-evident; unprobed shape: no visible fix. The org fact above, not agent instinct, is this section's ground. **Which engine to run, where needed, is not directive here** — per-stack pick with deployment-shaped and ecosystem-shaped gates, stated in stack skill. Nine-candidate survey of engine landscape, with licences, release cadence and ground each candidate lost on, is in [evidence.md](evidence.md); evidence for that pick, not rule here.
 
 ## What is here and what is elsewhere
 

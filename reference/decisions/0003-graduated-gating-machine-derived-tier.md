@@ -1,6 +1,6 @@
 # ADR-0003 — Gating is graduated, and the tier is computed, not rated
 
-- **Status:** accepted
+- **Status:** superseded by [ADR-0050](0050-autonomy-by-default-gates-on-evidence.md) — gates are no longer the default; this machinery is retained dormant, drawn on when evidence adds a gate
 - **Date:** 2026-07-27
 - **Research:** [2026-07-27 — where gates go, and who assigns the tier](../research/2026-07-27-gate-placement-and-tiering.md)
 

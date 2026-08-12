@@ -4,42 +4,117 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repository is
 
-A monorepo of working assets for an agentic software factory. Three live directories:
+A **monorepo holding two things**: the ASDLC design, and the code that implements it.
 
-- [`skills/`](skills/README.md) — what `npx skills add dulguun0225/asdlc` delivers: the four
-  stage procedures (spec → plan → tasks → implement) and the engineering-decision skills.
-  Documents, not code; the QA harness is `tools/skills-harness/`.
-- [`agents/`](agents/README.md) — global subagent definitions with model × effort routing,
-  their skills and saved workflows, installed on target machines by clone-and-link (this
-  machine is only the development bench). Never move anything from `agents/skills/` into
-  `skills/` or `.claude/skills/` — those are skills-CLI discovery containers and it would
-  join the delivery set. Harness: `tools/agents-harness/`.
-- [`tools/`](tools/README.md) — the code: stack definitions (`tools/stacks/`), harnesses,
-  checkers. Node only, no other toolchains.
+- **The design** — the target ASDLC ([`asdlc/`](asdlc/README.md)), a stack sheet per deployment
+  variant ([`variants/`](variants/README.md)), a rollout plan ([`rollout/`](rollout/plan.md)),
+  and the working record ([`reference/`](reference/open-questions.md)).
+- **The code** — [`tools/`](tools/README.md), and nowhere else
+  ([ADR-0025](reference/decisions/0025-monorepo.md)); "code" means programs this repository
+  runs or builds — [`agents/`](agents/README.md) ships instruction artifacts (including
+  Workflow scripts) that only ever execute on the machines that install them
+  ([ADR-0047](reference/decisions/0047-agents-join-the-monorepo.md)).
 
-**The design is retired (2026-08-12, owner decision).** `asdlc/`, `variants/`, `rollout/`,
-and `reference/` are frozen history — read them if useful, cite them if useful, but nothing
-in them binds current work, and they are not maintained: no new ADRs, no open-questions
-upkeep, no variant-parity obligations. Do not "fix" anything inside them.
+**ASDLC** = **agentic software development life cycle** ("Agentic SDLC" in prose; "life cycle"
+as three words). The subject is a life cycle where **agents execute multi-step development
+work** ([ADR-0002](reference/decisions/0002-scope-agentic-not-ai-assisted.md)); AI-assisted
+tooling that only speeds up a human is background context. **Autonomy is the default**: no
+stage carries a human gate unless attributed evidence added one, scoped and carrying its exit
+signal ([ADR-0050](reference/decisions/0050-autonomy-by-default-gates-on-evidence.md)); the
+destination is a **fully autonomous software factory and operations**
+([ADR-0048](reference/decisions/0048-end-goal-autonomous-software-factory.md)). The tier/gate
+machinery in the design is dormant catalog, not defaults — do not add approval steps or
+sign-offs speculatively, in documents or in skills.
 
-## Posture
+**The four design directories are documents-only.** `asdlc/`, `variants/`, `rollout/` and
+`reference/` hold no application code, build system, test suite, or package manifest. Do not
+scaffold a toolchain or CI config into them; if you find yourself looking for a build command
+there, the deliverable is prose, a diagram, or a decision record.
 
-**Autonomy by default.** Agents run the work end to end. A gate or human review step is
-added only where evidence — a defect, an incident, a measured failure — shows it necessary,
-and it is scoped to where the evidence points. Do not add approval steps, sign-offs, or
-review stops speculatively, in documents or in skills.
+**One decision registry**: [`reference/decisions/`](reference/decisions/README.md) — `ADR-NNNN`.
+Numbers are never reused; gaps are deleted records, held by git history.
 
-## Rules that survive the retirement
+The repository is under version control (branch `master`). Don't commit unless asked.
 
-- **This repository is public. No org internals** — no OKR content, org names, service
-  names, internal process details, or real personal names (role names only). Org-internal
-  state lives in session memory, never here.
-- **Abandoned work carries its reason** where the first glance at it lands (tombstone
-  header, close comment, abandon message) — the owner's standing rule.
-- Don't commit unless asked; a session that commits also pushes (the repo serves other
-  machines by clone-and-link, so local-only changes are invisible where they matter).
-- Claims about vendor pricing, quotas, or model capabilities carry a source and a date —
-  never asserted from memory.
+## Sessions
+
+The project is developed from more than one machine, and per-project memory does not travel.
+So: **read [`reference/open-questions.md`](reference/open-questions.md) → "What to pick up
+next" before working; update it when you change something** (replace what is stale — it is the
+current state, not a log); **offer to commit work that matters, and a session that commits also
+pushes** (check `git status -sb` before declaring a session finished).
+
+## Three variants, tracked in parallel
+
+Every part of the design must be answered for **every** deployment variant; a section that
+addresses fewer is incomplete ([ADR-0039](reference/decisions/0039-self-hosted-forks-on-the-assembly-axis.md)).
+
+1. **Self-hosted assembled** — the stack is free to use (open source, runnable on
+   infrastructure the team controls); best-of-breed per layer, enforcement first. Paid
+   *models* are in scope; paid platform/SaaS components are not.
+2. **Self-hosted integrated** — the same licence constraint, but integrated products first:
+   the fewest self-operated systems, at two named enforcement losses accepted by construction
+   ([variants/self-hosted-integrated.md](variants/self-hosted-integrated.md)).
+3. **Cloud** — managed/SaaS components allowed; optimize for capability and time-to-value.
+
+A licensed product on your own infrastructure is a shape this axis has no place for — out of
+scope as written; widening the axis to it is the owner's call. Where the variants converge,
+say so explicitly; where they diverge, the divergence and its cost is itself a finding.
+
+## Decision authority: there is no in-house expertise to defer to
+
+Nobody in this org has built or operated an Agentic SDLC — there is no internal expert to
+consult. So **research the question and decide it**; do not ask the user to choose a tool, a
+pattern, or a threshold. Still ask about what only the owner knows: scope and priority, appetite
+(money, ops burden, risk), and facts about the environment. A decision nobody here can check on
+merit must trace to a dated source, or be labelled an explicit bet with the signal that would
+falsify it. Everything decided is a starting point: decide → run it → measure → revise.
+
+## Research before content
+
+The documents *are* the product, so unresearched prose is worse than an empty stub — it reads
+as decided and gets built on.
+
+- Don't expand a stub or heading speculatively; ask before generating new document content.
+- Claims about vendor pricing, quotas, model capabilities, or agent-tooling features need a
+  **source and a date** — never assert them from memory or carry a figure forward unchecked.
+- Prefer an explicit "unknown / to be researched" over a plausible guess.
+
+## Where things live
+
+- [`README.md`](README.md) — the entry point for a human.
+- [`asdlc/`](asdlc/README.md) — the life cycle: overview, roles, tiers, one file per stage
+  (each ends with a "Not yet specified" section — keep that rule), plus
+  [`templates/`](asdlc/templates/README.md), [`examples/`](asdlc/examples/README.md) and
+  [`skills/`](asdlc/skills/README.md) (the rules of the stage procedures).
+- [`skills/`](skills/README.md) — what `skills add` delivers: the four stage procedures and the
+  engineering-decision skills. Documents, not code; the QA harness is `tools/skills-harness/`.
+- [`agents/`](agents/README.md) — the third product family
+  ([ADR-0047](reference/decisions/0047-agents-join-the-monorepo.md)): global subagent
+  definitions with model × effort routing, their skills and saved workflows, installed on
+  target machines by clone-and-link (this machine is only the development bench). Never move
+  anything from `agents/skills/` into `skills/` or `.claude/skills/` — those are skills-CLI
+  discovery containers and it would join the delivery set. Harness: `tools/agents-harness/`.
+- [`variants/`](variants/README.md) — the two stacks, each a self-contained bill of materials.
+- [`rollout/`](rollout/plan.md) — `plan.md` and `open-parameters.md` (values to be filled).
+- [`reference/`](reference/open-questions.md) — `context.md` (the org this is designed for —
+  read it before answering any open question), `open-questions.md` (`OQ-N` entries — start
+  here), `artifacts.md` (every schema), `decisions/`, `research/` (dated notes: findings,
+  sources, and a "do not reintroduce" list of refuted claims).
+- [`tools/`](tools/README.md) — the programs. **The design states the rules; `tools/`
+  implements them** ([ADR-0030](reference/decisions/0030-design-states-the-rules-tools-implement-them.md)):
+  where they differ, the design wins and the tool has a bug. A tool is authority only over its
+  own runtime facts.
+
+## Conventions
+
+- **Decisions go in ADRs.** Anything that closes a choice is a numbered record: the decision,
+  why, one line per rejected option, and what would reverse it. Closing an open question also
+  updates that `OQ-N` entry's status line.
+- **Date-stamp volatile content**, and **record what was refuted** — research notes carry a
+  "do not reintroduce" list so a failed figure is not re-derived later.
+- **No historical narrative in living documents.** Write what is true now; git history holds
+  how it got that way.
 
 ## Writing style
 

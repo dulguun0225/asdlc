@@ -1,11 +1,5 @@
 # Open questions
 
-> **Retired 2026-08-12 (owner decision).** The design-first discipline was slowing delivery;
-> development continues code-first in `skills/`, `agents/`, `tools/`. This tree is frozen
-> history — nothing in it binds current work, and this file is no longer the inter-session
-> handover note. Gates and review steps are no longer defaults; one is added only where
-> evidence shows it necessary.
-
 Named, numbered questions that block progress on the target ASDLC. A closed question lands as a
 filled-in table or a numbered ADR.
 
@@ -24,7 +18,19 @@ if an answer covers only some, the question stays open. Read
 **This is the handover note between sessions** — the state lives here, not in a memory file.
 Update it when a session changes something; replace what is stale.
 
-**Where the project is:** every ADR is accepted and landed. **There are three variants**
+**New 2026-08-12, and it reframes everything below:
+[ADR-0050](decisions/0050-autonomy-by-default-gates-on-evidence.md) — autonomy by default; a
+gate is added only on attributed evidence.** The owner inverted the gate-first posture
+(after executing and same-day reversing a wholesale retirement of the design — `298241b`,
+reverted). ADR-0003, 0005, 0006, 0046 and 0049 are superseded as defaults and retained as
+dormant machinery; the four stage skills ship gateless; the demo rig runs at 0 required
+approvals. **Read gate/tier language below as dormant catalog, not current defaults.**
+Follow-up work this opens: rewrite `asdlc/tiers.md`, `roles.md`, the stage files' gate
+sections and `rollout/plan.md` §6/phase-4 to the dormant-machinery framing (the ADR-wins
+rule covers the gap meanwhile), and recast OQ-25 as the trigger-and-exit table for
+evidence-added gates.
+
+**Where the project was before that:** every ADR accepted and landed. **There are three variants**
 ([ADR-0039](decisions/0039-self-hosted-forks-on-the-assembly-axis.md), owner-directed): the
 self-hosted variant forked on the assembly axis — the assembled sheet (Gerrit + Zuul,
 enforcement-first) and the new integrated sheet (Forgejo + SigNoz, fewest systems, two
@@ -625,9 +631,13 @@ One line each; the ADR is the record.
 
 ## OQ-25 — Gate retirement: the exit signal per human gate
 
-- **Status:** open — opened by [ADR-0048](decisions/0048-end-goal-autonomous-software-factory.md).
-- **Blocks:** nothing running today; ADR-0048 part 3 makes a human gate without a recorded
-  exit signal a design bug, and today no gate carries one.
+- **Status:** open, **inverted by [ADR-0050](decisions/0050-autonomy-by-default-gates-on-evidence.md)**
+  (2026-08-12) — no gate exists by default, so the question is now the **trigger and exit
+  signal per gate that evidence adds**: which attributed defect classes add which gate shape
+  (from the dormant catalog), at what scope, and what measured evidence removes it again.
+  Opened by [ADR-0048](decisions/0048-end-goal-autonomous-software-factory.md).
+- **Blocks:** nothing running today; ADR-0048 part 3 still binds — an evidence-added gate
+  without a recorded exit signal is a design bug.
 - **The question:** for each human gate (spec, plan, merge T1/T2, deploy) and each item on
   the "deliberately not automated" list: the measured evidence that retires it, or narrows
   it to a named residual human role. Also decides which destination touchpoints are

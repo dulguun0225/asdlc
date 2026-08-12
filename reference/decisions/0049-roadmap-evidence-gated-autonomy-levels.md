@@ -1,6 +1,6 @@
 # ADR-0049 — The roadmap: evidence-gated autonomy levels, no dates
 
-- **Status:** accepted
+- **Status:** superseded by [ADR-0050](0050-autonomy-by-default-gates-on-evidence.md) — the walk now starts at the destination posture; per-scope advancement and automatic regression survive inside ADR-0050 part 2
 - **Date:** 2026-08-12
 
 ## Context

@@ -72,6 +72,12 @@ ln -sfn ~/repos/dulguun0225/asdlc/agents/definitions ~/.claude/agents
 New-Item -ItemType Junction -Path "$HOME\.claude\workflows" -Target D:\repos\dulguun0225\asdlc\agents\workflows
 ```
 
+```sh
+ln -sfn ~/repos/dulguun0225/asdlc/agents/workflows ~/.claude/workflows
+```
+
+The same `-fn` caveat as `~/.claude/agents` applies: if `~/.claude/workflows` already exists as a real directory with content, move that content into the clone first.
+
 The built-in `/deep-research` offers no per-stage model/effort control (only session-wide `effortLevel` and the advisory `workflowSizeGuideline`); `/research-lite` exists to route each stage to the cheapest model that holds quality.
 
 Workflow-tool scripts do **not** consult the routing table automatically — `agent()` calls default to the session model. Each call must pass `agentType: '<agent>'` (pulls the definition's model/effort/tools/prompt) or explicit `model`/`effort`. That is deliberate for ultracode: it buys maximum quality, so its workflows stay unrouted. Cost-routed orchestration is opt-in via the `/workflow-light` skill below. The `Agent` tool needs neither — it auto-routes by `description` match.
@@ -89,6 +95,13 @@ Workflow-tool scripts do **not** consult the routing table automatically — `ag
 New-Item -ItemType Junction -Path "$HOME\.claude\skills\workflow-light" -Target D:\repos\dulguun0225\asdlc\agents\skills\workflow-light
 New-Item -ItemType Junction -Path "$HOME\.claude\skills\measured-defaults" -Target D:\repos\dulguun0225\asdlc\agents\skills\measured-defaults
 ```
+
+```sh
+ln -sfn ~/repos/dulguun0225/asdlc/agents/skills/workflow-light ~/.claude/skills/workflow-light
+ln -sfn ~/repos/dulguun0225/asdlc/agents/skills/measured-defaults ~/.claude/skills/measured-defaults
+```
+
+One link per skill, not one for `skills/` — `~/.claude/skills/` also holds skills installed by other means. A skill added here later needs its own link.
 
 `measured-defaults` must be linked on any machine running `coder`/`deep-worker`: preload draws from the installed skill set, and a listed-but-missing skill is skipped with only a debug-log warning (vendor sub-agents docs, fetched 2026-08-12) — the agents still run, silently unloaded.
 

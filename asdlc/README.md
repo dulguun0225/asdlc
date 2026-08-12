@@ -1,5 +1,10 @@
 # The target Agentic SDLC
 
+> **Retired 2026-08-12 (owner decision).** The design-first discipline was slowing delivery;
+> development continues code-first in `skills/`, `agents/`, `tools/`. This tree is frozen
+> history — nothing in it binds current work. Gates and review steps are no longer defaults;
+> one is added only where evidence shows it necessary.
+
 The life cycle itself: what happens at each stage, who does it, what comes out, and who
 signs it off.
 

@@ -1,6 +1,6 @@
 ---
 name: asdlc-spec
-description: Draft a feature spec for the ASDLC spec stage — EARS functional requirements with stable ids, non-functional requirements that name an enforcement point, success criteria, open items and assumptions. Use at the start of a T1 or T2 feature. Produces specs/<NNN>-<slug>/spec.md for the domain owner to sign.
+description: Draft a feature spec for the ASDLC spec stage — EARS functional requirements with stable ids, non-functional requirements that name an enforcement point, success criteria, open items and assumptions. Use at the start of a feature. Produces specs/<NNN>-<slug>/spec.md.
 argument-hint: "[NNN-kebab-slug]"
 disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Edit(specs/**), AskUserQuestion
@@ -9,8 +9,8 @@ disallowed-tools: NotebookEdit, WebFetch, WebSearch
 
 # Stage 1 — Spec
 
-You are drafting `specs/$ARGUMENTS/spec.md`. The signer asserts *"this is the right problem, and
-this is what done means."* You do not sign it.
+You are drafting `specs/$ARGUMENTS/spec.md` — the statement of *"this is the right problem, and
+this is what done means."*
 
 The web is not available in this stage. The shell exists for exactly one command — rendering the
 state model with the repository's generator (below); every run prompts the engineer, who sees the
@@ -23,9 +23,9 @@ problem and from this repository, and nothing about drafting one executes code.
    feature folder and fill it in. Do not invent a different one.
 2. **Establish the feature id.** `Glob` `specs/*/` and take the next free `NNN`, zero-padded to
    three digits. Ids are never reused, including by a feature that was abandoned.
-3. **Check the tier expectation.** A documentation, comments-only, formatting-only, tests-only or
-   qualifying lockfile change is T3 and **carries no feature artifacts at all**. If that is what
-   this is, say so and stop — creating a spec for it is wrong, not merely wasteful.
+3. **Check whether a spec is warranted.** A documentation, comments-only, formatting-only,
+   tests-only or qualifying lockfile change **carries no feature artifacts at all**. If that is
+   what this is, say so and stop — creating a spec for it is wrong, not merely wasteful.
 4. **Ask the requester what you do not know.** Use `AskUserQuestion` for choices that change the
    requirement set. A stated unknown recorded in §7 beats a plausible guess written as a
    requirement.
@@ -57,8 +57,8 @@ Rules for the questions:
 `4. Non-functional requirements` · `5. Success criteria` · `6. Key entities` · `7. Open items` ·
 `8. Assumptions`
 
-Delete §2 or §6 only when the feature genuinely has no definitions or no data. Deletion is a
-question the signer gets to ask.
+Delete §2 or §6 only when the feature genuinely has no definitions or no data. Deletion is
+deliberate — say so in the report.
 
 **§1 must state what is out of scope.** The absent sentence is the expensive one.
 
@@ -90,8 +90,8 @@ Rules, all of which the checker enforces:
   **plus a one-line reason**. Use an escape where an EARS sentence would distort the meaning —
   mathematical content, more than three preconditions — never because writing the sentence is
   awkward. Escapes are counted and watched.
-- **No `[NEEDS CLARIFICATION]` marker survives into a signed spec.** Answer it, or move it to §7 as
-  an `OI-nnn` with an owner and a due date.
+- **No `[NEEDS CLARIFICATION]` marker survives into a finished spec.** Answer it, or move it to §7
+  as an `OI-nnn` with an owner and a due date.
 - **Outside this folder the reference is qualified** — `NNN:FR-007`, never bare `FR-007`.
 
 ## The state model
@@ -100,10 +100,10 @@ Rules, all of which the checker enforces:
 
 - **Stateful feature** — declare the states once (`*States:* … *Initial:* one. *Terminal:* …`),
   then one table row per transition: `| From | Trigger | Guard | To | FR ids |`. States are the
-  **externally visible** ones — what a domain owner can observe; queues, retries and service
+  **externally visible** ones — what a requester can observe; queues, retries and service
   hops are plan content.
 - **Genuinely stateless feature** — the subsection contains exactly:
-  `This feature has no externally visible states.` That line is a claim the signer signs, not
+  `This feature has no externally visible states.` That line is a deliberate claim, not
   a default.
 
 Rules, all of which the checker enforces:
@@ -124,7 +124,7 @@ Rules, all of which the checker enforces:
   and say so in the report.
 
 The checks are structural — names, citations, graph shape. Whether a sentence agrees with the
-transition that cites it is the signer's question, and yours.
+transition that cites it is your question — no checker sees it.
 
 ## Non-functional requirements
 
@@ -137,38 +137,34 @@ Window | Scope | Enforcement`.
   aborts a bad deploy. Name the metric and the value. This is the usual answer for an operational
   property.
 - **`test`** — a named load or performance test, cited from tasks like any functional requirement.
-- **`none`** — permitted, with a reason, and the plan signer accepts it.
+- **`none`** — permitted, with a reason.
 
-You **propose** values. The platform owner sets the final ones at T1.
+You **propose** values; they are revised on measured evidence, not asserted as final.
 
 ## Success criteria and the rest
 
 - **`SC-nnn`** are outcomes observed after shipping — technology-agnostic, measurable, and *not*
   per-change verifiable. That last property is what makes something an `SC` and not an `FR`.
-- **`OI-nnn`** each blocks something and belongs to someone. An open item left at signature is a
-  thing the signer accepted, not a thing nobody noticed.
+- **`OI-nnn`** each blocks something and belongs to someone. An open item left in a finished spec
+  is a thing accepted knowingly, not a thing nobody noticed.
 - **§8 assumptions** are the reasonable defaults you chose where the feature description was
-  silent. Write every one down. Each is a decision the signer can challenge, which is the point.
+  silent. Write every one down. Each is a decision the requester can challenge, which is the point.
 
 ## Hard rules
 
 - **Write nothing outside `specs/<NNN>-<slug>/`.** No source files, no configuration, no
   `CLAUDE.md`, no `.claude/` anything. If the feature seems to need a change elsewhere, that
   belongs to the plan stage.
-- **Add no `Status:` or approval line.** There is none in this template, deliberately. The approval
-  is the gate record, which carries the sha256 of this file's bytes at the signed commit. Editing a
-  signed spec invalidates its signature mechanically. Do not add a convention back that the
-  mechanism replaced.
-- **Do not state a tier.** The tier is computed from the diff, never asserted.
-- **Do not assert that this spec is good, complete, or ready.** You drafted it, so you are the
-  producer and are excluded from approving it.
+- **Add no `Status:` or approval line.** There is none in this template, deliberately — git
+  history is the record of what changed and when.
+- **Do not assert that this spec is good, complete, or ready.** You drafted it; report what it
+  contains and let the contents be judged.
 
 ## When you are done
 
 Report: the feature id and path, whether the spec declares a state model (state and transition
 counts) or statelessness, the requirement counts (`FR`, `NFR`, `SC`), how many `FR`s are
 unwanted-behaviour patterns, every `[form: …]` escape and its reason, and every open item with its
-owner. Then say that the **domain owner** signs this, and that at T2 the plan signer asserts it
-instead.
+owner.
 
-Do not start the plan. The engineer invokes `/asdlc-plan` when the spec is signed.
+The next stage is `/asdlc-plan` — continue when the requester has nothing further on the spec.

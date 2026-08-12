@@ -4,29 +4,27 @@
   Template. Copy to `specs/<NNN>-<kebab-slug>/tasks.md`. Rules: SKILL.md, beside this file.
   Comments are stripped before checking.
 
-  This artifact has no human gate — only the automated consistency check. That makes the two
-  mechanical parts below load-bearing: the hashes and the citations.
+  This artifact is checked mechanically — the automated consistency check and nothing else.
+  That makes the two mechanical parts below load-bearing: the hashes and the citations.
 
-  No secrets and no production personal data anywhere in this file — and no human signs this
-  artifact, so nobody reviews its content on the way in. Task text and evidence notes use
-  placeholder values only.
+  No secrets and no production personal data anywhere in this file. Task text and evidence
+  notes use placeholder values only.
 -->
 
 | | |
 |---|---|
 | **Feature** | `[NNN-kebab-slug]` |
 | **Authored** | `[YYYY-MM-DD]` |
-| **Gate** | none. Automated consistency check only, at every tier. |
+| **Check** | automated consistency check, blocking. |
 
 ## Derived from
 
 <!--
-  The decomposition is checked against THESE bytes, not against whatever the files say later.
-  Fill both with `sha256` of the file's committed bytes. At merge they must also match the
-  hashes in the spec and plan gate records — that is what "consistent with the signed plan"
-  means, literally rather than aspirationally. If either artifact changes, re-derive the tasks
-  and update the hash in the same change; a stale hash fails the check, which is the drift
-  alarm.
+  The decomposition is checked against THESE bytes, not against whatever the files say later —
+  that is what "consistent with the plan" means, literally rather than aspirationally. Fill
+  both with `sha256` of the file's committed bytes. If either artifact changes, re-derive the
+  tasks and update the hash in the same change; a stale hash fails the check, which is the
+  drift alarm.
 -->
 
 | Artifact | sha256 |

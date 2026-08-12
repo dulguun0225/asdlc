@@ -1,5 +1,10 @@
 # Rollout plan
 
+> **Retired 2026-08-12 (owner decision).** The design-first discipline was slowing delivery;
+> development continues code-first in `skills/`, `agents/`, `tools/`. This tree is frozen
+> history — nothing in it binds current work. Gates and review steps are no longer defaults;
+> one is added only where evidence shows it necessary.
+
 - **What this is:** a sequencing of decided things. Where it decides something new — pilot
   size, phase durations, the widening rate, the pilot's abort criteria, and the go/no-go
   sign-off assignment — the choice is marked in place as a **default the owner can move**,

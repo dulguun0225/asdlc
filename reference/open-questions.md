@@ -1,5 +1,11 @@
 # Open questions
 
+> **Retired 2026-08-12 (owner decision).** The design-first discipline was slowing delivery;
+> development continues code-first in `skills/`, `agents/`, `tools/`. This tree is frozen
+> history — nothing in it binds current work, and this file is no longer the inter-session
+> handover note. Gates and review steps are no longer defaults; one is added only where
+> evidence shows it necessary.
+
 Named, numbered questions that block progress on the target ASDLC. A closed question lands as a
 filled-in table or a numbered ADR.
 

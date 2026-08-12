@@ -1,5 +1,10 @@
 # Architecture decision records
 
+> **Retired 2026-08-12 (owner decision).** The registry is frozen history — no new records,
+> and no record here binds current work. The design-first discipline was slowing delivery;
+> development continues code-first in `skills/`, `agents/`, `tools/`, with gates added only
+> where evidence shows them necessary.
+
 One numbered record per closed choice — tool selection, boundary, process rule.
 A decision that lives as a bullet inside a larger document does not count as made.
 

@@ -5,10 +5,8 @@
   governs. Rules: SKILL.md, beside this file. Guidance comments like this one are stripped
   before checking, so leave or delete them freely — they never count as content.
 
-  There is NO status or approval line in this file, deliberately. The approval is the gate
-  record, which carries the sha256 of this file's bytes at the commit that was signed.
-  Editing this file after signature invalidates the signature mechanically. Do not add one
-  back.
+  There is NO status or approval line in this file, deliberately — git history is the record
+  of what changed and when. Do not add one.
 
   No secrets and no production personal data anywhere in this file — example records, sample
   requests and entity walkthroughs use fabricated values. This file is read into every agent
@@ -20,8 +18,7 @@
 | **Feature** | `[NNN-kebab-slug]` |
 | **Repository** | `[repo]` |
 | **Authored** | `[YYYY-MM-DD]` |
-| **Signer** | spec gate — the domain owner (T1). At T2 the plan signer asserts this too. |
-| **Assertion** | *This is the right problem, and this is what "done" means.* |
+| **Claim** | *This is the right problem, and this is what "done" means.* |
 
 ## 1. Purpose and scope
 
@@ -45,8 +42,8 @@ language covers it. A requirement is only as precise as the words it uses.]
 
     This feature has no externally visible states.
 
-  That line is a claim the signer signs, not a default. Externally visible states only — what
-  a domain owner can observe (an order's lifecycle, a document's status); realization workflow
+  That line is a deliberate claim, not a default. Externally visible states only — what
+  a requester can observe (an order's lifecycle, a document's status); realization workflow
   (queues, retries, service hops) belongs to the plan. The states declared here are the closed
   vocabulary for every WHILE below; WHILE anywhere + the stateless line = check failure.
 
@@ -92,7 +89,7 @@ language covers it. A requirement is only as precise as the words it uses.]
     `[form: table]` or `[form: prose]` — plus a one-line reason. Escapes are counted and
     watched; use one where an EARS sentence would distort the meaning (mathematical content,
     more than three preconditions), not where writing the sentence is merely awkward.
-  - No `[NEEDS CLARIFICATION]` marker survives into a signed spec. Answer it, or move it to
+  - No `[NEEDS CLARIFICATION]` marker survives into a finished spec. Answer it, or move it to
     §7 as an OI with an owner.
   - Outside this folder — in a test, an incident record, a commit message — the reference is
     qualified: `NNN:FR-007`.
@@ -115,10 +112,10 @@ next free id regardless of grouping.]
     canary  — becomes a threshold in the service's progressive-rollout policy, the signal that
               aborts a bad deploy. Name the metric and the value.
     test    — a named load or performance test, cited from tasks like any FR.
-    none    — permitted, with a reason, signed at the plan gate.
-  This spec proposes values; the platform owner sets the final ones at T1. Delete the section
-  only if the feature has no operational properties worth stating — deletion is a review
-  question.
+    none    — permitted, with a reason.
+  This spec proposes values; they are revised on measured evidence. Delete the section
+  only if the feature has no operational properties worth stating — deletion is deliberate,
+  say so in the report.
 -->
 
 | ID | Property | Metric | Threshold | Window | Scope | Enforcement |
@@ -142,7 +139,7 @@ its relationships. No implementation detail. Delete if the feature holds no data
 ## 7. Open items
 
 <!-- A stated unknown beats a plausible guess. Each OI blocks something and belongs to someone.
-     An OI left open at signature is a thing the signer accepted, not a thing nobody noticed. -->
+     An OI left open in a finished spec is a thing accepted knowingly, not a thing nobody noticed. -->
 
 | ID | Item | Blocks | Owner | Due |
 |---|---|---|---|---|
@@ -151,4 +148,4 @@ its relationships. No implementation detail. Delete if the feature holds no data
 ## 8. Assumptions
 
 [The reasonable defaults chosen where the feature description was silent. Each is a decision the
-signer can challenge — which is the point of writing it down.]
+requester can challenge — which is the point of writing it down.]

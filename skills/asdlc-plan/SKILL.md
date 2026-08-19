@@ -122,6 +122,16 @@ that might not hold?
 Pre-execution is where a model's judgement is least badly calibrated, which is why the critique
 belongs here and not at merge.
 
+## §11 — the phase plan, read against the spec's priorities
+
+**Where the spec ranks its requirements** — `Must`, `Should`, `Could` on the requirement lines —
+the phase plan is read against that ranking, and a phase delivering a `Could` before a `Must` says
+why in its row. The ranking is the requester's, recorded at the gate the requester signs;
+sequencing it away without saying so overturns their decision silently.
+
+Where the spec ranks nothing, phase on dependency and risk as before. This adds no field to §11 —
+it is a constraint on what the rows may say.
+
 ## The advisory tier
 
 Run the tier function at plan time and record its output in the header table as **advisory**. It is
@@ -145,8 +155,8 @@ Do not present the advisory tier as the tier. Do not choose it.
 
 Report: the path, the spec hash prefix you recorded, the advisory tier and which rule produced it,
 every new path declared in §7 with its map entry applied, every
-`NEW — proposed` and `Diverges from` row in §9, and the faults your critique pass found. Then say that a **ring
-reviewer** signs this — or a team leader recorded as review-competent — and that at T2 this signer
-asserts the problem as well as the approach.
+`NEW — proposed` and `Diverges from` row in §9, the faults your critique pass found, and any phase
+that delivers a lower-priority requirement ahead of a higher one. Then say that the **team's
+engineer** signs this, and that at T2 this signer asserts the problem as well as the approach.
 
 Do not start the tasks stage. The engineer invokes `/asdlc-tasks` when the plan is signed.

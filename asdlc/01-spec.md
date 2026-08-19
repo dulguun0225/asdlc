@@ -40,6 +40,14 @@ no cross-requirement construct, so workflow is owned here or nowhere. Operationa
 `NFR-nnn` field sets that name an enforcement point — for most of them the canary threshold that later aborts a bad deploy.
 Outcomes observed after shipping are `SC-nnn`; stated unknowns are `OI-nnn` with an owner.
 
+**Four fields nothing checks** ([ADR-0057](../reference/decisions/0057-spec-actors-priority-and-provenance.md)):
+an actor vocabulary in §2, a `Must`/`Should`/`Could` priority per requirement, a destination for
+each excluded concern in §1, and the governing document a requirement was written from. One rule
+decides whether the drafter fills one — **produce what you can derive, never fabricate what only
+the requester can supply**. The first three are derivable and every inference goes to §8 where the
+signer can overturn it; a citation is not derivable and is carried only where the input gave one.
+None of the four blocks anything, because all four are judgements whose absence is legitimate.
+
 **The spec carries no approval line.** Nobody types "approved" into it — see Records below.
 
 **T3 changes have no spec.** Documentation, comments-only, formatting-only, tests-only and

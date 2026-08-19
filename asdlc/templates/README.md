@@ -25,13 +25,24 @@ that cited `ADR-0014` would send its reader nowhere. Each states its rule and po
 **A filled-in example is in [../examples/](../examples/README.md).** These templates state the
 rules; the example applies them, and records in its own §7 the places where the notation resisted.
 
-## Five things to know before filling one in
+## What to know before filling one in
 
 **Requirements are EARS sentences with stable ids.** One testable behaviour each; six patterns;
 ids never renumbered or reused; a dropped requirement stays as `WITHDRAWN`. A sentence matching
 no pattern fails the check unless it carries a `[form: …]` escape tag and a reason — and the
 escapes are counted, because a notation that has to be escaped often is a notation that does not
 fit.
+
+**Four of the spec's fields are optional, and one rule decides whether you fill one.** An actor
+vocabulary, a requirement's priority, a destination for each excluded concern, and the governing
+document a requirement was written from — none of them checked, none of them able to fail a build
+([ADR-0057](../../reference/decisions/0057-spec-actors-priority-and-provenance.md)). **Produce what
+you can derive; never fabricate what only the requester can supply.** Priority, actors and
+destinations are derivable from the feature description, so they are filled and the inference is
+recorded as an assumption the signer can overturn. A citation is not: a wrong priority is visible
+from the spec alone, a wrong citation only if the signer opens the other document. They were added
+after a first-party comparison against a real product-discovery artifact, which found nothing
+missing from the plan, tasks or implementation procedures and these four missing from the spec.
 
 **Nobody types an approval.** There is no `Status:` line in any of these files. The approval is
 the gate record, which carries the sha256 of the file's bytes at the signed commit

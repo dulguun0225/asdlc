@@ -2,7 +2,10 @@
 
 One feature, carried through the artifacts a real feature produces. Every rule the
 [templates](../templates/README.md) state is applied here rather than described, so a team can
-read a filled-in example instead of inferring one.
+read a filled-in example instead of inferring one — except the four optional spec fields
+([ADR-0057](../../reference/decisions/0057-spec-actors-priority-and-provenance.md)), which are
+applied where this feature's own material supports them and deliberately left out where it does
+not. Filling all four would teach the opposite of the rule that governs them.
 
 | Example | What it is | Why this one |
 |---|---|---|
@@ -13,6 +16,13 @@ read a filled-in example instead of inferring one.
 **It is a template you can copy.** The templates state rules; this shows them applied — EARS
 sentences that carry real content, an `NFR` with enforcement `none` and a reason, `[FR: n/a]` on
 scaffolding, requirement ids grouped under sub-headings once the list passes ten.
+
+It also shows the optional fields used *partially*, which is the harder thing to infer from a rule:
+priorities inferred rather than stated, with the inference and the rule behind it recorded in §8;
+`Source:` on the requirements a record governs and absent on the three it does not; a §1
+out-of-scope table naming where each excluded concern lives; and **no actor declaration at all**,
+because this feature distinguishes no parties and the rule is to write nothing rather than declare
+the absence.
 
 **It is the design tested against itself.** Writing this found things no amount of re-reading the
 templates would have. They are recorded in the example's own §7 open items rather than smoothed

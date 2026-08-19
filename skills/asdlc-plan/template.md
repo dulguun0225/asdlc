@@ -76,7 +76,8 @@ service is barred from the automatic deploy path.]
      declares here hits tier-function rule 4 at merge, routes to T1, and FAILS THE BUILD naming
      the path. That failure is a plan defect surfaced late. The block below is the schema. How
      these entries reach the map file — as a diff to it in this same change — is the mechanism;
-     the map file itself is T1, so the platform owner reviews that diff even though this plan
+     the map file itself is T1, so that diff is reviewed as a T1 change — the engineer and the
+     team leader — even though this plan
      is not T1. -->
 
 ```yaml
@@ -97,13 +98,13 @@ paths:
 ## 8. Non-functional enforcement
 
 <!-- One row per NFR. A `canary` row is a proposal for the service's progressive-rollout
-     policy; the platform owner sets the final value at T1. Where the deployment target has no
+     policy; the final value is set as a T1 change. Where the deployment target has no
      progressive-rollout mechanism the canary route may not exist, in which case say so and
      fall back to `test` or `none` with a reason. -->
 
 | NFR | Enforcement | Metric / test | Proposed value | Set by |
 |---|---|---|---|---|
-| NFR-001 | `canary` | `request-success-rate` | [≥ 99.x%] | platform owner, T1 |
+| NFR-001 | `canary` | `request-success-rate` | [≥ 99.x%] | T1 change |
 | NFR-002 | `test` | [`tests/perf/...`] | [p99 ≤ N ms] | this plan |
 
 ## 9. Decision trace
@@ -133,6 +134,11 @@ paths:
 and is framed as **finding faults**, never as confirming the plan.]
 
 ## 11. Phase plan
+
+<!-- Where the spec ranks its requirements (`Must` / `Should` / `Could`), the phases are read
+     against that ranking: a phase delivering a `Could` before a `Must` says why in its row. The
+     ranking belongs to the requester and was recorded at the gate the requester signs. Where the
+     spec ranks nothing, phase on dependency and risk. -->
 
 | Phase | Delivers | Satisfies |
 |---|---|---|

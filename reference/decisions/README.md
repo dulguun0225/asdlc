@@ -73,3 +73,4 @@ A decision that lives as a bullet inside a larger document does not count as mad
 | [0054](0054-deployment-target-kubernetes-or-compose.md) | The deployment target is Kubernetes or Docker Compose; the Compose answer is Swarm-mode rolling update with a monitored rollback | accepted | 2026-08-12 |
 | [0055](0055-team-of-three-and-the-gate-signers.md) | The team is three roles, the gates map onto them, and there is no platform-owner role | accepted; the T1 pair superseded by [0056](0056-the-team-is-the-review-unit-the-ring-is-deleted.md) | 2026-08-12 |
 | [0056](0056-the-team-is-the-review-unit-the-ring-is-deleted.md) | The team is the review unit: the reviewer ring is deleted | accepted | 2026-08-12 |
+| [0057](0057-spec-actors-priority-and-provenance.md) | Four optional spec fields: actors, priority, out-of-scope destinations, and carried provenance — none checked | accepted | 2026-08-19 |

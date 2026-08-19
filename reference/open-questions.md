@@ -92,6 +92,23 @@ the org's shape and the deployment target, and struck one role from the design.
   says SwarmKit *"remains functional"* while *"development has slowed"*; a deprecation notice is
   the falsifier. **Not yet built:** the Compose/Swarm slice in `tools/`, and the watch window.
 
+**New 2026-08-19: the spec template gained four optional fields, checked by nothing.**
+**[ADR-0057](decisions/0057-spec-actors-priority-and-provenance.md)** — an actor vocabulary in §2,
+a `Must`/`Should`/`Could` priority per requirement, a destination table for §1's excluded concerns,
+and the governing document a requirement was written from. From a first-party comparison against a
+real product-discovery artifact the owner supplied (a bank's service concept and initial user
+stories), which found **nothing missing from the plan, tasks or implementation procedures** and
+confirmed three places this design is stronger — NFR enforcement points, the state model, and `OI`
+due dates. One rule governs all four: **produce what you can derive, never fabricate what only the
+requester can supply.** Priority, actors and destinations are derivable and their inferences go to
+§8; a citation is not derivable and is carried only where the input gave one. **ADR-0014's seven
+blocking checks stay seven and its advisory list is unchanged** — the coverage numbers are reported
+by the stage skill to the engineer and nowhere else. **One thing the checker author needs:** an
+indented line under a requirement opening `*Priority:*` or `*Source:*` is metadata, not a wrapped
+requirement; every other indented line still wraps. Deferred, not skipped: whether `priority` should
+reach `requirements-trace.json`. The same pass fixed stale role names in the stage skills — the
+deleted "platform owner" and "ring reviewer" — against ADR-0055 and ADR-0056.
+
 **Where the project is:** every ADR is accepted and landed. **There are three variants**
 ([ADR-0039](decisions/0039-self-hosted-forks-on-the-assembly-axis.md), owner-directed): the
 self-hosted variant forked on the assembly axis — the assembled sheet (Gerrit + Zuul,

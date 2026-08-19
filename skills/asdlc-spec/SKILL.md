@@ -37,7 +37,10 @@ in the input is the one defect with measured effect on generated code, and this 
 cheap point to remove it. Scan against the spec's own parts: the §1 scope boundary (what is
 *out*), the state model (states missing, transitions the requester would dispute), unwanted
 behaviour (failures with no IF/THEN), NFR thresholds (a property named with no number), §2
-terminology (two words for one thing), and §5 measurability (an SC nobody could observe).
+terminology (two words for one thing), and §5 measurability (an SC nobody could observe). Add the
+optional fields where one carries a real question: an excluded concern you routed to an owner the
+requester might dispute, a priority you inferred rather than were told, and an actor a requirement
+names that §2 never declared.
 
 Rules for the questions:
 
@@ -57,10 +60,48 @@ Rules for the questions:
 `4. Non-functional requirements` · `5. Success criteria` · `6. Key entities` · `7. Open items` ·
 `8. Assumptions`
 
-Delete §2 or §6 only when the feature genuinely has no definitions or no data. Deletion is a
-question the signer gets to ask.
+Delete §2 or §6 only when the feature genuinely has no definitions, no distinguishable actors, or
+no data. Deletion is a question the signer gets to ask.
 
 **§1 must state what is out of scope.** The absent sentence is the expensive one.
+
+## Four fields nothing checks
+
+The template carries four optional fields — the header's **source material**, §1's **out-of-scope
+destinations**, §2's **actor declarations**, and a requirement's **priority** and **source**. No
+checker reads any of them and none of them can fail a build. One rule decides whether you fill one:
+
+> **Produce what you can derive. Never fabricate what only the requester can supply.**
+
+**Priority, actors and destinations are derivable** — you can reach a defensible answer from the
+feature description alone. Fill them, and put every inference in §8 as an assumption, where the
+signer can overturn it. Leave a field out where there is nothing to infer from; an unranked
+requirement set and a single-actor feature are both legitimate.
+
+**A source is not derivable.** Carry a citation only where the feature description gave you one —
+a policy, a standard, a regulation, or a record in this repository. Name the inputs in the header
+row, and put the citation on each requirement that came from one. **A citation you inferred is
+worse than no citation:** a wrong priority is visible to the signer from the spec alone, and a
+wrong citation is only visible if they open the other document. Never cite a document you were not
+given.
+
+The four in detail:
+
+- **Priority** is `Must`, `Should` or `Could`. There is no `Won't` — a thing not being built is §1
+  out-of-scope or a `WITHDRAWN` id, and a fourth value would give it two homes. Functional
+  requirements only; an `NFR` carries an enforcement point, which already answers this.
+- **Actors** are declared once under a `### Actors` sub-heading at the head of §2, with the rest of
+  the definitions under `### Terms` beside it, and each actor defined there like any other term.
+  Where the feature distinguishes no parties, §2 carries neither sub-heading and the definitions
+  sit directly under it — write no "this feature has no actors" line. §3's stateless declaration exists because a checker enforces it against every
+  `WHILE`; nothing enforces this one, and a required claim nothing tests is ceremony.
+  **EARS is unchanged**: the `<system>` slot stays the system, and the actor appears in the
+  trigger or the response — *"WHEN an approver submits a decision, the service shall …"*.
+- **Out-of-scope destinations** sit in a table under §1's sentence, never instead of it. Where you
+  cannot name the owner, write `unowned — OI-nnn` and open the item; a concern routed to the wrong
+  team reads as settled, which is worse than one visibly unrouted.
+- **Source material** in the header is what makes a per-requirement `Source:` expected. Delete the
+  row when the feature description named no governing document.
 
 ## Functional requirements — the six EARS patterns
 
@@ -168,7 +209,15 @@ You **propose** values. The final ones are set at T1.
 Report: the feature id and path, whether the spec declares a state model (state and transition
 counts) or statelessness, the requirement counts (`FR`, `NFR`, `SC`), how many `FR`s are
 unwanted-behaviour patterns, every `[form: …]` escape and its reason, and every open item with its
-owner. Then say that the **domain owner** signs this, and that at T2 the plan signer asserts it
-instead.
+owner.
+
+Then, for the four fields nothing checks: how many requirements carry a priority out of how many
+there are, and how many of those you inferred rather than were told; the actors declared, or that
+the feature distinguishes none; how many requirements carry a source and which inputs they came
+from, or that the description named no governing document; and any excluded concern left
+`unowned`. Nothing here can fail — reporting it is how the engineer sees what the signer will be
+asked to take on trust.
+
+Then say that the **domain owner** signs this, and that at T2 the plan signer asserts it instead.
 
 Do not start the plan. The engineer invokes `/asdlc-plan` when the spec is signed.

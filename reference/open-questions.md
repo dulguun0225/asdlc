@@ -109,6 +109,25 @@ requirement; every other indented line still wraps. Deferred, not skipped: wheth
 reach `requirements-trace.json`. The same pass fixed stale role names in the stage skills — the
 deleted "platform owner" and "ring reviewer" — against ADR-0055 and ADR-0056.
 
+**New 2026-08-19, second: the feature is a defined unit, and an over-scoped input is split before
+drafting.** [ADR-0058](decisions/0058-the-feature-as-a-unit-of-work.md) — the feature joins
+[ADR-0021](decisions/0021-units-of-work.md)'s table as the fourth unit: **one signable problem, one
+plan, many changes**; it spans many changes, no change spans two, and it may span services. Three
+tests bound it, each derived from an accepted record rather than invented: **one signer**
+(ADR-0005 part 2, the role in ADR-0055), **one state model** whose graph closes (ADR-0035), and
+**one shippable outcome** as the floor that stops over-splitting (ADR-0014 part 3). **No
+requirement count is set** — ADR-0021 part 4's ground, that an invented number gets enforced as
+though it meant something — and the signal that would set one is named.
+[asdlc-spec](../skills/asdlc-spec/SKILL.md) gains a scope step beside its T3 step: where an input
+names more than one feature it reports the candidates with the test that separated each, asks which
+to draft, and drafts exactly one. **Siblings are recorded in §1's out-of-scope destination table**
+(ADR-0057 part 5) and **no ids are reserved**. Nothing checks any of it — the spec gate is the
+check, and ADR-0014 part 7's seven blocking checks stay seven. Occasion: the owner's second reading
+of the same product-discovery artifact ADR-0057 was written from — it is scoped to a whole service,
+and drafted as one spec it would be one signature over twenty-one features and one plan gate over a
+service architecture. Cost: the spec skill's body went 3173 → 3623 tokens per firing; **frontmatter
+is untouched**, so firing behaviour is unchanged and `npm run firing` was not run.
+
 **Where the project is:** every ADR is accepted and landed. **There are three variants**
 ([ADR-0039](decisions/0039-self-hosted-forks-on-the-assembly-axis.md), owner-directed): the
 self-hosted variant forked on the assembly axis — the assembled sheet (Gerrit + Zuul,

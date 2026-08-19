@@ -66,8 +66,9 @@ Identical in all three, at identical cost:
   as project-scope committed copies, CI-verified byte-identical
   ([ADR-0032](../reference/decisions/0032-stage-delivery-via-skills-cli.md)). Delivery is above
   the code-host line, so the variants converge here.
-- **The units of work** — session, change, deploy batch
-  ([ADR-0021](../reference/decisions/0021-units-of-work.md)).
+- **The units of work** — feature, session, change, deploy batch
+  ([ADR-0021](../reference/decisions/0021-units-of-work.md),
+  [ADR-0058](../reference/decisions/0058-the-feature-as-a-unit-of-work.md)).
 
 ## What diverges
 

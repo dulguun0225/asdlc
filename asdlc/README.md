@@ -65,9 +65,12 @@ flowchart TD
     METRICS -.->|"incident tightens a tier<br/>automatic, no review"| TIER
 ```
 
-Stages 1–3 are **per feature**. Stages 4–7 are **per change**, and run many times per
-feature. That split is deliberate: the cost of the spec and plan gates does not scale with
-agent output volume ([ADR-0005](../reference/decisions/0005-roles-gate-signers-and-the-reviewer-ring.md)).
+Stages 1–3 are **per feature** — one signable problem, one plan, many changes
+([ADR-0058](../reference/decisions/0058-the-feature-as-a-unit-of-work.md), which also states the
+three tests that bound one and what happens when an input covers several). Stages 4–7 are **per
+change**, and run many times per feature. That split is deliberate: the cost of the spec and plan
+gates does not scale with agent output volume
+([ADR-0005](../reference/decisions/0005-roles-gate-signers-and-the-reviewer-ring.md)).
 
 ## Read in this order
 

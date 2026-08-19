@@ -21,12 +21,32 @@ problem and from this repository, and nothing about drafting one executes code.
 
 1. **Read [template.md](template.md)**, beside this file. It is the structure — copy it into the
    feature folder and fill it in. Do not invent a different one.
-2. **Establish the feature id.** `Glob` `specs/*/` and take the next free `NNN`, zero-padded to
+2. **Check the tier expectation.** A documentation, comments-only, formatting-only, tests-only
+   or qualifying lockfile change is T3 and **carries no feature artifacts at all**. If that is what this is, say so and stop — creating a spec for it is
+   wrong, not merely wasteful.
+3. **Check the scope.** A spec covers **one feature: one signable problem, one plan, many
+   changes.** Three tests bound it, and an input that fails any of the
+   first two names more than one feature:
+   - **One signer.** One domain owner signs one problem. Requirements answering to more than one
+     deciding owner — different departments, different approvers, a separate decider per open
+     question — are more than one feature.
+   - **One state model.** §3's transition graph must close: one initial state, every state
+     reachable, every non-terminal state with an exit. Two independent externally visible
+     lifecycles cannot close as one graph.
+   - **One shippable outcome** — the floor, which stops you splitting too far. Never split below
+     the smallest set whose success criteria could be observed without another feature shipping.
+     A read path with nothing to read is not a feature; it is part of one.
+
+   Where the input names more than one feature, **do not draft a spec spanning them**. Report the
+   candidates — a slug and a one-line problem statement each, and the test that separated it from
+   its neighbours — ask the requester which to draft (`AskUserQuestion`), and draft exactly that
+   one. Reserve no ids for the others: an id is taken when a spec is drafted, never before.
+
+   Say what you counted. There is **no requirement-count limit**, and a spec is not too large
+   because it is long.
+4. **Establish the feature id.** `Glob` `specs/*/` and take the next free `NNN`, zero-padded to
    three digits. Ids are never reused, including by a feature that was abandoned.
-3. **Check the tier expectation.** A documentation, comments-only, formatting-only, tests-only or
-   qualifying lockfile change is T3 and **carries no feature artifacts at all**. If that is what
-   this is, say so and stop — creating a spec for it is wrong, not merely wasteful.
-4. **Ask the requester what you do not know.** Use `AskUserQuestion` for choices that change the
+5. **Ask the requester what you do not know.** Use `AskUserQuestion` for choices that change the
    requirement set. A stated unknown recorded in §7 beats a plausible guess written as a
    requirement.
 
@@ -99,7 +119,9 @@ The four in detail:
   trigger or the response — *"WHEN an approver submits a decision, the service shall …"*.
 - **Out-of-scope destinations** sit in a table under §1's sentence, never instead of it. Where you
   cannot name the owner, write `unowned — OI-nnn` and open the item; a concern routed to the wrong
-  team reads as settled, which is worse than one visibly unrouted.
+  team reads as settled, which is worse than one visibly unrouted. **A sibling feature is a
+  destination**, and this table is where a split input is recorded: name a drafted sibling
+  `NNN-slug`, and one with no folder yet `unowned — OI-nnn` under the same rule.
 - **Source material** in the header is what makes a per-requirement `Source:` expected. Delete the
   row when the feature description named no governing document.
 
@@ -203,10 +225,14 @@ You **propose** values. The final ones are set at T1.
 - **Do not state a tier.** The tier is computed from the diff, never asserted.
 - **Do not assert that this spec is good, complete, or ready.** You drafted it, so you are the
   producer and are excluded from approving it.
+- **Never draft one spec across two features.** Saying an input is several features, and which,
+  is a correct output of this stage — on the same footing as saying a change is T3 and stopping.
 
 ## When you are done
 
-Report: the feature id and path, whether the spec declares a state model (state and transition
+Report: the feature id and path, the candidate features you identified in the input and the test
+that separated each — or that it was one feature — and which you drafted, whether the spec
+declares a state model (state and transition
 counts) or statelessness, the requirement counts (`FR`, `NFR`, `SC`), how many `FR`s are
 unwanted-behaviour patterns, every `[form: …]` escape and its reason, and every open item with its
 owner.

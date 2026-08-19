@@ -20,11 +20,36 @@ approving it ([roles.md](roles.md) §2). The domain owner is the independent par
 the problem
 ([ADR-0005](../reference/decisions/0005-roles-gate-signers-and-the-reviewer-ring.md) part 2).
 
-## Why the gate is per feature
+## What a feature is, and why the gate is per feature
 
 Spec and plan gates fire **once per feature**, not once per change. This is what keeps the
 gate scheme affordable: agent output volume can rise without raising the number of spec
 signatures. Merge gates absorb the volume instead.
+
+That argument only holds if the feature is bounded, so it is
+([ADR-0058](../reference/decisions/0058-the-feature-as-a-unit-of-work.md)): **one signable
+problem, one plan, many changes** — the fourth unit of work beside the session, the change and
+the deploy batch ([ADR-0021](../reference/decisions/0021-units-of-work.md)). A feature spans
+many changes and no change spans two. It may span services; the plan carries the ordering when
+it does.
+
+Three tests bound it, and **an input covering more than one feature is split before a spec is
+drafted, never written as one**:
+
+- **One signer.** Requirements answering to more than one deciding owner are more than one
+  feature — one domain owner signs one problem.
+- **One state model.** §3's transition graph closes: one initial state, every state reachable,
+  every non-terminal state with an exit
+  ([ADR-0035](../reference/decisions/0035-spec-state-model.md)). Two independent externally
+  visible lifecycles cannot close as one graph.
+- **One shippable outcome** — the floor, which stops over-splitting. Never split below the
+  smallest set whose success criteria can be observed without another feature shipping.
+
+**No requirement count bounds a spec**, deliberately: the count is reported and watched, and
+ADR-0058 names the signal that would set a ceiling. **Nothing checks the split.** The domain
+owner refusing to sign a problem they do not own is the first test firing at the only point
+that can enforce it; the drafter proposes the split and the requester chooses
+([asdlc-spec](../skills/asdlc-spec/SKILL.md)).
 
 ## The artifact
 

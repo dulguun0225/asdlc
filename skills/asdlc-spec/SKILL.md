@@ -12,10 +12,9 @@ disallowed-tools: NotebookEdit, WebFetch, WebSearch
 You are drafting `specs/$ARGUMENTS/spec.md`. The signer asserts *"this is the right problem, and
 this is what done means."* You do not sign it.
 
-The web is not available in this stage. The shell exists for exactly one command — rendering the
-state model with the repository's generator (below); every run prompts the engineer, who sees the
-command. For anything else a spec needs, say so and stop — a spec is written from the requester's
-problem and from this repository, and nothing about drafting one executes code.
+Neither the web nor the shell is available in this stage. For anything a spec needs beyond this
+repository, say so and stop — a spec is written from the requester's problem and from this
+repository, and nothing about drafting one executes code.
 
 ## Before writing anything
 
@@ -179,12 +178,6 @@ Rules, all of which the checker enforces:
 - **The graph must close**: one initial state, every state reachable from it, every
   non-terminal state with an exit, and no two rows sharing a `(From, Trigger)` pair with
   identical guards.
-- **Never hand-write a state diagram — render it.** Where the repository carries the
-  state-model generator (`statemodel-to-mermaid.mjs`, wherever the checker is adopted), run it
-  on the drafted spec and show the engineer its output — this is the one shell command this
-  stage runs. Commit its output **verbatim or not at all**: an edited copy fails the
-  regenerate-and-diff gate. Where the repository carries no generator, write only the table
-  and say so in the report.
 
 The checks are structural — names, citations, graph shape. Whether a sentence agrees with the
 transition that cites it is the signer's question, and yours.

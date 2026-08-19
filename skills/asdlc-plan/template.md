@@ -32,7 +32,7 @@ shape everything else.]
 ## 2. Architecture
 
 [Components and how they relate. Name what already exists against what this feature adds. A
-small diagram beats a long paragraph — Mermaid in a fenced block renders without a toolchain.]
+small diagram beats a long paragraph.]
 
 ## 3. Synchronous contracts
 

@@ -99,10 +99,6 @@ precise as the words it uses.]
   cites an event-driven, unwanted-behaviour or complex FR; same (From, Trigger) with textually
   identical guards fails. Checks are structural — names, citations, graph shape — never that a
   sentence agrees with the transition citing it.
-
-  Never hand-write a state diagram. The rendered view is generated from this table by a
-  deterministic table→Mermaid generator; where a generated diagram is committed, CI regenerates
-  it and fails on any byte difference.
 -->
 
 *States:* [Draft, Submitted, Approved, Rejected]. *Initial:* [Draft]. *Terminal:* [Approved, Rejected].

@@ -542,8 +542,10 @@ ADR-0020 part 4's never-write list. Everything else is unblocked, starting with 
    feature-artifact checker (fork seed in place at
    [`tools/feature-artifact-checker/`](../tools/feature-artifact-checker/README.md); the
    state-model checks of [ADR-0035](decisions/0035-spec-state-model.md) joined its scope
-   2026-08-05, with their own seed `statemodel-to-mermaid.mjs` beside the fork seed; both
-   seeds are Node — [ADR-0041](decisions/0041-one-toolchain-node.md) retired Python from the
+   2026-08-05, with their own seed `statemodel-to-mermaid.mjs` beside the fork seed — which
+   nothing now asks an agent to run: the spec and plan stage skills lost every mention of
+   diagram generation 2026-08-19, so that seed and its `--self` CI step are the only place the
+   rendered view survives; both seeds are Node — [ADR-0041](decisions/0041-one-toolchain-node.md) retired Python from the
    repository and closed the spec's OI-005), the CI
    emitters for gate records and requirements traces, and two verifications that need hardware —
    Harbor's OCI referrers path, and the toolchain under TLS termination (the local Docker rig

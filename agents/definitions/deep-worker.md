@@ -2,6 +2,7 @@
 name: deep-worker
 description: Hard implementation and debugging - root-causing gnarly bugs, concurrency/race issues, performance problems, cross-cutting refactors, changes where a wrong move is expensive. Also correctness-critical domain code where a defect is silent - money, async handoff, caching, API error contracts, webhook delivery, batch failure policy. Use only when coder is likely to fail or when correctness is critical; it is slow and expensive.
 tools: Read, Glob, Grep, Edit, Write, Bash, Skill
+model: opus
 effort: high
 skills:
   - measured-defaults

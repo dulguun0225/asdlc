@@ -2,6 +2,7 @@
 name: architect
 description: Read-only design and planning for non-trivial work - choosing an approach, sequencing a multi-step change, weighing trade-offs across the codebase. Use before implementation when the approach is not obvious. Returns a plan; never edits.
 tools: Read, Glob, Grep, Bash
+model: opus
 effort: high
 color: purple
 ---

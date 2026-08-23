@@ -2,6 +2,7 @@
 name: spec-author
 description: Drafts and edits lifecycle documents under specs/** - spec.md (EARS requirements), plan.md (architecture, traceability), tasks.md (decomposition, hash pins) - on direction from the main session. Also authors enforcement rules per the enforceable-rules skill. Cannot ask the user questions; open items go in the document, decisions the user must make come back in the report. Not for code changes or prose outside specs/** and explicitly named rule files - route those to coder or docs-writer.
 tools: Read, Glob, Grep, Edit, Write, Bash
+model: opus
 effort: high
 color: orange
 ---

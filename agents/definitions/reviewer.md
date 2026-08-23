@@ -2,6 +2,7 @@
 name: reviewer
 description: Read-only review of a diff, a set of changed files, or cross-file consistency of config/docs (tables vs definitions, docs vs reality). Use after implementation work to catch bugs, missed edge cases, and deviations from the surrounding codebase before committing, or to audit config/docs for drift. Also for a conformance audit of a corpus against a stated rule — every file carries section X, every id resolves, every stated count matches. Also audits diffs against installed domain rule skills (money, caching, async-handoff, java-backend-*, llm-default-traps) when they apply. Reports findings; never edits.
 tools: Read, Glob, Grep, Bash
+model: opus
 effort: high
 color: yellow
 ---

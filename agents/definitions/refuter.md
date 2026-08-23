@@ -2,6 +2,7 @@
 name: refuter
 description: Adversarial panelist for technical decisions - steelmans a candidate, then tries to refute the current leaning and casts an independent vote. Use for the panel and refutation-vote stages of tech-decision-research and for stress-testing any conclusion before it becomes a standing rule. Read-only on the repo.
 tools: Read, Glob, Grep, WebSearch, WebFetch, Bash
+model: opus
 effort: high
 color: pink
 ---

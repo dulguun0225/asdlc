@@ -258,14 +258,18 @@ mode, evaluating a tests-only change for T3.
 ## 4. Non-functional requirements
 
 <!--
-  NFR-002 is the interesting row: `none` is a permitted enforcement point, and the reason is what
-  makes it reviewable rather than an omission. Most worked examples never show this case.
+  NFR-002 is the interesting row: `none` is a permitted enforcement point for a real, stated
+  property deliberately left unenforced, and the reason is what makes it reviewable rather than
+  an omission. Most worked examples never show this case. There is deliberately no availability
+  row: the checker is a CI job, not a service, and a row negating an inapplicable property
+  states nothing a signer can enforce or waive — an NFR exists only where the feature's own
+  material derives one.
 -->
 
 | ID | Property | Metric | Threshold | Window | Scope | Enforcement |
 |---|---|---|---|---|---|---|
 | NFR-001 | runtime | wall-clock seconds per invocation | ≤ 10 s | per run | a feature folder of ≤ 100 requirements | `test` |
-| NFR-002 | availability | — | — | — | — | `none` — it is a CI job, not a service. A failed run blocks the change, which is the correct behaviour, so there is no availability target to set. |
+| NFR-002 | runtime | wall-clock seconds per invocation | ≤ 60 s | per run | a feature folder above 100 requirements | `none` — no fixture that large exists to test against; the threshold is stated so the gap stays visible, and NFR-001's tier is the enforced one. |
 
 ## 5. Success criteria
 

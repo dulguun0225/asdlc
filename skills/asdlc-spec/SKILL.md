@@ -79,8 +79,9 @@ Rules for the questions:
 `4. Non-functional requirements` · `5. Success criteria` · `6. Key entities` · `7. Open items` ·
 `8. Assumptions`
 
-Delete §2 or §6 only when the feature genuinely has no definitions, no distinguishable actors, or
-no data. Deletion is a question the signer gets to ask.
+Delete §2, §4 or §6 only when the feature genuinely has no definitions or distinguishable actors,
+no derivable operational property (the rule is under Non-functional requirements below), or no
+data. Deletion is a question the signer gets to ask.
 
 **§1 must state what is out of scope.** The absent sentence is the expensive one.
 
@@ -187,13 +188,30 @@ transition that cites it is the signer's question, and yours.
 EARS has no pattern for these, so they are a field set: `ID | Property | Metric | Threshold |
 Window | Scope | Enforcement`.
 
+**An NFR is under the same rule as the four unchecked fields: produce what you can derive,
+never fabricate what only the requester can supply.** Write one only where the feature
+description states an operational property — a budget, a volume, a deadline, a retention
+period — or the feature visibly changes one: a new externally called endpoint, a new job that
+must finish inside a window. Two shapes are fabrication, not diligence:
+
+- **The service default restated.** A row that would read identically on any feature in the
+  service — generic availability, generic latency — is the service's rollout policy, not this
+  feature's requirement, and its threshold is a number only the operating team can set.
+- **The inapplicable property negated.** A row whose content is "does not apply" gives the
+  signer nothing to enforce or waive. Where the inapplicability is worth recording at all, it
+  is an §8 assumption, not an id.
+
+**A feature with no derivable operational property deletes §4.** An empty section is not a
+defect to fill; like every deletion, it is a question the signer gets to ask.
+
 **Every NFR names an enforcement point**, and there are exactly three:
 
 - **`canary`** — becomes a threshold in the service's progressive-rollout policy, the signal that
   aborts a bad deploy. Name the metric and the value. This is the usual answer for an operational
   property.
 - **`test`** — a named load or performance test, cited from tasks like any functional requirement.
-- **`none`** — permitted, with a reason, and the plan signer accepts it.
+- **`none`** — a real, stated property deliberately left unenforced, with a reason the plan
+  signer accepts. Never a home for a property the feature does not have.
 
 You **propose** values. The final ones are set at T1.
 
@@ -226,7 +244,8 @@ You **propose** values. The final ones are set at T1.
 Report: the feature id and path, the candidate features you identified in the input and the test
 that separated each — or that it was one feature — and which you drafted, whether the spec
 declares a state model (state and transition
-counts) or statelessness, the requirement counts (`FR`, `NFR`, `SC`), how many `FR`s are
+counts) or statelessness, the requirement counts (`FR`, `NFR`, `SC`), for each `NFR` what in the
+input derived it — or that §4 was deleted because nothing did — how many `FR`s are
 unwanted-behaviour patterns, every `[form: …]` escape and its reason, and every open item with its
 owner.
 

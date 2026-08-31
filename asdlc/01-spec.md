@@ -63,6 +63,11 @@ whose states are the closed vocabulary for every `WHILE`, or an explicit statele
 the signer signs ([ADR-0035](../reference/decisions/0035-spec-state-model.md)); EARS itself has
 no cross-requirement construct, so workflow is owned here or nowhere. Operational properties are
 `NFR-nnn` field sets that name an enforcement point — for most of them the canary threshold that later aborts a bad deploy.
+An NFR is under the same derive-or-omit rule as the four fields below: it exists only where the
+feature description states an operational property or the feature visibly changes one. A restated
+service default (generic availability, generic latency — the rollout policy's content, not the
+spec's) and a row negating an inapplicable property are both fabrication; a feature with no
+derivable operational property carries no NFR section at all.
 Outcomes observed after shipping are `SC-nnn`; stated unknowns are `OI-nnn` with an owner.
 
 **Four fields nothing checks** ([ADR-0057](../reference/decisions/0057-spec-actors-priority-and-provenance.md)):

@@ -166,22 +166,31 @@ next free id regardless of grouping.]
 ## 4. Non-functional requirements
 
 <!--
+  Same rule as the optional fields above: produce what you can derive, never fabricate what only
+  the requester can supply. An NFR exists only where the feature description states an
+  operational property — a budget, a volume, a deadline, a retention period — or the feature
+  visibly changes one (a new externally called endpoint, a new job with a completion window).
+  Two shapes are fabrication, not diligence: a row any feature in the service could carry
+  unchanged (generic availability, generic latency — that is the service's rollout policy, not
+  this spec's content), and a row whose content is "does not apply" (an §8 assumption, if worth
+  recording at all). No derivable property → delete the section and say so in the report;
+  deletion is a question the signer gets to ask.
+
   EARS has no pattern for these, so they are a field set instead. Every NFR names an
   enforcement point, and there are exactly three:
     canary  — becomes a threshold in the service's progressive-rollout policy, the signal that
               aborts a bad deploy. Name the metric and the value.
     test    — a named load or performance test, cited from tasks like any FR.
-    none    — permitted, with a reason, signed at the plan gate.
+    none    — a real, stated property deliberately left unenforced, with a reason, signed at
+              the plan gate. Never a property the feature does not have.
   This spec proposes values; the final ones are set as a T1 change, signed by the engineer and
-  the team leader. Delete the section
-  only if the feature has no operational properties worth stating — deletion is a review
-  question.
+  the team leader.
 -->
 
 | ID | Property | Metric | Threshold | Window | Scope | Enforcement |
 |---|---|---|---|---|---|---|
-| NFR-001 | [availability] | `request-success-rate` | [≥ 99.x%] | [5m] | [service] | `canary` |
-| NFR-002 | [latency] | `request-duration` | [p99 ≤ N ms] | [5m] | [endpoint] | `canary` |
+| NFR-001 | [latency of the endpoint this feature adds] | `request-duration` | [p99 ≤ N ms] | [5m] | [the new endpoint] | `canary` |
+| NFR-002 | [completion time of the job this feature adds] | [job-duration] | [p95 ≤ N min] | [per run] | [the new job] | `test` |
 
 ## 5. Success criteria
 

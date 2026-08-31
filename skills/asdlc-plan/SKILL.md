@@ -87,7 +87,9 @@ greenfield work; it is measured, not tolerated silently.
 ## §8 — Non-functional enforcement
 
 One row per `NFR`. A `canary` row is a **proposal** for the service's progressive-rollout policy;
-the final value is set at T1.
+the final value is set at T1. Where the spec carries no NFR section, replace the table with exactly
+`The spec states no non-functional requirements.` — the section stays, because the check requires
+it, and inventing an NFR the spec does not state is the same defect as dropping one.
 
 Off Kubernetes the canary route may not exist. If that is this service's situation, say so and fall
 back to `test` or `none` with a reason — do not propose a threshold that has nothing to enforce it.

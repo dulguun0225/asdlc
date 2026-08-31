@@ -100,7 +100,9 @@ paths:
 <!-- One row per NFR. A `canary` row is a proposal for the service's progressive-rollout
      policy; the final value is set as a T1 change. Where the deployment target has no
      progressive-rollout mechanism the canary route may not exist, in which case say so and
-     fall back to `test` or `none` with a reason. -->
+     fall back to `test` or `none` with a reason. Where the spec carries no NFR section,
+     replace the table with exactly: The spec states no non-functional requirements.
+     The section stays — a plan missing it fails the check. -->
 
 | NFR | Enforcement | Metric / test | Proposed value | Set by |
 |---|---|---|---|---|

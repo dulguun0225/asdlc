@@ -18,19 +18,10 @@ if an answer covers only some, the question stays open. Read
 **This is the handover note between sessions** — the state lives here, not in a memory file.
 Update it when a session changes something; replace what is stale.
 
-**New 2026-09-01: spec NFRs come under the derive-or-omit rule.** The spec skill was producing
-boilerplate NFRs — generic availability/latency `canary` rows — on every feature. §4 is now under
-the same rule as the four unchecked fields: an NFR exists only where the feature description
-states an operational property or the feature visibly changes one; a restated service default and
-a row negating an inapplicable property are named as fabrication; a spec with no derivable
-property deletes §4 and the drafter's report says what derived each NFR or why §4 is gone; `none`
-is scoped to a real, stated property deliberately left unenforced. Changed:
-`skills/asdlc-spec/` (SKILL.md + template.md, placeholder rows now feature-derived),
-[asdlc/01-spec.md](../asdlc/01-spec.md), the plan stage's zero-NFR form (`skills/asdlc-plan/`
-§8 — the section stays with the line `The spec states no non-functional requirements.`), and the
-worked example's `NFR-002` (was an availability row saying "does not apply"; now a runtime tier
-left unenforced with a reason). No decision record: the registry was deleted by the owner
-2026-08-19 (`2ebfb61`), so the rule is stated in the design doc.
+**New 2026-09-01: invented spec NFRs are banned — closed, nothing open.** An NFR exists only
+where it is derivable from the feature description or from what the feature visibly changes;
+otherwise §4 is deleted. Landed in `skills/asdlc-spec/`, `skills/asdlc-plan/` (the zero-NFR
+form of plan §8), [asdlc/01-spec.md](../asdlc/01-spec.md), and the worked example's `NFR-002`.
 
 **New 2026-08-12: a one-day posture excursion, fully reverted — the ladder stands.** In one
 day the owner ordered the design retired (commit `298241b`: tombstones on the four design

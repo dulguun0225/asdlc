@@ -18,6 +18,18 @@ if an answer covers only some, the question stays open. Read
 **This is the handover note between sessions** — the state lives here, not in a memory file.
 Update it when a session changes something; replace what is stale.
 
+**New 2026-09-01: Spring Data JDBC banned by name, and the version pin got an owner — closed,
+one claim left uncertain.** An agent told "JPA banned" scaffolded a greenfield backend on Spring
+Data JDBC, a superseded Java LTS and a superseded Spring Boot major. `skills/java-backend-rules/`
+now bans Spring Data JDBC and the `JdbcTemplate` family on their own grounds (scoped: it stays
+the jOOQ stewardship exit, never runs beside jOOQ) and carries a pin-creation directive —
+greenfield pins the newest Java LTS and newest Boot GA, verified against the vendor release page
+at adoption; Enforcer holds the floor; named gap 11 says nothing can gate "newest". Open remnant:
+the `CrudRepository.save()` insert-versus-update claim is marked **uncertain** in the ledger —
+verify against the pinned Spring Data line before anything cites it. A `"fixture": "bare"`
+firing case for the scaffolding moment was considered and not added — both existing
+java-backend-rules cases use an existing-repo fixture, which is exactly the hole.
+
 **New 2026-09-01: invented spec NFRs are banned — closed, nothing open.** An NFR exists only
 where it is derivable from the feature description or from what the feature visibly changes;
 otherwise §4 is deleted. Landed in `skills/asdlc-spec/`, `skills/asdlc-plan/` (the zero-NFR

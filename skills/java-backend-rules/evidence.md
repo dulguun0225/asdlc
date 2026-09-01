@@ -159,6 +159,19 @@ The persistence decision is the 2026-06-11..14 pass. **Every note below is the
   transitively under the jOOQ starter — that transitive shape is also to be
   verified against the pinned Boot line at adoption.
 
+- **The pin-creation directive — convention, added 2026-09-01, no research pass
+  behind it.** Written from the same observed failure: an agent scaffolding a
+  greenfield backend pinned a superseded Java LTS and a superseded Spring Boot
+  major, because every version fact in this skill set is a dated record of a
+  past pass, no directive stated a floor, and "Java at version pinned in build"
+  resolves to nothing where no build file exists yet. The directive's
+  enforcement is honestly split: Maven Enforcer owns the floor and the
+  no-floating-versions half; "was newest at adoption" is an agent assertion
+  against the vendor's release page, dated in the repo — the same shape as
+  `llm-default-traps`' registry verification, with the same weakness. Named gap
+  11 states that nothing distinguishes a pin that was newest at adoption from a
+  pin already stale when written.
+
 ### The three Platform directives with no evidence note
 
 **The WebFlux paradigm ban, the Flyway-migrations rule and the Jackson pick
@@ -432,6 +445,10 @@ appears to.
   affordable across the portfolio.
 - **The JDK pin moves past 25.** Re-verify the pinning residuals, the enablement
   flags, and the structured-concurrency status at the new version.
+- **A named enforcement host gains or loses support for the newest LTS** —
+  JaCoCo, Error Prone, NullAway or pitest starts or stops supporting the LTS a
+  greenfield repo would pin today. Re-open which LTS the next repo pins; the
+  pin-creation directive's one-LTS-back escape exists for exactly this state.
 - **The WebFlux ban is examined.** Not a trigger the passes wrote down — it is
   added here, because no pass examined the alternative it bans. A repo with a
   genuine requirement for a reactive stack should raise it as a platform decision
@@ -475,4 +492,5 @@ claim is, what marker it carries, and the date it was taken.
 | Choice of jOOQ over JPA | convention (no per-claim marker recorded) | 2026-06-11..14 |
 | Spring Data JDBC grounds — query derivation, reflective mapping, second idiom | convention, no research pass | 2026-09-01 |
 | `CrudRepository.save()` picks INSERT-versus-UPDATE from in-memory id state | **uncertain** — verify before citing | 2026-09-01 |
+| Pin created at newest supported LTS and newest Boot GA at adoption | convention, no research pass | 2026-09-01 |
 | WebFlux paradigm ban, Flyway rule, Jackson pick | convention, no evidence note | 2026-06-11..14 (inferred) |

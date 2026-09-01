@@ -1,6 +1,6 @@
 ---
 name: java-backend-rules
-description: The platform constitution for a Java backend on Spring Boot Web MVC, jOOQ and PostgreSQL — the rules that bind every line of code in the repo, each with a named build gate. Reactive WebFlux, JPA and Hibernate, Spring Data JDBC and the JdbcTemplate family, jOOQ's attached-record CRUD, plain-SQL strings, an injectable DSLContext, fixed thread pools for request work, StructuredTaskScope, an extra semaphore over the connection pool, wall-clock reads in domain code, and the runtime-silent Spring annotations — field injection, @Transactional, @Scheduled, @Async, @Cacheable — are banned by name, each with the check that fails the build. ALWAYS load before writing a query, a transaction, an in-request fan-out, a Flyway migration, a scheduled task, or a test on this stack, and before picking a persistence, concurrency, JSON or nullness library for it.
+description: The platform constitution for a Java backend on Spring Boot Web MVC, jOOQ and PostgreSQL — the rules that bind every line of code in the repo, each with a named build gate. Reactive WebFlux, JPA and Hibernate, Spring Data JDBC and the JdbcTemplate family, jOOQ's attached-record CRUD, plain-SQL strings, an injectable DSLContext, fixed thread pools for request work, StructuredTaskScope, an extra semaphore over the connection pool, wall-clock reads in domain code, and the runtime-silent Spring annotations — field injection, @Transactional, @Scheduled, @Async, @Cacheable — are banned by name, each with the check that fails the build. ALWAYS load before writing a query, a transaction, an in-request fan-out, a Flyway migration, a scheduled task, or a test on this stack, before picking a persistence, concurrency, JSON or nullness library for it, and before creating a build file or pinning the Java or Spring Boot version for a new repo.
 ---
 # Java backend — the platform rules
 
@@ -60,9 +60,17 @@ Picks unbriefed agent statistically make. **Naming loser be load-bearing half** 
 
 ### Java and Spring Boot Web MVC, with WebFlux banned as a paradigm
 
-**Java at version pinned in build, Spring Boot with servlet Web MVC stack. Reactive WebFlux banned as paradigm** — one concurrency model be blocking thread-per-request on virtual threads, and second model in same repo mean every later piece of code must answer which one it in.
+**Java at version pinned in build — pin created by directive below — Spring Boot with servlet Web MVC stack. Reactive WebFlux banned as paradigm** — one concurrency model be blocking thread-per-request on virtual threads, and second model in same repo mean every later piece of code must answer which one it in.
 
 *ArchUnit — off-the-shelf. **Convention**, 2026-06-11..14 — platform pass decision; no note in evidence trail address WebFlux ban directly. **Nothing about this ban confirmed**: virtual-thread claims the alternative measured against be, but one-concurrency-model argument itself be reasoning no pass put to source. Probed pro-default at N=2 (bare sonnet, effort high, 2026-08-11 — both picked Web MVC over WebFlux unprompted). See [evidence.md](evidence.md).*
+
+### The pin is created at the newest supported LTS, and after that it is the pin
+
+**Repo with no pin — greenfield, or first build file — pin newest Java LTS and newest Spring Boot GA line, verified against vendor own release page at that moment, with version, source and date recorded in repo. Repo that have pin defer to it**, above every version fact written anywhere in this skill set. **No floating version: no range, no `LATEST`, no `RELEASE`, no version resolved at build time.**
+
+Two failure this close. **Training corpus be years behind at every point of its life**, so unbriefed pick be superseded LTS and superseded framework major, and nothing else in this skill contradict it — version fact appear here only as ambient worked-case detail (`backend-stack` record Java 25 LTS as one dated pass verdict; JDK 25 claims here dated 2026-07-24), which be **record of what was newest then, never floor**. Second, **newest that break a gate be no win**: JaCoCo trail each Java release, Error Prone and NullAway sit on compile path, pitest fix per-release defects. **Where named enforcement host not yet support newest LTS, pin one LTS back and record which host forced it** — enforcement surface be whole reason this stack chosen, so build that cannot gate be worse than build one release behind.
+
+*Enforcer `requireJavaVersion` and `banDynamicVersions`, plus `maven.compiler.release` — off-the-shelf, and they **pin what was chosen, they not know what be newest**. Verification that pick was newest at adoption be **convention**: agent state it done against vendor release page, dated, same shape and same weakness as registry verification in `llm-default-traps`. **No gate here read currency and none can without reading network at build time.** Re-verify at adoption rather than on calendar be `tech-decision-research` rule, cited not restated. **Convention**, 2026-09-01 — no research pass; written from observed failure, agent scaffolding greenfield backend on superseded LTS and superseded Boot major.*
 
 ### jOOQ against PostgreSQL, with JPA and Spring Data banned
 
@@ -289,6 +297,7 @@ One concurrency model be virtual threads — synchronous, top-to-bottom, un-colo
 8. **`jacoco-maven-plugin` `check` goal** with per-package `COVEREDRATIO` limits this repo state, version pinned to release supporting build JDK.
 9. **CI grep for `--enable-preview`** across Maven and Gradle compiler and launcher arguments. Not ArchUnit, which cannot see them.
 10. **`jdk.VirtualThreadPinned` JFR event and its alert**, in deployment not in build.
+11. **Maven Enforcer** — `requireJavaVersion` at pinned LTS and `banDynamicVersions` over declared dependencies. Neither know what be newest; both stop pin drifting after it set.
 
 **Then record what was wired and what was skipped, with reason.** These be entries **nothing above gate**; each must be listed as ungated:
 
@@ -298,6 +307,7 @@ One concurrency model be virtual threads — synchronous, top-to-bottom, un-colo
 - **That transaction seam own connection acquisition** — ArchUnit ban injecting `DSLContext`, not every path to `Connection`.
 - **Business-date and `ThreadLocal`-caching rules**, and Jackson and Flyway picks — convention, no check.
 - **Whether `PlainSQLChecker` wired**, if repo chose it over ArchUnit path. Compatibility with pinned JDK and Error Prone unverified here, must be established by adopting repo.
+- **That pinned Java and Spring Boot lines were newest at adoption** — agent assertion plus dated line in repo. Enforcer pin them; nothing read currency.
 
 **Record listing only what was wired read as complete coverage.** That be failure this step exist to prevent.
 
@@ -315,6 +325,7 @@ Silence read as coverage, so each stated.
 8. **Pinning alert be threshold tripwire.** Accumulated short pins below threshold cost real scheduler time and fire nothing.
 9. **Codegen-diff gate assume generation reproducible, and nothing assert it.** Job regenerate once and diff. Non-determinism in generator — iteration order, locale-dependent sorting, embedded timestamp — make gate flap, and flapping gate get relaxed, at which point it mask drift it exist to catch. `java-backend-api` carry stronger form for its document: regenerate **twice** under varied timezone and locale in one pinned container, byte-identical to both. Not carried here — stated 2026-08-01 when `guardrails-toolchain` published general form, cuz asserting it never verified against jOOQ generator on this stack.
 10. **No rule here say anything about primary keys, and migration lint above no ask.** This skill require schema change be committed Flyway migration and be linted for lock and rewrite hazard; **nothing say what the key column be, how it be generated, or what may be assumed about its order.** Agent writing first migration on this stack therefore reach for its corpus default — `bigserial` or `gen_random_uuid()` — and neither squawk nor any ArchUnit ban here notice. **Key rules live in `primary-keys`**, whose gates are a migration grep, a table-classification job and an `ORDER BY`-on-id ban. **That ban need two hosts — that skill's layer check, run 2026-08-02**: ban-list test class here host the jOOQ-builder half — an `orderBy` call handed a key field is a type dependency ArchUnit read soundly — and it read no SQL text at all, so the other half be a lint over committed view and function definitions and Flyway migrations, **and this skill carry no such lint**; squawk read migrations for lock and rewrite hazard, not for sort columns. **This stack narrow the exposure rather than close it**: plain-SQL `String` constructs banned above, so `ORDER BY id` inside a string be largely unwritable in application code — view text, function bodies and migrations stay reachable by nobody. Gap stated rather than closed here, cuz that skill be stack-neutral and this one carry no key rule of its own to narrow.
+11. **Nothing here tell pin that was newest at adoption from pin already stale when written.** Enforcer assert what repo declared, so repo scaffolded on superseded LTS pass every gate in this skill forever, and each later agent read pin as decision. Closing it need oracle outside build — vendor release page read at adoption — and that read be convention, same class as registry verification in `llm-default-traps`.
 
 ## Markers, dates, and what they mean
 

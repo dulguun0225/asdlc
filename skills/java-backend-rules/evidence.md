@@ -50,7 +50,7 @@ marker, no cited source.
 ## Platform
 
 The persistence decision is the 2026-06-11..14 pass. **Every note below is the
-2026-07-25 additions pass.**
+2026-07-25 additions pass**, except where a note carries its own later date.
 
 - **jOOQ codegen from the committed migrations — convention; the mechanism is
   primary-sourced, the mandate is this rule set's synthesis (verified
@@ -142,6 +142,22 @@ The persistence decision is the 2026-06-11..14 pass. **Every note below is the
   alternatives — which is why the directive makes the **hazard class** the rule
   and names the tool only as the enforcement host. Sources: the PostgreSQL
   `ALTER TABLE` and `CREATE INDEX` pages; `squawkhq.com` rules.
+
+- **The Spring Data JDBC and `JdbcTemplate`-family ban — convention, added
+  2026-09-01, no research pass behind it.** Written from an observed failure: an
+  agent told "JPA banned" scaffolded a service on Spring Data JDBC as the
+  compliant alternative, because the recorded ground for the JPA ban — dirty
+  checking — does not apply to it. The grounds stated in the directive are query
+  derivation from repository method names, reflective row mapping over column
+  names, and a second persistence idiom beside jOOQ; none was verified against
+  primary Spring Data documentation in that session. In particular the claim
+  that `CrudRepository.save()` picks INSERT-versus-UPDATE from in-memory id
+  state is marked **uncertain** and must be verified against the pinned Spring
+  Data line before anything cites it; the aggregate-write behaviours beyond it
+  were deliberately left out rather than shipped unverified. The
+  artifact-ban-versus-type-ban split exists because `spring-jdbc` arrives
+  transitively under the jOOQ starter — that transitive shape is also to be
+  verified against the pinned Boot line at adoption.
 
 ### The three Platform directives with no evidence note
 
@@ -373,8 +389,10 @@ appears to.
 
 - **jOOQ stewardship or vendor risk fires.** The named exit is Spring Data
   JDBC — explicit persistence with no dirty checking and no lazy loading, so the
-  property that chose jOOQ still holds — **not JPA or Hibernate.** Absent that
-  trigger, the persistence choice is not re-litigated.
+  property that chose jOOQ still holds — **not JPA or Hibernate.** Taking that
+  exit **replaces jOOQ repo-wide** as a platform decision; the directive's ban
+  on Spring Data JDBC is on running the two beside each other, not on the exit
+  itself. Absent that trigger, the persistence choice is not re-litigated.
 - **jOOQ API or tooling drift.** If the pinned jOOQ version renames or adds
   record-mutation or fetch methods, changes its dirty-tracking defaults (the
   `changed()`-to-`touched()` rename and the record-dirty-tracking settings landed
@@ -455,4 +473,6 @@ claim is, what marker it carries, and the date it was taken.
 | Ban list defect-source claim | convention, no citation | 2026-07-21 |
 | Real PostgreSQL over in-memory substitute | convention, no citation | 2026-07-21 |
 | Choice of jOOQ over JPA | convention (no per-claim marker recorded) | 2026-06-11..14 |
+| Spring Data JDBC grounds — query derivation, reflective mapping, second idiom | convention, no research pass | 2026-09-01 |
+| `CrudRepository.save()` picks INSERT-versus-UPDATE from in-memory id state | **uncertain** — verify before citing | 2026-09-01 |
 | WebFlux paradigm ban, Flyway rule, Jackson pick | convention, no evidence note | 2026-06-11..14 (inferred) |

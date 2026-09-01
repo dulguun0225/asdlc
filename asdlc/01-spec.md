@@ -63,20 +63,37 @@ whose states are the closed vocabulary for every `WHILE`, or an explicit statele
 the signer signs ([ADR-0035](../reference/decisions/0035-spec-state-model.md)); EARS itself has
 no cross-requirement construct, so workflow is owned here or nowhere. Operational properties are
 `NFR-nnn` field sets that name an enforcement point — for most of them the canary threshold that later aborts a bad deploy.
-An NFR is under the same derive-or-omit rule as the four fields below: it exists only where the
-feature description states an operational property or the feature visibly changes one. A restated
+An NFR is under the same derive-or-omit rule as the three fields below: it exists only where the
+feature description or a source document states an operational property or the feature visibly changes one. A restated
 service default (generic availability, generic latency — the rollout policy's content, not the
 spec's) and a row negating an inapplicable property are both fabrication; a feature with no
 derivable operational property carries no NFR section at all.
 Outcomes observed after shipping are `SC-nnn`; stated unknowns are `OI-nnn` with an owner.
 
-**Four fields nothing checks** ([ADR-0057](../reference/decisions/0057-spec-actors-priority-and-provenance.md)):
-an actor vocabulary in §2, a `Must`/`Should`/`Could` priority per requirement, a destination for
-each excluded concern in §1, and the governing document a requirement was written from. One rule
-decides whether the drafter fills one — **produce what you can derive, never fabricate what only
-the requester can supply**. The first three are derivable and every inference goes to §8 where the
-signer can overturn it; a citation is not derivable and is carried only where the input gave one.
-None of the four blocks anything, because all four are judgements whose absence is legitimate.
+**Three fields nothing checks** ([ADR-0057](../reference/decisions/0057-spec-actors-priority-and-provenance.md)):
+an actor vocabulary in §2, a `Must`/`Should`/`Could` priority per requirement, and a destination
+for each excluded concern in §1. One rule decides whether the drafter fills one — **produce what
+you can derive, never fabricate what only the requester can supply**. All three are derivable and
+every inference goes to §8 where the signer can overturn it. None of the three blocks anything,
+because all three are judgements whose absence is legitimate.
+
+**Traceability to the source documents.** A requirement's source is not one of those fields — it
+is not derivable, and it runs in two directions. Where the requester names governing documents —
+a policy, a standard, a regulation, a contract, a predecessor system's manual — the spec declares
+each once in an unnumbered **source register** under the header: a stable `SRC-nnn` id, an access
+class (`repo:<path>` · `attached` · `excerpt` · `described`), the revision actually read, and one
+line on what it governs. Every active `FR` and `NFR` then carries a `Source:` of exactly two
+forms — `SRC-nnn` plus a locator, or `derived` paired with an §8 assumption naming what it was
+concluded from — and §9 records the reverse direction: per document, the requirements it
+produced, the parts deliberately not used and where each went, and the case only the reverse
+table can show, a named document that produced nothing. A document nobody supplied the text of is
+`described` and cited from never; two documents that decide the same behaviour differently become
+an `OI-nnn` citing both, never a requirement that silently picks a winner; a precedence order is
+recorded only where the requester gave one. Nothing checks any of this, so the drafting procedure
+verifies it itself and reports the counts
+([asdlc-spec](../skills/asdlc-spec/SKILL.md)). Where no documents were named, the register, §9
+and every `Source:` are absent, and that is legitimate — an absent register is honest; a
+fabricated row is not.
 
 **The spec carries no approval line.** Nobody types "approved" into it — see Records below.
 

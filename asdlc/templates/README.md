@@ -33,16 +33,27 @@ no pattern fails the check unless it carries a `[form: …]` escape tag and a re
 escapes are counted, because a notation that has to be escaped often is a notation that does not
 fit.
 
-**Four of the spec's fields are optional, and one rule decides whether you fill one.** An actor
-vocabulary, a requirement's priority, a destination for each excluded concern, and the governing
-document a requirement was written from — none of them checked, none of them able to fail a build
+**Three of the spec's fields are optional, and one rule decides whether you fill one.** An actor
+vocabulary, a requirement's priority, and a destination for each excluded concern — none of them
+checked, none of them able to fail a build
 ([ADR-0057](../../reference/decisions/0057-spec-actors-priority-and-provenance.md)). **Produce what
-you can derive; never fabricate what only the requester can supply.** Priority, actors and
-destinations are derivable from the feature description, so they are filled and the inference is
-recorded as an assumption the signer can overturn. A citation is not: a wrong priority is visible
-from the spec alone, a wrong citation only if the signer opens the other document. They were added
-after a first-party comparison against a real product-discovery artifact, which found nothing
-missing from the plan, tasks or implementation procedures and these four missing from the spec.
+you can derive; never fabricate what only the requester can supply.** All three are derivable from
+the feature description, so they are filled and the inference is recorded as an assumption the
+signer can overturn. They were added after a first-party comparison against a real
+product-discovery artifact, which found nothing missing from the plan, tasks or implementation
+procedures and these missing from the spec.
+
+**A requirement's source is not one of the three — it is traceability, and it runs both ways.**
+Named governing documents are declared once in the spec's source register (`SRC-nnn`, with an
+access class, the revision read, and what each governs); every active requirement then carries a
+`Source:` of either `SRC-nnn` plus a locator or `derived` paired with an §8 assumption, and §9
+records the reverse direction — what each document produced, what was deliberately not used and
+where it went, and the one thing forward citations can never show: a named document that produced
+no requirement at all. A document nobody supplied the text of is `described` and cited from
+never; two documents that disagree become an `OI-nnn`, never a silently picked winner. A wrong
+citation is only visible if the signer opens the other document, which is why the rule is **carry
+only what was read**; nothing machine-checks any of it, so the drafting procedure verifies it and
+reports the counts ([asdlc-spec](../../skills/asdlc-spec/SKILL.md)).
 
 **Nobody types an approval.** There is no `Status:` line in any of these files. The approval is
 the gate record, which carries the sha256 of the file's bytes at the signed commit

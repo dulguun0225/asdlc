@@ -30,6 +30,23 @@ verify against the pinned Spring Data line before anything cites it. A `"fixture
 firing case for the scaffolding moment was considered and not added — both existing
 java-backend-rules cases use an existing-repo fixture, which is exactly the hole.
 
+**New 2026-09-01: the spec grows source traceability — closed, the worked example not yet
+reworked.** Backported from the netos `dg-agents` spec-author agent, where a headless run over a
+spec whose cited documents were never supplied surfaced what the interactive procedure was
+losing: `skills/asdlc-spec/` (SKILL.md + template.md) now carries a **source register**
+(`SRC-nnn` · access class `repo:`/`attached`/`excerpt`/`described` · revision read · governs), a
+`Source:` per active requirement (`SRC-nnn` + locator, or `derived` paired with an §8 line), a
+**§9 reverse-coverage table** (the only direction that shows a named document producing nothing),
+the two-sources-disagree rule (an `OI-nnn`, never a silently picked winner; precedence only where
+given), and the traceability block in the done-report. "Four fields nothing checks" is now three
+plus the traceability section; echoes updated in [asdlc/01-spec.md](../asdlc/01-spec.md),
+[asdlc/templates/README.md](../asdlc/templates/README.md) and [artifacts.md](artifacts.md) §6.
+Open remnant: the worked example
+([asdlc/examples/001-feature-artifact-checker/](../asdlc/examples/001-feature-artifact-checker/))
+still uses the pre-register header form — its Source material row names deleted ADRs, so building
+its register honestly needs a decision on what its sources now are. `check-specs.mjs` keys only
+on FR bullets, so nothing breaks.
+
 **New 2026-09-01: invented spec NFRs are banned — closed, nothing open.** An NFR exists only
 where it is derivable from the feature description or from what the feature visibly changes;
 otherwise §4 is deleted. Landed in `skills/asdlc-spec/`, `skills/asdlc-plan/` (the zero-NFR

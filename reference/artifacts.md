@@ -318,7 +318,7 @@ are stated at [asdlc/templates/](../asdlc/templates/README.md).
 
 | File | Carries |
 |---|---|
-| `spec.md` | a state model or explicit stateless declaration ([ADR-0035](decisions/0035-spec-state-model.md)), `FR-nnn` in EARS, `NFR-nnn` field sets, `SC-nnn`, `OI-nnn`, scope and assumptions |
+| `spec.md` | a state model or explicit stateless declaration ([ADR-0035](decisions/0035-spec-state-model.md)), `FR-nnn` in EARS, `NFR-nnn` field sets, `SC-nnn`, `OI-nnn`, scope and assumptions; where governing documents were named, a source register (`SRC-nnn` with access class and revision), a `Source:` per active requirement (`SRC-nnn` + locator, or `derived` with an §8 line), and a §9 reverse-coverage table |
 | `plan.md` | design and contracts, the requirements traceability table, **tier-map entries for every new path**, the NFR enforcement table, the decision trace |
 | `tasks.md` | `T-nnn` items citing `[FR-nnn]`, each naming its verifying test, and the **pinned `spec.md` / `plan.md` hashes** the decomposition was derived from |
 
